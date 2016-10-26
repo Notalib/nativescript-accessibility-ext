@@ -6,7 +6,7 @@ import * as common from './view-common';
 import {setNativeValueFn} from '../../utils/helpers';
 
 // Define the ios specific properties with a noop function
-for (const propertyName of []) {
+for (const propertyName of common.iosProperties) {
   setNativeValueFn(common.View, propertyName);
 }
 
@@ -48,6 +48,7 @@ import { AccessibilityHelper } from '../../utils/AccessibilityHelper';
 setNativeValueFn(common.View, 'accessibilityComponentType', function onAccessibilityComponentTypeChanged(data: PropertyChangeData) {
   const view = <android.view.View>(<any>data.object)._nativeView;
   const value = data.newValue;
+  console.log(`accessibilityComponentType -> ${value}`);
 
   AccessibilityHelper.updateAccessibilityComponentType(view, value);
 });
@@ -72,4 +73,15 @@ setNativeValueFn(common.View, 'accessibilityLiveRegion', function onAccessibilit
       }
     }
   }
+});
+
+setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: PropertyChangeData) {
+  const view = <android.view.View>(<any>data.object)._nativeView;
+  const value = data.newValue;
+
+  if (value == void 0) {
+    return;
+  }
+
+  view.setFocusable(!!value);
 });

@@ -60,9 +60,6 @@ setNativeValueFn(common.View, 'accessibilityTraits', function onAccessibilityTra
     .filter((val) => traits.has(val))
     .reduce((c, val) => c | traits.get(val), 0);
 
-  console.log(`accessibilityTraits: ${JSON.stringify(enforceArray(data.newValue))} => ${JSON.stringify(value)}`);
-  console.log(`accessibilityTraits: ${JSON.stringify(data.newValue)} => ${JSON.stringify(value)}`);
-
   if (!value) {
     return;
   }

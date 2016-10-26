@@ -48,7 +48,6 @@ import { AccessibilityHelper } from '../../utils/AccessibilityHelper';
 setNativeValueFn(common.View, 'accessibilityComponentType', function onAccessibilityComponentTypeChanged(data: PropertyChangeData) {
   const view = <android.view.View>(<any>data.object)._nativeView;
   const value = data.newValue;
-  console.log(`accessibilityComponentType -> ${value}`);
 
   AccessibilityHelper.updateAccessibilityComponentType(view, value);
 });

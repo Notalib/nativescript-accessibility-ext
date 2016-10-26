@@ -13,11 +13,11 @@ But written from scratch for NativeScript
 ## Using the plugin
 
 ```bash
-npm i --save nativescript-accessibiity-ext
+npm i --save nativescript-accessibility-ext
 ```
 
 Add this to your code:
 
 ```typescript
-import 'nativescript-accessibiity-ext';
+import 'nativescript-accessibility-ext';
 ```

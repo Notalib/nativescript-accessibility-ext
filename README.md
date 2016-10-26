@@ -11,6 +11,17 @@ The plugin is inspired by the way React-Native does it: https://facebook.github.
 But written from scratch for NativeScript
 
 ### Note:
+* accessible (iOS, Android)
+  * true/false
+* accessibilityTraits (iOS)
+  * Comma or space separated list of traits, use one or more values
+* accessibilityComponentType (Android)
+  * button, radiobutton\_checked’ and radiobutton\_unchecked
+* accessibilityLiveRegion (Android)
+  * none, polite, assertive
+* importantForAccessibility (Android)
+  * yes, no, no-hide-descendants, auto (default)
+
 The following are not implemented (yet)
 * accessibilityLabel (NativeScript implements this as automationText. android maps to ContentDescription and iOS to both accessibilityLabel and acccesibilityIdentifier)
 * onAccessibilityTap (iOS)
@@ -20,11 +31,11 @@ The following are not implemented (yet)
 ## Using the plugin
 
 ```bash
-npm i --save nativescript-accessibility-ext
+npm i --save @nota/nativescript-accessibility-ext
 ```
 
 Add this to your code:
 
 ```typescript
-import 'nativescript-accessibility-ext';
+import '@nota/nativescript-accessibility-ext';
 ```

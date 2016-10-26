@@ -1,5 +1,6 @@
-class AccessibilityDelegate extends android.view.View.AccessibilityDelegate {
-  constructor(protected className: string) {
+class ButtonDelegate extends android.view.View.AccessibilityDelegate {
+  private className = android.widget.Button.class.getName();
+  constructor() {
     super();
   }
 
@@ -14,24 +15,21 @@ class AccessibilityDelegate extends android.view.View.AccessibilityDelegate {
   }
 }
 
-class ButtonDelegate extends AccessibilityDelegate {
-  constructor() {
-    super(android.widget.Button.class.getName());
-  }
-}
-
-class RadioButtonDelegate extends AccessibilityDelegate {
+class RadioButtonDelegate extends android.view.View.AccessibilityDelegate {
+  private className = android.widget.RadioButton.class.getName();
   constructor(private checked: boolean) {
-    super(android.widget.RadioButton.class.getName());
+    super();
   }
 
   public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
     super.onInitializeAccessibilityEvent(host, event);
+    event.setClassName(this.className);
     event.setChecked(this.checked);
   }
 
   public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
     super.onInitializeAccessibilityNodeInfo(host, info);
+    info.setClassName(this.className);
     info.setCheckable(true);
     info.setChecked(this.checked);
   }

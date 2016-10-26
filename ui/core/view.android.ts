@@ -1,22 +1,17 @@
-import * as common from './view-common';
 import {View} from 'ui/core/view';
 import * as proxy from 'ui/core/proxy';
 import {PropertyChangeData} from 'ui/core/dependency-observable';
 
-function noop() {
-}
-
-function setNativeValueFn(propertyName: string, fn?: (data: PropertyChangeData) => void) {
-  (<proxy.PropertyMetadata>(<any>common.View)[`${propertyName}Property`].metadata).onSetNativeValue = fn || noop;
-}
+import * as common from './view-common';
+import {setNativeValueFn} from '../../utils/helpers';
 
 // Define the ios specific properties with a noop function
 for (const propertyName of []) {
-  setNativeValueFn(propertyName);
+  setNativeValueFn(common.View, propertyName);
 }
 
 // Android specific
-setNativeValueFn('importantForAccessibility', function onImportantForAccessibilityChanged(data: PropertyChangeData) {
+setNativeValueFn(common.View, 'importantForAccessibility', function onImportantForAccessibilityChanged(data: PropertyChangeData) {
   const view = <android.view.View>(<any>data.object)._nativeView;
   const value = data.newValue;
   const oldValue = data.oldValue
@@ -50,14 +45,14 @@ setNativeValueFn('importantForAccessibility', function onImportantForAccessibili
 });
 
 import { AccessibilityHelper } from '../../utils/AccessibilityHelper';
-setNativeValueFn('accessibilityComponentType', function onAccessibilityComponentTypeChanged(data: PropertyChangeData) {
+setNativeValueFn(common.View, 'accessibilityComponentType', function onAccessibilityComponentTypeChanged(data: PropertyChangeData) {
   const view = <android.view.View>(<any>data.object)._nativeView;
   const value = data.newValue;
 
   AccessibilityHelper.updateAccessibilityComponentType(view, value);
 });
 
-setNativeValueFn('accessibilityLiveRegion', function onAccessibilityLiveRegionChanged(data: PropertyChangeData) {
+setNativeValueFn(common.View, 'accessibilityLiveRegion', function onAccessibilityLiveRegionChanged(data: PropertyChangeData) {
   if (android.os.Build.VERSION.SDK_INT >= 19) {
     const view = <any>(<any>data.object)._nativeView;
     const value = data.newValue;

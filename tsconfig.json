@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "module": "commonjs",
+    "target": "es5",
+    "noImplicitAny": false,
+    "sourceMap": false
+  },
+  "files": [
+    "index.ts"
+  ],
+  "include": [
+    "node_modules/tns-core-modules/tns-core-modules.d.ts",
+    "index.ts",
+    "ui/**/*.ts"
+  ],
+  "exclude": [
+    "ui/**/*.d.ts",
+    "tests"
+  ]
+}

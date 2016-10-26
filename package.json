@@ -1,0 +1,28 @@
+{
+  "name": "nativescript-view-accessibility",
+  "version": "0.0.1",
+  "description": "Nativescript plugin for enabling accessiblity features",
+  "main": "index.js",
+  "scripts": {
+    "prepublish": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/m-abs/nativescript-view-accessibility.git"
+  },
+  "keywords": [
+    "nativescript",
+    "accessibility"
+  ],
+  "author": "Morten Sjøgren <m_abs@mabs.dk>",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/m-abs/nativescript-view-accessibility/issues"
+  },
+  "homepage": "https://github.com/m-abs/nativescript-view-accessibility#readme",
+  "devDependencies": {
+    "tns-core-modules": "^2.3.0",
+    "tns-platform-declarations": "^2.3.0"
+  }
+}

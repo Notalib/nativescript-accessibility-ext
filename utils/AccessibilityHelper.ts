@@ -2,6 +2,8 @@ class ButtonDelegate extends android.view.View.AccessibilityDelegate {
   private className = android.widget.Button.class.getName();
   constructor() {
     super();
+
+    return global.__native(this);
   }
 
   public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
@@ -19,6 +21,8 @@ class RadioButtonDelegate extends android.view.View.AccessibilityDelegate {
   private className = android.widget.RadioButton.class.getName();
   constructor(private checked: boolean) {
     super();
+
+    return global.__native(this);
   }
 
   public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {

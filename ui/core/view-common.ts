@@ -11,7 +11,7 @@ function addPropertyToView(name: string, defaultValue?: any) {
     get() {
       this._getValue(property);
     },
-    set(value: string) {
+    set(value: any) {
       this._setValue(property, value);
     },
     enumerable: true,
@@ -19,8 +19,24 @@ function addPropertyToView(name: string, defaultValue?: any) {
   });
 }
 
-addPropertyToView('importantForAccessibility');
-addPropertyToView('accessibilityComponentType');
-addPropertyToView('accessibilityLiveRegion');
+export const commonProperties = [
+  'accessible',
+];
+export const iosProperties = [
+  'accessibilityTraits',
+];
+export const androidProperties = [
+  'importantForAccessibility',
+  'accessibilityComponentType',
+  'accessibilityLiveRegion',
+];
+
+for (const propertyName of [
+  ...commonProperties,
+  ...iosProperties,
+  ...androidProperties,
+]) {
+  addPropertyToView(propertyName);
+}
 
 export {View} from 'ui/core/view';

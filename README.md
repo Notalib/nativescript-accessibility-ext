@@ -15,6 +15,24 @@ https://facebook.github.io/react-native/docs/accessibility.html
 
 But is written from scratch, extending NativeScript's classes.
 
+### Note:
+* accessible (iOS, Android)
+  * true/false
+* accessibilityTraits (iOS)
+  * Comma or space separated list of traits, use one or more values
+* accessibilityComponentType (Android)
+  * button, radiobutton\_checked’ and radiobutton\_unchecked
+* accessibilityLiveRegion (Android)
+  * none, polite, assertive
+* importantForAccessibility (Android)
+  * yes, no, no-hide-descendants, auto (default)
+
+The following are not implemented (yet)
+* accessibilityLabel (NativeScript implements this as automationText. android maps to ContentDescription and iOS to both accessibilityLabel and acccesibilityIdentifier)
+* onAccessibilityTap (iOS)
+* onMagicTap (iOS)
+* sendAccessibilityEvent (Android)
+
 ## Using the plugin
 
 ```bash

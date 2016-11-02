@@ -1,0 +1,7 @@
+*.js
+*.js.map
+*.css
+app/theme-core-scss/
+app/core.*.scss
+platforms
+app/_bootstrap-map.scss

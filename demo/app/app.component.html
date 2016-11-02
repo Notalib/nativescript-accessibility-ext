@@ -109,9 +109,9 @@
       <StackLayout
         class="feature-example"
       >
-        <Label text="Label as button" class="c-bg-grey" accessibilityTraits="button"></Label>
-        <Label text="Label as button+link" accessibilityTraits="button,link"></Label>
-        <Label text="Label as selected button+link" class="c-bg-grey" accessibilityTraits="selected,button,link"></Label>
+        <Label text="Label as button" (tap)="tapped($event)" class="c-bg-grey" accessibilityTraits="button"></Label>
+        <Label text="Label as button+link" (tap)="tapped($event)" accessibilityTraits="button,link"></Label>
+        <Label text="Label as selected button+link" (tap)="tapped($event)" class="c-bg-grey" accessibilityTraits="selected,button,link"></Label>
       </StackLayout>
     </StackLayout>
 
@@ -133,9 +133,9 @@
       <StackLayout
         class="feature-example"
       >
-        <Label text="Label as button" class="c-bg-grey" accessibilityComponentType="button"></Label>
-        <Label text="Label as checked radio-button"  accessibilityComponentType="radiobutton_checked"></Label>
-        <Label text="Label as unchecked radio-button" class="c-bg-grey" accessibilityComponentType="radiobutton_unchecked"></Label>
+        <Label text="Label as button" (tap)="tapped($event)" class="c-bg-grey" accessibilityComponentType="button"></Label>
+        <Label text="Label as checked radio-button"  (tap)="tapped($event)" accessibilityComponentType="radiobutton_checked"></Label>
+        <Label text="Label as unchecked radio-button" (tap)="tapped($event)" class="c-bg-grey" accessibilityComponentType="radiobutton_unchecked"></Label>
       </StackLayout>
     </StackLayout>
 
@@ -153,7 +153,7 @@
           accessibilityComponentType="button"
           accessibilityTraits="button"
         >
-          <Label text="First button"></Label>
+          <Label text="First button" (tap)="tapped($event)"></Label>
         </StackLayout>
 
         <StackLayout
@@ -164,6 +164,7 @@
           automationText="This now a button"
           accessibilityComponentType="button"
           accessibilityTraits="button"
+          (tap)="tapped($event)"
         >
           <Image height="50" src="res://btnicon"></Image>
           <Label class="text-center" text="Second button" textWrap="true"></Label>

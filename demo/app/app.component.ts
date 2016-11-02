@@ -38,8 +38,7 @@ export class AppComponent {
 
   tapped(e: any) {
     const el = e.object;
-    console.log(el);
 
-    dialogs.alert('tapped ' + el);
+    dialogs.alert(`Tapped: ${el.automationText || el.text}`);
   }
 }

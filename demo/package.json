@@ -7,6 +7,9 @@
     "id": "dk.nota.accessdemo",
     "tns-android": {
       "version": "2.5.0-next-2016-11-02-1341"
+    },
+    "tns-ios": {
+      "version": "2.5.0-2016-11-1-1"
     }
   },
   "dependencies": {
@@ -23,7 +26,7 @@
     "nativescript-theme-core": "^0.1.5",
     "reflect-metadata": "~0.1.8",
     "rxjs": "5.0.0-beta.12",
-    "tns-core-modules": "2.3.0"
+    "tns-core-modules": "next"
   },
   "devDependencies": {
     "babel-traverse": "6.18.0",

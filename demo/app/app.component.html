@@ -92,6 +92,54 @@
     </StackLayout>
 
     <StackLayout class="feature-group">
+      <Label class="h1 text-center m-2" text="accessibilityTraits (iOS)"></Label>
+      <Label class="body" textWrap="true" text="Identifies the traits of a component. Is it a static-text? Is is a Button? "></Label>
+
+      <StackLayout class="m-y-5">
+        <Label class="h2" text="Allowed value (use one or more):"></Label>
+
+        <StackLayout *ngFor="let item of traits; let odd = odd;" [class.c-bg-grey]="odd">
+          <Label [text]="item.key"></Label>
+          <Label class="body" [text]="item.label" textWrap="true"></Label>
+        </StackLayout>
+      </StackLayout>
+
+      <Label class="h2" text="Examples:"></Label>
+
+      <StackLayout
+        class="feature-example"
+      >
+        <Label text="Label as button" class="c-bg-grey" accessibilityTraits="button"></Label>
+        <Label text="Label as button+link" accessibilityTraits="button,link"></Label>
+        <Label text="Label as selected button+link" class="c-bg-grey" accessibilityTraits="selected,button,link"></Label>
+      </StackLayout>
+    </StackLayout>
+
+    <StackLayout class="feature-group">
+      <Label class="h1 text-center m-2" textWrap="true" text="accessibilityComponentType (Android)"></Label>
+      <Label class="body" textWrap="true" text="Alert the user to what kind of element is selected. E.g. is this a button"></Label>
+
+      <StackLayout class="m-y-5">
+        <Label class="h2" text="Allowed value:"></Label>
+
+        <StackLayout *ngFor="let item of componentTypes; let odd = odd" [class.c-bg-grey]="odd">
+          <Label [text]="item.key"></Label>
+          <Label class="body" [text]="item.label" textWrap="true"></Label>
+        </StackLayout>
+      </StackLayout>
+
+      <Label class="h2" text="Examples:"></Label>
+
+      <StackLayout
+        class="feature-example"
+      >
+        <Label text="Label as button" class="c-bg-grey" accessibilityComponentType="button"></Label>
+        <Label text="Label as checked radio-button"  accessibilityComponentType="radiobutton_checked"></Label>
+        <Label text="Label as unchecked radio-button" class="c-bg-grey" accessibilityComponentType="radiobutton_unchecked"></Label>
+      </StackLayout>
+    </StackLayout>
+
+    <StackLayout class="feature-group">
       <Label class="h1 text-center" text="Buttons"></Label>
 
       <Button class="text-right" text="Normal" automationText="this is just a normal"></Button>

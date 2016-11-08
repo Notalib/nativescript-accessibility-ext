@@ -1,7 +1,7 @@
-import {Property, PropertyMetadataSettings} from 'ui/core/dependency-observable';
-import {PropertyMetadata} from 'ui/core/proxy';
+import { Property, PropertyMetadataSettings } from 'ui/core/dependency-observable';
+import { PropertyMetadata } from 'ui/core/proxy';
 
-import {View} from 'ui/core/view';
+import { View } from 'ui/core/view';
 
 function addPropertyToView(name: string, defaultValue?: any) {
   const property = new Property(name, 'View', new PropertyMetadata(defaultValue));
@@ -24,6 +24,7 @@ export const commonProperties = [
 ];
 export const iosProperties = [
   'accessibilityTraits',
+  'accessibilityValue',
 ];
 export const androidProperties = [
   'importantForAccessibility',

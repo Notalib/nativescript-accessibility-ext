@@ -1,9 +1,9 @@
-import {View} from 'ui/core/view';
+import { View } from 'ui/core/view';
 import * as proxy from 'ui/core/proxy';
-import {PropertyChangeData} from 'ui/core/dependency-observable';
+import { PropertyChangeData } from 'ui/core/dependency-observable';
 
 import * as common from './view-common';
-import {setNativeValueFn} from '../../utils/helpers';
+import { setNativeValueFn } from '../../utils/helpers';
 
 // Define the ios specific properties with a noop function
 for (const propertyName of common.iosProperties) {

@@ -1,9 +1,9 @@
-import {View} from 'ui/core/view';
+import { View } from 'ui/core/view';
 import * as proxy from 'ui/core/proxy';
-import {PropertyChangeData} from 'ui/core/dependency-observable';
+import { PropertyChangeData } from 'ui/core/dependency-observable';
 
 import * as common from './view-common';
-import {setNativeValueFn} from '../../utils/helpers';
+import { setNativeValueFn } from '../../utils/helpers';
 
 // Define the android specific properties with a noop function
 for (const propertyName of common.androidProperties) {
@@ -65,4 +65,15 @@ setNativeValueFn(common.View, 'accessibilityTraits', function onAccessibilityTra
   }
 
   view.accessibilityTraits = value;
+});
+
+setNativeValueFn(common.View, 'accessibilityValue', function onAccessibilityValueChanged(data: PropertyChangeData) {
+  const view = <UIView>(<any>data.object)._nativeView;
+  const value = data.newValue;
+
+  if (value == void 0) {
+    return;
+  }
+
+  view.accessibilityValue = value;
 });

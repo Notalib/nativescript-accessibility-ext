@@ -12,8 +12,8 @@
   "files": [
     "index.ts",
     "node_modules/tns-core-modules/tns-core-modules.d.ts",
-    "node_modules/tns-platform-declarations/tns-core-modules/android17.d.ts",
-    "node_modules/tns-platform-declarations/tns-core-modules/ios/ios.d.ts",
+    "node_modules/tns-platform-declarations/android.d.ts",
+    "node_modules/tns-platform-declarations/ios/ios.d.ts",
     "node_modules/typescript/lib/lib.es5.d.ts",
     "references.d.ts"
   ],

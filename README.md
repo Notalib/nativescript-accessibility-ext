@@ -46,8 +46,8 @@ import '@nota/nativescript-accessibility-ext';
 ```
 
 ## About Nota
-Nota is the Danish National Library for People with Reading-disabilities.
+Nota is the Danish Library and Expertise Center for people with print disabilities.
 
-Nota makes reading material available for people with reading disabilities on behalf of the Danish state as an institution under the Ministry of Culture.
+To become a member of Nota you must be able to document that you cannot read ordinary printed text. Members of Nota are visually impaired, dyslexic or otherwise impaired.
 
 Our purpose is to ensure equal access to knowledge, community participation and experiences for people who're unable to read ordinary printed text.

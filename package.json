@@ -1,6 +1,6 @@
 {
   "name": "@nota/nativescript-accessibility-ext",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "Nativescript plugin for enabling accessiblity features",
   "main": "index.js",
   "scripts": {
@@ -24,8 +24,11 @@
   },
   "homepage": "https://github.com/m-abs/nativescript-accessibility-ext/#readme",
   "devDependencies": {
-    "tns-core-modules": "^2.3.0",
-    "tns-platform-declarations": "^2.3.0",
-    "typescript": "^2.0.6"
+    "tns-core-modules": "^2.4.0",
+    "tns-platform-declarations": "^2.4.0",
+    "typescript": "^2.1.0"
+  },
+  "peerDependencies": {
+    "tns-core-modules": "^2.4.0"
   }
 }

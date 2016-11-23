@@ -17,10 +17,10 @@ But is written from scratch, extending NativeScript's classes.
 
 ## API:
 ### accessible (iOS, Android)
-	if `true` the element is an accessibility element and all the children will be treated as a single selectable component.
+if `true` the element is an accessibility element and all the children will be treated as a single selectable component.
 
 ### accessibilityTraits (iOS)
-  Comma or space separated list of traits. You can use one or more values to make the trait as specific as possible.
+Comma or space separated list of traits. You can use one or more values to make the trait as specific as possible.
 
 | key | Description |
 | --- | ----------- |
@@ -43,14 +43,14 @@ But is written from scratch, extending NativeScript's classes.
 | pageTurn | Informs VoiceOver that it should scroll to the next page when it finishes reading the contents of the element. |
 
 ### accessibilityValue (iOS)
-  Define the value of an accessibility element.
+Define the value of an accessibility element.
 
-  This is to give the user more information about the value of a field.
-  For instance a `Slider` would normally have a value between 0-100%, but if the Slider represents time, you can give the user better information about the value.
+This is to give the user more information about the value of a field.
+For instance a `Slider` would normally have a value between 0-100%, but if the Slider represents time, you can give the user better information about the value.
 
 ### accessibilityComponentType (Android)
-	Alert the user of the type of a component, like if something is a button.
-  Native-buttons this isn't needed but if you want other elements to behave like buttons, use this option.
+Alert the user of the type of a component, like if something is a button.
+Native-buttons this isn't needed but if you want other elements to behave like buttons, use this option.
 
 | key | Description |
 | --- | ----------- |
@@ -59,7 +59,7 @@ But is written from scratch, extending NativeScript's classes.
 | radiobutton\_unchecked | Unchecked radiobutton |
 
 ### accessibilityLiveRegion (Android)
-	When components dynamically change, we want TalkBack to alert the end user.
+When components dynamically change, we want TalkBack to alert the end user.
 
 | key | Description |
 | --- | ----------- |
@@ -82,7 +82,6 @@ But is written from scratch, extending NativeScript's classes.
 * sendAccessibilityEvent (Android)
 
 ## Using the plugin
-
 To use the plugin in your nativescript-app, install and import the module:
 
 ```bash

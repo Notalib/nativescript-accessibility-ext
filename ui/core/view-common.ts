@@ -21,11 +21,14 @@ function addPropertyToView(name: string, defaultValue?: any) {
 
 export const commonProperties = [
   'accessible',
+  'accessibilityLabel',
 ];
+
 export const iosProperties = [
   'accessibilityTraits',
   'accessibilityValue',
 ];
+
 export const androidProperties = [
   'importantForAccessibility',
   'accessibilityComponentType',

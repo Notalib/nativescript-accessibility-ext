@@ -50,7 +50,7 @@ function enforceArray(val: string | string[]): string[] {
     return val.split(/[, ]/g).filter((v: string) => !!v);
   }
 
-  console.log(`val is of unsupported type: ${val} -> ${typeof val}`);
+  console.warn(`val is of unsupported type: ${val} -> ${typeof val}`);
   return [];
 }
 
@@ -75,5 +75,10 @@ setNativeValueFn(common.View, 'accessibilityValue', function onAccessibilityValu
     return;
   }
 
-  view.accessibilityValue = value;
+  view.accessibilityValue = `${value}`;
+});
+
+setNativeValueFn(common.View, 'accessibilityLabel', function onAccessibilityLabelChanged(data: PropertyChangeData) {
+  const view = <UIView>(<any>data.object)._nativeView;
+  view.accessibilityLabel = `${data.newValue}`;
 });

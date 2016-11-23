@@ -84,3 +84,8 @@ setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: P
 
   view.setFocusable(!!value);
 });
+
+setNativeValueFn(common.View, 'accessibilityLabel', function onAccessibilityLabelChanged(data: PropertyChangeData) {
+  const view = <android.view.View>(<any>data.object)._nativeView;
+  view.setContentDescription(`${data.newValue}`);
+});

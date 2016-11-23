@@ -8,6 +8,7 @@
     "noEmitOnError": false,
     "noEmitHelpers": true,
     "sourceMap": false,
+    "inlineSourceMap": true,
     "noLib": true
   },
   "files": [

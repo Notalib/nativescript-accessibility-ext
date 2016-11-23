@@ -15,11 +15,11 @@ https://facebook.github.io/react-native/docs/accessibility.html
 
 But is written from scratch, extending NativeScript's classes.
 
-### Note:
-**accessible (iOS, Android)**
+## API:
+### accessible (iOS, Android)
 	if `true` the element is an accessibility element and all the children will be treated as a single selectable component.
 
-**accessibilityTraits (iOS)**
+### accessibilityTraits (iOS)
   Comma or space separated list of traits. You can use one or more values to make the trait as specific as possible.
 
 | key | Description |
@@ -42,7 +42,13 @@ But is written from scratch, extending NativeScript's classes.
 | allowsDirectInteraction | Used when an element allows direct touch interaction for VoiceOver users (for example, a view representing a piano keyboard). |
 | pageTurn | Informs VoiceOver that it should scroll to the next page when it finishes reading the contents of the element. |
 
-**accessibilityComponentType (Android)**
+### accessibilityValue (iOS)
+  Define the value of an accessibility element.
+
+  This is to give the user more information about the value of a field.
+  For instance a `Slider` would normally have a value between 0-100%, but if the Slider represents time, you can give the user better information about the value.
+
+### accessibilityComponentType (Android)
 	Alert the user of the type of a component, like if something is a button.
   Native-buttons this isn't needed but if you want other elements to behave like buttons, use this option.
 
@@ -52,7 +58,7 @@ But is written from scratch, extending NativeScript's classes.
 | radiobutton\_checked | Checked radiobutton |
 | radiobutton\_unchecked | Unchecked radiobutton |
 
-**accessibilityLiveRegion (Android)**
+### accessibilityLiveRegion (Android)
 	When components dynamically change, we want TalkBack to alert the end user.
 
 | key | Description |
@@ -61,7 +67,7 @@ But is written from scratch, extending NativeScript's classes.
 | polite | Accessibility services should announce changes to this view. |
 | assertive | Accessibility services should interrupt ongoing speech to immediately announce changes to this view. |
 
-**importantForAccessibility (Android)**
+### importantForAccessibility (Android)
 | key | Description |
 | --- | ----------- |
 | auto | (default)  |
@@ -69,13 +75,15 @@ But is written from scratch, extending NativeScript's classes.
 | no  | Is not important  |
 | no-hide-descendants | Force accessibility services to ignore the component and all of its children. For android < 19 treated as auto |
 
-The following are not implemented (yet)
+### The following are not implemented (yet)
 * accessibilityLabel (NativeScript implements this as automationText. android maps to ContentDescription and iOS to both accessibilityLabel and acccesibilityIdentifier)
 * onAccessibilityTap (iOS)
 * onMagicTap (iOS)
 * sendAccessibilityEvent (Android)
 
 ## Using the plugin
+
+To use the plugin in your nativescript-app, install and import the module:
 
 ```bash
 npm i --save @nota/nativescript-accessibility-ext
@@ -85,6 +93,18 @@ Import in your `app.ts`/`app.js`, just after you import nativescript modules (`N
 
 ```typescript
 import '@nota/nativescript-accessibility-ext';
+```
+
+Start adding the new properties to your templates:
+```xml
+<StackLayout
+  accessible="true"
+  automationText="This now a button"
+  accessibilityComponentType="button"
+  accessibilityTraits="button"
+>
+  <Label text="First button" (tap)="tapped($event)"></Label>
+</StackLayout>
 ```
 
 ## About Nota

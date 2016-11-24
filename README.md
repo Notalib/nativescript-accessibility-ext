@@ -2,13 +2,13 @@
 Nativescript plugin for enabling accessiblity features
 
 ## Reasoning behind this plugin:
-NativeScript is a create framework for developing cross-platform mobil application.
+NativeScript is a framework for developing cross-platform mobile applications.
 
-Their support for platform specific accessibility features is very limited as they only implement
-those that can be abstracted for both platforms. So you have to enable those features in JavaScript-code
-rather than in template.
+Nativescript's support for platform specific accessibility features is very limited, as it only implements
+those that can be abstracted for both platforms. So you have to enable these features in JavaScript-code
+rather than in the template.
 
-The goal of this plugin is to implement those feature for both Android and iOS.
+The goal of this plugin is to expose all platform-specific accessibility features for both Android and iOS through component properties.
 
 It's heavily inspired by React-Native's accessibility API:
 https://facebook.github.io/react-native/docs/accessibility.html
@@ -17,7 +17,7 @@ But is written from scratch, extending NativeScript's classes.
 
 ## API:
 ### accessible (iOS, Android)
-if `true` the element is an accessibility element and all the children will be treated as a single selectable component.
+If `true` the element is an accessibility element and all the children will be treated as a single selectable component.
 
 ### accessibilityTraits (iOS)
 Comma or space separated list of traits. You can use one or more values to make the trait as specific as possible.
@@ -49,8 +49,8 @@ This is to give the user more information about the value of a field.
 For instance a `Slider` would normally have a value between 0-100%, but if the Slider represents time, you can give the user better information about the value.
 
 ### accessibilityComponentType (Android)
-Alert the user of the type of a component, like if something is a button.
-Native-buttons this isn't needed but if you want other elements to behave like buttons, use this option.
+Defines the type of accessibility element, for example if something is a button.
+This isn't needed for Nativescript Buttons, but used to make other elements behave like buttons.
 
 | key | Description |
 | --- | ----------- |

@@ -48,6 +48,11 @@ Define the value of an accessibility element.
 This is to give the user more information about the value of a field.
 For instance a `Slider` would normally have a value between 0-100%, but if the Slider represents time, you can give the user better information about the value.
 
+### accessibilityElementsHidden (iOS)
+Indicating whether the accessibility elements contained within this accessibility element are hidden.
+
+Defaults to false.
+
 ### accessibilityComponentType (Android)
 Defines the type of accessibility element, for example if something is a button.
 This isn't needed for Nativescript Buttons, but used to make other elements behave like buttons.

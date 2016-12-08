@@ -78,9 +78,5 @@ setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: P
   const view = <android.view.View>(<any>data.object)._nativeView;
   const value = data.newValue;
 
-  if (value == void 0) {
-    return;
-  }
-
   view.setFocusable(!!value);
 });

@@ -14,10 +14,6 @@ setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: P
   const view = <UIView>(<any>data.object)._nativeView;
   const value = data.newValue;
 
-  if (value == void 0) {
-    return;
-  }
-
   view.isAccessibilityElement = !!value;
 });
 
@@ -58,11 +54,7 @@ setNativeValueFn(common.View, 'accessibilityTraits', function onAccessibilityTra
   const view = <UIView>(<any>data.object)._nativeView;
   const value = enforceArray(data.newValue)
     .filter((val) => traits.has(val))
-    .reduce((c, val) => c | traits.get(val), 0);
-
-  if (!value) {
-    return;
-  }
+    .reduce((c, val) => c | traits.get(val), 0) || 0;
 
   view.accessibilityTraits = value;
 });
@@ -71,9 +63,16 @@ setNativeValueFn(common.View, 'accessibilityValue', function onAccessibilityValu
   const view = <UIView>(<any>data.object)._nativeView;
   const value = data.newValue;
 
-  if (value == void 0) {
-    return;
+  if (!value) {
+    view.accessibilityValue = null;
+  } else {
+    view.accessibilityValue = `${value}`;
   }
+});
 
-  view.accessibilityValue = value;
+setNativeValueFn(common.View, 'accessibilityElementsHidden', function onAccessibilityValueChanged(data: PropertyChangeData) {
+  const view = <UIView>(<any>data.object)._nativeView;
+  const value = data.newValue;
+
+  view.accessibilityElementsHidden = !!value;
 });

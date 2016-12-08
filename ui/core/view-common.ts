@@ -25,6 +25,7 @@ export const commonProperties = [
 export const iosProperties = [
   'accessibilityTraits',
   'accessibilityValue',
+  'accessibilityElementsHidden',
 ];
 export const androidProperties = [
   'importantForAccessibility',

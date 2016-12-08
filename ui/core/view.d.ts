@@ -10,5 +10,7 @@ declare module 'ui/core/view' {
 
     // iOS Specific
     accessibilityTraits?: string | string[];
+    accessibilityValue?: string;
+    accessibilityElementsHidden?: boolean;
   }
 }

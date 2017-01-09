@@ -35,7 +35,7 @@ Comma or space separated list of traits. You can use one or more values to make 
 | key | Used when the element acts as a keyboard key. |
 | text | Used when the element should be treated as static text that cannot change. |
 | summary | Used when an element can be used to provide a quick summary of current conditions in the app when the app first launches. For example, when Weather first launches, the element with today\'s weather conditions is marked with this trait. |
-| disabled | Used when the control is not enabled and does not respond to user input. |
+| disabled | Used when the control is not enabled and does not respond to user input. (You should also set `isEnabled="false"` on the element) |
 | frequentUpdates | Used when the element frequently updates its label or value, but too often to send notifications. Allows an accessibility client to poll for changes. A stopwatch would be an example. |
 | startsMedia | Used when activating an element starts a media session (e.g. playing a movie, recording audio) that should not be interrupted by output from an assistive technology, like VoiceOver. |
 | adjustable | Used when an element can be "adjusted" (e.g. a slider). |

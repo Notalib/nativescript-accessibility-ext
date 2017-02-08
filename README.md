@@ -4,7 +4,7 @@ Nativescript plugin for enabling accessiblity features
 ## Reasoning behind this plugin:
 NativeScript is a framework for developing cross-platform mobile applications.
 
-Nativescript's support for platform specific accessibility features is very limited, as it only implements
+NativeScript's support for platform specific accessibility features is very limited, as it only implements
 those that can be abstracted for both platforms. So you have to enable these features in JavaScript-code
 rather than in the template.
 
@@ -19,8 +19,14 @@ But is written from scratch, extending NativeScript's classes.
 ### accessible (iOS, Android)
 If `true` the element is an accessibility element and all the children will be treated as a single selectable component.
 
+### automationText (iOS, Android)
+Set the accessibility label on the element, this will be read by the screen reader inplace in any 'text' value the element has.
+Note: This is from NativeScript itself
+      **iOS:** Maps to both `accessibilityLabel` AND `accessibilityIdentifier`
+      **Android:** Maps to contentDescription
+
 ### accessibilityTraits (iOS)
-Comma or space separated list of traits. You can use one or more values to make the trait as specific as possible.
+Set one or more traits that best fits the elemnet. Comma or space separated list of traits.
 
 | key | Description |
 | --- | ----------- |

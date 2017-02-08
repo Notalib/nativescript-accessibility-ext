@@ -41,4 +41,12 @@ export class AppComponent {
 
     dialogs.alert(`Tapped: ${el.automationText || el.text}`);
   }
+
+  sliderMin = 0;
+  sliderMax = 100;
+  sliderValue = 50;
+
+  get sliderA11YValue() {
+    return `slider is now at ${this.sliderValue}`;
+  }
 }

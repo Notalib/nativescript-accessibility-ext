@@ -178,7 +178,7 @@ Note: This is from NativeScript itself
           accessibilityComponentType="button"
           accessibilityTraits="button"
         >
-          <Label text="First button" (tap)="tapped($event)"></Label>
+          <Label text="Text-only button" (tap)="tapped($event)" textWrap="true"></Label>
         </StackLayout>
 
         <StackLayout
@@ -186,13 +186,13 @@ Note: This is from NativeScript itself
           rowSpan="2"
 
           accessible="true"
-          automationText="This now a button"
+          automationText="This now a button with an icon"
           accessibilityComponentType="button"
           accessibilityTraits="button"
           (tap)="tapped($event)"
         >
           <Image height="50" src="res://btnicon"></Image>
-          <Label class="text-center" text="Second button" textWrap="true"></Label>
+          <Label class="text-center" text="Icon-button" textWrap="true"></Label>
         </StackLayout>
       </GridLayout>
     </StackLayout>

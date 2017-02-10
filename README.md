@@ -86,11 +86,41 @@ When components dynamically change, we want TalkBack to alert the end user.
 | no  | Is not important  |
 | no-hide-descendants | Force accessibility services to ignore the component and all of its children. For android < 19 treated as auto |
 
+### sendAccessibilityEvent (Android)
+Trigger an accessibility event on Android.
+
+| name | Description |
+| --- | ----------- |
+| invalid\_position | Invalid selection/focus position |
+| max\_text\_length | Maximum length of the text fields |
+| view\_clicked | Represents the event of clicking on a android.view.View like android.widget.Button, android.widget.CompoundButton, etc |
+| view\_long\_clicked | Represents the event of long clicking on a android.view.View like android.widget.Button, android.widget.CompoundButton, etc |
+| view\_selected | Represents the event of selecting an item usually in the context of an android.widget.AdapterView |
+| view\_focused | Represents the event of setting input focus of a android.view.View |
+| view\_text\_changed | Represents the event of changing the text of an android.widget.EditText |
+| window\_state\_changed | Represents the event of opening a android.widget.PopupWindow, android.view.Menu, android.app.Dialog, etc |
+| notification\_state\_changed | Represents the event showing a android.app.Notification |
+| view\_hover\_enter | Represents the event of a hover enter over a android.view.View |
+| view\_hover\_exit | Represents the event of a hover exit over a android.view.View |
+| touch\_exploration\_gesture\_start | Represents the event of starting a touch exploration gesture |
+| touch\_exploration\_gesture\_end | Represents the event of ending a touch exploration gesture |
+| window\_content\_changed | Represents the event of changing the content of a window and more specifically the sub-tree rooted at the event's source |
+| view\_scrolled | Represents the event of scrolling a view |
+| view\_text\_selection\_changed | Represents the event of changing the selection in an android.widget.EditText |
+| announcement | Represents the event of an application making an announcement |
+| view\_accessibility\_focused | Represents the event of gaining accessibility focus |
+| view\_accessibility\_focus\_cleared | Represents the event of clearing accessibility focus |
+| view\_text\_traversed\_at\_movement\_granularity | Represents the event of traversing the text of a view at a given movement granularity |
+| gesture\_detection\_start | Represents the event of beginning gesture detection. |
+| gesture\_detection\_end | Represents the event of ending gesture detection |
+| touch\_interaction\_start | Represents the event of the user starting to touch the screen |
+| touch\_interaction\_end | Represents the event of the user ending to touch the screen |
+| all | Mask for AccessibilityEvent all types |
+
 ### The following are not implemented (yet)
 * accessibilityLabel (NativeScript implements this as automationText. android maps to ContentDescription and iOS to both accessibilityLabel and acccesibilityIdentifier)
 * onAccessibilityTap (iOS)
 * onMagicTap (iOS)
-* sendAccessibilityEvent (Android)
 
 ## Using the plugin
 To use the plugin in your nativescript-app, install and import the module:

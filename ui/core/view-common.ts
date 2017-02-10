@@ -41,4 +41,12 @@ for (const propertyName of [
   addPropertyToView(propertyName);
 }
 
-export {View} from 'ui/core/view';
+export const commenFunctions = [
+];
+export const iosFunctions = [
+];
+export const androidFunctions = [
+  'sendAccessibilityEvent',
+];
+
+export { View } from 'ui/core/view';

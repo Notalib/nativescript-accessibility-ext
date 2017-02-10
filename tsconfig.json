@@ -1,29 +1,33 @@
 {
   "compilerOptions": {
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "module": "commonjs",
     "target": "es5",
-    "noImplicitAny": false,
-    "noEmitOnError": false,
-    "noEmitHelpers": true,
+    "module": "commonjs",
+    "noLib": false,
+    "lib": [
+      "es2016"
+    ],
     "sourceMap": false,
+    "pretty": true,
+    "noEmitHelpers": true,
     "inlineSourceMap": true,
-    "noLib": true
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noImplicitUseStrict": false,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true
   },
   "files": [
-    "index.ts",
-    "node_modules/tns-core-modules/tns-core-modules.d.ts",
-    "node_modules/tns-platform-declarations/android.d.ts",
-    "node_modules/tns-platform-declarations/ios/ios.d.ts",
-    "node_modules/typescript/lib/lib.es5.d.ts",
-    "references.d.ts"
+    "index.ts"
   ],
   "include": [
-    "ui/**/*.ts"
+    "ui/**/*.ts",
+    "utils/**/*.ts",
+    "references.d.ts"
   ],
   "exclude": [
     "ui/**/*.d.ts",
+    "utils/**/*.d.ts",
     "tests"
-  ]
+  ],
+  "compileOnSave": false
 }

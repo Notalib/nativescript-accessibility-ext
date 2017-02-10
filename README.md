@@ -59,6 +59,23 @@ Indicating whether the accessibility elements contained within this accessibilit
 
 Defaults to false.
 
+### postAccessibilityNotification (iOS)
+Post an accessibility notification to iOS.
+```typescript
+  el.postAccessibilityNotification(notificationType, arg);
+```
+
+| notificationType | Description |
+| --- | ----------- |
+| screen | Notify iOS that the sceen have changed |
+| layout | Notify iOS that the layout have changed |
+
+| arg | Description |
+| --- | ----------- |
+| accessibilityLabel | Read this label |
+| null | layout: do nothing. screen: auto selects, the first accessible element within this element will be given accessibility focus |
+
+
 ### accessibilityComponentType (Android)
 Defines the type of accessibility element, for example if something is a button.
 This isn't needed for Nativescript Buttons, but used to make other elements behave like buttons.
@@ -88,8 +105,11 @@ When components dynamically change, we want TalkBack to alert the end user.
 
 ### sendAccessibilityEvent (Android)
 Trigger an accessibility event on Android.
+```typescript
+  el.sendAccessibilityEvent(eventName);
+```
 
-| name | Description |
+| eventName | Description |
 | --- | ----------- |
 | invalid\_position | Invalid selection/focus position |
 | max\_text\_length | Maximum length of the text fields |

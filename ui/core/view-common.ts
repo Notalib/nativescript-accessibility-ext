@@ -44,6 +44,7 @@ for (const propertyName of [
 export const commenFunctions = [
 ];
 export const iosFunctions = [
+  'postAccessibilityNotification',
 ];
 export const androidFunctions = [
   'sendAccessibilityEvent',

@@ -76,3 +76,37 @@ setNativeValueFn(common.View, 'accessibilityElementsHidden', function onAccessib
 
   view.accessibilityElementsHidden = !!value;
 });
+
+let postNotificationMap: Map<string, number>;
+function ensurePostNotificationMap() {
+  if (postNotificationMap) {
+    return;
+  }
+
+  postNotificationMap = new Map<string, number>([
+    ['screen', UIAccessibilityScreenChangedNotification],
+    ['layout', UIAccessibilityLayoutChangedNotification],
+  ]);
+}
+
+setViewFunction(common.View, 'postAccessibilityNotification', function postAccessibilityNotification(this: common.View, notificationType: string, msg?: string) {
+  const view = tnsViewToUIView(this);
+
+  if (!notificationType) {
+    return;
+  }
+
+  ensurePostNotificationMap();
+
+  const notification = postNotificationMap.get(notificationType.toLocaleLowerCase());
+  if (notification !== undefined) {
+    let args: any;
+    if (typeof msg === 'string') {
+      args = msg;
+    } else {
+      args = view;
+    }
+
+    UIAccessibilityPostNotification(notification, args || null);
+  }
+});

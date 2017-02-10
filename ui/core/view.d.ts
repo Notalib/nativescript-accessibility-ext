@@ -13,5 +13,6 @@ declare module 'ui/core/view' {
     accessibilityTraits?: string | string[];
     accessibilityValue?: string;
     accessibilityElementsHidden?: boolean;
+    postAccessibilityNotification(notificationType: string, args?: string);
   }
 }

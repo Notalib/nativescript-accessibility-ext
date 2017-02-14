@@ -92,6 +92,19 @@ setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: P
 
 setViewFunction(common.View, 'sendAccessibilityEvent', function sendAccessibilityEvent(this: common.View, eventName: string) {
   const view = tnsViewToAndroidView(this);
+  if (view) {
+    AccessibilityHelper.sendAccessibilityEvent(view, eventName);
+  } else {
+    const loadedFn = () => {
+      const view = tnsViewToAndroidView(this);
 
-  AccessibilityHelper.sendAccessibilityEvent(view, eventName);
+      if (view) {
+        AccessibilityHelper.sendAccessibilityEvent(view, eventName);
+      }
+
+      this.off(common.View.loadedEvent, loadedFn);
+    };
+
+    this.on(common.View.loadedEvent, loadedFn);
+  }
 });

@@ -182,13 +182,36 @@ export class AccessibilityHelper {
     }
   }
 
-  public static sendAccessibilityEvent(view: android.view.View, eventName: string) {
+  public static sendAccessibilityEvent(view: android.view.View, eventName: string, text?: string) {
+    if (!eventName) {
+      return;
+    }
+
     ensureAccessibilityEventMap();
 
-    const event = accessibilityEventMap.get(eventName.toLocaleLowerCase());
-    console.log(`sendAccessibilityEvent: ${event} => ${JSON.stringify(eventName)}`);
-    if (typeof event === 'number') {
-      view.sendAccessibilityEvent(event);
+    eventName = eventName.toLowerCase();
+    const eventInt = accessibilityEventMap.get(eventName);
+    if (eventInt === undefined) {
+      console.log(`${eventName} is unknown`);
+      return;
+    }
+
+    if (eventName === 'announcement') {
+      const a11yService = view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
+      const a11yEvent = android.view.accessibility.AccessibilityEvent.obtain(eventInt);
+      a11yEvent.setSource(view);
+      a11yEvent.getText().clear();
+
+      if (!text) {
+        text = view.getContentDescription();
+      }
+      a11yEvent.getText().add(text);
+
+      a11yService.sendAccessibilityEvent(a11yEvent);
+    } else {
+      if (typeof eventInt === 'number') {
+        view.sendAccessibilityEvent(eventInt);
+      }
     }
   }
 }

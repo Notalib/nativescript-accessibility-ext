@@ -110,3 +110,13 @@ setViewFunction(common.View, 'postAccessibilityNotification', function postAcces
     UIAccessibilityPostNotification(notification, args || null);
   }
 });
+
+setViewFunction(common.View, 'accessibilityAnnouncement', function accessibilityAnnouncement(this: common.View, msg?: string) {
+  if (!msg) {
+    const view = tnsViewToUIView(this);
+
+    msg = view.accessibilityLabel;
+  }
+
+  UIAccessibilityPostNotification(UIAccessibilityAnnouncementNotification, msg);
+});

@@ -90,16 +90,16 @@ setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: P
   view.setFocusable(!!value);
 });
 
-setViewFunction(common.View, 'sendAccessibilityEvent', function sendAccessibilityEvent(this: common.View, eventName: string) {
+setViewFunction(common.View, 'sendAccessibilityEvent', function sendAccessibilityEvent(this: common.View, eventName: string, msg?: string) {
   const view = tnsViewToAndroidView(this);
   if (view) {
-    AccessibilityHelper.sendAccessibilityEvent(view, eventName);
+    AccessibilityHelper.sendAccessibilityEvent(view, eventName, msg);
   } else {
     const loadedFn = () => {
       const view = tnsViewToAndroidView(this);
 
       if (view) {
-        AccessibilityHelper.sendAccessibilityEvent(view, eventName);
+        AccessibilityHelper.sendAccessibilityEvent(view, eventName, msg);
       }
 
       this.off(common.View.loadedEvent, loadedFn);
@@ -107,4 +107,8 @@ setViewFunction(common.View, 'sendAccessibilityEvent', function sendAccessibilit
 
     this.on(common.View.loadedEvent, loadedFn);
   }
+});
+
+setViewFunction(common.View, 'accessibilityAnnouncement', function accessibilityAnnouncement(this: common.View, msg?: string) {
+  this.sendAccessibilityEvent('announcement', msg);
 });

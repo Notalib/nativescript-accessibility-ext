@@ -1,5 +1,6 @@
 import { Property, PropertyMetadataSettings } from 'ui/core/dependency-observable';
 import { PropertyMetadata } from 'ui/core/proxy';
+import { setViewFunction } from '../../utils/helpers';
 
 import { View } from 'ui/core/view';
 
@@ -42,6 +43,7 @@ for (const propertyName of [
 }
 
 export const commenFunctions = [
+  'accessibilityAnnouncement',
 ];
 export const iosFunctions = [
   'postAccessibilityNotification',
@@ -49,5 +51,13 @@ export const iosFunctions = [
 export const androidFunctions = [
   'sendAccessibilityEvent',
 ];
+
+for (const fnName of [
+  ...commenFunctions,
+  ...iosFunctions,
+  ...androidFunctions,
+]) {
+  setViewFunction(View, fnName);
+}
 
 export { View } from 'ui/core/view';

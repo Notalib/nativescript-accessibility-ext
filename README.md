@@ -16,21 +16,30 @@ https://facebook.github.io/react-native/docs/accessibility.html
 But is written from scratch, extending NativeScript's classes.
 
 ## API:
-### accessible (iOS, Android)
+Extends `ui/core/view` with these attributes and functions.
+
+### Attributes and functions for both `iOS` and `Android`
+
+#### Attribute: View.accessible (iOS, Android)
 If `true` the element is an accessibility element and all the children will be treated as a single selectable component.
 
-## accessibilityAnnouncement(msg?: string) (iOS, Android)
-Function to make an announcement to the screen reader.
-If a msg-argument is provided, that string will be read by the screen reader.
-If no msg-argument is provided that automationText of the element will be read instead.
+#### Function: View.accessibilityAnnouncement(msg?: string) (iOS, Android)
+Make an announcement to the screen reader.
 
-### automationText (iOS, Android)
+| msg | Description |
+| --- | ----------- |
+| annnouncement text | The text that will be read by the screen reader |
+| null | The elements automationText of the element will be read by the screen reader instead |
+
+#### Attribute: View.automationText (iOS, Android)
 Set the accessibility label on the element, this will be read by the screen reader inplace in any 'text' value the element has.
 Note: This is from NativeScript itself
-      **iOS:** Maps to both `accessibilityLabel` AND `accessibilityIdentifier`
+      **iOS:** Maps to both `accessibilityLabel` AND `accessibilityIdentifier` -> This might break testing tools
       **Android:** Maps to contentDescription
 
-### accessibilityTraits (iOS)
+### Attributes and functions for `iOS`-only
+
+#### Attribute: View.accessibilityTraits (iOS)
 Set one or more traits that best fits the elemnet. Comma or space separated list of traits.
 
 | key | Description |
@@ -53,18 +62,18 @@ Set one or more traits that best fits the elemnet. Comma or space separated list
 | allowsDirectInteraction | Used when an element allows direct touch interaction for VoiceOver users (for example, a view representing a piano keyboard). |
 | pageTurn | Informs VoiceOver that it should scroll to the next page when it finishes reading the contents of the element. |
 
-### accessibilityValue (iOS)
+#### Attribute: View.accessibilityValue (iOS)
 Define the value of an accessibility element.
 
 This is to give the user more information about the value of a field.
 For instance a `Slider` would normally have a value between 0-100%, but if the Slider represents time, you can give the user better information about the value.
 
-### accessibilityElementsHidden (iOS)
+#### Attribute: View.accessibilityElementsHidden (iOS)
 Indicating whether the accessibility elements contained within this accessibility element are hidden.
 
 Defaults to false.
 
-### postAccessibilityNotification (iOS)
+#### Function: View.postAccessibilityNotification(notificationType: string, arg?: string | null) (iOS)
 Post an accessibility notification to iOS.
 ```typescript
   el.postAccessibilityNotification(notificationType, arg);
@@ -80,27 +89,28 @@ Post an accessibility notification to iOS.
 | accessibilityLabel | Read this label |
 | null | layout: do nothing. screen: auto selects, the first accessible element within this element will be given accessibility focus |
 
+### Attributes and functions for `Android`-only
 
-### accessibilityComponentType (Android)
+#### Attribute: View.accessibilityComponentType (Android)
 Defines the type of accessibility element, for example if something is a button.
 This isn't needed for Nativescript Buttons, but used to make other elements behave like buttons.
 
-| key | Description |
+| value | Description |
 | --- | ----------- |
 | button | Button element |
 | radiobutton\_checked | Checked radiobutton |
 | radiobutton\_unchecked | Unchecked radiobutton |
 
-### accessibilityLiveRegion (Android)
+#### Attribute: View.accessibilityLiveRegion (Android)
 When components dynamically change, we want TalkBack to alert the end user.
 
-| key | Description |
+| value | Description |
 | --- | ----------- |
 | none | Accessibility services should not announce changes to this view. |
 | polite | Accessibility services should announce changes to this view. |
 | assertive | Accessibility services should interrupt ongoing speech to immediately announce changes to this view. |
 
-### importantForAccessibility (Android)
+#### Attribute: View.importantForAccessibility (Android)
 | key | Description |
 | --- | ----------- |
 | auto | (default)  |
@@ -108,10 +118,10 @@ When components dynamically change, we want TalkBack to alert the end user.
 | no  | Is not important  |
 | no-hide-descendants | Force accessibility services to ignore the component and all of its children. For android < 19 treated as auto |
 
-### sendAccessibilityEvent (Android)
-Trigger an accessibility event on Android.
+#### Function: View.sendAccessibilityEvent(eventName: string, msg?: text) (Android)
+Trigger an accessibility event on Android
 ```typescript
-  el.sendAccessibilityEvent(eventName);
+  el.sendAccessibilityEvent(eventName, msg);
 ```
 
 | eventName | Description |
@@ -142,7 +152,10 @@ Trigger an accessibility event on Android.
 | touch\_interaction\_end | Represents the event of the user ending to touch the screen |
 | all | Mask for AccessibilityEvent all types |
 
-### The following are not implemented (yet)
+`msg` is an optional argument only used for `announcement`.
+If not provided with `announcement` the elements `automationText` value will be announced instead.
+
+#### The following are not implemented (yet)
 * accessibilityLabel (NativeScript implements this as automationText. android maps to ContentDescription and iOS to both accessibilityLabel and acccesibilityIdentifier)
 * onAccessibilityTap (iOS)
 * onMagicTap (iOS)

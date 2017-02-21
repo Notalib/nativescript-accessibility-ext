@@ -19,6 +19,11 @@ But is written from scratch, extending NativeScript's classes.
 ### accessible (iOS, Android)
 If `true` the element is an accessibility element and all the children will be treated as a single selectable component.
 
+## accessibilityAnnouncement(msg?: string) (iOS, Android)
+Function to make an announcement to the screen reader.
+If a msg-argument is provided, that string will be read by the screen reader.
+If no msg-argument is provided that automationText of the element will be read instead.
+
 ### automationText (iOS, Android)
 Set the accessibility label on the element, this will be read by the screen reader inplace in any 'text' value the element has.
 Note: This is from NativeScript itself

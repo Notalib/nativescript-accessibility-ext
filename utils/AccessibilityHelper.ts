@@ -205,15 +205,13 @@ export class AccessibilityHelper {
     const a11yEvent = android.view.accessibility.AccessibilityEvent.obtain(eventInt);
     a11yEvent.setSource(view);
 
-    if (eventName === 'announcement') {
-      a11yEvent.getText().clear();
+    a11yEvent.getText().clear();
 
-      if (!text) {
-        text = view.getContentDescription();
-      }
-
-      a11yEvent.getText().add(text);
+    if (!text) {
+      text = view.getContentDescription();
     }
+
+    a11yEvent.getText().add(text);
 
     a11yService.sendAccessibilityEvent(a11yEvent);
   }

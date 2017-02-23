@@ -1,4 +1,4 @@
-# nativescript-view-accessibility
+# @nota/nativescript-view-accessibility
 Nativescript plugin for enabling accessiblity features
 
 ## Reasoning behind this plugin:
@@ -83,11 +83,12 @@ Post an accessibility notification to iOS.
 | --- | ----------- |
 | screen | Notify iOS that the sceen have changed |
 | layout | Notify iOS that the layout have changed |
+| announcement | Make an announcement to the scren reader (Please use: view.accessibilityAnnouncement(msg) for both platforms) |
 
 | arg | Description |
 | --- | ----------- |
-| accessibilityLabel | Read this label |
-| null | layout: do nothing. screen: auto selects, the first accessible element within this element will be given accessibility focus |
+| text | notificationType = 'announcement': Annoucement text to be read |
+| null | notificationType = 'layout': do nothing. notificationType = 'screen': auto selects, the first accessible element within this element will be given accessibility focus |
 
 ### Attributes and functions for `Android`-only
 

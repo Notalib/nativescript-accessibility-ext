@@ -84,8 +84,9 @@ function ensurePostNotificationMap() {
   }
 
   postNotificationMap = new Map<string, number>([
-    ['screen', UIAccessibilityScreenChangedNotification],
+    ['announcement', UIAccessibilityAnnouncementNotification],
     ['layout', UIAccessibilityLayoutChangedNotification],
+    ['screen', UIAccessibilityScreenChangedNotification],
   ]);
 }
 
@@ -98,8 +99,8 @@ setViewFunction(common.View, 'postAccessibilityNotification', function postAcces
 
   ensurePostNotificationMap();
 
-  const notification = postNotificationMap.get(notificationType.toLocaleLowerCase());
-  if (notification !== undefined) {
+  const notificationInt = postNotificationMap.get(notificationType.toLocaleLowerCase());
+  if (notificationInt !== undefined) {
     let args: any;
     if (typeof msg === 'string') {
       args = msg;
@@ -107,7 +108,7 @@ setViewFunction(common.View, 'postAccessibilityNotification', function postAcces
       args = view;
     }
 
-    UIAccessibilityPostNotification(notification, args || null);
+    UIAccessibilityPostNotification(notificationInt, args || null);
   }
 });
 
@@ -118,5 +119,5 @@ setViewFunction(common.View, 'accessibilityAnnouncement', function accessibility
     msg = view.accessibilityLabel;
   }
 
-  UIAccessibilityPostNotification(UIAccessibilityAnnouncementNotification, msg);
+  this.postAccessibilityNotification('announcement', msg);
 });

@@ -187,6 +187,12 @@ export class AccessibilityHelper {
       return;
     }
 
+    const a11yService = <android.view.accessibility.AccessibilityManager>view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
+    if (!a11yService.isEnabled()) {
+      console.log(`sendAccessibilityEvent: ACCESSIBILITY_SERVICE is not enabled do nothing for ${eventName} -> ${text}`);
+      return;
+    }
+
     ensureAccessibilityEventMap();
 
     eventName = eventName.toLowerCase();
@@ -196,22 +202,19 @@ export class AccessibilityHelper {
       return;
     }
 
+    const a11yEvent = android.view.accessibility.AccessibilityEvent.obtain(eventInt);
+    a11yEvent.setSource(view);
+
     if (eventName === 'announcement') {
-      const a11yService = view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
-      const a11yEvent = android.view.accessibility.AccessibilityEvent.obtain(eventInt);
-      a11yEvent.setSource(view);
       a11yEvent.getText().clear();
 
       if (!text) {
         text = view.getContentDescription();
       }
-      a11yEvent.getText().add(text);
 
-      a11yService.sendAccessibilityEvent(a11yEvent);
-    } else {
-      if (typeof eventInt === 'number') {
-        view.sendAccessibilityEvent(eventInt);
-      }
+      a11yEvent.getText().add(text);
     }
+
+    a11yService.sendAccessibilityEvent(a11yEvent);
   }
 }

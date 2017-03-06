@@ -1,4 +1,4 @@
-# @nota/nativescript-view-accessibility
+# @nota/nativescript-accessibility-ext
 Nativescript plugin for enabling accessiblity features
 
 ## Reasoning behind this plugin:

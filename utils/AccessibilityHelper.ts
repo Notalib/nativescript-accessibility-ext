@@ -189,7 +189,7 @@ export class AccessibilityHelper {
 
     const a11yService = <android.view.accessibility.AccessibilityManager>view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
     if (!a11yService.isEnabled()) {
-      console.log(`sendAccessibilityEvent: ACCESSIBILITY_SERVICE is not enabled do nothing for ${eventName} -> ${text}`);
+      // console.log(`sendAccessibilityEvent: ACCESSIBILITY_SERVICE is not enabled do nothing for ${eventName} -> ${text}`);
       return;
     }
 
@@ -198,7 +198,7 @@ export class AccessibilityHelper {
     eventName = eventName.toLowerCase();
     const eventInt = accessibilityEventMap.get(eventName);
     if (eventInt === undefined) {
-      console.log(`${eventName} is unknown`);
+      console.error(`${eventName} is unknown`);
       return;
     }
 

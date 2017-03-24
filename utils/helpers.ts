@@ -21,7 +21,7 @@ export function enforceArray(val: string | string[]): string[] {
     return val.split(/[, ]/g).filter((v: string) => !!v);
   }
 
-  console.log(`val is of unsupported type: ${val} -> ${typeof val}`);
+  console.error(`val is of unsupported type: ${val} -> ${typeof val}`);
   return [];
 }
 

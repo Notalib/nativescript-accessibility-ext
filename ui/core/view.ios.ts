@@ -1,5 +1,3 @@
-import { View } from 'ui/core/view';
-import * as proxy from 'ui/core/proxy';
 import { PropertyChangeData } from 'ui/core/dependency-observable';
 
 import * as common from './view-common';

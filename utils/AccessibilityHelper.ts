@@ -1,5 +1,3 @@
-import { inputArrayToBitMask } from './helpers';
-
 class ButtonDelegate extends android.view.View.AccessibilityDelegate {
   private className = android.widget.Button.class.getName();
   constructor() {

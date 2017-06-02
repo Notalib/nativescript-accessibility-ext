@@ -1,25 +1,42 @@
-import { PropertyChangeData } from 'ui/core/dependency-observable';
+import { View } from 'tns-core-modules/ui/core/view';
 
 import * as common from './view-common';
-import { setNativeValueFn, setViewFunction } from '../../utils/helpers';
+import { setViewFunction } from '../../utils/helpers';
+import { AccessibilityHelper } from '../../utils/AccessibilityHelper';
 
-function tnsViewToAndroidView(view: any): android.view.View {
-  return view._nativeView;
+for (const fnName of Object.keys(common.iosFunctions)) {
+  setViewFunction(View, fnName);
 }
 
-// Define the ios specific properties with a noop function
-for (const propertyName of common.iosProperties) {
-  setNativeValueFn(common.View, propertyName);
-}
+View.prototype[common.importantForAccessibilityProperty.getDefault] = function(this: View) {
+  const view = <android.view.View>this.nativeView;
 
-for (const fnName of common.iosFunctions) {
-  setViewFunction(common.View, fnName);
-}
+  const value = view.getImportantForAccessibility();
+  if (!value) {
+    return 'auto';
+  }
 
-// Android specific
-setNativeValueFn(common.View, 'importantForAccessibility', function onImportantForAccessibilityChanged(data: PropertyChangeData) {
-  const view = tnsViewToAndroidView(data.object);
-  const value = data.newValue;
+  if (android.os.Build.VERSION.SDK_INT >= 19 && value === (<any>android.view.View).IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {
+    return 'no-hide-descendants';
+  }
+
+  if (value === android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES) {
+    return 'yes';
+  }
+
+  if (value === android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO) {
+    return 'no';
+  }
+
+  if (value === android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
+    return 'auto';
+  }
+
+  return 'auto';
+};
+
+View.prototype[common.importantForAccessibilityProperty.setNative] = function(this: View, value: string) {
+  const view = <android.view.View>this.nativeView;
 
   if (!value) {
     view.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
@@ -47,21 +64,42 @@ setNativeValueFn(common.View, 'importantForAccessibility', function onImportantF
       view.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
     }
   }
-});
+};
 
-import { AccessibilityHelper } from '../../utils/AccessibilityHelper';
-setNativeValueFn(common.View, 'accessibilityComponentType', function onAccessibilityComponentTypeChanged(data: PropertyChangeData) {
-  const view = tnsViewToAndroidView(data.object);
-  const value = data.newValue;
+View.prototype[common.accessibilityComponentTypeProperty.getDefault] = function(this: View) {
+  return null;
+};
+
+View.prototype[common.accessibilityComponentTypeProperty.setNative] = function(this: View, value: string) {
+  const view = <android.view.View>this.nativeView;
 
   AccessibilityHelper.updateAccessibilityComponentType(view, value);
-});
+}
 
-setNativeValueFn(common.View, 'accessibilityLiveRegion', function onAccessibilityLiveRegionChanged(data: PropertyChangeData) {
+View.prototype[common.accessibilityLiveRegionProperty.getDefault] = function(this: View) {
   if (android.os.Build.VERSION.SDK_INT >= 19) {
-    const view = <any>tnsViewToAndroidView(data.object);
+    const view = <any>this.nativeView;
 
-    const value = data.newValue || '';
+    const value = view.getAccessibilityLiveRegion();
+    if (!value) {
+      return 'none';
+    }
+
+    if (value === (<any>android.view.View).ACCESSIBILITY_LIVE_REGION_ASSERTIVE) {
+      return 'assertive';
+    }
+
+    if (value === (<any>android.view.View).ACCESSIBILITY_LIVE_REGION_POLITE) {
+      return 'polite';
+    }
+  }
+
+  return null;
+};
+
+View.prototype[common.accessibilityComponentTypeProperty.setNative] = function(this: View, value: string) {
+  if (android.os.Build.VERSION.SDK_INT >= 19) {
+    const view = <any>this.nativeView;
 
     switch (value.toLowerCase()) {
       case 'assertive': {
@@ -78,34 +116,38 @@ setNativeValueFn(common.View, 'accessibilityLiveRegion', function onAccessibilit
       }
     }
   }
-});
+};
 
-setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: PropertyChangeData) {
-  const view = tnsViewToAndroidView(data.object);
-  const value = data.newValue;
+View.prototype[common.accessibleProperty.getDefault] = function(this: View) {
+  const view = <android.view.View>this.nativeView;
+  return !!view.isFocusable();
+}
+
+View.prototype[common.accessibleProperty.setNative] = function(this: View, value: boolean) {
+  const view = <android.view.View>this.nativeView;
 
   view.setFocusable(!!value);
-});
+};
 
-setViewFunction(common.View, 'sendAccessibilityEvent', function sendAccessibilityEvent(this: common.View, eventName: string, msg?: string) {
-  const view = tnsViewToAndroidView(this);
+setViewFunction(View, common.androidFunctions.sendAccessibilityEvent, function sendAccessibilityEvent(this: View, eventName: string, msg?: string) {
+  const view = this.nativeView;
   if (view) {
     AccessibilityHelper.sendAccessibilityEvent(view, eventName, msg);
   } else {
     const loadedFn = () => {
-      const view = tnsViewToAndroidView(this);
+      const view = this.nativeView;
 
       if (view) {
         AccessibilityHelper.sendAccessibilityEvent(view, eventName, msg);
       }
 
-      this.off(common.View.loadedEvent, loadedFn);
+      this.off(View.loadedEvent, loadedFn);
     };
 
-    this.on(common.View.loadedEvent, loadedFn);
+    this.on(View.loadedEvent, loadedFn);
   }
 });
 
-setViewFunction(common.View, 'accessibilityAnnouncement', function accessibilityAnnouncement(this: common.View, msg?: string) {
-  this.sendAccessibilityEvent('announcement', msg);
+setViewFunction(View, common.commenFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
+  (<any>this).sendAccessibilityEvent('announcement', msg);
 });

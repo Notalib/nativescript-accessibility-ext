@@ -1,63 +1,43 @@
-import { View, Property } from 'tns-core-modules/ui/core/view';
+import { Property } from 'tns-core-modules/ui/core/view';
+import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
 import { setViewFunction } from '../../utils/helpers';
 
-function addPropertyToView(name: string, defaultValue?: any) {
-  const property = new Property({
+function addPropertyToView<T>(name: string, defaultValue?: T) {
+  const property = new Property<ViewCommon, T>({
     name,
     defaultValue,
   });
-  property.register(View);
+  property.register(ViewCommon);
 
-  Object.defineProperty(View.prototype, name, {
-    get() {
-      this._getValue(property);
-    },
-    set(value: any) {
-      this._setValue(property, value);
-    },
-    enumerable: true,
-    configurable: true
-  });
+  return property;
 }
 
-export const commonProperties = [
-  'accessible',
-];
-export const iosProperties = [
-  'accessibilityTraits',
-  'accessibilityValue',
-  'accessibilityElementsHidden',
-];
-export const androidProperties = [
-  'importantForAccessibility',
-  'accessibilityComponentType',
-  'accessibilityLiveRegion',
-];
+// Common properties
+export const accessibleProperty = addPropertyToView('accessible', false);
 
-for (const propertyName of [
-  ...commonProperties,
-  ...iosProperties,
-  ...androidProperties,
-]) {
-  addPropertyToView(propertyName);
+// iOS properties:
+export const accessibilityTraitsProperty = addPropertyToView<string | string[] | null>('accessibilityTraits');
+export const accessibilityValueProperty = addPropertyToView<string | null>('accessibilityValue');
+export const accessibilityElementsHidden = addPropertyToView<string>('accessibilityElementsHidden', 'no');
+
+// Android properties
+export const importantForAccessibilityProperty = addPropertyToView<boolean>('importantForAccessibility', false);
+export const accessibilityComponentTypeProperty = addPropertyToView<string>('accessibilityComponentType');
+export const accessibilityLiveRegionProperty = addPropertyToView('accessibilityLiveRegion');
+
+export const commenFunctions = {
+  'accessibilityAnnouncement': 'accessibilityAnnouncement',
+};
+export const iosFunctions = {
+  'postAccessibilityNotification': 'postAccessibilityNotification',
+};
+export const androidFunctions = {
+  'sendAccessibilityEvent': 'sendAccessibilityEvent',
+};
+export const allFunctions = Object.assign({}, commenFunctions, iosFunctions, androidFunctions);
+
+for (const fnName of Object.keys(allFunctions)) {
+  setViewFunction(ViewCommon, fnName);
 }
 
-export const commenFunctions = [
-  'accessibilityAnnouncement',
-];
-export const iosFunctions = [
-  'postAccessibilityNotification',
-];
-export const androidFunctions = [
-  'sendAccessibilityEvent',
-];
-
-for (const fnName of [
-  ...commenFunctions,
-  ...iosFunctions,
-  ...androidFunctions,
-]) {
-  setViewFunction(View, fnName);
-}
-
-export { View } from 'ui/core/view';
+export { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';

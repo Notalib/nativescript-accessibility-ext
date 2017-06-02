@@ -1,27 +1,19 @@
-import { PropertyChangeData } from 'ui/core/dependency-observable';
+import { View } from 'tns-core-modules/ui/core/view';
 
 import * as common from './view-common';
-import { setNativeValueFn, setViewFunction, inputArrayToBitMask } from '../../utils/helpers';
+import { setViewFunction, inputArrayToBitMask } from '../../utils/helpers';
 
-// Define the android specific properties with a noop function
-for (const propertyName of common.androidProperties) {
-  setNativeValueFn(common.View, propertyName);
+for (const fnName of Object.keys(common.androidFunctions)) {
+  setViewFunction(View, fnName);
 }
 
-for (const fnName of common.androidFunctions) {
-  setViewFunction(common.View, fnName);
-}
+View.prototype[common.accessibleProperty.getDefault] = function getDefaultAccessible(this: View) {
+  return !!this.nativeView.isAccessibilityElement;
+};
 
-function tnsViewToUIView(view: any): UIView {
-  return <UIView>view._nativeView;
-}
-
-setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: PropertyChangeData) {
-  const view = tnsViewToUIView(data.object);
-  const value = data.newValue;
-
-  view.isAccessibilityElement = !!value;
-});
+View.prototype[common.accessibleProperty.setNative] = function setNativeAccessible(this: View, value: boolean) {
+  this.nativeView.isAccessibilityElement = !!value;
+};
 
 let traits: Map<string, number>;
 function ensureTraits() {
@@ -50,30 +42,48 @@ function ensureTraits() {
   ]);
 }
 
-setNativeValueFn(common.View, 'accessibilityTraits', function onAccessibilityTraitsChanged(data: PropertyChangeData) {
+View.prototype[common.accessibilityTraitsProperty.getDefault] = function getDefaultAccessibilityTraits(this: View) {
+  const res: string[] = [];
+
+  if (!this.nativeView.accessibilityTraits) {
+    return res;
+  }
+
+  ensureTraits();
+  for (const [name, trait] of traits) {
+    if (this.nativeView.accessibilityTraits & trait) {
+      res.push(name);
+    }
+  }
+
+  return res;
+}
+
+View.prototype[common.accessibilityTraitsProperty.setNative] = function setNativeAccessibilityTraits(this: View, value: string | string[]) {
   ensureTraits();
 
-  const view = tnsViewToUIView(data.object);
-  view.accessibilityTraits = inputArrayToBitMask(data.newValue, traits);
-});
+  this.nativeView.accessibilityTraits = inputArrayToBitMask(value, traits);
+}
 
-setNativeValueFn(common.View, 'accessibilityValue', function onAccessibilityValueChanged(data: PropertyChangeData) {
-  const view = tnsViewToUIView(data.object);
-  const value = data.newValue;
+View.prototype[common.accessibilityValueProperty.getDefault] = function getDefaultAccessibilityValue(this: View) {
+  return this.nativeView.accessibilityValue;
+}
 
-  if (!value) {
-    view.accessibilityValue = null;
+View.prototype[common.accessibilityValueProperty.setNative] = function setNativeAccessibilityValue(this: View, value: string) {
+  if (value) {
+    this.nativeView.accessibilityValue = `${value}`;
   } else {
-    view.accessibilityValue = `${value}`;
+    this.nativeView.accessibilityValue = null;
   }
-});
+}
 
-setNativeValueFn(common.View, 'accessibilityElementsHidden', function onAccessibilityValueChanged(data: PropertyChangeData) {
-  const view = tnsViewToUIView(data.object);
-  const value = data.newValue;
+View.prototype[common.accessibilityElementsHidden.getDefault] = function getDefaultAccessibilityElementHidden(this: View) {
+  return !!this.nativeView.accessibilityElementsHidden;
+}
 
-  view.accessibilityElementsHidden = !!value;
-});
+View.prototype[common.accessibilityElementsHidden.setNative] = function setNativeAccessibilityElementHidden(this: View, value: boolean) {
+  this.nativeView.accessibilityElementsHidden = !!value;
+}
 
 let postNotificationMap: Map<string, number>;
 function ensurePostNotificationMap() {
@@ -88,9 +98,7 @@ function ensurePostNotificationMap() {
   ]);
 }
 
-setViewFunction(common.View, 'postAccessibilityNotification', function postAccessibilityNotification(this: common.View, notificationType: string, msg?: string) {
-  const view = tnsViewToUIView(this);
-
+setViewFunction(View, common.iosFunctions.postAccessibilityNotification, function postAccessibilityNotification(this: View, notificationType: string, msg?: string) {
   if (!notificationType) {
     return;
   }
@@ -103,19 +111,19 @@ setViewFunction(common.View, 'postAccessibilityNotification', function postAcces
     if (typeof msg === 'string') {
       args = msg;
     } else {
-      args = view;
+      args = this.nativeView;
     }
 
     UIAccessibilityPostNotification(notificationInt, args || null);
   }
 });
 
-setViewFunction(common.View, 'accessibilityAnnouncement', function accessibilityAnnouncement(this: common.View, msg?: string) {
+setViewFunction(View, common.commenFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
   if (!msg) {
-    const view = tnsViewToUIView(this);
+    const view = this.nativeView;
 
     msg = view.accessibilityLabel;
   }
 
-  this.postAccessibilityNotification('announcement', msg);
+  (<any>this).postAccessibilityNotification('announcement', msg);
 });

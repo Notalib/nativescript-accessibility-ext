@@ -4,7 +4,8 @@
     "module": "commonjs",
     "noLib": false,
     "lib": [
-      "es2016"
+      "es6",
+      "dom"
     ],
     "sourceMap": false,
     "pretty": true,
@@ -15,6 +16,13 @@
     "noImplicitReturns": true,
     "noImplicitUseStrict": false,
     "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "./node_modules/tns-core-modules/*",
+        "./node_modules/*"
+      ]
+    },
     "skipLibCheck": true
   },
   "files": [

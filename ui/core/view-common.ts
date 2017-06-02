@@ -1,12 +1,12 @@
-import { Property } from 'ui/core/dependency-observable';
-import { PropertyMetadata } from 'ui/core/proxy';
+import { View, Property } from 'tns-core-modules/ui/core/view';
 import { setViewFunction } from '../../utils/helpers';
 
-import { View } from 'ui/core/view';
-
 function addPropertyToView(name: string, defaultValue?: any) {
-  const property = new Property(name, 'View', new PropertyMetadata(defaultValue));
-  (<any>View)[`${name}Property`] = property;
+  const property = new Property({
+    name,
+    defaultValue,
+  });
+  property.register(View);
 
   Object.defineProperty(View.prototype, name, {
     get() {

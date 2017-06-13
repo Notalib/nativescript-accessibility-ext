@@ -1,5 +1,3 @@
-import { View } from 'ui/core/view';
-import * as proxy from 'ui/core/proxy';
 import { PropertyChangeData } from 'ui/core/dependency-observable';
 
 import * as common from './view-common';
@@ -22,7 +20,6 @@ for (const fnName of common.iosFunctions) {
 setNativeValueFn(common.View, 'importantForAccessibility', function onImportantForAccessibilityChanged(data: PropertyChangeData) {
   const view = tnsViewToAndroidView(data.object);
   const value = data.newValue;
-  const oldValue = data.oldValue
 
   if (!value) {
     view.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);

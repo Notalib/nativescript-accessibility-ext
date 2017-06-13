@@ -1,4 +1,4 @@
-import { Property, PropertyMetadataSettings } from 'ui/core/dependency-observable';
+import { Property } from 'ui/core/dependency-observable';
 import { PropertyMetadata } from 'ui/core/proxy';
 import { setViewFunction } from '../../utils/helpers';
 

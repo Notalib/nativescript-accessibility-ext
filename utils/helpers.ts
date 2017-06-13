@@ -1,4 +1,5 @@
-import { PropertyChangeData } from 'ui/core/dependency-observable';
+import { PropertyChangeData, Property } from 'ui/core/dependency-observable';
+import { PropertyMetadata } from 'ui/core/proxy';
 import * as proxy from 'ui/core/proxy';
 
 function noop() {
@@ -31,4 +32,20 @@ export function inputArrayToBitMask(val: string | string[], map: Map<string, nu
     .map((val) => val.toLocaleLowerCase())
     .filter((val) => map.has(val))
     .reduce((c, val) => c | map.get(val), 0) || 0;
+}
+
+export function addPropertyToView(viewClass: any, viewName: string, name: string, defaultValue?: any) {
+  const property = new Property(name, viewName, new PropertyMetadata(defaultValue));
+  viewClass[`${name}Property`] = property;
+
+  Object.defineProperty(viewClass.prototype, name, {
+    get() {
+      this._getValue(property);
+    },
+    set(value: any) {
+      this._setValue(property, value);
+    },
+    enumerable: true,
+    configurable: true
+  });
 }

@@ -1,3 +1,4 @@
+import 'nativescript-globalevents';
 import { Page } from 'ui/page';
 import { EventData, Observable, PropertyChangeData } from 'data/observable';
 

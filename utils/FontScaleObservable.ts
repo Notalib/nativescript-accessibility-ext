@@ -26,21 +26,19 @@ function ensureObservable() {
       return Number(nsApp.android.context.getResources().getConfiguration().fontScale);
     };
 
-    nsApp.on(nsApp.launchEvent, (/*eventData: nsApp.LaunchEventData*/) => {
-      fontScaleChanged(getAndroidFontScale());
+    fontScaleChanged(getAndroidFontScale());
 
-      nsApp.android.context.registerComponentCallbacks(new android.content.ComponentCallbacks2({
-        onLowMemory() {
-          // Dummy
-        },
-        onTrimMemory() {
-          // Dummy
-        },
-        onConfigurationChanged(newConfig: android.content.res.Configuration) {
-          fontScaleChanged(Number(newConfig.fontScale));
-        }
-      }));
-    });
+    nsApp.android.context.registerComponentCallbacks(new android.content.ComponentCallbacks2({
+      onLowMemory() {
+        // Dummy
+      },
+      onTrimMemory() {
+        // Dummy
+      },
+      onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        fontScaleChanged(Number(newConfig.fontScale));
+      }
+    }));
 
     nsApp.on(nsApp.resumeEvent, () => {
       fontScaleChanged(getAndroidFontScale());
@@ -69,14 +67,11 @@ function ensureObservable() {
       }
     };
 
-    let fontSizeObserver: string;
-    nsApp.on(nsApp.launchEvent, (/*eventData: nsApp.LaunchEventData*/) => {
-      contentSizeUpdated(utils.ios.getter(nsApp.ios.nativeApp, nsApp.ios.nativeApp.preferredContentSizeCategory));
+    contentSizeUpdated(utils.ios.getter(nsApp.ios.nativeApp, nsApp.ios.nativeApp.preferredContentSizeCategory));
 
-      fontSizeObserver = nsApp.ios.addNotificationObserver(UIContentSizeCategoryDidChangeNotification, (args) => {
-        const fontSize = args.userInfo.valueForKey(UIContentSizeCategoryNewValueKey);
-        contentSizeUpdated(fontSize);
-      });
+    const fontSizeObserver = nsApp.ios.addNotificationObserver(UIContentSizeCategoryDidChangeNotification, (args) => {
+      const fontSize = args.userInfo.valueForKey(UIContentSizeCategoryNewValueKey);
+      contentSizeUpdated(fontSize);
     });
 
     nsApp.on(nsApp.exitEvent, () => {

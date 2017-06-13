@@ -1,3 +1,3 @@
-import {Property} from 'ui/core/dependency-observable';
-
-import './ui/core/view';
+import './views';
+import './pages';
+export * from './utils/FontScaleObservable';

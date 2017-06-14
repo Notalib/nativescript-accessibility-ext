@@ -151,3 +151,11 @@ setViewFunction(View, common.androidFunctions.sendAccessibilityEvent, function s
 setViewFunction(View, common.commenFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
   (<any>this).sendAccessibilityEvent('announcement', msg);
 });
+
+View.prototype[common.accessibilityLabelProperty.getDefault] = function getDefaultAccessibilityLabel(this: View) {
+  return this.nativeView.getContentDescription();
+};
+
+View.prototype[common.accessibilityLabelProperty.setNative] = function setNativeAccessibilityLabel(this: View, label: string) {
+  this.nativeView.setContentDescription(`${label || ''}`);
+};

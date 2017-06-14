@@ -14,6 +14,7 @@ function addPropertyToView<T>(name: string, defaultValue?: T) {
 
 // Common properties
 export const accessibleProperty = addPropertyToView('accessible', false);
+export const accessibilityLabelProperty = addPropertyToView('accessibilityLabel', false);
 
 // iOS properties:
 export const accessibilityTraitsProperty = addPropertyToView<string | string[] | null>('accessibilityTraits');

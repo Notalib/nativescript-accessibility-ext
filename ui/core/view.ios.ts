@@ -127,3 +127,15 @@ setViewFunction(View, common.commenFunctions.accessibilityAnnouncement, function
 
   (<any>this).postAccessibilityNotification('announcement', msg);
 });
+
+View.prototype[common.accessibilityLabelProperty.getDefault] = function getDefaultAccessibilityLabel(this: View) {
+  return this.nativeView.accessibilityLabel;
+};
+
+View.prototype[common.accessibilityLabelProperty.setNative] = function setNativeAccessibilityLabel(this: View, label: string) {
+  if (label) {
+    this.nativeView.accessibilityLabel = `${label}`;
+  } else {
+    this.nativeView.accessibilityLabel = null;
+  }
+};

@@ -1,6 +1,7 @@
 import { PropertyChangeData, Property } from 'ui/core/dependency-observable';
 import { PropertyMetadata } from 'ui/core/proxy';
 import * as proxy from 'ui/core/proxy';
+import * as trace from 'trace';
 
 function noop() {
 }
@@ -48,4 +49,10 @@ export function addPropertyToView(viewClass: any, viewName: string, name: string
     enumerable: true,
     configurable: true
   });
+}
+
+export function writeTrace(message: string) {
+  if (trace.enabled) {
+    trace.write(message, 'A11Y');
+  }
 }

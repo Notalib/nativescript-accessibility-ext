@@ -10,7 +10,7 @@ function tnsLabelToUILabel(view: any): UILabel {
   return <UILabel>view._nativeView;
 }
 
-import { setNativeValueFn } from '../../utils/helpers';
+import { setNativeValueFn, writeTrace } from '../../utils/helpers';
 
 // Define the android specific properties with a noop function
 for (const propertyName of common.androidProperties) {
@@ -20,17 +20,20 @@ for (const propertyName of common.androidProperties) {
 setNativeValueFn(common.Label, 'accessibilityAdjustFontSize', function onAccessiblityAdjustFontSize(data: ViewPropertyChangeData) {
   const tnsLabel = <common.Label>data.object;
   const uiLabel = tnsLabelToUILabel(tnsLabel);
-  const value = data.newValue;
+  const value = !!data.newValue;
 
   const fontScaleProp = '_a11yFontScaleObservable';
 
   if (fontScaleProp in tnsLabel) {
     if (value) {
+      writeTrace(`Label<ios>.accessibilityAdjustFontSize - already have a FontScaleObservable, don't enable it twice`);
       return;
     }
 
+    writeTrace(`Label<ios>.accessibilityAdjustFontSize - disable and remove FontScaleObservable`);
+
     tnsLabel[fontScaleProp].off(Observable.propertyChangeEvent);
-    tnsLabel[fontScaleProp] = undefined;
+    delete tnsLabel[fontScaleProp];
     return;
   }
 
@@ -38,19 +41,26 @@ setNativeValueFn(common.Label, 'accessibilityAdjustFontSize', function onAccessi
   const updateFontSize = () => {
     clearTimeout(timer);
 
+    writeTrace(`Label<ios>.accessibilityAdjustFontSize - updateFontSize - set timer`);
+
     timer = setTimeout(() => {
+      if (!tnsLabel[fontScaleProp]) {
+        return;
+      }
+
       const oldFont = <Font>tnsLabel.style.get('_fontInternal');
       const fontScale = tnsLabel[fontScaleProp].get(FontScaleObservable.FONT_SCALE);
       if (!fontScale) {
+        writeTrace(`Label<ios>.accessibilityAdjustFontSize - updateFontSize - timer -> no fontScale`);
         return;
       }
 
       const newFontSize = oldFont.fontSize * fontScale;
-      console.log(JSON.stringify({
+      writeTrace(`Label<ios>.accessibilityAdjustFontSize - updateFontSize - timer -> update fontScale: ${JSON.stringify({
         fontScale,
         newFontSize,
         oldFontSize: oldFont.fontSize,
-      }));
+      })}`);
 
       const oldUIFont = (<any>oldFont)._uiFont || UIFont.systemFontOfSize(utils.ios.getter(UIFont, UIFont.labelFontSize));
 
@@ -64,9 +74,12 @@ setNativeValueFn(common.Label, 'accessibilityAdjustFontSize', function onAccessi
   const styleCb = (args: PropertyChangeData) => {
     if (!tnsLabel.accessibilityAdjustFontSize) {
       tnsLabel.style.off(Observable.propertyChangeEvent, styleCb);
+
+      writeTrace(`Label<ios>.accessibilityAdjustFontSize - styleCb -> tnsLabel.accessibilityAdjustFontSize have been disabled unsub`);
       return;
     }
 
+    writeTrace(`Label<ios>.accessibilityAdjustFontSize - styleCb -> call: updateFontSize()`);
     updateFontSize();
   };
 
@@ -82,7 +95,9 @@ setNativeValueFn(common.Label, 'accessibilityAdjustFontSize', function onAccessi
 
   tnsLabel.on('unloaded', () => {
     tnsLabel[fontScaleProp].off(Observable.propertyChangeEvent);
+    delete tnsLabel[fontScaleProp];
   });
 
+  writeTrace(`Label<ios>.accessibilityAdjustFontSize - set initial scale -> call: updateFontSize()`);
   updateFontSize();
 });

@@ -1,7 +1,7 @@
 declare module 'ui/label' {
   interface Label {
     /**
-     * iOS 10+: adjustsFontForContentSizeCategory
+     * iOS: Scale font according to platform settings
      */
     accessibilityAdjustFontSize?: boolean;
   }

@@ -37,6 +37,25 @@ Note: This is from NativeScript itself
       **iOS:** Maps to both `accessibilityLabel` AND `accessibilityIdentifier` -> This might break testing tools
       **Android:** Maps to contentDescription
 
+### CSSClasse: Page.a11y-fontscale (iOS, Android)
+If you need to handle styling when font size is scaled up on either platform, Page have these css-classes:
+
+The number indicated pct font:
+- a11y-fontscale-050
+- a11y-fontscale-070
+- a11y-fontscale-085
+- a11y-fontscale-100
+- a11y-fontscale-115
+- a11y-fontscale-130
+- a11y-fontscale-150
+- a11y-fontscale-200
+- a11y-fontscale-250
+- a11y-fontscale-300
+- a11y-fontscale-350
+- a11y-fontscale-400
+
+If you want auto scaling on iOS Labels see: Label.accessibilityAdjustFontSize
+
 ### Attributes and functions for `iOS`-only
 
 #### Attribute: View.accessibilityTraits (iOS)
@@ -72,6 +91,11 @@ For instance a `Slider` would normally have a value between 0-100%, but if the S
 Indicating whether the accessibility elements contained within this accessibility element are hidden.
 
 Defaults to false.
+
+## Attribute: Label.accessibilityAdjustFontSize (iOS)
+Scales the font on a Label on iOS according to the settings in Settings -> General -> Accessibility -> Larger text
+On Android this is handled automatically, on iOS you have to specify it yourself.
+Note: It's similar to UILabel.adjustsFontForContentSizeCategory but effects all fonts not just the preferedFonts.
 
 #### Function: View.postAccessibilityNotification(notificationType: string, arg?: string | null) (iOS)
 Post an accessibility notification to iOS.
@@ -160,6 +184,12 @@ If not provided with `announcement` the elements `automationText` value will be 
 * accessibilityLabel (NativeScript implements this as automationText. android maps to ContentDescription and iOS to both accessibilityLabel and acccesibilityIdentifier)
 * onAccessibilityTap (iOS)
 * onMagicTap (iOS)
+
+### Helpers:
+
+#### FontScaleObservable
+NativeScript Observable for getting the native fontScale on either platform.
+Note: For this to work properly on Android you need to add fontScale to the `android:configChanges` in your **AndroidManifest.xml**
 
 ## Using the plugin
 To use the plugin in your nativescript-app, install and import the module:

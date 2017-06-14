@@ -6,7 +6,7 @@
 
       accessible="true"
       automationText="Congratulation accessibility is enabled"
-      accessibilityTraits="header,text"
+      accessibilityTraits="header"
     >
       <ios>
         <Label text="Enable VoiecOver, if you haven't already"></Label>
@@ -17,8 +17,8 @@
     </StackLayout>
 
     <StackLayout class="feature-group">
-      <Label class="h1 text-center m-2" text="accessible (iOS, Android)"></Label>
-      <Label class="body" textWrap="true" text="Indicate that the view is an accessibility element"></Label>
+      <Label accessibilityTraits="header" class="h1 text-center m-2" text="accessible (iOS, Android)"></Label>
+      <Label class="body" textWrap="true" text="If 'true' the element is an accessibility element and all the children will be treated as a single selectable component."></Label>
 
       <StackLayout class="m-y-5">
         <Label class="h2" text="Allowed value:"></Label>
@@ -40,7 +40,7 @@
         <Button
           class="m-2 btn"
           text="tap me"
-          automationText="Except of cause child elements that are marked as accessible too"
+          automationText="Unless of cause child elements that are marked as accessible too, like 'tap me'"
 
           accessible="true"
           accessibilityComponentType="button"
@@ -51,7 +51,7 @@
         <Button
           class="m-2 btn"
           text="tap me 2"
-          automationText="Except of cause child elements that are marked as accessible too"
+          automationText="Unless of cause child elements that are marked as accessible too, like 'tap me 2'"
 
           accessible="true"
           accessibilityComponentType="button"
@@ -74,9 +74,13 @@
     </StackLayout>
 
     <StackLayout class="feature-group">
-      <Label class="h1 text-center" textWrap="true" text="automationText (iOS, Android)"></Label>
+      <Label accessibilityTraits="header" class="h1 text-center" textWrap="true" text="automationText (iOS, Android)"></Label>
 
-      <Label class="body" textWrap="true" text="Sets the accessibilityLabel on the view. Note: on iOS it sets both accessibilityIdentifier AND accessibilityLabel. On Android contentDescription"></Label>
+      <Label class="body" textWrap="true" text="Set the accessibility label on the element, this will be read by the screen reader inplace in any 'text' value the element has.
+Note: This is from NativeScript itself
+      **iOS:** Maps to both 'accessibilityLabel' AND 'accessibilityIdentifier'
+      **Android:** Maps to contentDescription
+"></Label>
       <Label class="m-y-2 footnote" textWrap="true" text="Note: This is supported by NativeScript without this plugin"></Label>
 
       <StackLayout class="m-y-5">
@@ -92,8 +96,8 @@
     </StackLayout>
 
     <StackLayout class="feature-group">
-      <Label class="h1 text-center m-2" text="accessibilityTraits (iOS)"></Label>
-      <Label class="body" textWrap="true" text="Identifies the traits of a component. Is it a static-text? Is is a Button? "></Label>
+      <Label accessibilityTraits="header" class="h1 text-center m-2" text="accessibilityTraits (iOS)"></Label>
+      <Label class="body" textWrap="true" text="Identifies the traits of a component. Is it a static-text? Is is a Button? Is it a header?"></Label>
 
       <StackLayout class="m-y-5">
         <Label class="h2" text="Allowed value (use one or more):"></Label>
@@ -116,7 +120,28 @@
     </StackLayout>
 
     <StackLayout class="feature-group">
-      <Label class="h1 text-center m-2" textWrap="true" text="accessibilityComponentType (Android)"></Label>
+      <Label accessibilityTraits="header" class="h1 text-center m-2" text="accessibilityValue (iOS)"></Label>
+      <Label class="body" textWrap="true" text=""></Label>
+
+      <StackLayout class="m-y-5">
+        <Label class="h2" text="Allowed value:"></Label>
+        <Label class="p-x-5" text="Any text value"></Label>
+      </StackLayout>
+
+      <Label class="h2" text="Examples:"></Label>
+
+      <StackLayout
+        class="feature-example"
+      >
+        <Label textWrap="true" [text]="'Slider with accessibilityValue: VoiceOver should read:\n' + sliderA11YValue"></Label>
+        <Slider [min]="sliderMin" [max]="sliderMax" [(ngModel)]="sliderValue" [accessibilityValue]="sliderA11YValue"></Slider>
+        <Label text="Slider without accessibilityValue"></Label>
+        <Slider [min]="sliderMin" [max]="sliderMax" [(ngModel)]="sliderValue"></Slider>
+      </StackLayout>
+    </StackLayout>
+
+    <StackLayout class="feature-group">
+      <Label accessibilityTraits="header" class="h1 text-center m-2" textWrap="true" text="accessibilityComponentType (Android)"></Label>
       <Label class="body" textWrap="true" text="Alert the user to what kind of element is selected. E.g. is this a button"></Label>
 
       <StackLayout class="m-y-5">
@@ -140,7 +165,7 @@
     </StackLayout>
 
     <StackLayout class="feature-group">
-      <Label class="h1 text-center" text="Buttons"></Label>
+      <Label accessibilityTraits="header" class="h1 text-center" text="Buttons"></Label>
 
       <Button class="text-right" text="Normal" automationText="this is just a normal"></Button>
 
@@ -153,7 +178,7 @@
           accessibilityComponentType="button"
           accessibilityTraits="button"
         >
-          <Label text="First button" (tap)="tapped($event)"></Label>
+          <Label text="Text-only button" (tap)="tapped($event)" textWrap="true"></Label>
         </StackLayout>
 
         <StackLayout
@@ -161,13 +186,13 @@
           rowSpan="2"
 
           accessible="true"
-          automationText="This now a button"
+          automationText="This now a button with an icon"
           accessibilityComponentType="button"
           accessibilityTraits="button"
           (tap)="tapped($event)"
         >
           <Image height="50" src="res://btnicon"></Image>
-          <Label class="text-center" text="Second button" textWrap="true"></Label>
+          <Label class="text-center" text="Icon-button" textWrap="true"></Label>
         </StackLayout>
       </GridLayout>
     </StackLayout>

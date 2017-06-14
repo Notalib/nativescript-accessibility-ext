@@ -1,84 +1,132 @@
-import { View } from 'ui/core/view';
-import * as proxy from 'ui/core/proxy';
 import { PropertyChangeData } from 'ui/core/dependency-observable';
 
 import * as common from './view-common';
-import { setNativeValueFn } from '../../utils/helpers';
+import { setNativeValueFn, setViewFunction, inputArrayToBitMask } from '../../utils/helpers';
 
 // Define the android specific properties with a noop function
 for (const propertyName of common.androidProperties) {
   setNativeValueFn(common.View, propertyName);
 }
 
-setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: PropertyChangeData) {
-  const view = <UIView>(<any>data.object)._nativeView;
-  const value = data.newValue;
+for (const fnName of common.androidFunctions) {
+  setViewFunction(common.View, fnName);
+}
 
-  if (value == void 0) {
-    return;
-  }
+function tnsViewToUIView(view: any): UIView {
+  return <UIView>view._nativeView;
+}
+
+setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: PropertyChangeData) {
+  const view = tnsViewToUIView(data.object);
+  const value = data.newValue;
 
   view.isAccessibilityElement = !!value;
 });
 
-const traits = new Map<string, number>([
-  ['none', UIAccessibilityTraitNone],
-  ['button', UIAccessibilityTraitButton],
-  ['link', UIAccessibilityTraitLink],
-  ['header', UIAccessibilityTraitHeader],
-  ['search', UIAccessibilityTraitSearchField],
-  ['image', UIAccessibilityTraitImage],
-  ['selected', UIAccessibilityTraitSelected],
-  ['plays', UIAccessibilityTraitPlaysSound],
-  ['key', UIAccessibilityTraitKeyboardKey],
-  ['text', UIAccessibilityTraitStaticText],
-  ['summary', UIAccessibilityTraitSummaryElement],
-  ['disabled', UIAccessibilityTraitNotEnabled],
-  ['frequentUpdates', UIAccessibilityTraitUpdatesFrequently],
-  ['startsMedia', UIAccessibilityTraitStartsMediaSession],
-  ['adjustable', UIAccessibilityTraitAdjustable],
-  ['allowsDirectInteraction', UIAccessibilityTraitAllowsDirectInteraction],
-  ['pageTurn', UIAccessibilityTraitCausesPageTurn],
-]);
-
-function enforceArray(val: string | string[]): string[] {
-  if (Array.isArray(val)) {
-    return val;
+let traits: Map<string, number>;
+function ensureTraits() {
+  if (traits) {
+    return;
   }
 
-  if (typeof val === 'string') {
-    return val.split(/[, ]/g).filter((v: string) => !!v);
-  }
-
-  console.warn(`val is of unsupported type: ${val} -> ${typeof val}`);
-  return [];
+  traits = new Map<string, number>([
+    ['none', UIAccessibilityTraitNone],
+    ['button', UIAccessibilityTraitButton],
+    ['link', UIAccessibilityTraitLink],
+    ['header', UIAccessibilityTraitHeader],
+    ['search', UIAccessibilityTraitSearchField],
+    ['image', UIAccessibilityTraitImage],
+    ['selected', UIAccessibilityTraitSelected],
+    ['plays', UIAccessibilityTraitPlaysSound],
+    ['key', UIAccessibilityTraitKeyboardKey],
+    ['text', UIAccessibilityTraitStaticText],
+    ['summary', UIAccessibilityTraitSummaryElement],
+    ['disabled', UIAccessibilityTraitNotEnabled],
+    ['frequentUpdates', UIAccessibilityTraitUpdatesFrequently],
+    ['startsMedia', UIAccessibilityTraitStartsMediaSession],
+    ['adjustable', UIAccessibilityTraitAdjustable],
+    ['allowsDirectInteraction', UIAccessibilityTraitAllowsDirectInteraction],
+    ['pageTurn', UIAccessibilityTraitCausesPageTurn],
+  ]);
 }
 
 setNativeValueFn(common.View, 'accessibilityTraits', function onAccessibilityTraitsChanged(data: PropertyChangeData) {
-  const view = <UIView>(<any>data.object)._nativeView;
-  const value = enforceArray(data.newValue)
-    .filter((val) => traits.has(val))
-    .reduce((c, val) => c | traits.get(val), 0);
+  ensureTraits();
 
-  if (!value) {
-    return;
-  }
-
-  view.accessibilityTraits = value;
+  const view = tnsViewToUIView(data.object);
+  view.accessibilityTraits = inputArrayToBitMask(data.newValue, traits);
 });
 
 setNativeValueFn(common.View, 'accessibilityValue', function onAccessibilityValueChanged(data: PropertyChangeData) {
-  const view = <UIView>(<any>data.object)._nativeView;
+  const view = tnsViewToUIView(data.object);
   const value = data.newValue;
 
-  if (value == void 0) {
+  if (!value) {
+    view.accessibilityValue = null;
+  } else {
+    view.accessibilityValue = `${value}`;
+  }
+});
+
+setNativeValueFn(common.View, 'accessibilityElementsHidden', function onAccessibilityValueChanged(data: PropertyChangeData) {
+  const view = tnsViewToUIView(data.object);
+  const value = data.newValue;
+
+  view.accessibilityElementsHidden = !!value;
+});
+
+let postNotificationMap: Map<string, number>;
+function ensurePostNotificationMap() {
+  if (postNotificationMap) {
     return;
   }
 
-  view.accessibilityValue = `${value}`;
+  postNotificationMap = new Map<string, number>([
+    ['announcement', UIAccessibilityAnnouncementNotification],
+    ['layout', UIAccessibilityLayoutChangedNotification],
+    ['screen', UIAccessibilityScreenChangedNotification],
+  ]);
+}
+
+setViewFunction(common.View, 'postAccessibilityNotification', function postAccessibilityNotification(this: common.View, notificationType: string, msg?: string) {
+  const view = tnsViewToUIView(this);
+
+  if (!notificationType) {
+    return;
+  }
+
+  ensurePostNotificationMap();
+
+  const notificationInt = postNotificationMap.get(notificationType.toLocaleLowerCase());
+  if (notificationInt !== undefined) {
+    let args: any;
+    if (typeof msg === 'string') {
+      args = msg;
+    } else {
+      args = view;
+    }
+
+    UIAccessibilityPostNotification(notificationInt, args || null);
+  }
+});
+
+setViewFunction(common.View, 'accessibilityAnnouncement', function accessibilityAnnouncement(this: common.View, msg?: string) {
+  if (!msg) {
+    const view = tnsViewToUIView(this);
+
+    msg = view.accessibilityLabel;
+  }
+
+  this.postAccessibilityNotification('announcement', msg);
 });
 
 setNativeValueFn(common.View, 'accessibilityLabel', function onAccessibilityLabelChanged(data: PropertyChangeData) {
-  const view = <UIView>(<any>data.object)._nativeView;
-  view.accessibilityLabel = `${data.newValue}`;
+  const view = tnsViewToUIView(data.object);
+  const value = data.newValue;
+
+  if (value) {
+    view.accessibilityLabel = `${data.newValue}`;
+  } else {
+    view.accessibilityLabel = null;
+  }
 });

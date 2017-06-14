@@ -1,20 +1,25 @@
-import { View } from 'ui/core/view';
-import * as proxy from 'ui/core/proxy';
 import { PropertyChangeData } from 'ui/core/dependency-observable';
 
 import * as common from './view-common';
-import { setNativeValueFn } from '../../utils/helpers';
+import { setNativeValueFn, setViewFunction } from '../../utils/helpers';
+
+function tnsViewToAndroidView(view: any): android.view.View {
+  return view._nativeView;
+}
 
 // Define the ios specific properties with a noop function
 for (const propertyName of common.iosProperties) {
   setNativeValueFn(common.View, propertyName);
 }
 
+for (const fnName of common.iosFunctions) {
+  setViewFunction(common.View, fnName);
+}
+
 // Android specific
 setNativeValueFn(common.View, 'importantForAccessibility', function onImportantForAccessibilityChanged(data: PropertyChangeData) {
-  const view = <android.view.View>(<any>data.object)._nativeView;
+  const view = tnsViewToAndroidView(data.object);
   const value = data.newValue;
-  const oldValue = data.oldValue
 
   if (!value) {
     view.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
@@ -46,7 +51,7 @@ setNativeValueFn(common.View, 'importantForAccessibility', function onImportantF
 
 import { AccessibilityHelper } from '../../utils/AccessibilityHelper';
 setNativeValueFn(common.View, 'accessibilityComponentType', function onAccessibilityComponentTypeChanged(data: PropertyChangeData) {
-  const view = <android.view.View>(<any>data.object)._nativeView;
+  const view = tnsViewToAndroidView(data.object);
   const value = data.newValue;
 
   AccessibilityHelper.updateAccessibilityComponentType(view, value);
@@ -54,8 +59,9 @@ setNativeValueFn(common.View, 'accessibilityComponentType', function onAccessibi
 
 setNativeValueFn(common.View, 'accessibilityLiveRegion', function onAccessibilityLiveRegionChanged(data: PropertyChangeData) {
   if (android.os.Build.VERSION.SDK_INT >= 19) {
-    const view = <any>(<any>data.object)._nativeView;
-    const value = data.newValue;
+    const view = <any>tnsViewToAndroidView(data.object);
+
+    const value = data.newValue || '';
 
     switch (value.toLowerCase()) {
       case 'assertive': {
@@ -75,14 +81,33 @@ setNativeValueFn(common.View, 'accessibilityLiveRegion', function onAccessibilit
 });
 
 setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: PropertyChangeData) {
-  const view = <android.view.View>(<any>data.object)._nativeView;
+  const view = tnsViewToAndroidView(data.object);
   const value = data.newValue;
 
-  if (value == void 0) {
-    return;
-  }
-
   view.setFocusable(!!value);
+});
+
+setViewFunction(common.View, 'sendAccessibilityEvent', function sendAccessibilityEvent(this: common.View, eventName: string, msg?: string) {
+  const view = tnsViewToAndroidView(this);
+  if (view) {
+    AccessibilityHelper.sendAccessibilityEvent(view, eventName, msg);
+  } else {
+    const loadedFn = () => {
+      const view = tnsViewToAndroidView(this);
+
+      if (view) {
+        AccessibilityHelper.sendAccessibilityEvent(view, eventName, msg);
+      }
+
+      this.off(common.View.loadedEvent, loadedFn);
+    };
+
+    this.on(common.View.loadedEvent, loadedFn);
+  }
+});
+
+setViewFunction(common.View, 'accessibilityAnnouncement', function accessibilityAnnouncement(this: common.View, msg?: string) {
+  this.sendAccessibilityEvent('announcement', msg);
 });
 
 setNativeValueFn(common.View, 'accessibilityLabel', function onAccessibilityLabelChanged(data: PropertyChangeData) {

@@ -43,6 +43,117 @@ const BUTTON_DELEGATE = new ButtonDelegate();
 const RADIOBUTTON_CHECKED_DELEGATE = new RadioButtonDelegate(true);
 const RADIOBUTTON_UNCHECKED_DELEGATE = new RadioButtonDelegate(false);
 
+let accessibilityEventMap: Map<string, number>;
+function ensureAccessibilityEventMap() {
+  if (accessibilityEventMap) {
+    return;
+  }
+
+  const ae = android.view.accessibility.AccessibilityEvent;
+  accessibilityEventMap = new Map<string, number>([
+    /**
+     * Invalid selection/focus position.
+     */
+    ['invalid_position', ae.INVALID_POSITION],
+    /**
+     * Maximum length of the text fields.
+     */
+    ['max_text_length', ae.MAX_TEXT_LENGTH],
+    /**
+     * Represents the event of clicking on a android.view.View like android.widget.Button, android.widget.CompoundButton, etc.
+     */
+    ['view_clicked', ae.TYPE_VIEW_CLICKED],
+    /**
+     * Represents the event of long clicking on a android.view.View like android.widget.Button, android.widget.CompoundButton, etc.
+     */
+    ['view_long_clicked', ae.TYPE_VIEW_LONG_CLICKED],
+    /**
+     * Represents the event of selecting an item usually in the context of an android.widget.AdapterView.
+     */
+    ['view_selected', ae.TYPE_VIEW_SELECTED],
+    /**
+     * Represents the event of setting input focus of a android.view.View.
+     */
+    ['view_focused', ae.TYPE_VIEW_FOCUSED],
+    /**
+     * Represents the event of changing the text of an android.widget.EditText.
+     */
+    ['view_text_changed', ae.TYPE_VIEW_TEXT_CHANGED],
+    /**
+     * Represents the event of opening a android.widget.PopupWindow, android.view.Menu, android.app.Dialog, etc.
+     */
+    ['window_state_changed', ae.TYPE_WINDOW_STATE_CHANGED],
+    /**
+     * Represents the event showing a android.app.Notification.
+     */
+    ['notification_state_changed', ae.TYPE_NOTIFICATION_STATE_CHANGED],
+    /**
+     * Represents the event of a hover enter over a android.view.View.
+     */
+    ['view_hover_enter', ae.TYPE_VIEW_HOVER_ENTER],
+    /**
+     * Represents the event of a hover exit over a android.view.View.
+     */
+    ['view_hover_exit', ae.TYPE_VIEW_HOVER_EXIT],
+    /**
+     * Represents the event of starting a touch exploration gesture.
+     */
+    ['touch_exploration_gesture_start', ae.TYPE_TOUCH_EXPLORATION_GESTURE_START],
+    /**
+     * Represents the event of ending a touch exploration gesture.
+     */
+    ['touch_exploration_gesture_end', ae.TYPE_TOUCH_EXPLORATION_GESTURE_END],
+    /**
+     * Represents the event of changing the content of a window and more specifically the sub-tree rooted at the event's source.
+     */
+    ['window_content_changed', ae.TYPE_WINDOW_CONTENT_CHANGED],
+    /**
+     * Represents the event of scrolling a view.
+     */
+    ['view_scrolled', ae.TYPE_VIEW_SCROLLED],
+    /**
+     * Represents the event of changing the selection in an android.widget.EditText.
+     */
+    ['view_text_selection_changed', ae.TYPE_VIEW_TEXT_SELECTION_CHANGED],
+    /**
+     * Represents the event of an application making an announcement.
+     */
+    ['announcement', ae.TYPE_ANNOUNCEMENT],
+    /**
+     * Represents the event of gaining accessibility focus.
+     */
+    ['view_accessibility_focused', ae.TYPE_VIEW_ACCESSIBILITY_FOCUSED],
+    /**
+     * Represents the event of clearing accessibility focus.
+     */
+    ['view_accessibility_focus_cleared', ae.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED],
+    /**
+     * Represents the event of traversing the text of a view at a given movement granularity.
+     */
+    ['view_text_traversed_at_movement_granularity', ae.TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY],
+    /**
+     * Represents the event of beginning gesture detection.
+     */
+    ['gesture_detection_start', ae.TYPE_GESTURE_DETECTION_START],
+    /**
+     * Represents the event of ending gesture detection.
+     */
+    ['gesture_detection_end', ae.TYPE_GESTURE_DETECTION_END],
+    /**
+     * Represents the event of the user starting to touch the screen.
+     */
+    ['touch_interaction_start', ae.TYPE_TOUCH_INTERACTION_START],
+    /**
+     * Represents the event of the user ending to touch the screen.
+     */
+    ['touch_interaction_end', ae.TYPE_TOUCH_INTERACTION_END],
+    /**
+     * Mask for AccessibilityEvent all types.
+     */
+    ['all', ae.TYPES_ALL_MASK],
+  ]);
+}
+
 export class AccessibilityHelper {
   public static BUTTON = 'button';
   public static RADIOBUTTON_CHECKED = 'radiobutton_checked';
@@ -67,5 +178,39 @@ export class AccessibilityHelper {
         break;
       }
     }
+  }
+
+  public static sendAccessibilityEvent(view: android.view.View, eventName: string, text?: string) {
+    if (!eventName) {
+      return;
+    }
+
+    const a11yService = <android.view.accessibility.AccessibilityManager>view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
+    if (!a11yService.isEnabled()) {
+      // console.log(`sendAccessibilityEvent: ACCESSIBILITY_SERVICE is not enabled do nothing for ${eventName} -> ${text}`);
+      return;
+    }
+
+    ensureAccessibilityEventMap();
+
+    eventName = eventName.toLowerCase();
+    const eventInt = accessibilityEventMap.get(eventName);
+    if (eventInt === undefined) {
+      console.error(`${eventName} is unknown`);
+      return;
+    }
+
+    const a11yEvent = android.view.accessibility.AccessibilityEvent.obtain(eventInt);
+    a11yEvent.setSource(view);
+
+    a11yEvent.getText().clear();
+
+    if (!text) {
+      text = view.getContentDescription();
+    }
+
+    a11yEvent.getText().add(text);
+
+    a11yService.sendAccessibilityEvent(a11yEvent);
   }
 }

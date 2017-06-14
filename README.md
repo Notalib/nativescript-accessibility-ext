@@ -1,5 +1,5 @@
 # @nota/nativescript-accessibility-ext
-Nativescript plugin for enabling accessiblity features
+Nativescript plugin for enabling accessibility features
 
 ## Reasoning behind this plugin:
 NativeScript is a framework for developing cross-platform mobile applications.
@@ -40,19 +40,19 @@ Note: This is from NativeScript itself
 ### CSSClasse: Page.a11y-fontscale (iOS, Android)
 If you need to handle styling when font size is scaled up on either platform, Page have these css-classes:
 
-The number indicated pct font:
-- a11y-fontscale-050
-- a11y-fontscale-070
+The number indicated pct font scale:
+- a11y-fontscale-050 (iOS only)
+- a11y-fontscale-070 (iOS only)
 - a11y-fontscale-085
 - a11y-fontscale-100
 - a11y-fontscale-115
 - a11y-fontscale-130
-- a11y-fontscale-150
-- a11y-fontscale-200
-- a11y-fontscale-250
-- a11y-fontscale-300
-- a11y-fontscale-350
-- a11y-fontscale-400
+- a11y-fontscale-150 (iOS only)
+- a11y-fontscale-200 (iOS only - extra large fonts)
+- a11y-fontscale-250 (iOS only - extra large fonts)
+- a11y-fontscale-300 (iOS only - extra large fonts)
+- a11y-fontscale-350 (iOS only - extra large fonts)
+- a11y-fontscale-400 (iOS only - extra large fonts)
 
 If you want auto scaling on iOS Labels see: Label.accessibilityAdjustFontSize
 
@@ -96,6 +96,7 @@ Defaults to false.
 Scales the font on a Label on iOS according to the settings in Settings -> General -> Accessibility -> Larger text
 On Android this is handled automatically, on iOS you have to specify it yourself.
 Note: It's similar to UILabel.adjustsFontForContentSizeCategory but effects all fonts not just the preferedFonts.
+Note: Font Scale between 50% and 400%. 200% -> 400% are extra large accessibility font scaling
 
 #### Function: View.postAccessibilityNotification(notificationType: string, arg?: string | null) (iOS)
 Post an accessibility notification to iOS.
@@ -190,6 +191,8 @@ If not provided with `announcement` the elements `automationText` value will be 
 #### FontScaleObservable
 NativeScript Observable for getting the native fontScale on either platform.
 Note: For this to work properly on Android you need to add fontScale to the `android:configChanges` in your **AndroidManifest.xml**
+Note: Android: Font scale between 0.85 and 1.3 (85% -> 130%)
+      iOS: Font scale between 50% and 400%. 200% -> 400% are extra large accessibility font
 
 ## Using the plugin
 To use the plugin in your nativescript-app, install and import the module:

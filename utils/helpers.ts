@@ -2,6 +2,7 @@ import { PropertyChangeData, Property } from 'ui/core/dependency-observable';
 import { PropertyMetadata } from 'ui/core/proxy';
 import * as proxy from 'ui/core/proxy';
 import * as trace from 'trace';
+import { View } from 'ui/core/view';
 
 function noop() {
 }
@@ -54,5 +55,37 @@ export function addPropertyToView(viewClass: any, viewName: string, name: string
 export function writeTrace(message: string) {
   if (trace.enabled) {
     trace.write(message, 'A11Y');
+  }
+}
+
+/**
+ * Send notification when accessibility focus state changes.
+ * If either receivedFocus or lostFocus is true, 'accessibilityFocusChanged' is send with value true if element received focus
+ * If receivedFocus, 'accessibilityFocus' is send
+ * if lostFocus, 'accessibilityBlur' is send
+ *
+ * @param {View} view
+ * @param {boolean} receivedFocus
+ * @param {boolean} lostFocus
+ */
+export function notityAccessibilityFocusState(view: View, receivedFocus: boolean, lostFocus: boolean): void {
+  if (receivedFocus || lostFocus) {
+    this.owner.notify({
+      eventName: 'accessibilityFocusChanged',
+      object: this.owner,
+      value: receivedFocus,
+    });
+
+    if (receivedFocus) {
+      this.owner.notify({
+        eventName: 'accessibilityFocus',
+        object: this.owner,
+      });
+    } else if (lostFocus) {
+      this.owner.notify({
+        eventName: 'accessibilityBlur',
+        object: this.owner,
+      });
+    }
   }
 }

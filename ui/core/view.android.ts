@@ -60,7 +60,7 @@ setNativeValueFn(common.View, 'accessibilityComponentType', function onAccessibi
   const view = tnsViewToAndroidView(data.object);
   const value = data.newValue;
 
-  AccessibilityHelper.updateAccessibilityComponentType(view, value);
+  AccessibilityHelper.updateAccessibilityComponentType(data.object, view, value);
   writeTrace(`View<android>.accessibilityComponentType - value: ${value}.`);
 });
 
@@ -94,10 +94,16 @@ setNativeValueFn(common.View, 'accessibilityLiveRegion', function onAccessibilit
 
 setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: PropertyChangeData) {
   const view = tnsViewToAndroidView(data.object);
-  const value = data.newValue;
+  const value = !!data.newValue;
 
-  view.setFocusable(!!value);
+  view.setFocusable(value);
   writeTrace(`View<android>.accessible = ${value}`);
+
+  if (value) {
+    AccessibilityHelper.updateAccessibilityComponentType(data.object, view, AccessibilityHelper.PLAIN);
+  } else {
+    AccessibilityHelper.removeAccessibilityComponentType(view);
+  }
 });
 
 setViewFunction(common.View, 'sendAccessibilityEvent', function sendAccessibilityEvent(this: common.View, eventName: string, msg?: string) {

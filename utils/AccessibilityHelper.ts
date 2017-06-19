@@ -1,7 +1,35 @@
-class ButtonDelegate extends android.view.View.AccessibilityDelegate {
-  private className = android.widget.Button.class.getName();
-  constructor() {
+import { View } from 'ui/core/view';
+import { notityAccessibilityFocusState } from './helpers';
+
+abstract class BaseDelegate extends android.view.View.AccessibilityDelegate {
+  constructor(private owner: View) {
     super();
+  }
+
+  public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
+    const receivedFocus = event.getEventType() === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED;
+    const lostFocus = event.getEventType() === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED;
+
+    if (receivedFocus || lostFocus) {
+      notityAccessibilityFocusState(this.owner, receivedFocus, lostFocus);
+    }
+
+    return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
+  }
+}
+
+class PlainDelegate extends BaseDelegate {
+  constructor(owner: View) {
+    super(owner);
+
+    return global.__native(this);
+  }
+}
+
+class ButtonDelegate extends BaseDelegate {
+  private className = android.widget.Button.class.getName();
+  constructor(owner: View) {
+    super(owner);
 
     return global.__native(this);
   }
@@ -17,10 +45,10 @@ class ButtonDelegate extends android.view.View.AccessibilityDelegate {
   }
 }
 
-class RadioButtonDelegate extends android.view.View.AccessibilityDelegate {
+class RadioButtonDelegate extends BaseDelegate {
   private className = android.widget.RadioButton.class.getName();
-  constructor(private checked: boolean) {
-    super();
+  constructor(owner: any, private checked: boolean) {
+    super(owner);
 
     return global.__native(this);
   }
@@ -38,10 +66,6 @@ class RadioButtonDelegate extends android.view.View.AccessibilityDelegate {
     info.setChecked(this.checked);
   }
 }
-
-const BUTTON_DELEGATE = new ButtonDelegate();
-const RADIOBUTTON_CHECKED_DELEGATE = new RadioButtonDelegate(true);
-const RADIOBUTTON_UNCHECKED_DELEGATE = new RadioButtonDelegate(false);
 
 let accessibilityEventMap: Map<string, number>;
 function ensureAccessibilityEventMap() {
@@ -158,26 +182,35 @@ export class AccessibilityHelper {
   public static BUTTON = 'button';
   public static RADIOBUTTON_CHECKED = 'radiobutton_checked';
   public static RADIOBUTTON_UNCHECKED = 'radiobutton_unchecked';
+  public static PLAIN = 'PLAIN';
 
-  public static updateAccessibilityComponentType(view: android.view.View, componentType: string) {
+  public static updateAccessibilityComponentType(tnsView: any, view: android.view.View, componentType: string) {
     switch (componentType) {
       case AccessibilityHelper.BUTTON: {
-        view.setAccessibilityDelegate(BUTTON_DELEGATE);
+        view.setAccessibilityDelegate(new ButtonDelegate(tnsView));
         break;
       }
       case AccessibilityHelper.RADIOBUTTON_CHECKED: {
-        view.setAccessibilityDelegate(RADIOBUTTON_CHECKED_DELEGATE);
+        view.setAccessibilityDelegate(new RadioButtonDelegate(tnsView, true));
         break;
       }
       case AccessibilityHelper.RADIOBUTTON_UNCHECKED: {
-        view.setAccessibilityDelegate(RADIOBUTTON_UNCHECKED_DELEGATE);
+        view.setAccessibilityDelegate(new RadioButtonDelegate(tnsView, false));
+        break;
+      }
+      case AccessibilityHelper.PLAIN: {
+        view.setAccessibilityDelegate(new PlainDelegate(tnsView));
         break;
       }
       default: {
-        view.setAccessibilityDelegate(null);
+        AccessibilityHelper.removeAccessibilityComponentType(view);
         break;
       }
     }
+  }
+
+  public static removeAccessibilityComponentType(view: android.view.View) {
+    view.setAccessibilityDelegate(null);
   }
 
   public static sendAccessibilityEvent(view: android.view.View, eventName: string, text?: string) {

@@ -1,7 +1,8 @@
+import * as nsApp from 'application';
 import { PropertyChangeData } from 'ui/core/dependency-observable';
 
 import * as common from './view-common';
-import { setNativeValueFn, setViewFunction, inputArrayToBitMask, writeTrace } from '../../utils/helpers';
+import { setNativeValueFn, setViewFunction, inputArrayToBitMask, writeTrace, notityAccessibilityFocusState, } from '../../utils/helpers';
 
 // Define the android specific properties with a noop function
 for (const propertyName of common.androidProperties) {
@@ -16,12 +17,58 @@ function tnsViewToUIView(view: any): UIView {
   return <UIView>view._nativeView;
 }
 
+const accessibilityFocusObserverSymbol = Symbol('ios:accessibilityFocusObserver');
+const accessibilityHadFocusSymbol = Symbol('ios:accessibilityHadFocusSymbol');
 setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: PropertyChangeData) {
-  const view = tnsViewToUIView(data.object);
+  const tnsView = data.object;
+  const view = tnsViewToUIView(tnsView);
+
   const value = !!data.newValue;
 
   view.isAccessibilityElement = value;
   writeTrace(`View<ios>.accessible = ${value}`);
+
+  if (tnsView[accessibilityFocusObserverSymbol]) {
+    if (value) {
+      return;
+    }
+
+    nsApp.ios.removeNotificationObserver(tnsView[accessibilityFocusObserverSymbol], UIAccessibilityElementFocusedNotification);
+
+    delete tnsView[accessibilityFocusObserverSymbol];
+    return;
+  }
+
+  const selfView = new WeakRef(view);
+  const selfTnsView = new WeakRef(tnsView);
+
+  const observer = nsApp.ios.addNotificationObserver(UIAccessibilityElementFocusedNotification, (args) => {
+    const localTnsView = selfTnsView.get();
+    const localView = selfView.get();
+    if (!localTnsView || !localView) {
+      nsApp.ios.removeNotificationObserver(observer, UIAccessibilityElementFocusedNotification);
+      return;
+    }
+
+    const object = args.userInfo.objectForKey(UIAccessibilityFocusedElementKey);
+
+    const receivedFocus = object === localView;
+    const lostFocus = localView[accessibilityHadFocusSymbol] && !receivedFocus;
+
+    if (receivedFocus || lostFocus) {
+      notityAccessibilityFocusState(localTnsView, receivedFocus, lostFocus);
+
+      if (receivedFocus) {
+        localView[accessibilityHadFocusSymbol] = true;
+      } else if (lostFocus) {
+        localView[accessibilityHadFocusSymbol] = false;
+      }
+    }
+
+    console.log(`${object} -> receivedFocus: ${receivedFocus} -> lostFocus: ${lostFocus}`);
+  });
+
+  tnsView[accessibilityFocusObserverSymbol] = observer;
 });
 
 let traits: Map<string, number>;
@@ -130,3 +177,4 @@ setViewFunction(common.View, 'accessibilityAnnouncement', function accessibility
   this.postAccessibilityNotification('announcement', msg);
   writeTrace(`View<ios>.accessibilityAnnouncement(..) - sending ${msg}`);
 });
+

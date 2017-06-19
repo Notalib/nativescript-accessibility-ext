@@ -4,6 +4,8 @@ import * as nsApp from 'application';
 import { isAndroid, isIOS } from 'platform';
 import * as utils from 'utils/utils';
 
+import { writeTrace } from './helpers';
+
 let internalObservable: Observable;
 function ensureObservable() {
   if (internalObservable) {
@@ -12,8 +14,17 @@ function ensureObservable() {
 
   internalObservable = new Observable();
 
+  function fixRoundingError(fontScale: number) {
+    return Math.floor(fontScale * 100) / 100;
+  }
+
   function fontScaleChanged(fontScale: number) {
+    writeTrace(`fontScaleChanged: got: ${fontScale}`);
+    fontScale = fixRoundingError(fontScale);
+    writeTrace(`fontScaleChanged: got fixed: ${fontScale}`);
+
     for (const validFontScale of FontScaleObservable.VALID_FONT_SCALES) {
+      writeTrace(`fontScaleChanged: ${fontScale} <= ${validFontScale} = ${fontScale <= validFontScale}`);
       if (fontScale <= validFontScale) {
         internalObservable.set(FontScaleObservable.FONT_SCALE, validFontScale);
         return;
@@ -22,11 +33,11 @@ function ensureObservable() {
   }
 
   if (isAndroid) {
-    const getAndroidFontScale = () => {
-      return Number(nsApp.android.context.getResources().getConfiguration().fontScale);
+    const useAndroidFontScale = () => {
+      fontScaleChanged(Number(nsApp.android.context.getResources().getConfiguration().fontScale));
     };
 
-    fontScaleChanged(getAndroidFontScale());
+    useAndroidFontScale();
 
     nsApp.android.context.registerComponentCallbacks(new android.content.ComponentCallbacks2({
       onLowMemory() {
@@ -36,12 +47,13 @@ function ensureObservable() {
         // Dummy
       },
       onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        console.log(newConfig.fontScale);
         fontScaleChanged(Number(newConfig.fontScale));
       }
     }));
 
     nsApp.on(nsApp.resumeEvent, () => {
-      fontScaleChanged(getAndroidFontScale());
+      useAndroidFontScale();
     });
   } else if (isIOS) {
     const sizeMap = new Map<string, number>([

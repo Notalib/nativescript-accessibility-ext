@@ -18,7 +18,8 @@ for (const fnName of common.iosFunctions) {
 
 // Android specific
 setNativeValueFn(common.View, 'importantForAccessibility', function onImportantForAccessibilityChanged(data: PropertyChangeData) {
-  const view = tnsViewToAndroidView(data.object);
+  const tnsView = <common.View>data.object;
+  const view = tnsViewToAndroidView(tnsView);
   const value = data.newValue;
 
   if (!value) {
@@ -57,16 +58,18 @@ setNativeValueFn(common.View, 'importantForAccessibility', function onImportantF
 
 import { AccessibilityHelper } from '../../utils/AccessibilityHelper';
 setNativeValueFn(common.View, 'accessibilityComponentType', function onAccessibilityComponentTypeChanged(data: PropertyChangeData) {
-  const view = tnsViewToAndroidView(data.object);
+  const tnsView = <common.View>data.object;
+  const view = tnsViewToAndroidView(tnsView);
   const value = data.newValue;
 
-  AccessibilityHelper.updateAccessibilityComponentType(data.object, view, value);
+  AccessibilityHelper.updateAccessibilityComponentType(tnsView, view, value);
   writeTrace(`View<android>.accessibilityComponentType - value: ${value}.`);
 });
 
 setNativeValueFn(common.View, 'accessibilityLiveRegion', function onAccessibilityLiveRegionChanged(data: PropertyChangeData) {
   if (android.os.Build.VERSION.SDK_INT >= 19) {
-    const view = <any>tnsViewToAndroidView(data.object);
+    const tnsView = <common.View>data.object;
+    const view = <any>tnsViewToAndroidView(tnsView);
 
     const value = data.newValue || '';
 
@@ -93,14 +96,15 @@ setNativeValueFn(common.View, 'accessibilityLiveRegion', function onAccessibilit
 });
 
 setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: PropertyChangeData) {
-  const view = tnsViewToAndroidView(data.object);
+  const tnsView = <common.View>data.object;
+  const view = tnsViewToAndroidView(tnsView);
   const value = !!data.newValue;
 
   view.setFocusable(value);
   writeTrace(`View<android>.accessible = ${value}`);
 
   if (value) {
-    AccessibilityHelper.updateAccessibilityComponentType(data.object, view, AccessibilityHelper.PLAIN);
+    AccessibilityHelper.updateAccessibilityComponentType(tnsView, view, AccessibilityHelper.PLAIN);
   } else {
     AccessibilityHelper.removeAccessibilityComponentType(view);
   }

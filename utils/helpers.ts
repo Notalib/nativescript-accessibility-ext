@@ -70,19 +70,26 @@ export function writeTrace(message: string) {
  */
 export function notityAccessibilityFocusState(view: View, receivedFocus: boolean, lostFocus: boolean): void {
   if (receivedFocus || lostFocus) {
-    this.owner.notify({
+    writeTrace(`notityAccessibilityFocusState: ${JSON.stringify({
+      name: 'notityAccessibilityFocusState',
+      receivedFocus,
+      lostFocus,
+      view: String(view),
+    })}`);
+
+    view.notify({
       eventName: 'accessibilityFocusChanged',
       object: this.owner,
       value: receivedFocus,
     });
 
     if (receivedFocus) {
-      this.owner.notify({
+      view.notify({
         eventName: 'accessibilityFocus',
         object: this.owner,
       });
     } else if (lostFocus) {
-      this.owner.notify({
+      view.notify({
         eventName: 'accessibilityBlur',
         object: this.owner,
       });

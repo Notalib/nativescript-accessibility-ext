@@ -1,35 +1,36 @@
 import { View } from 'ui/core/view';
-import { notityAccessibilityFocusState } from './helpers';
+import { writeTrace, notityAccessibilityFocusState } from './helpers';
 
-abstract class BaseDelegate extends android.view.View.AccessibilityDelegate {
+const androidNotityAccessibilityFocusState = (owner: View, viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent) => {
+  const receivedFocus = event.getEventType() === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED;
+  const lostFocus = event.getEventType() === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED;
+
+  if (receivedFocus || lostFocus) {
+    notityAccessibilityFocusState(owner, receivedFocus, lostFocus);
+  }
+};
+
+class PlainDelegate extends android.view.View.AccessibilityDelegate {
   constructor(private owner: View) {
     super();
+
+    return global.__native(this);
   }
 
+  /**
+   * Handles accessibility Focus/Blur events - If you create new delegates, you need to clone this function... (sorry, {N} won't let you extend native classes twice)
+   */
   public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
-    const receivedFocus = event.getEventType() === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED;
-    const lostFocus = event.getEventType() === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED;
-
-    if (receivedFocus || lostFocus) {
-      notityAccessibilityFocusState(this.owner, receivedFocus, lostFocus);
-    }
+    androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
 
     return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
   }
 }
 
-class PlainDelegate extends BaseDelegate {
-  constructor(owner: View) {
-    super(owner);
-
-    return global.__native(this);
-  }
-}
-
-class ButtonDelegate extends BaseDelegate {
+class ButtonDelegate extends android.view.View.AccessibilityDelegate {
   private className = android.widget.Button.class.getName();
-  constructor(owner: View) {
-    super(owner);
+  constructor(private owner: View) {
+    super();
 
     return global.__native(this);
   }
@@ -43,12 +44,18 @@ class ButtonDelegate extends BaseDelegate {
     super.onInitializeAccessibilityNodeInfo(host, info);
     info.setClassName(this.className);
   }
+
+  public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
+    androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
+
+    return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
+  }
 }
 
-class RadioButtonDelegate extends BaseDelegate {
+class RadioButtonDelegate extends android.view.View.AccessibilityDelegate {
   private className = android.widget.RadioButton.class.getName();
-  constructor(owner: any, private checked: boolean) {
-    super(owner);
+  constructor(private owner: View, private checked: boolean) {
+    super();
 
     return global.__native(this);
   }
@@ -64,6 +71,12 @@ class RadioButtonDelegate extends BaseDelegate {
     info.setClassName(this.className);
     info.setCheckable(true);
     info.setChecked(this.checked);
+  }
+
+  public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
+    androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
+
+    return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
   }
 }
 
@@ -184,43 +197,48 @@ export class AccessibilityHelper {
   public static RADIOBUTTON_UNCHECKED = 'radiobutton_unchecked';
   public static PLAIN = 'PLAIN';
 
-  public static updateAccessibilityComponentType(tnsView: any, view: android.view.View, componentType: string) {
+  public static updateAccessibilityComponentType(tnsView: View, androidView: android.view.View, componentType: string) {
+    writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView} componentType:${componentType}`);
+
     switch (componentType) {
       case AccessibilityHelper.BUTTON: {
-        view.setAccessibilityDelegate(new ButtonDelegate(tnsView));
+        androidView.setAccessibilityDelegate(new ButtonDelegate(tnsView));
         break;
       }
       case AccessibilityHelper.RADIOBUTTON_CHECKED: {
-        view.setAccessibilityDelegate(new RadioButtonDelegate(tnsView, true));
+        androidView.setAccessibilityDelegate(new RadioButtonDelegate(tnsView, true));
         break;
       }
       case AccessibilityHelper.RADIOBUTTON_UNCHECKED: {
-        view.setAccessibilityDelegate(new RadioButtonDelegate(tnsView, false));
+        androidView.setAccessibilityDelegate(new RadioButtonDelegate(tnsView, false));
         break;
       }
       case AccessibilityHelper.PLAIN: {
-        view.setAccessibilityDelegate(new PlainDelegate(tnsView));
+        androidView.setAccessibilityDelegate(new PlainDelegate(tnsView));
         break;
       }
       default: {
-        AccessibilityHelper.removeAccessibilityComponentType(view);
+        writeTrace(`updateAccessibilityComponentType: unknown componentType: ${componentType}`);
+        AccessibilityHelper.removeAccessibilityComponentType(androidView);
         break;
       }
     }
   }
 
-  public static removeAccessibilityComponentType(view: android.view.View) {
-    view.setAccessibilityDelegate(null);
+  public static removeAccessibilityComponentType(androidView: android.view.View) {
+    writeTrace('removeAccessibilityComponentType');
+    androidView.setAccessibilityDelegate(null);
   }
 
-  public static sendAccessibilityEvent(view: android.view.View, eventName: string, text?: string) {
+  public static sendAccessibilityEvent(androidView: android.view.View, eventName: string, text?: string) {
     if (!eventName) {
+      writeTrace(`sendAccessibilityEvent: no eventName provided`);
       return;
     }
 
-    const a11yService = <android.view.accessibility.AccessibilityManager>view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
+    const a11yService = <android.view.accessibility.AccessibilityManager>androidView.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
     if (!a11yService.isEnabled()) {
-      // console.log(`sendAccessibilityEvent: ACCESSIBILITY_SERVICE is not enabled do nothing for ${eventName} -> ${text}`);
+      writeTrace(`sendAccessibilityEvent: ACCESSIBILITY_SERVICE is not enabled do nothing for ${eventName} -> ${text}`);
       return;
     }
 
@@ -229,18 +247,21 @@ export class AccessibilityHelper {
     eventName = eventName.toLowerCase();
     const eventInt = accessibilityEventMap.get(eventName);
     if (eventInt === undefined) {
-      console.error(`${eventName} is unknown`);
+      writeTrace(`sendAccessibilityEvent: '${eventName}' is unknown`);
       return;
     }
 
     const a11yEvent = android.view.accessibility.AccessibilityEvent.obtain(eventInt);
-    a11yEvent.setSource(view);
+    a11yEvent.setSource(androidView);
 
     a11yEvent.getText().clear();
 
     if (!text) {
-      text = view.getContentDescription();
+      text = androidView.getContentDescription();
+      writeTrace(`sendAccessibilityEvent: '${eventName}' text not provided uses androidView.getContentDescription()`);
     }
+
+    writeTrace(`sendAccessibilityEvent: send event: '${eventName}' with text: '${text}'`);
 
     a11yEvent.getText().add(text);
 

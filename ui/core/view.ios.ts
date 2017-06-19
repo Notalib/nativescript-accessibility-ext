@@ -20,7 +20,7 @@ function tnsViewToUIView(view: any): UIView {
 const accessibilityFocusObserverSymbol = Symbol('ios:accessibilityFocusObserver');
 const accessibilityHadFocusSymbol = Symbol('ios:accessibilityHadFocusSymbol');
 setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: PropertyChangeData) {
-  const tnsView = data.object;
+  const tnsView = <common.View>data.object;
   const view = tnsViewToUIView(tnsView);
 
   const value = !!data.newValue;
@@ -39,14 +39,17 @@ setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: P
     return;
   }
 
-  const selfView = new WeakRef(view);
-  const selfTnsView = new WeakRef(tnsView);
+  const selfView = new WeakRef<UIView>(view);
+  const selfTnsView = new WeakRef<common.View>(tnsView);
 
   const observer = nsApp.ios.addNotificationObserver(UIAccessibilityElementFocusedNotification, (args) => {
     const localTnsView = selfTnsView.get();
     const localView = selfView.get();
     if (!localTnsView || !localView) {
       nsApp.ios.removeNotificationObserver(observer, UIAccessibilityElementFocusedNotification);
+      if (localTnsView) {
+        delete localTnsView[accessibilityFocusObserverSymbol];
+      }
       return;
     }
 
@@ -54,6 +57,8 @@ setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: P
 
     const receivedFocus = object === localView;
     const lostFocus = localView[accessibilityHadFocusSymbol] && !receivedFocus;
+
+    writeTrace(`View<ios>.accessible: observer<${UIAccessibilityElementFocusedNotification}>, view: ${localTnsView}, receivedFocus: ${receivedFocus}, lostFocus: ${lostFocus}`);
 
     if (receivedFocus || lostFocus) {
       notityAccessibilityFocusState(localTnsView, receivedFocus, lostFocus);

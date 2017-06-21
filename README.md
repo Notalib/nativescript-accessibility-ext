@@ -38,12 +38,12 @@ Note: This is from NativeScript itself
       **Android:** Maps to contentDescription
 
 ### CSSClasse: Page.a11y-fontscale (iOS, Android)
-If you need to handle styling when font size is scaled up on either platform, Page have these css-classes:
+If you need to apply different styling when fonts are scaled, these css-classes are available on the Page.
 
 The number indicated pct font scale:
-- a11y-fontscale-050 (iOS only)
-- a11y-fontscale-070 (iOS only)
-- a11y-fontscale-085
+- a11y-fontscale-50 (iOS only)
+- a11y-fontscale-70 (iOS only)
+- a11y-fontscale-85
 - a11y-fontscale-100
 - a11y-fontscale-115
 - a11y-fontscale-130
@@ -54,7 +54,7 @@ The number indicated pct font scale:
 - a11y-fontscale-350 (iOS only - extra large fonts)
 - a11y-fontscale-400 (iOS only - extra large fonts)
 
-If you want auto scaling on iOS Labels see: Label.accessibilityAdjustFontSize
+If you want auto scaling on iOS Labels see: Label.accessibilityAdjustsFontSize
 
 ### Attributes and functions for `iOS`-only
 
@@ -92,10 +92,10 @@ Indicating whether the accessibility elements contained within this accessibilit
 
 Defaults to false.
 
-## Attribute: Label.accessibilityAdjustFontSize (iOS)
+## Attribute: Label.accessibilityAdjustsFontSize (iOS)
 Scales the font on a Label on iOS according to the settings in Settings -> General -> Accessibility -> Larger text
 On Android this is handled automatically, on iOS you have to specify it yourself.
-Note: It's similar to UILabel.adjustsFontForContentSizeCategory but effects all fonts not just the preferedFonts.
+Note: It's similar to UILabel.adjustsFontForContentSizeCategory but affects all fonts not just the preferedFonts.
 Note: Font Scale between 50% and 400%. 200% -> 400% are extra large accessibility font scaling
 
 #### Function: View.postAccessibilityNotification(notificationType: string, arg?: string | null) (iOS)

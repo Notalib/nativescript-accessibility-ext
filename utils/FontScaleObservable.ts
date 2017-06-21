@@ -47,7 +47,6 @@ function ensureObservable() {
         // Dummy
       },
       onConfigurationChanged(newConfig: android.content.res.Configuration) {
-        console.log(newConfig.fontScale);
         fontScaleChanged(Number(newConfig.fontScale));
       }
     }));

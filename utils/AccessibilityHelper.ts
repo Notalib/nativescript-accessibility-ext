@@ -1,4 +1,4 @@
-import { View } from 'tns-core-modules/ui/core/view';
+import { View } from 'tns-core-modules/ui/core/view/view';
 import { writeTrace, notityAccessibilityFocusState } from './helpers';
 
 const androidNotityAccessibilityFocusState = (owner: View, viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent) => {

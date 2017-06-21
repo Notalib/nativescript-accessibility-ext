@@ -1,4 +1,4 @@
-import { View } from 'tns-core-modules/ui/core/view/view';
+import { View } from './view-common';
 import * as nsApp from 'tns-core-modules/application';
 
 import * as common from './view-common';

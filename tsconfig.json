@@ -34,8 +34,6 @@
     "references.d.ts"
   ],
   "exclude": [
-    "ui/**/*.d.ts",
-    "utils/**/*.d.ts",
     "tests"
   ],
   "compileOnSave": false

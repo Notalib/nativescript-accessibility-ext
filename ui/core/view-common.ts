@@ -1,10 +1,9 @@
-import { Property } from 'tns-core-modules/ui/core/view';
 import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
 import { setViewFunction, addPropertyToView } from '../../utils/helpers';
 
 // Common properties
 export const accessibleProperty = addPropertyToView(ViewCommon, 'accessible', false);
-export const accessibilityLabelProperty = addPropertyToView('accessibilityLabel', false);
+export const accessibilityLabelProperty = addPropertyToView(ViewCommon, 'accessibilityLabel', false);
 
 // iOS properties:
 export const accessibilityTraitsProperty = addPropertyToView<string | string[] | null>(ViewCommon, 'accessibilityTraits');
@@ -31,4 +30,4 @@ for (const fnName of Object.keys(allFunctions)) {
   setViewFunction(ViewCommon, fnName);
 }
 
-export { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
+export { View } from 'tns-core-modules/ui/core/view/view';

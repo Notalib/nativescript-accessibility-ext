@@ -69,8 +69,6 @@ setNativeValueFn(common.View, 'accessible', function onAccessibleChanged(data: P
         localView[accessibilityHadFocusSymbol] = false;
       }
     }
-
-    console.log(`${object} -> receivedFocus: ${receivedFocus} -> lostFocus: ${lostFocus}`);
   });
 
   tnsView[accessibilityFocusObserverSymbol] = observer;

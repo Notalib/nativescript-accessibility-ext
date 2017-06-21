@@ -1,7 +1,8 @@
-import { Label } from 'tns-core-modules/ui/label/label';
+import { Label } from 'tns-core-modules/ui/label';
 
-import { addPropertyToView } from '../../utils/helpers';
+import { addPropertyToView, Property } from '../../utils/helpers';
 
-export const accessibilityAdjustsFontSizeProperty = addPropertyToView(Label, 'accessibilityAdjustsFontSize');
+export const accessibilityAdjustsFontSizeProperty: Property<Label, boolean> = addPropertyToView<Label, boolean>(Label, 'accessibilityAdjustsFontSize');
 
-export { Label } from 'tns-core-modules/ui/label/label';
+export { Property } from 'tns-core-modules/ui/core/properties/properties';
+export { Label } from 'tns-core-modules/ui/label';

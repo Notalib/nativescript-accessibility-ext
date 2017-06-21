@@ -1,7 +1,11 @@
 import * as trace from 'tns-core-modules/trace';
-import { Property, View } from 'tns-core-modules/ui/core/view/view'
+import { View } from 'tns-core-modules/ui/core/view'
+export { View } from 'tns-core-modules/ui/core/view'
+export { ViewCommon } from 'tns-core-modules/ui/core/view/view-common'
+import { Property } from 'tns-core-modules/ui/core/properties';
+export { Property } from 'tns-core-modules/ui/core/properties';
 
-function noop() {
+export function noop() {
 }
 
 export function setViewFunction(viewClass: any, fnName, fn?: Function) {
@@ -29,8 +33,12 @@ export function inputArrayToBitMask(val: string | string[], map: Map<string, nu
     .reduce((c, val) => c | map.get(val), 0) || 0;
 }
 
-export function addPropertyToView<T>(viewClass: any, name: string, defaultValue?: T) {
-  const property = new Property<View, T>({
+export interface TypeClass<T extends View> {
+  new (): T;
+};
+
+export function addPropertyToView<ViewType extends View, T>(viewClass: TypeClass<ViewType>, name: string, defaultValue?: T): Property<ViewType, T> {
+  const property = new Property<ViewType, T>({
     name,
     defaultValue,
   });

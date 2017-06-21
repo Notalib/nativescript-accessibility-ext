@@ -1,6 +1,11 @@
 // this import should be first in order to load some required settings (like globals and reflect-metadata)
-import { platformNativeScriptDynamic, NativeScriptModule } from "nativescript-angular/platform";
+import { NativeScriptModule } from "nativescript-angular/nativescript.module";
+import { platformNativeScriptDynamic } from "nativescript-angular/platform";
 import { NativeScriptFormsModule } from "nativescript-angular/forms";
+import * as trace from 'tns-core-modules/trace';
+trace.setCategories('A11Y');
+trace.enable();
+
 import '@nota/nativescript-accessibility-ext';
 import { NgModule } from "@angular/core";
 import { AppComponent } from "./app.component";

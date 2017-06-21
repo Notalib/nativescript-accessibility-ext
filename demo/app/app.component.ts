@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import * as dialogs from 'ui/dialogs';
+import * as dialogs from 'tns-core-modules/ui/dialogs';
 
 @Component({
   selector: 'my-app',

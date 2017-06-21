@@ -22,7 +22,7 @@
     "@angular/platform-browser": "~4.1.0",
     "@angular/platform-browser-dynamic": "~4.1.0",
     "@angular/router": "~4.1.0",
-    "@nota/nativescript-accessibility-ext": "file:..",
+    "@nota/nativescript-accessibility-ext": "file:../nativescript-accessibility-ext",
     "nativescript-angular": "~3.0.0",
     "nativescript-globalevents": "^1.1.2",
     "nativescript-theme-core": "^1.0.4",

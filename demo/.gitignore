@@ -5,4 +5,4 @@ app/theme-core-scss/
 app/core.*.scss
 platforms
 app/_bootstrap-map.scss
-./node_modules
+node_modules/

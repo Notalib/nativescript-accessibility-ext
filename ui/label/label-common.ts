@@ -5,7 +5,7 @@ import { addPropertyToView } from '../../utils/helpers';
 export const commonProperties = [
 ];
 export const iosProperties = [
-  'accessibilityAdjustFontSize',
+  'accessibilityAdjustsFontSize',
 ];
 export const androidProperties = [
 ];

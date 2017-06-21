@@ -19,7 +19,7 @@ function loadedEventCb({object: page}: PageLoadedEventData) {
   (<any>page).fontScaleObservable = fontScaleObservable;
 
   function fontScaleToCssClass(fontScale: number) {
-    return `a11y-fontscale-${Number(fontScale).toFixed(2).replace(/\./, '')}`;
+    return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;
   }
 
   const fontScaleCssClasses = FontScaleObservable.VALID_FONT_SCALES

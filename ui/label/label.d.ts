@@ -3,6 +3,6 @@ declare module 'ui/label' {
     /**
      * iOS: Scale font according to platform settings
      */
-    accessibilityAdjustFontSize?: boolean;
+    accessibilityAdjustsFontSize?: boolean;
   }
 }

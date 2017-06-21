@@ -1,4 +1,4 @@
-declare module 'ui/core/view' {
+declare module 'tns-core-modules/ui/core/view' {
   interface View {
     // Common for both platforms
     accessible?: boolean;

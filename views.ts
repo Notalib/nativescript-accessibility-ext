@@ -1,0 +1,2 @@
+import './ui/core/view';
+

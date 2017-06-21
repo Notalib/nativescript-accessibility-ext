@@ -26,9 +26,11 @@
   "devDependencies": {
     "tns-core-modules": "^3.0.0",
     "tns-platform-declarations": "^3.0.0",
+    "nativescript-globalevents": "^1.1.0",
     "typescript": "^2.3.0"
   },
   "peerDependencies": {
-    "tns-core-modules": "^3.0.0"
+    "tns-core-modules": "^3.0.0",
+    "nativescript-globalevents": "^1.1.0"
   }
 }

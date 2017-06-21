@@ -38,3 +38,6 @@ jspm_packages
 *.js
 *.tgz
 yarn.lock
+package-lock.json
+*.d.ts
+references.d.ts

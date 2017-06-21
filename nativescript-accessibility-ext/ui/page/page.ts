@@ -87,3 +87,4 @@ function loadedEventCb({object: page}: PageLoadedEventData) {
 }
 
 (<any>Page).on(Page.loadedEvent, loadedEventCb);
+export { Page } from 'ui/page';

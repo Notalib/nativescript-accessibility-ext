@@ -79,19 +79,19 @@ export function notityAccessibilityFocusState(view: View, receivedFocus: boolean
 
     view.notify({
       eventName: 'accessibilityFocusChanged',
-      object: this.owner,
+      object: view,
       value: receivedFocus,
     });
 
     if (receivedFocus) {
       view.notify({
         eventName: 'accessibilityFocus',
-        object: this.owner,
+        object: view,
       });
     } else if (lostFocus) {
       view.notify({
         eventName: 'accessibilityBlur',
-        object: this.owner,
+        object: view,
       });
     }
   }

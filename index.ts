@@ -1,1 +1,5 @@
-import './ui/core/view';
+import './views';
+import './pages';
+import './labels';
+
+export * from './utils/FontScaleObservable';

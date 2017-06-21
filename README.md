@@ -1,5 +1,5 @@
 # @nota/nativescript-accessibility-ext
-Nativescript plugin for enabling accessiblity features
+Nativescript plugin for enabling accessibility features
 
 ## Reasoning behind this plugin:
 NativeScript is a framework for developing cross-platform mobile applications.
@@ -37,6 +37,25 @@ Note: This is from NativeScript itself
       **iOS:** Maps to both `accessibilityLabel` AND `accessibilityIdentifier` -> This might break testing tools
       **Android:** Maps to contentDescription
 
+### CSSClasse: Page.a11y-fontscale (iOS, Android)
+If you need to apply different styling when fonts are scaled, these css-classes are available on the Page.
+
+The number indicated pct font scale:
+- a11y-fontscale-50 (iOS only)
+- a11y-fontscale-70 (iOS only)
+- a11y-fontscale-85
+- a11y-fontscale-100
+- a11y-fontscale-115
+- a11y-fontscale-130
+- a11y-fontscale-150 (iOS only)
+- a11y-fontscale-200 (iOS only - extra large fonts)
+- a11y-fontscale-250 (iOS only - extra large fonts)
+- a11y-fontscale-300 (iOS only - extra large fonts)
+- a11y-fontscale-350 (iOS only - extra large fonts)
+- a11y-fontscale-400 (iOS only - extra large fonts)
+
+If you want auto scaling on iOS Labels see: Label.accessibilityAdjustsFontSize
+
 ### Attributes and functions for `iOS`-only
 
 #### Attribute: View.accessibilityTraits (iOS)
@@ -72,6 +91,12 @@ For instance a `Slider` would normally have a value between 0-100%, but if the S
 Indicating whether the accessibility elements contained within this accessibility element are hidden.
 
 Defaults to false.
+
+## Attribute: Label.accessibilityAdjustsFontSize (iOS)
+Scales the font on a Label on iOS according to the settings in Settings -> General -> Accessibility -> Larger text
+On Android this is handled automatically, on iOS you have to specify it yourself.
+Note: It's similar to UILabel.adjustsFontForContentSizeCategory but affects all fonts not just the preferedFonts.
+Note: Font Scale between 50% and 400%. 200% -> 400% are extra large accessibility font scaling
 
 #### Function: View.postAccessibilityNotification(notificationType: string, arg?: string | null) (iOS)
 Post an accessibility notification to iOS.
@@ -160,6 +185,14 @@ If not provided with `announcement` the elements `automationText` value will be 
 * accessibilityLabel (NativeScript implements this as automationText. android maps to ContentDescription and iOS to both accessibilityLabel and acccesibilityIdentifier)
 * onAccessibilityTap (iOS)
 * onMagicTap (iOS)
+
+### Helpers:
+
+#### FontScaleObservable
+NativeScript Observable for getting the native fontScale on either platform.
+Note: For this to work properly on Android you need to add fontScale to the `android:configChanges` in your **AndroidManifest.xml**
+Note: Android: Font scale between 0.85 and 1.3 (85% -> 130%)
+      iOS: Font scale between 50% and 400%. 200% -> 400% are extra large accessibility font
 
 ## Using the plugin
 To use the plugin in your nativescript-app, install and import the module:

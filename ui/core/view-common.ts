@@ -1,24 +1,6 @@
-import { Property } from 'ui/core/dependency-observable';
-import { PropertyMetadata } from 'ui/core/proxy';
-import { setViewFunction } from '../../utils/helpers';
+import { setViewFunction, addPropertyToView } from '../../utils/helpers';
 
 import { View } from 'ui/core/view';
-
-function addPropertyToView(name: string, defaultValue?: any) {
-  const property = new Property(name, 'View', new PropertyMetadata(defaultValue));
-  (<any>View)[`${name}Property`] = property;
-
-  Object.defineProperty(View.prototype, name, {
-    get() {
-      this._getValue(property);
-    },
-    set(value: any) {
-      this._setValue(property, value);
-    },
-    enumerable: true,
-    configurable: true
-  });
-}
 
 export const commonProperties = [
   'accessible',
@@ -39,7 +21,7 @@ for (const propertyName of [
   ...iosProperties,
   ...androidProperties,
 ]) {
-  addPropertyToView(propertyName);
+  addPropertyToView(View, 'View', propertyName);
 }
 
 export const commenFunctions = [

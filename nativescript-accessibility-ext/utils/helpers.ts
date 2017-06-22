@@ -1,6 +1,7 @@
 import * as trace from 'tns-core-modules/trace';
 import { View } from 'tns-core-modules/ui/core/view'
 export { View } from 'tns-core-modules/ui/core/view'
+import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common'
 export { ViewCommon } from 'tns-core-modules/ui/core/view/view-common'
 import { Property } from 'tns-core-modules/ui/core/properties';
 export { Property } from 'tns-core-modules/ui/core/properties';
@@ -8,11 +9,11 @@ export { Property } from 'tns-core-modules/ui/core/properties';
 export function noop() {
 }
 
-export interface ViewType<T extends View> {
+export interface ViewType<T extends ViewCommon> {
   new (): T;
 }
 
-export function setViewFunction(viewClass: ViewType<View>, fnName: string, fn: Function = noop) {
+export function setViewFunction(viewClass: any, fnName: string, fn: Function = noop) {
   viewClass.prototype[fnName] = fn || noop;
 }
 

@@ -16,7 +16,7 @@ https://facebook.github.io/react-native/docs/accessibility.html
 But is written from scratch, extending NativeScript's classes.
 
 ## API:
-Extends `ui/core/view` with these attributes and functions.
+Extends `tns-core-modules/ui/core/view` with these attributes and functions.
 
 ### Attributes and functions for both `iOS` and `Android`
 

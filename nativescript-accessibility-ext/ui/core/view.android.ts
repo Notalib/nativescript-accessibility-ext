@@ -1,4 +1,4 @@
-import { View } from './view-common';
+import { View } from 'tns-core-modules/ui/core/view';
 
 import * as common from './view-common';
 import { setViewFunction, writeTrace } from '../../utils/helpers';

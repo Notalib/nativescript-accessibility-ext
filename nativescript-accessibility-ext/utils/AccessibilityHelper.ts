@@ -1,4 +1,4 @@
-import { View } from 'tns-core-modules/ui/core/view/view';
+import { View } from 'tns-core-modules/ui/core/view';
 import { writeTrace, notityAccessibilityFocusState } from './helpers';
 
 const androidNotityAccessibilityFocusState = (owner: View, viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent) => {
@@ -14,13 +14,28 @@ class AccessibleViewDelegate extends android.view.View.AccessibilityDelegate {
   constructor(private owner: View) {
     super();
 
+    writeTrace(`PlainDelegate: ${owner}`);
     return global.__native(this);
+  }
+
+  public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
+    writeTrace(`PlainDelegate.onInitializeAccessibilityEvent(...)`);
+
+    super.onInitializeAccessibilityEvent(host, event);
+  }
+
+  public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
+    writeTrace(`PlainDelegate.onInitializeAccessibilityNodeInfo(...)`);
+
+    super.onInitializeAccessibilityNodeInfo(host, info);
   }
 
   /**
    * Handles accessibility Focus/Blur events - If you create new delegates, you need to clone this function... (sorry, {N} won't let you extend native classes twice)
    */
   public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
+    writeTrace(`PlainDelegate.onRequestSendAccessibilityEvent(...)`);
+
     androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
 
     return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
@@ -32,20 +47,27 @@ class ButtonDelegate extends android.view.View.AccessibilityDelegate {
   constructor(private owner: View) {
     super();
 
+    writeTrace(`ButtonDelegate: ${owner}`);
     return global.__native(this);
   }
 
   public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
+    writeTrace(`ButtonDelegate.onInitializeAccessibilityEvent(...)`);
+
     super.onInitializeAccessibilityEvent(host, event);
     event.setClassName(this.className);
   }
 
   public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
+    writeTrace(`ButtonDelegate.onInitializeAccessibilityNodeInfo(...)`);
+
     super.onInitializeAccessibilityNodeInfo(host, info);
     info.setClassName(this.className);
   }
 
   public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
+    writeTrace(`ButtonDelegate.onRequestSendAccessibilityEvent(...)`);
+
     androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
 
     return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
@@ -57,16 +79,22 @@ class RadioButtonDelegate extends android.view.View.AccessibilityDelegate {
   constructor(private owner: View, private checked: boolean) {
     super();
 
+    writeTrace(`RadioButtonDelegate: ${owner}`);
     return global.__native(this);
   }
 
   public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
+    writeTrace(`RadioButtonDelegate.onInitializeAccessibilityNodeInfo(...)`);
+
     super.onInitializeAccessibilityEvent(host, event);
     event.setClassName(this.className);
     event.setChecked(this.checked);
+    writeTrace(`RadioButtonDelegate.onInitializeAccessibilityEvent(...)`);
   }
 
   public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
+    writeTrace(`RadioButtonDelegate.onRequestSendAccessibilityEvent(...)`);
+
     super.onInitializeAccessibilityNodeInfo(host, info);
     info.setClassName(this.className);
     info.setCheckable(true);
@@ -74,6 +102,8 @@ class RadioButtonDelegate extends android.view.View.AccessibilityDelegate {
   }
 
   public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
+    writeTrace(`RadioButtonDelegate.onRequestSendAccessibilityEvent(...)`);
+
     androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
 
     return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
@@ -211,33 +241,58 @@ export class AccessibilityHelper {
   public static updateAccessibilityComponentType(tnsView: View, androidView: android.view.View, componentType: string) {
     writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView} componentType:${componentType}`);
 
+    let delegate: android.view.View.AccessibilityDelegate = null;
     switch (componentType) {
       case AccessibilityHelper.BUTTON: {
-        androidView.setAccessibilityDelegate(new ButtonDelegate(tnsView));
+        writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} BUTTON`);
+
+        delegate = new ButtonDelegate(tnsView);
         break;
       }
       case AccessibilityHelper.RADIOBUTTON_CHECKED: {
-        androidView.setAccessibilityDelegate(new RadioButtonDelegate(tnsView, true));
+        writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} RADIOBUTTON_CHECKED`);
+
+        delegate = new RadioButtonDelegate(tnsView, true);
         break;
       }
       case AccessibilityHelper.RADIOBUTTON_UNCHECKED: {
-        androidView.setAccessibilityDelegate(new RadioButtonDelegate(tnsView, false));
+        writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} RADIOBUTTON_UNCHECKED`);
+
+        delegate = new RadioButtonDelegate(tnsView, false);
         break;
       }
       case AccessibilityHelper.ACCESSIBLE: {
-        androidView.setAccessibilityDelegate(new AccessibleViewDelegate(tnsView));
+        writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} ACCESSIBLE`);
+
+        delegate = new AccessibleViewDelegate(tnsView);
         break;
       }
       default: {
         writeTrace(`updateAccessibilityComponentType: unknown componentType: ${componentType}`);
+
         AccessibilityHelper.removeAccessibilityComponentType(androidView);
-        break;
+        return;
       }
+    }
+
+    writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView}`);
+
+    try {
+      if (delegate) {
+        androidView.setAccessibilityDelegate(delegate);
+      } else {
+        AccessibilityHelper.removeAccessibilityComponentType(androidView);
+      }
+    } catch (err) {
+      console.log('hugo');
+      console.dir(err);
+      console.log(err);
     }
   }
 
   public static removeAccessibilityComponentType(androidView: android.view.View) {
     writeTrace('removeAccessibilityComponentType');
+
     androidView.setAccessibilityDelegate(null);
   }
 

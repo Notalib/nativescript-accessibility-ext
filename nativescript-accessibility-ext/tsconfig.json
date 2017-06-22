@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "target": "es6",
+    "target": "es5",
     "module": "commonjs",
     "noLib": false,
     "lib": [
       "es6",
-      "dom"
+      "dom",
+      "es2015.iterable"
     ],
     "sourceMap": false,
     "pretty": true,

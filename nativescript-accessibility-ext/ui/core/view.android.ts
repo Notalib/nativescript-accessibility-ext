@@ -146,7 +146,7 @@ View.prototype[common.accessibleProperty.getDefault] = function(this: View) {
 }
 
 View.prototype[common.accessibleProperty.setNative] = function(this: View, value: boolean) {
-  const view = <android.view.View>this.nativeView;
+  const view = this.nativeView;
   const tnsView = this;
 
   view.setFocusable(!!value);
@@ -162,6 +162,7 @@ View.prototype[common.accessibleProperty.setNative] = function(this: View, value
       AccessibilityHelper.updateAccessibilityComponentType(tnsView, view, AccessibilityHelper.ACCESSIBLE);
     } else {
       writeTrace(`View<android>.accessible = ${value} -> already have accessibilityComponentType`);
+      AccessibilityHelper.updateAccessibilityComponentType(tnsView, view, accessibilityComponentType);
     }
   } else {
     AccessibilityHelper.removeAccessibilityComponentType(view);

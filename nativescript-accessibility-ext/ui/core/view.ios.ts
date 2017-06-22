@@ -102,7 +102,7 @@ View.prototype[common.accessibilityTraitsProperty.getDefault] = function getDefa
   }
 
   ensureTraits();
-  for (const [name, trait] of traits) {
+  for (const [name, trait] of Array.from(traits)) {
     if (this.nativeView.accessibilityTraits & trait) {
       res.push(name);
     }

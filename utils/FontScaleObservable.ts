@@ -3,8 +3,11 @@ import { Observable, PropertyChangeData }  from 'data/observable';
 import * as nsApp from 'application';
 import { isAndroid, isIOS } from 'platform';
 import * as utils from 'utils/utils';
-
 import { writeTrace } from './helpers';
+
+function getClosestValidFontScale(fontScale: number) {
+  return FontScaleObservable.VALID_FONT_SCALES.sort((a, b) => Math.abs(fontScale - a) - Math.abs(fontScale - b)).shift();
+}
 
 let internalObservable: Observable;
 function ensureObservable() {
@@ -14,22 +17,14 @@ function ensureObservable() {
 
   internalObservable = new Observable();
 
-  function fixRoundingError(fontScale: number) {
-    return Math.floor(fontScale * 100) / 100;
-  }
-
   function fontScaleChanged(fontScale: number) {
     writeTrace(`fontScaleChanged: got: ${fontScale}`);
-    fontScale = fixRoundingError(fontScale);
-    writeTrace(`fontScaleChanged: got fixed: ${fontScale}`);
 
-    for (const validFontScale of FontScaleObservable.VALID_FONT_SCALES) {
-      writeTrace(`fontScaleChanged: ${fontScale} <= ${validFontScale} = ${fontScale <= validFontScale}`);
-      if (fontScale <= validFontScale) {
-        internalObservable.set(FontScaleObservable.FONT_SCALE, validFontScale);
-        return;
-      }
-    }
+    fontScale = getClosestValidFontScale(fontScale);
+
+    writeTrace(`fontScaleChanged: setting to: ${fontScale}`);
+
+    internalObservable.set(FontScaleObservable.FONT_SCALE, fontScale);
   }
 
   if (isAndroid) {
@@ -74,7 +69,7 @@ function ensureObservable() {
       if (sizeMap.has(fontSize)) {
         fontScaleChanged(sizeMap.get(fontSize));
       } else {
-        console.error(`fontSize: ${fontSize} is unknown`);
+        writeTrace(`fontSize: ${fontSize} is unknown`);
       }
     };
 
@@ -94,20 +89,32 @@ function ensureObservable() {
 export class FontScaleObservable extends Observable {
   public static FONT_SCALE = 'fontScale';
   public static get VALID_FONT_SCALES() {
-    return [
-      0.5,
-      0.7,
-      0.85,
-      1,
-      1.15,
-      1.30,
-      1.5,
-      2,
-      2.5,
-      3,
-      3.5,
-      4,
-    ];
+    if (isIOS) {
+      // iOS supports a wider number of font scales than Android does.
+      return [
+        0.5,
+        0.7,
+        0.85,
+        1,
+        1.15,
+        1.30,
+        1.5,
+        2,
+        2.5,
+        3,
+        3.5,
+        4,
+      ];
+    } else if (isAndroid) {
+      return [
+        0.85,
+        1,
+        1.15,
+        1.30,
+      ];
+    } else {
+      return [1];
+    }
   }
 
   constructor() {

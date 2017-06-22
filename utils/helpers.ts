@@ -47,9 +47,12 @@ export function addPropertyToView<ViewClass extends View, T>(viewClass: ViewType
 
   Object.defineProperty(viewClass.prototype, name, {
     get() {
-      this._getValue(property);
+      const value = this._getValue(property);
+      writeTrace(`getter: ${viewName}<${this}>.${name} = ${value}`);
+      return value;
     },
-    set(value: any) {
+    set(value: T) {
+      writeTrace(`setter: ${viewName}<${this}>.${name} = ${value}`);
       this._setValue(property, value);
     },
     enumerable: true,

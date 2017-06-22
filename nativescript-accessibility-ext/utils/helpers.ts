@@ -8,7 +8,11 @@ export { Property } from 'tns-core-modules/ui/core/properties';
 export function noop() {
 }
 
-export function setViewFunction(viewClass: any, fnName, fn?: Function) {
+export interface ViewType<T extends View> {
+  new (): T;
+}
+
+export function setViewFunction(viewClass: ViewType<View>, fnName: string, fn: Function = noop) {
   viewClass.prototype[fnName] = fn || noop;
 }
 
@@ -21,7 +25,8 @@ export function enforceArray(val: string | string[]): string[] {
     return val.split(/[, ]/g).filter((v: string) => !!v);
   }
 
-  console.error(`val is of unsupported type: ${val} -> ${typeof val}`);
+  writeTrace(`enforceArray: val is of unsupported type: ${val} -> ${typeof val}`);
+
   return [];
 }
 
@@ -33,12 +38,8 @@ export function inputArrayToBitMask(val: string | string[], map: Map<string, nu
     .reduce((c, val) => c | map.get(val), 0) || 0;
 }
 
-export interface TypeClass<T extends View> {
-  new (): T;
-};
-
-export function addPropertyToView<ViewType extends View, T>(viewClass: TypeClass<ViewType>, name: string, defaultValue?: T): Property<ViewType, T> {
-  const property = new Property<ViewType, T>({
+export function addPropertyToView<ViewClass extends View, T>(viewClass: ViewType<ViewClass>, name: string, defaultValue?: T): Property<ViewClass, T> {
+  const property = new Property<ViewClass, T>({
     name,
     defaultValue,
   });
@@ -47,6 +48,9 @@ export function addPropertyToView<ViewType extends View, T>(viewClass: TypeClass
   return property;
 }
 
+/**
+ * Write to NativeScript's trace.
+ */
 export function writeTrace(message: string) {
   if (trace.isEnabled()) {
     trace.write(message, 'A11Y');
@@ -74,19 +78,19 @@ export function notityAccessibilityFocusState(view: View, receivedFocus: boolean
 
     view.notify({
       eventName: 'accessibilityFocusChanged',
-      object: this.owner,
+      object: view,
       value: receivedFocus,
     });
 
     if (receivedFocus) {
       view.notify({
         eventName: 'accessibilityFocus',
-        object: this.owner,
+        object: view,
       });
     } else if (lostFocus) {
       view.notify({
         eventName: 'accessibilityBlur',
-        object: this.owner,
+        object: view,
       });
     }
   }

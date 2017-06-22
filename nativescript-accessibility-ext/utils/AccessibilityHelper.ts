@@ -10,7 +10,7 @@ const androidNotityAccessibilityFocusState = (owner: View, viewGroup: android.vi
   }
 };
 
-class PlainDelegate extends android.view.View.AccessibilityDelegate {
+class AccessibleViewDelegate extends android.view.View.AccessibilityDelegate {
   constructor(private owner: View) {
     super();
 
@@ -192,10 +192,21 @@ function ensureAccessibilityEventMap() {
 }
 
 export class AccessibilityHelper {
-  public static BUTTON = 'button';
-  public static RADIOBUTTON_CHECKED = 'radiobutton_checked';
-  public static RADIOBUTTON_UNCHECKED = 'radiobutton_unchecked';
-  public static PLAIN = 'PLAIN';
+  public static get BUTTON() {
+    return 'button';
+  }
+
+  public static get RADIOBUTTON_CHECKED() {
+    return'radiobutton_checked';
+  }
+
+  public static get RADIOBUTTON_UNCHECKED() {
+    return 'radiobutton_unchecked';
+  }
+
+  public static get ACCESSIBLE() {
+    return 'accessible';
+  }
 
   public static updateAccessibilityComponentType(tnsView: View, androidView: android.view.View, componentType: string) {
     writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView} componentType:${componentType}`);
@@ -213,8 +224,8 @@ export class AccessibilityHelper {
         androidView.setAccessibilityDelegate(new RadioButtonDelegate(tnsView, false));
         break;
       }
-      case AccessibilityHelper.PLAIN: {
-        androidView.setAccessibilityDelegate(new PlainDelegate(tnsView));
+      case AccessibilityHelper.ACCESSIBLE: {
+        androidView.setAccessibilityDelegate(new AccessibleViewDelegate(tnsView));
         break;
       }
       default: {

@@ -153,7 +153,16 @@ View.prototype[common.accessibleProperty.setNative] = function(this: View, value
   writeTrace(`View<android>.accessible = ${value}`);
 
   if (value) {
-    AccessibilityHelper.updateAccessibilityComponentType(tnsView, view, AccessibilityHelper.PLAIN);
+    const accessibilityComponentType = (<any>tnsView).accessibilityComponentType;
+    writeTrace(`View<android>.accessible = ${value} -> accessibilityComponentType=${accessibilityComponentType}`);
+
+    if (!accessibilityComponentType) {
+      writeTrace(`View<android>.accessible = ${value} -> setting accessibilityComponentType to PLAIN`);
+
+      AccessibilityHelper.updateAccessibilityComponentType(tnsView, view, AccessibilityHelper.ACCESSIBLE);
+    } else {
+      writeTrace(`View<android>.accessible = ${value} -> already have accessibilityComponentType`);
+    }
   } else {
     AccessibilityHelper.removeAccessibilityComponentType(view);
   }

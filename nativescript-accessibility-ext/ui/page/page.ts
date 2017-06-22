@@ -10,25 +10,30 @@ interface PageLoadedEventData extends EventData {
 
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
 
+function fontScaleToCssClass(fontScale: number) {
+  return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;
+}
+
 function loadedEventCb({object: page}: PageLoadedEventData) {
   if ((<any>page).fontScaleObservable) {
+    writeTrace('Page.loadedEvent -> already have FontScaleObservable');
     return;
   }
+
+  writeTrace(`Page.fontScale loaded -> setting up FontScaleObservable()`);
 
   const fontScaleObservable = new FontScaleObservable();
   (<any>page).fontScaleObservable = fontScaleObservable;
 
-  function fontScaleToCssClass(fontScale: number) {
-    return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;
-  }
-
   const fontScaleCssClasses = FontScaleObservable.VALID_FONT_SCALES
     .map(fontScaleToCssClass);
+
+  writeTrace(`Page.fontScale loaded -> font scale classes: ${fontScaleCssClasses.join(',')}`);
 
   const owner = new WeakRef<Page>(page);
 
   const setFontScaleClass = (fontScale: number) => {
-    writeTrace(`setFontScaleClass: Got fontScale = ${fontScale}`);
+    writeTrace(`Page.fontScale: setFontScaleClass: Got fontScale = ${fontScale}`);
 
     const page = owner.get();
     if (!page) {
@@ -38,27 +43,39 @@ function loadedEventCb({object: page}: PageLoadedEventData) {
 
     const newCssClass = fontScaleToCssClass(fontScale);
     if (page.cssClasses.has(newCssClass)) {
-      writeTrace(`setFontScaleClass: '${newCssClass}' is already defined on page`);
+      writeTrace(`Page.fontScale: setFontScaleClass: '${newCssClass}' is already defined on page`);
       return;
     }
 
     for (const cssClass of fontScaleCssClasses) {
       if (cssClass === newCssClass) {
         page.cssClasses.add(cssClass);
-        writeTrace(`setFontScaleClass: '${newCssClass}' added to page`);
+        writeTrace(`Page.fontScale: setFontScaleClass: '${newCssClass}' added to page`);
       } else if (page.cssClasses.has(cssClass)) {
         page.cssClasses.delete(cssClass);
-        writeTrace(`setFontScaleClass: '${newCssClass}' remove from page`);
+        writeTrace(`Page.fontScale: setFontScaleClass: '${cssClass}' remove from page`);
       }
     }
 
+    writeTrace(`Page.fontScale: setFontScaleClass: before change: page.className='${page.className}'`);
     page.className = Array.from(page.cssClasses).join(' ');
-    writeTrace(`setFontScaleClass: page.className='${page.className}'`);
+    writeTrace(`Page.fontScale: setFontScaleClass: page.className='${page.className}'`);
+  };
+
+  const unloadedCb = () => {
+    writeTrace(`Page.fontScale: page unloaded remove listener`);
+
+    removeListener();
   };
 
   const removeListener = () => {
-    delete (<any>page).fontScaleObservable;
     fontScaleObservable.off(Observable.propertyChangeEvent, cb);
+    const page = owner.get();
+    if (page) {
+      delete (<any>page).fontScaleObservable;
+
+      page.off(Page.unloadedEvent, unloadedCb);
+    }
   };
 
   const cb = (args: PropertyChangeData) => {
@@ -77,11 +94,7 @@ function loadedEventCb({object: page}: PageLoadedEventData) {
   };
 
   fontScaleObservable.on(Observable.propertyChangeEvent, cb);
-
-  page.on(Page.unloadedEvent, () => {
-    writeTrace(`Page.fontScale: page unloaded remove listener`);
-    removeListener();
-  });
+  page.on(Page.unloadedEvent, unloadedCb);
 
   setFontScaleClass(fontScaleObservable.get(FontScaleObservable.FONT_SCALE));
 }

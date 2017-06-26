@@ -7,10 +7,10 @@
         "lib": [
             "es2016"
         ],
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
+        "sourceMap": false,
+        "pretty": true,
         "noEmitHelpers": true,
-        "noEmitOnError": true,
+        "noUnusedLocals": true,
         "inlineSourceMap": true,
         "noImplicitAny": false,
         "noImplicitReturns": true,
@@ -18,8 +18,18 @@
         "noFallthroughCasesInSwitch": true,
         "skipLibCheck": true
     },
+    "files": [
+        "index.ts"
+    ],
+    "include": [
+        "ui/**/*.ts",
+        "utils/**/*.ts",
+        "references.d.ts"
+    ],
     "exclude": [
-        "node_modules",
-        "platforms"
-    ]
+        "ui/**/*.d.ts",
+        "utils/**/*.d.ts",
+        "tests"
+    ],
+    "compileOnSave": false
 }

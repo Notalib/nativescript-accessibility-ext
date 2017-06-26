@@ -3,6 +3,18 @@
   "version": "2.5.2",
   "description": "Nativescript plugin for enabling accessiblity features",
   "main": "index.js",
+  "nativescript": {
+    "platforms": {
+      "android": "2.5.0",
+      "ios": "2.5.0"
+    },
+    "plugin": {
+      "nan": true,
+      "pan": true,
+      "core3": false,
+      "category": "Utilities"
+    }
+  },
   "scripts": {
     "prepublish": "npm run tsc",
     "tsc": "tsc",

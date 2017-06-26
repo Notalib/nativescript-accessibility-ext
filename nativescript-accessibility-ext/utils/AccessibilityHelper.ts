@@ -14,19 +14,14 @@ class AccessibleViewDelegate extends android.view.View.AccessibilityDelegate {
   constructor(private owner: View) {
     super();
 
-    writeTrace(`PlainDelegate: ${owner}`);
     return global.__native(this);
   }
 
   public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
-    writeTrace(`PlainDelegate.onInitializeAccessibilityEvent(...)`);
-
     super.onInitializeAccessibilityEvent(host, event);
   }
 
   public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
-    writeTrace(`PlainDelegate.onInitializeAccessibilityNodeInfo(...)`);
-
     super.onInitializeAccessibilityNodeInfo(host, info);
   }
 
@@ -34,8 +29,6 @@ class AccessibleViewDelegate extends android.view.View.AccessibilityDelegate {
    * Handles accessibility Focus/Blur events - If you create new delegates, you need to clone this function... (sorry, {N} won't let you extend native classes twice)
    */
   public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
-    writeTrace(`PlainDelegate.onRequestSendAccessibilityEvent(...)`);
-
     androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
 
     return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
@@ -47,27 +40,20 @@ class ButtonDelegate extends android.view.View.AccessibilityDelegate {
   constructor(private owner: View) {
     super();
 
-    writeTrace(`ButtonDelegate: ${owner}`);
     return global.__native(this);
   }
 
   public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
-    writeTrace(`ButtonDelegate.onInitializeAccessibilityEvent(...)`);
-
     super.onInitializeAccessibilityEvent(host, event);
     event.setClassName(this.className);
   }
 
   public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
-    writeTrace(`ButtonDelegate.onInitializeAccessibilityNodeInfo(...)`);
-
     super.onInitializeAccessibilityNodeInfo(host, info);
     info.setClassName(this.className);
   }
 
   public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
-    writeTrace(`ButtonDelegate.onRequestSendAccessibilityEvent(...)`);
-
     androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
 
     return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
@@ -79,22 +65,16 @@ class RadioButtonDelegate extends android.view.View.AccessibilityDelegate {
   constructor(private owner: View, private checked: boolean) {
     super();
 
-    writeTrace(`RadioButtonDelegate: ${owner}`);
     return global.__native(this);
   }
 
   public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
-    writeTrace(`RadioButtonDelegate.onInitializeAccessibilityNodeInfo(...)`);
-
     super.onInitializeAccessibilityEvent(host, event);
     event.setClassName(this.className);
     event.setChecked(this.checked);
-    writeTrace(`RadioButtonDelegate.onInitializeAccessibilityEvent(...)`);
   }
 
   public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
-    writeTrace(`RadioButtonDelegate.onRequestSendAccessibilityEvent(...)`);
-
     super.onInitializeAccessibilityNodeInfo(host, info);
     info.setClassName(this.className);
     info.setCheckable(true);
@@ -102,8 +82,6 @@ class RadioButtonDelegate extends android.view.View.AccessibilityDelegate {
   }
 
   public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
-    writeTrace(`RadioButtonDelegate.onRequestSendAccessibilityEvent(...)`);
-
     androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
 
     return super.onRequestSendAccessibilityEvent(viewGroup, child, event);

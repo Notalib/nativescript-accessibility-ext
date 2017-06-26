@@ -9,6 +9,8 @@
             "dom",
             "es2015.iterable"
         ],
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "noEmitHelpers": true,
         "noEmitOnError": true,
         "baseUrl": ".",

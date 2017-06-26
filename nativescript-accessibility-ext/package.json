@@ -1,8 +1,20 @@
 {
   "name": "@nota/nativescript-accessibility-ext",
-  "version": "3.0.0-alpha.2",
+  "version": "3.0.0-alpha.3",
   "description": "Nativescript plugin for enabling accessiblity features",
   "main": "index.js",
+  "nativescript": {
+    "platforms": {
+      "android": "3.0.0",
+      "ios": "3.0.0"
+    },
+    "plugin": {
+      "nan": true,
+      "pan": true,
+      "core3": true,
+      "category": "Utilities"
+    }
+  },
   "scripts": {
     "prepublish": "npm run tsc",
     "tsc": "tsc",

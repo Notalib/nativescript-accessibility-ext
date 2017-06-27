@@ -24,7 +24,7 @@ setNativeValueFn(common.Label, 'accessibilityAdjustsFontSize', function onAccess
 
   const fontScaleProp = '_a11yFontScaleObservable';
 
-  if (fontScaleProp in tnsLabel) {
+  if (tnsLabel[fontScaleProp]) {
     if (value) {
       writeTrace(`Label<ios>.accessibilityAdjustsFontSize - already have a FontScaleObservable, don't enable it twice`);
       return;
@@ -37,45 +37,43 @@ setNativeValueFn(common.Label, 'accessibilityAdjustsFontSize', function onAccess
     return;
   }
 
-  let timer: any;
   const updateFontSize = () => {
-    clearTimeout(timer);
+    if (!tnsLabel[fontScaleProp]) {
+      return;
+    }
 
-    writeTrace(`Label<ios>.accessibilityAdjustsFontSize - updateFontSize - set timer`);
+    const oldFont = <Font>tnsLabel.style.get('_fontInternal');
+    const fontScale = tnsLabel[fontScaleProp].get(FontScaleObservable.FONT_SCALE);
+    if (!fontScale) {
+      writeTrace(`Label<ios>.accessibilityAdjustsFontSize - updateFontSize - timer -> no fontScale`);
+      return;
+    }
 
-    timer = setTimeout(() => {
-      if (!tnsLabel[fontScaleProp]) {
-        return;
-      }
+    const newFontSize = oldFont.fontSize * fontScale;
+    writeTrace(`Label<ios>.accessibilityAdjustsFontSize - updateFontSize - timer -> update fontScale: ${JSON.stringify({
+      fontScale,
+      newFontSize,
+      oldFontSize: oldFont.fontSize,
+    })}`);
 
-      const oldFont = <Font>tnsLabel.style.get('_fontInternal');
-      const fontScale = tnsLabel[fontScaleProp].get(FontScaleObservable.FONT_SCALE);
-      if (!fontScale) {
-        writeTrace(`Label<ios>.accessibilityAdjustsFontSize - updateFontSize - timer -> no fontScale`);
-        return;
-      }
+    const oldUIFont = (<any>oldFont)._uiFont || UIFont.systemFontOfSize(utils.ios.getter(UIFont, UIFont.labelFontSize));
 
-      const newFontSize = oldFont.fontSize * fontScale;
-      writeTrace(`Label<ios>.accessibilityAdjustsFontSize - updateFontSize - timer -> update fontScale: ${JSON.stringify({
-        fontScale,
-        newFontSize,
-        oldFontSize: oldFont.fontSize,
-      })}`);
+    const newFont = new Font(oldFont.fontFamily, newFontSize, oldFont.fontStyle, oldFont.fontWeight);
 
-      const oldUIFont = (<any>oldFont)._uiFont || UIFont.systemFontOfSize(utils.ios.getter(UIFont, UIFont.labelFontSize));
-
-      const newFont = new Font(oldFont.fontFamily, newFontSize, oldFont.fontStyle, oldFont.fontWeight);
-
-      uiLabel.font = newFont.getUIFont(oldUIFont);
-      tnsLabel.requestLayout();
-    }, 5);
+    uiLabel.font = newFont.getUIFont(oldUIFont);
+    tnsLabel.requestLayout();
+    if (tnsLabel.parent) {
+      tnsLabel.parent.requestLayout();
+    }
   };
 
   const styleCb = (args: PropertyChangeData) => {
-    if (!tnsLabel.accessibilityAdjustsFontSize) {
-      tnsLabel.style.off(Observable.propertyChangeEvent, styleCb);
+    writeTrace(`Label<ios>.accessibilityAdjustsFontSize - styleCb -> ${args.propertyName} -> ${args.value}`);
 
+    if (!tnsLabel.accessibilityAdjustsFontSize) {
       writeTrace(`Label<ios>.accessibilityAdjustsFontSize - styleCb -> tnsLabel.accessibilityAdjustsFontSize have been disabled unsub`);
+
+      tnsLabel.style.off(Observable.propertyChangeEvent, styleCb);
       return;
     }
 
@@ -94,7 +92,9 @@ setNativeValueFn(common.Label, 'accessibilityAdjustsFontSize', function onAccess
   });
 
   tnsLabel.on('unloaded', () => {
-    tnsLabel[fontScaleProp].off(Observable.propertyChangeEvent);
+    if (tnsLabel[fontScaleProp]) {
+      tnsLabel[fontScaleProp].off(Observable.propertyChangeEvent);
+    }
     delete tnsLabel[fontScaleProp];
   });
 

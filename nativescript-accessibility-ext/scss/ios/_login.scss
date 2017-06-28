@@ -1,0 +1,17 @@
+@each $scale, $params in $font-scales {
+  $factor: map-get($params, factor);
+
+  Page.a11y-fontscale-#{$scale} {
+    .logo-wrap {
+      .login-logo {
+        $font-size: 30;
+        font-size: $font-size * $factor;
+      }
+    }
+    .go-back {
+      $font-size: 14;
+      font-size: $font-size * $factor;
+    }
+  }
+}
+

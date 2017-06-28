@@ -1,0 +1,50 @@
+// sass-lint:disable-all
+$font-sizes: (
+  10: (
+    scales: $font-scales,
+  ),
+  12: (
+    scales: $font-scales,
+  ),
+  14: (
+    scales: $font-scales,
+  ),
+  15: (
+    scales: $font-scales,
+  ),
+  16: (
+    scales: $font-scales,
+  ),
+  17: (
+    scales: $font-scales,
+  ),
+  18: (
+    scales: $font-scales,
+  ),
+  19: (
+    scales: $font-scales,
+  ),
+  20: (
+    scales: $font-scales,
+  ),
+  25: (
+    scales: $font-scales,
+  ),
+  30: (
+    scales: $font-scales,
+  )
+) !default;
+
+@each $font-size, $values in $font-sizes {
+  $scales: map-get($values, scales);
+
+  @each $scale, $params in $scales {
+    $factor: map-get($params, factor);
+
+    Page.a11y-fontscale-#{$scale} {
+      .t-#{$font-size} {
+        font-size: $font-size * $factor;
+      }
+    }
+  }
+}

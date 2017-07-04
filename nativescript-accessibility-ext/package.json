@@ -1,6 +1,6 @@
 {
   "name": "@nota/nativescript-accessibility-ext",
-  "version": "2.5.5",
+  "version": "2.5.6",
   "description": "Nativescript plugin for enabling accessiblity features",
   "main": "index.js",
   "nativescript": {
@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/m-abs/nativescript-accessibility-ext.git"
+    "url": "git+https://github.com/Notalib/nativescript-accessibility-ext.git"
   },
   "keywords": [
     "nativescript",
@@ -33,9 +33,9 @@
   "author": "Morten Sjøgren <m_abs@mabs.dk>",
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/m-abs/nativescript-accessibility-ext/issues"
+    "url": "https://github.com/Notalib/nativescript-accessibility-ext/issues"
   },
-  "homepage": "https://github.com/m-abs/nativescript-accessibility-ext/#readme",
+  "homepage": "https://github.com/Notalib/nativescript-accessibility-ext/#readme",
   "devDependencies": {
     "nativescript-globalevents": "^1.1.2",
     "node-sass": "^4.5.3",

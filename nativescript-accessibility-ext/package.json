@@ -16,7 +16,9 @@
     }
   },
   "scripts": {
-    "prepublish": "npm run tsc",
+    "sass": "rm -rf css && node-sass --recursive --output css scss",
+    "build": "npm run tsc && npm run sass",
+    "prepublish": "npm run build",
     "tsc": "tsc",
     "tsc-w": "tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -36,9 +38,10 @@
   },
   "homepage": "https://github.com/Notalib/nativescript-accessibility-ext/#readme",
   "devDependencies": {
+    "nativescript-globalevents": "^1.1.0",
+    "node-sass": "^4.5.3",
     "tns-core-modules": "^3.0.0",
     "tns-platform-declarations": "^3.0.0",
-    "nativescript-globalevents": "^1.1.0",
     "typescript": "^2.3.0"
   },
   "peerDependencies": {

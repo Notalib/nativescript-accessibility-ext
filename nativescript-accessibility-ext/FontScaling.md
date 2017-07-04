@@ -37,28 +37,57 @@ If you need to add your own styles, you can do it like this:
 import '@nota/nativescript-accessibility-ext/scss/fontscales';
 
 $my-custom-font-size: 16;
+$my-custom-height: 40;
+$my-custom-margin: 2;
 @each $scale, $params in $a11y-font-scales {
   $factor: map-get($params, factor);
   Page.a11y-fontscale-#{$scale} {
+    &.ios {
+      .my-class {
+        font-size: $my-custom-font-size: * $factor;
+      }
+    }
+
+    &.android {
+      .my-class {
+        margin: $my-custom-margin * $factor;
+      }
+    }
+
     .my-class {
-      font-size: $my-custom-font-size: * $factor;
+      height: $my-custom-height * $factor;
     }
   }
 }
 
 ```
 
-If you're adding it to an nativescript-angular component, add this to your component.css:
+If you're adding it to an nativescript-angular component, add this to your component.css (notice the `/deep/ prefix`):
 
 ```scss
 import '@nota/nativescript-accessibility-ext/scss/fontscales';
 
 $my-custom-font-size: 16;
+$my-custom-height: 40;
+$my-custom-margin: 2;
 @each $scale, $params in $a11y-font-scales {
   $factor: map-get($params, factor);
+
   /deep/ Page.a11y-fontscale-#{$scale} {
+    &.ios {
+      .my-class {
+        font-size: $my-custom-font-size: * $factor;
+      }
+    }
+
+    &.android {
+      .my-class {
+        margin: $my-custom-margin * $factor;
+      }
+    }
+
     .my-class {
-      font-size: $my-custom-font-size: * $factor;
+      height: $my-custom-height * $factor;
     }
   }
 }

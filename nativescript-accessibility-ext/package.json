@@ -17,7 +17,8 @@
   },
   "scripts": {
     "sass": "rm -rf css && node-sass --recursive --output css scss",
-    "prepublish": "npm run tsc && npm run sass",
+    "build": "npm run tsc && npm run sass",
+    "prepublish": "npm run build",
     "tsc": "tsc",
     "tsc-w": "tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -1,4 +1,4 @@
-@each $scale, $params in $font-scales {
+@each $scale, $params in $a11y-font-scales {
   $factor: map-get($params, factor);
 
   Page.a11y-fontscale-#{$scale} {

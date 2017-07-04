@@ -1,41 +1,40 @@
-// sass-lint:disable-all
-$font-sizes: (
+$a11y-font-sizes: (
   10: (
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   12: (
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   14: (
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   15: (
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   16: (
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   17: (
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   18: (
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   19: (
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   20: (
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   25: (
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   30: (
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   )
 ) !default;
 
-@each $font-size, $values in $font-sizes {
+@each $font-size, $values in $a11y-font-sizes {
   $scales: map-get($values, scales);
 
   @each $scale, $params in $scales {

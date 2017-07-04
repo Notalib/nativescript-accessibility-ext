@@ -1,52 +1,52 @@
-$label-classes: (
+$a11y-label-classes: (
   h1: (
     font-size: 32,
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   h2: (
     font-size: 22,
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   h3: (
     font-size: 15,
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   h4: (
     font-size: 12,
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   h5: (
     font-size: 11,
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   h6: (
     font-size: 10,
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   body: (
     font-size: 14,
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   body2: (
     font-size: 17,
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   ),
   footnote: (
     font-size: 13,
-    scales: $font-scales,
+    scales: $a11y-font-scales,
   )
 ) !default;
 
-@each $label-classname, $values in $label-classes {
+@each $label-classname, $values in $a11y-label-classes {
   $scales: map-get($values, scales);
-  $font-size: map-get($values, font-size);
+  $a11y-font-size: map-get($values, font-size);
 
   @each $scale, $params in $scales {
     $factor: map-get($params, factor);
 
     Page.a11y-fontscale-#{$scale} {
       .#{$label-classname} {
-        font-size: $font-size * $factor;
+        font-size: $a11y-font-size * $factor;
       }
     }
   }

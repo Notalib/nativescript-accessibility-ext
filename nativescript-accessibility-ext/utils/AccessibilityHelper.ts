@@ -9,8 +9,8 @@ const androidNotityAccessibilityFocusState = (owner: View, viewGroup: android.vi
     notityAccessibilityFocusState(owner, receivedFocus, lostFocus);
   }
 };
-
-class AccessibleViewDelegate extends android.view.View.AccessibilityDelegate {
+@Interfaces([android.view.View.AccessibilityDelegate])
+export class TNSBasicAccessibilityDelegate extends android.view.View.AccessibilityDelegate {
   constructor(private owner: View) {
     super();
 
@@ -27,7 +27,8 @@ class AccessibleViewDelegate extends android.view.View.AccessibilityDelegate {
   }
 }
 
-class ButtonDelegate extends android.view.View.AccessibilityDelegate {
+@Interfaces([android.view.View.AccessibilityDelegate])
+export class TNSButtonAccessibilityDelegate extends android.view.View.AccessibilityDelegate {
   private className = android.widget.Button.class.getName();
   constructor(private owner: View) {
     super();
@@ -52,7 +53,8 @@ class ButtonDelegate extends android.view.View.AccessibilityDelegate {
   }
 }
 
-class RadioButtonDelegate extends android.view.View.AccessibilityDelegate {
+@Interfaces([android.view.View.AccessibilityDelegate])
+export class TNSRadioButtonAccessibilityDelegate extends android.view.View.AccessibilityDelegate {
   private className = android.widget.RadioButton.class.getName();
   constructor(private owner: View, private checked: boolean) {
     super();
@@ -213,19 +215,19 @@ export class AccessibilityHelper {
 
     switch (componentType) {
       case AccessibilityHelper.BUTTON: {
-        androidView.setAccessibilityDelegate(new ButtonDelegate(tnsView));
+        androidView.setAccessibilityDelegate(new TNSButtonAccessibilityDelegate(tnsView));
         break;
       }
       case AccessibilityHelper.RADIOBUTTON_CHECKED: {
-        androidView.setAccessibilityDelegate(new RadioButtonDelegate(tnsView, true));
+        androidView.setAccessibilityDelegate(new TNSRadioButtonAccessibilityDelegate(tnsView, true));
         break;
       }
       case AccessibilityHelper.RADIOBUTTON_UNCHECKED: {
-        androidView.setAccessibilityDelegate(new RadioButtonDelegate(tnsView, false));
+        androidView.setAccessibilityDelegate(new TNSRadioButtonAccessibilityDelegate(tnsView, false));
         break;
       }
       case AccessibilityHelper.ACCESSIBLE: {
-        androidView.setAccessibilityDelegate(new AccessibleViewDelegate(tnsView));
+        androidView.setAccessibilityDelegate(new TNSBasicAccessibilityDelegate(tnsView));
         break;
       }
       default: {

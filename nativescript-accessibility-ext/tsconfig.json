@@ -12,6 +12,8 @@
         "noEmitHelpers": true,
         "noUnusedLocals": true,
         "inlineSourceMap": true,
+        "removeComments": true,
+        "experimentalDecorators": true,
         "noImplicitAny": false,
         "noImplicitReturns": true,
         "noImplicitUseStrict": false,

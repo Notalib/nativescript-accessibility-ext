@@ -10,7 +10,7 @@ const androidNotityAccessibilityFocusState = (owner: View, viewGroup: android.vi
   }
 };
 
-class AccessibleViewDelegate extends android.view.View.AccessibilityDelegate {
+export class TNSBasicAccessibilityDelegate extends android.view.View.AccessibilityDelegate {
   constructor(private owner: View) {
     super();
 
@@ -35,7 +35,7 @@ class AccessibleViewDelegate extends android.view.View.AccessibilityDelegate {
   }
 }
 
-class ButtonDelegate extends android.view.View.AccessibilityDelegate {
+export class TNSButtonAccessibilityDelegate extends android.view.View.AccessibilityDelegate {
   private className = android.widget.Button.class.getName();
   constructor(private owner: View) {
     super();
@@ -60,7 +60,7 @@ class ButtonDelegate extends android.view.View.AccessibilityDelegate {
   }
 }
 
-class RadioButtonDelegate extends android.view.View.AccessibilityDelegate {
+export class TNSRadioButtonAccessibilityDelegate extends android.view.View.AccessibilityDelegate {
   private className = android.widget.RadioButton.class.getName();
   constructor(private owner: View, private checked: boolean) {
     super();
@@ -224,25 +224,25 @@ export class AccessibilityHelper {
       case AccessibilityHelper.BUTTON: {
         writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} BUTTON`);
 
-        delegate = new ButtonDelegate(tnsView);
+        delegate = new TNSButtonAccessibilityDelegate(tnsView);
         break;
       }
       case AccessibilityHelper.RADIOBUTTON_CHECKED: {
         writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} RADIOBUTTON_CHECKED`);
 
-        delegate = new RadioButtonDelegate(tnsView, true);
+        delegate = new TNSRadioButtonAccessibilityDelegate(tnsView, true);
         break;
       }
       case AccessibilityHelper.RADIOBUTTON_UNCHECKED: {
         writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} RADIOBUTTON_UNCHECKED`);
 
-        delegate = new RadioButtonDelegate(tnsView, false);
+        delegate = new TNSRadioButtonAccessibilityDelegate(tnsView, false);
         break;
       }
       case AccessibilityHelper.ACCESSIBLE: {
         writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} ACCESSIBLE`);
 
-        delegate = new AccessibleViewDelegate(tnsView);
+        delegate = new TNSBasicAccessibilityDelegate(tnsView);
         break;
       }
       default: {

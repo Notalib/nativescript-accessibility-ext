@@ -9,7 +9,7 @@ const androidNotityAccessibilityFocusState = (owner: View, viewGroup: android.vi
     notityAccessibilityFocusState(owner, receivedFocus, lostFocus);
   }
 };
-@Interfaces([android.view.View.AccessibilityDelegate])
+
 export class TNSBasicAccessibilityDelegate extends android.view.View.AccessibilityDelegate {
   constructor(private owner: View) {
     super();
@@ -27,7 +27,6 @@ export class TNSBasicAccessibilityDelegate extends android.view.View.Accessibili
   }
 }
 
-@Interfaces([android.view.View.AccessibilityDelegate])
 export class TNSButtonAccessibilityDelegate extends android.view.View.AccessibilityDelegate {
   private className = android.widget.Button.class.getName();
   constructor(private owner: View) {
@@ -53,7 +52,6 @@ export class TNSButtonAccessibilityDelegate extends android.view.View.Accessibil
   }
 }
 
-@Interfaces([android.view.View.AccessibilityDelegate])
 export class TNSRadioButtonAccessibilityDelegate extends android.view.View.AccessibilityDelegate {
   private className = android.widget.RadioButton.class.getName();
   constructor(private owner: View, private checked: boolean) {

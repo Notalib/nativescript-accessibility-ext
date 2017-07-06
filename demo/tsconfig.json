@@ -5,7 +5,8 @@
         "module": "commonjs",
         "noLib": false,
         "lib": [
-            "es2016"
+            "es2016",
+            "es2015.iterable"
         ],
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
@@ -20,6 +21,7 @@
     },
     "exclude": [
         "node_modules",
-        "platforms"
+        "platforms",
+        "app/main.aot.ts"
     ]
 }

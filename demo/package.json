@@ -13,7 +13,6 @@
     }
   },
   "scripts": {
-    "preinstall": "cd ../nativescript-accessibility-ext && npm i && npm prune && npm pack",
     "ns-bundle": "ns-bundle",
     "publish-ios-bundle": "npm run ns-bundle --ios --publish-app",
     "generate-android-snapshot": "generate-android-snapshot --targetArchs arm,arm64,ia32 --install",
@@ -32,7 +31,7 @@
     "@angular/platform-browser": "~4.1.0",
     "@angular/platform-browser-dynamic": "~4.1.0",
     "@angular/router": "~4.1.0",
-    "@nota/nativescript-accessibility-ext": "file:///home/mabs/project/nativescript-accessibility-ext/nativescript-accessibility-ext/nota-nativescript-accessibility-ext-3.0.0-alpha.6.tgz",
+    "@nota/nativescript-accessibility-ext": "file:../nativescript-accessibility-ext",
     "nativescript-angular": "^3.0.0",
     "nativescript-globalevents": "^1.1.2",
     "nativescript-theme-core": "^1.0.4",

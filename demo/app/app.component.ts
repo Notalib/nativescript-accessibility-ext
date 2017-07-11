@@ -11,7 +11,7 @@ import * as dialogs from 'tns-core-modules/ui/dialogs';
   ]
 })
 export class AppComponent {
-  traits = [
+  public readonly traits = [
     { key: 'none', label: ' Used when the element has no traits.' },
     { key: 'button', label: ' Used when the element should be treated as a button.' },
     { key: 'link', label: ' Used when the element should be treated as a link.' },
@@ -31,23 +31,23 @@ export class AppComponent {
     { key: 'pageTurn', label: ' Informs VoiceOver that it should scroll to the next page when it finishes reading the contents of the element.' },
   ];
 
-  componentTypes = [
+  public readonly componentTypes = [
     { key: 'button', label: 'Button element' },
     { key: 'radiobutton_checked', label: 'Checked radiobutton' },
     { key: 'radiobutton_unchecked', label: 'Unchecked radiobutton' },
   ];
 
-  tapped(e: any) {
+  public tapped(e: any) {
     const el = e.object;
 
-    dialogs.alert(`Tapped: ${el.automationText || el.text}`);
+    dialogs.alert(`Tapped: ${el.accessibilityLabel || el.text}`);
   }
 
-  sliderMin = 0;
-  sliderMax = 100;
-  sliderValue = 50;
+  public readonly sliderMin = 0;
+  public readonly sliderMax = 100;
+  public sliderValue = 50;
 
-  get sliderA11YValue() {
+  public get sliderA11YValue() {
     return `slider is now at ${this.sliderValue}`;
   }
 }

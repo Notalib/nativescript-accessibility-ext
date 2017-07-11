@@ -23,8 +23,8 @@
         "baseUrl": ".",
         "paths": {
             "*": [
-                "./node_modules/tns-core-modules/*",
-                "./node_modules/*"
+                "../node_modules/tns-core-modules/*",
+                "../node_modules/*"
             ]
         },
         "skipLibCheck": true

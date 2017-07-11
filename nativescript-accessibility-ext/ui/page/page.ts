@@ -16,11 +16,11 @@ function fontScaleToCssClass(fontScale: number) {
 
 function loadedEventCb({object: page}: PageLoadedEventData) {
   if ((<any>page).fontScaleObservable) {
-    writeTrace('Page.loadedEvent -> already have FontScaleObservable');
+    writeTrace(`Page<${page}>.loadedEvent -> already have FontScaleObservable`);
     return;
   }
 
-  writeTrace(`Page.fontScale loaded -> setting up FontScaleObservable()`);
+  writeTrace(`Page<${page}>.fontScale loaded -> setting up FontScaleObservable()`);
 
   const fontScaleObservable = new FontScaleObservable();
   (<any>page).fontScaleObservable = fontScaleObservable;
@@ -28,7 +28,7 @@ function loadedEventCb({object: page}: PageLoadedEventData) {
   const fontScaleCssClasses = FontScaleObservable.VALID_FONT_SCALES
     .map(fontScaleToCssClass);
 
-  writeTrace(`Page.fontScale loaded -> font scale classes: ${fontScaleCssClasses.join(',')}`);
+  writeTrace(`Page<${page}>.fontScale loaded -> font scale classes: ${fontScaleCssClasses.join(',')}`);
 
   const owner = new WeakRef<Page>(page);
 
@@ -43,27 +43,27 @@ function loadedEventCb({object: page}: PageLoadedEventData) {
 
     const newCssClass = fontScaleToCssClass(fontScale);
     if (page.cssClasses.has(newCssClass)) {
-      writeTrace(`Page.fontScale: setFontScaleClass: '${newCssClass}' is already defined on page`);
+      writeTrace(`Page<${page}>.fontScale: setFontScaleClass: '${newCssClass}' is already defined on page`);
       return;
     }
 
     for (const cssClass of fontScaleCssClasses) {
       if (cssClass === newCssClass) {
         page.cssClasses.add(cssClass);
-        writeTrace(`Page.fontScale: setFontScaleClass: '${newCssClass}' added to page`);
+        writeTrace(`Page<${page}>.fontScale: setFontScaleClass: '${newCssClass}' added to page`);
       } else if (page.cssClasses.has(cssClass)) {
         page.cssClasses.delete(cssClass);
-        writeTrace(`Page.fontScale: setFontScaleClass: '${cssClass}' remove from page`);
+        writeTrace(`Page<${page}>.fontScale: setFontScaleClass: '${cssClass}' remove from page`);
       }
     }
 
-    writeTrace(`Page.fontScale: setFontScaleClass: before change: page.className='${page.className}'`);
+    writeTrace(`Page<${page}>.fontScale: setFontScaleClass: before change: page.className='${page.className}'`);
     page.className = Array.from(page.cssClasses).join(' ');
-    writeTrace(`Page.fontScale: setFontScaleClass: page.className='${page.className}'`);
+    writeTrace(`Page<${page}>.fontScale: setFontScaleClass: page.className='${page.className}'`);
   };
 
   const unloadedCb = () => {
-    writeTrace(`Page.fontScale: page unloaded remove listener`);
+    writeTrace(`Page<${page}>.fontScale: page unloaded remove listener`);
 
     removeListener();
   };
@@ -87,7 +87,7 @@ function loadedEventCb({object: page}: PageLoadedEventData) {
     }
 
     if (args.propertyName === FontScaleObservable.FONT_SCALE) {
-      writeTrace(`Page.fontScale: ${FontScaleObservable.FONT_SCALE} changed to ${args.value}`);
+      writeTrace(`Page<${page}>.fontScale: ${FontScaleObservable.FONT_SCALE} changed to ${args.value}`);
 
       setFontScaleClass(args.value);
     }

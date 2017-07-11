@@ -5,7 +5,7 @@
       class="text-center p-10"
 
       accessible="true"
-      automationText="Congratulation accessibility is enabled"
+      accessibilityLabel="Congratulation accessibility is enabled"
       accessibilityTraits="header"
     >
       <ios>
@@ -32,7 +32,7 @@
         class="feature-example"
 
         accessible="true"
-        automationText="This is read as a group"
+        accessibilityLabel="This is read as a group"
       >
         <Label class="text-left" text='accessible="true"'></Label>
         <Label class="body" text="these elements shouldn't be read, only the box"></Label>
@@ -40,7 +40,7 @@
         <Button
           class="m-2 btn"
           text="tap me"
-          automationText="Unless of cause child elements that are marked as accessible too, like 'tap me'"
+          accessibilityLabel="Unless of cause child elements that are marked as accessible too, like 'tap me'"
 
           accessible="true"
           accessibilityComponentType="button"
@@ -51,7 +51,7 @@
         <Button
           class="m-2 btn"
           text="tap me 2"
-          automationText="Unless of cause child elements that are marked as accessible too, like 'tap me 2'"
+          accessibilityLabel="Unless of cause child elements that are marked as accessible too, like 'tap me 2'"
 
           accessible="true"
           accessibilityComponentType="button"
@@ -74,7 +74,7 @@
     </StackLayout>
 
     <StackLayout class="feature-group">
-      <Label accessibilityTraits="header" class="h1 text-center" textWrap="true" text="automationText (iOS, Android)"></Label>
+      <Label accessibilityTraits="header" class="h1 text-center" textWrap="true" text="accessibilityLabel (iOS, Android)"></Label>
 
       <Label class="body" textWrap="true" text="Set the accessibility label on the element, this will be read by the screen reader inplace in any 'text' value the element has.
 Note: This is from NativeScript itself
@@ -91,7 +91,7 @@ Note: This is from NativeScript itself
       <Label class="h2" text="Examples:"></Label>
 
       <StackLayout class="feature-example">
-        <Label class="m-y-5" text="The shown text" automationText="The shown text is not the same text that is read aloud"></Label>
+        <Label class="m-y-5" text="The shown text" accessibilityLabel="The shown text is not the same text that is read aloud"></Label>
       </StackLayout>
     </StackLayout>
 
@@ -167,14 +167,14 @@ Note: This is from NativeScript itself
     <StackLayout class="feature-group">
       <Label accessibilityTraits="header" class="h1 text-center" text="Buttons"></Label>
 
-      <Button class="text-right" text="Normal" automationText="this is just a normal"></Button>
+      <Button class="text-right" text="Normal" accessibilityLabel="this is just a normal"></Button>
 
       <GridLayout rows="50, 50" columns="100, 100">
         <StackLayout
           col="0"
 
           accessible="true"
-          automationText="This now a button"
+          accessibilityLabel="This now a button"
           accessibilityComponentType="button"
           accessibilityTraits="button"
         >
@@ -186,7 +186,7 @@ Note: This is from NativeScript itself
           rowSpan="2"
 
           accessible="true"
-          automationText="This now a button with an icon"
+          accessibilityLabel="This now a button with an icon"
           accessibilityComponentType="button"
           accessibilityTraits="button"
           (tap)="tapped($event)"

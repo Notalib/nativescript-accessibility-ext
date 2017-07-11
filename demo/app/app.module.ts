@@ -11,7 +11,7 @@ trace.enable();
 
 @NgModule({
   bootstrap: [
-    AppComponent
+    AppComponent,
   ],
   imports: [
     NativeScriptModule,

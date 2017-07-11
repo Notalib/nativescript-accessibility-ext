@@ -3,17 +3,10 @@
   "version": "3.0.0-alpha.6",
   "description": "Nativescript plugin for enabling accessiblity features",
   "main": "index.js",
-  "nativescript": {
-    "platforms": {
-      "android": "3.0.0",
-      "ios": "3.0.0"
-    },
-    "plugin": {
-      "nan": true,
-      "pan": true,
-      "core3": true,
-      "category": "Utilities"
-    }
+  "scripts": {
+    "prepublish": "npm run tsc",
+    "tsc": "cd nativescript-accessibility-ext && tsc",
+    "tsc-w": "cd nativescript-accessibility-ext && tsc -w"
   },
   "repository": {
     "type": "git",
@@ -33,10 +26,6 @@
     "tns-core-modules": "^3.0.0",
     "tns-platform-declarations": "^3.0.0",
     "nativescript-globalevents": "^1.1.0",
-    "typescript": "^2.3.0"
-  },
-  "peerDependencies": {
-    "tns-core-modules": "^3.0.0",
-    "nativescript-globalevents": "^1.1.0"
+    "typescript": "^2.4.0"
   }
 }

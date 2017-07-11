@@ -203,9 +203,19 @@ setViewFunction(View, common.commenFunctions.accessibilityAnnouncement, function
 });
 
 View.prototype[common.accessibilityLabelProperty.getDefault] = function getDefaultAccessibilityLabel(this: View) {
-  return this.nativeView.getContentDescription();
+  const view = <android.view.View>this.nativeView;
+  const label = view.getContentDescription();
+  writeTrace(`View<${this}.android>.accessibilityLabel - default = ${label}`);
+  return label;
 };
 
 View.prototype[common.accessibilityLabelProperty.setNative] = function setNativeAccessibilityLabel(this: View, label: string) {
-  this.nativeView.setContentDescription(`${label || ''}`);
+  const view = <android.view.View>this.nativeView;
+  if (label) {
+    writeTrace(`View<${this}.android>.accessibilityLabel - ${label}`);
+    view.setContentDescription(`${label}`);
+  } else {
+    writeTrace(`View<${this}.android>.accessibilityLabel - empty string`);
+    view.setContentDescription('');
+  }
 };

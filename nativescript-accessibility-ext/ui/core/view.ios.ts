@@ -212,8 +212,28 @@ View.prototype[common.accessibilityLabelProperty.getDefault] = function getDefau
 View.prototype[common.accessibilityLabelProperty.setNative] = function setNativeAccessibilityLabel(this: View, label: string) {
   const view = <UIView>this.nativeView;
   if (label) {
-    this.nativeView.accessibilityLabel = `${label}`;
+    writeTrace(`View<${this}.ios>.accessibilityLabel - ${label}`);
+    view.accessibilityLabel = `${label}`;
   } else {
-    this.nativeView.accessibilityLabel = null;
+    writeTrace(`View<${this}.ios>.accessibilityLabel - null`);
+    view.accessibilityLabel = null;
+  }
+};
+
+View.prototype[common.accessibilityIdentidierProperty.getDefault] = function getDefaultAccessibilityIdentifier(this: View) {
+  const view = <UIView>this.nativeView;
+  const identifier = view.accessibilityIdentifier;
+  writeTrace(`View<${this}.ios>.accessibilityIdentifier - default = ${identifier}`);
+  return identifier;
+};
+
+View.prototype[common.accessibilityIdentidierProperty.setNative] = function setNativeAccessibilityIdentifier(this: View, identifier: string) {
+  const view = <UIView>this.nativeView;
+  if (identifier) {
+    writeTrace(`View<${this}.ios>.accessibilityIdentifier - ${identifier}`);
+    view.accessibilityIdentifier = `${identifier}`;
+  } else {
+    writeTrace(`View<${this}.ios>.accessibilityIdentifier - null`);
+    view.accessibilityIdentifier = null;
   }
 };

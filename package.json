@@ -1,9 +1,13 @@
 {
+  "private": true,
   "name": "@nota/nativescript-accessibility-ext",
-  "version": "3.0.0-alpha.6",
+  "version": "3.0.0-alpha.7",
   "description": "Nativescript plugin for enabling accessiblity features",
   "main": "index.js",
   "scripts": {
+    "postinstall": "npm run pack:plugin && npm run install:demo",
+    "pack:plugin": "cd nativescript-accessibility-ext && npm pack",
+    "install:demo": "cd demo && npm i && npm prune",
     "sass": "cd nativescript-accessibility-ext && rm -rf css && node-sass --recursive --output css scss",
     "build": "npm run tsc && npm run sass",
     "tsc": "cd nativescript-accessibility-ext && tsc",

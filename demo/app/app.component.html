@@ -76,12 +76,12 @@
     <StackLayout class="feature-group">
       <Label accessibilityTraits="header" class="h1 text-center" textWrap="true" text="accessibilityLabel (iOS, Android)"></Label>
 
-      <Label class="body" textWrap="true" text="Set the accessibility label on the element, this will be read by the screen reader inplace in any 'text' value the element has.
-Note: This is from NativeScript itself
-      **iOS:** Maps to both 'accessibilityLabel' AND 'accessibilityIdentifier'
-      **Android:** Maps to contentDescription
-"></Label>
-      <Label class="m-y-2 footnote" textWrap="true" text="Note: This is supported by NativeScript without this plugin"></Label>
+      <Label class="body" textWrap="true" text="
+Set the accessibility label on the element, this will be read by the screen reader inplace in any 'text' value the element has.
+Important note:
+  NativeScript provides the property automationText, this sets both `accessibilityLabel` AND `accessibilityIdentifier` on iOS which can break automated tests.
+  If you use `accessibilityLabel` from this plugin, don't use `automationText` at the same time.
+      "></Label>
 
       <StackLayout class="m-y-5">
         <Label class="h2" text="Allowed value:"></Label>

@@ -4,7 +4,8 @@
   "description": "Nativescript plugin for enabling accessiblity features",
   "main": "index.js",
   "scripts": {
-    "prepublish": "npm run tsc",
+    "sass": "cd nativescript-accessibility-ext && rm -rf css && node-sass --recursive --output css scss",
+    "build": "npm run tsc && npm run sass",
     "tsc": "cd nativescript-accessibility-ext && tsc",
     "tsc-w": "cd nativescript-accessibility-ext && tsc -w"
   },
@@ -23,6 +24,7 @@
   },
   "homepage": "https://github.com/Notalib/nativescript-accessibility-ext/#readme",
   "devDependencies": {
+    "node-sass": "^4.5.3",
     "tns-core-modules": "^3.0.0",
     "tns-platform-declarations": "^3.0.0",
     "nativescript-globalevents": "^1.1.0",

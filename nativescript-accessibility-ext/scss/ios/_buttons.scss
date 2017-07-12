@@ -1,0 +1,10 @@
+@each $scale, $params in $a11y-font-scales {
+  $font-size: 15;
+  $factor: map-get($params, factor);
+
+  Page.a11y-fontscale-#{$scale} {
+    .btn {
+      font-size: $font-size * $factor;
+    }
+  }
+}

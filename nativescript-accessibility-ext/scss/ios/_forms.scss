@@ -1,0 +1,22 @@
+@each $scale, $params in $a11y-font-scales {
+  $factor: map-get($params, factor);
+
+  Page.a11y-fontscale-#{$scale} {
+    .form {
+      .input-field {
+        .label {
+          $font-size: 12;
+          font-size: $font-size * $factor;
+        }
+
+        &.input-sides {
+          .label {
+            $font-size: 18;
+            font-size: $font-size * $factor;
+          }
+        }
+      }
+    }
+  }
+}
+

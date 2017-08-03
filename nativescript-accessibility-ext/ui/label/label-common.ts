@@ -1,21 +1,8 @@
-import { Label } from 'ui/label';
+import { Label } from 'tns-core-modules/ui/label';
 
-import { addPropertyToView } from '../../utils/helpers';
+import { addPropertyToView, Property } from '../../utils/helpers';
 
-export const commonProperties = [
-];
-export const iosProperties = [
-  'accessibilityAdjustsFontSize',
-];
-export const androidProperties = [
-];
+export const accessibilityAdjustsFontSizeProperty: Property<Label, boolean> = addPropertyToView<Label, boolean>(Label, 'accessibilityAdjustsFontSize');
 
-for (const propertyName of [
-  ...commonProperties,
-  ...iosProperties,
-  ...androidProperties,
-]) {
-  addPropertyToView(Label, 'Label', propertyName);
-}
-
-export { Label } from 'ui/label';
+export { Property } from 'tns-core-modules/ui/core/properties/properties';
+export { Label } from 'tns-core-modules/ui/label';

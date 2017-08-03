@@ -1,27 +1,22 @@
 {
   "name": "@nota/nativescript-accessibility-ext",
-  "version": "2.5.8",
+  "version": "3.0.0-alpha.8",
   "description": "Nativescript plugin for enabling accessiblity features",
   "main": "index.js",
+  "scripts": {
+    "prepublish": "cd .. && npm run build"
+  },
   "nativescript": {
     "platforms": {
-      "android": "2.5.0",
-      "ios": "2.5.0"
+      "android": "3.0.0",
+      "ios": "3.0.0"
     },
     "plugin": {
       "nan": true,
       "pan": true,
-      "core3": false,
+      "core3": true,
       "category": "Utilities"
     }
-  },
-  "scripts": {
-    "sass": "rm -rf css && node-sass --recursive --output css scss",
-    "build": "npm run tsc && npm run sass",
-    "prepublish": "npm run build",
-    "tsc": "tsc",
-    "tsc-w": "tsc -w",
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -37,15 +32,8 @@
     "url": "https://github.com/Notalib/nativescript-accessibility-ext/issues"
   },
   "homepage": "https://github.com/Notalib/nativescript-accessibility-ext/#readme",
-  "devDependencies": {
-    "nativescript-globalevents": "^1.1.2",
-    "node-sass": "^4.5.3",
-    "tns-core-modules": "^2.5.0",
-    "tns-platform-declarations": "^2.5.0",
-    "typescript": "^2.1.0"
-  },
   "peerDependencies": {
-    "tns-core-modules": "^2.5.0",
-    "nativescript-globalevents": "^1.1.2"
+    "tns-core-modules": "^3.0.0",
+    "nativescript-globalevents": "^1.1.0"
   }
 }

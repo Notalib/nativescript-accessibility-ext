@@ -1,21 +1,19 @@
-import { PropertyChangeData, Property } from 'ui/core/dependency-observable';
-import { PropertyMetadata } from 'ui/core/proxy';
-import * as proxy from 'ui/core/proxy';
-import * as trace from 'trace';
-import { View } from 'ui/core/view';
+import * as trace from 'tns-core-modules/trace';
+import { View } from 'tns-core-modules/ui/core/view'
+export { View } from 'tns-core-modules/ui/core/view'
+import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common'
+export { ViewCommon } from 'tns-core-modules/ui/core/view/view-common'
+import { Property } from 'tns-core-modules/ui/core/properties';
+export { Property } from 'tns-core-modules/ui/core/properties';
 
-export interface ViewType<T extends View> {
+export function noop() {
+}
+
+export interface ViewType<T extends ViewCommon> {
   new (): T;
 }
 
-function noop() {
-}
-
-export function setNativeValueFn(viewClass: ViewType<View>, propertyName: string, fn?: (data: PropertyChangeData) => void) {
-  (<proxy.PropertyMetadata>(<any>viewClass)[`${propertyName}Property`].metadata).onSetNativeValue = fn || noop;
-}
-
-export function setViewFunction(viewClass: ViewType<View>, fnName: string, fn: Function = noop) {
+export function setViewFunction(viewClass: any, fnName: string, fn: Function = noop) {
   viewClass.prototype[fnName] = fn || noop;
 }
 
@@ -41,30 +39,21 @@ export function inputArrayToBitMask(val: string | string[], map: Map<string, nu
     .reduce((c, val) => c | map.get(val), 0) || 0;
 }
 
-export function addPropertyToView<ViewClass extends View, T>(viewClass: ViewType<ViewClass>, viewName: string, name: string, defaultValue?: T) {
-  const property = new Property(name, viewName, new PropertyMetadata(defaultValue));
-  viewClass[`${name}Property`] = property;
-
-  Object.defineProperty(viewClass.prototype, name, {
-    get() {
-      const value = this._getValue(property);
-      writeTrace(`getter: ${viewName}<${this}>.${name} = ${value}`);
-      return value;
-    },
-    set(value: T) {
-      writeTrace(`setter: ${viewName}<${this}>.${name} = ${value}`);
-      this._setValue(property, value);
-    },
-    enumerable: true,
-    configurable: true
+export function addPropertyToView<ViewClass extends View, T>(viewClass: ViewType<ViewClass>, name: string, defaultValue?: T): Property<ViewClass, T> {
+  const property = new Property<ViewClass, T>({
+    name,
+    defaultValue,
   });
+  property.register(viewClass);
+
+  return property;
 }
 
 /**
  * Write to NativeScript's trace.
  */
 export function writeTrace(message: string) {
-  if (trace.enabled) {
+  if (trace.isEnabled()) {
     trace.write(message, 'A11Y');
   }
 }

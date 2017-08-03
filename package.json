@@ -1,0 +1,37 @@
+{
+  "private": true,
+  "name": "@nota/nativescript-accessibility-ext",
+  "version": "3.0.0-alpha.7",
+  "description": "Nativescript plugin for enabling accessiblity features",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "npm run pack:plugin && npm run install:demo",
+    "pack:plugin": "cd nativescript-accessibility-ext && npm pack",
+    "install:demo": "cd demo && npm i && npm prune",
+    "sass": "cd nativescript-accessibility-ext && rm -rf css && node-sass --recursive --output css scss",
+    "build": "npm run tsc && npm run sass",
+    "tsc": "cd nativescript-accessibility-ext && tsc",
+    "tsc-w": "cd nativescript-accessibility-ext && tsc -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Notalib/nativescript-accessibility-ext.git"
+  },
+  "keywords": [
+    "nativescript",
+    "accessibility"
+  ],
+  "author": "Morten Sjøgren <m_abs@mabs.dk>",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/Notalib/nativescript-accessibility-ext/issues"
+  },
+  "homepage": "https://github.com/Notalib/nativescript-accessibility-ext/#readme",
+  "devDependencies": {
+    "node-sass": "^4.5.3",
+    "tns-core-modules": "^3.0.0",
+    "tns-platform-declarations": "^3.0.0",
+    "nativescript-globalevents": "^1.1.0",
+    "typescript": "^2.4.0"
+  }
+}

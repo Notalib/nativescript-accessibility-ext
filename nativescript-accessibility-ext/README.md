@@ -16,7 +16,7 @@ https://facebook.github.io/react-native/docs/accessibility.html
 But is written from scratch, extending NativeScript's classes.
 
 ## API:
-Extends `ui/core/view` with these attributes and functions.
+Extends `tns-core-modules/ui/core/view` with these attributes and functions.
 
 ### Attributes and functions for both `iOS` and `Android`
 
@@ -31,11 +31,11 @@ Make an announcement to the screen reader.
 | annnouncement text | The text that will be read by the screen reader |
 | null | The elements automationText of the element will be read by the screen reader instead |
 
-#### Attribute: View.automationText (iOS, Android)
+#### Attribute: View.accessibilityLabel (iOS, Android)
 Set the accessibility label on the element, this will be read by the screen reader inplace in any 'text' value the element has.
-Note: This is from NativeScript itself
-      **iOS:** Maps to both `accessibilityLabel` AND `accessibilityIdentifier` -> This might break testing tools
-      **Android:** Maps to contentDescription
+Important note:
+  NativeScript provides the property automationText, this sets both `accessibilityLabel` AND `accessibilityIdentifier` on iOS which can break automated tests.
+  If you use `accessibilityLabel` from this plugin, don't use `automationText` at the same time.
 
 ### CSSClasse: Page.a11y-fontscale (iOS, Android)
 If you need to apply different styling when fonts are scaled, these css-classes are available on the Page.
@@ -86,6 +86,12 @@ Define the value of an accessibility element.
 
 This is to give the user more information about the value of a field.
 For instance a `Slider` would normally have a value between 0-100%, but if the Slider represents time, you can give the user better information about the value.
+
+#### Attribute: View.accessibilityIdentifier (iOS)
+Set the elements unique accessibilityIdentifier.
+Important note:
+  NativeScript provides the property automationText, this sets both `accessibilityLabel` AND `accessibilityIdentifier` on iOS which can break automated tests.
+  If you use `accessibilityIdentifier` from this plugin, don't use `automationText` at the same time.
 
 #### Attribute: View.accessibilityElementsHidden (iOS)
 Indicating whether the accessibility elements contained within this accessibility element are hidden.

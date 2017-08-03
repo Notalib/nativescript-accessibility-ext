@@ -1,4 +1,4 @@
-import { View } from 'ui/core/view';
+import { View } from 'tns-core-modules/ui/core/view';
 import { writeTrace, notityAccessibilityFocusState } from './helpers';
 
 const androidNotityAccessibilityFocusState = (owner: View, viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent) => {
@@ -15,6 +15,14 @@ export class TNSBasicAccessibilityDelegate extends android.view.View.Accessibili
     super();
 
     return global.__native(this);
+  }
+
+  public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
+    super.onInitializeAccessibilityEvent(host, event);
+  }
+
+  public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
+    super.onInitializeAccessibilityNodeInfo(host, info);
   }
 
   /**
@@ -211,33 +219,58 @@ export class AccessibilityHelper {
   public static updateAccessibilityComponentType(tnsView: View, androidView: android.view.View, componentType: string) {
     writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView} componentType:${componentType}`);
 
+    let delegate: android.view.View.AccessibilityDelegate = null;
     switch (componentType) {
       case AccessibilityHelper.BUTTON: {
-        androidView.setAccessibilityDelegate(new TNSButtonAccessibilityDelegate(tnsView));
+        writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} BUTTON`);
+
+        delegate = new TNSButtonAccessibilityDelegate(tnsView);
         break;
       }
       case AccessibilityHelper.RADIOBUTTON_CHECKED: {
-        androidView.setAccessibilityDelegate(new TNSRadioButtonAccessibilityDelegate(tnsView, true));
+        writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} RADIOBUTTON_CHECKED`);
+
+        delegate = new TNSRadioButtonAccessibilityDelegate(tnsView, true);
         break;
       }
       case AccessibilityHelper.RADIOBUTTON_UNCHECKED: {
-        androidView.setAccessibilityDelegate(new TNSRadioButtonAccessibilityDelegate(tnsView, false));
+        writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} RADIOBUTTON_UNCHECKED`);
+
+        delegate = new TNSRadioButtonAccessibilityDelegate(tnsView, false);
         break;
       }
       case AccessibilityHelper.ACCESSIBLE: {
-        androidView.setAccessibilityDelegate(new TNSBasicAccessibilityDelegate(tnsView));
+        writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} ACCESSIBLE`);
+
+        delegate = new TNSBasicAccessibilityDelegate(tnsView);
         break;
       }
       default: {
         writeTrace(`updateAccessibilityComponentType: unknown componentType: ${componentType}`);
+
         AccessibilityHelper.removeAccessibilityComponentType(androidView);
-        break;
+        return;
       }
+    }
+
+    writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView}`);
+
+    try {
+      if (delegate) {
+        androidView.setAccessibilityDelegate(delegate);
+      } else {
+        AccessibilityHelper.removeAccessibilityComponentType(androidView);
+      }
+    } catch (err) {
+      console.log('hugo');
+      console.dir(err);
+      console.log(err);
     }
   }
 
   public static removeAccessibilityComponentType(androidView: android.view.View) {
     writeTrace('removeAccessibilityComponentType');
+
     androidView.setAccessibilityDelegate(null);
   }
 

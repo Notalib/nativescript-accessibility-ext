@@ -1,8 +1,25 @@
-declare module 'ui/core/view' {
+import { View } from 'tns-core-modules/ui/core/view';
+declare module 'tns-core-modules/ui/core/view' {
   interface View {
     // Common for both platforms
+    /**
+     * If `true` the element is an accessibility element and all the children will be treated as a single selectable component.
+     */
     accessible?: boolean;
+    /**
+     * Make an announcement to the screen reader.
+     */
     accessibilityAnnouncement(msg?: string);
+
+    /**
+     * Set the accessibility label on the element, this will be read by the screen reader inplace in any 'text' value the element has.
+     */
+    accessibilityLabel?: string;
+
+    /**
+     * Set the elements unique accessibilityIdentifier.
+     */
+    accessibilityIdentifier?: string;
 
     // Android Specific
     importantForAccessibility?: 'yes' | 'no' | 'auto' | 'no-hide-descendants';

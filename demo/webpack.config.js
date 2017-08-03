@@ -157,7 +157,7 @@ function getPlugins(platform, env) {
 
         // Copy assets to out dir. Add your own globs as needed.
         new CopyWebpackPlugin([
-            { from: 'app.' + platform + '.css', to: mainSheet },
+            { from: "app." + platform + ".css", to: mainSheet },
             { from: "css/**" },
             { from: "fonts/**" },
             { from: "**/*.jpg" },

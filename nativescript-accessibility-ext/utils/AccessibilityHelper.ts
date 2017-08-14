@@ -10,82 +10,96 @@ const androidNotityAccessibilityFocusState = (owner: View, viewGroup: android.vi
   }
 };
 
-export class TNSBasicAccessibilityDelegate extends android.view.View.AccessibilityDelegate {
-  constructor(private owner: View) {
-    super();
+let TNSBasicAccessibilityDelegate: new (owner: View) => android.view.View.AccessibilityDelegate;
+let TNSButtonAccessibilityDelegate: new (owner: View) => android.view.View.AccessibilityDelegate;
+let TNSRadioButtonAccessibilityDelegate: new (owner: View, checked: boolean) => android.view.View.AccessibilityDelegate;
 
-    return global.__native(this);
+function ensureDelegates() {
+  if (TNSBasicAccessibilityDelegate) {
+    return;
   }
 
-  public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
-    super.onInitializeAccessibilityEvent(host, event);
+  class TNSBasicAccessibilityDelegateImpl extends android.view.View.AccessibilityDelegate {
+    constructor(private owner: View) {
+      super();
+
+      return global.__native(this);
+    }
+
+    public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
+      super.onInitializeAccessibilityEvent(host, event);
+    }
+
+    public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
+      super.onInitializeAccessibilityNodeInfo(host, info);
+    }
+
+    /**
+     * Handles accessibility Focus/Blur events - If you create new delegates, you need to clone this function... (sorry, {N} won't let you extend native classes twice)
+     */
+    public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
+      androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
+
+      return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
+    }
+  }
+  TNSBasicAccessibilityDelegate = TNSBasicAccessibilityDelegateImpl;
+
+  class TNSButtonAccessibilityDelegateImpl extends android.view.View.AccessibilityDelegate {
+    private className = android.widget.Button.class.getName();
+    constructor(private owner: View) {
+      super();
+
+      return global.__native(this);
+    }
+
+    public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
+      super.onInitializeAccessibilityEvent(host, event);
+      event.setClassName(this.className);
+    }
+
+    public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
+      super.onInitializeAccessibilityNodeInfo(host, info);
+      info.setClassName(this.className);
+    }
+
+    public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
+      androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
+
+      return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
+    }
+  }
+  TNSButtonAccessibilityDelegate = TNSButtonAccessibilityDelegateImpl;
+
+  class TNSRadioButtonAccessibilityDelegateImpl extends android.view.View.AccessibilityDelegate {
+    private className = android.widget.RadioButton.class.getName();
+    constructor(private owner: View, private checked: boolean) {
+      super();
+
+      return global.__native(this);
+    }
+
+    public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
+      super.onInitializeAccessibilityEvent(host, event);
+      event.setClassName(this.className);
+      event.setChecked(this.checked);
+    }
+
+    public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
+      super.onInitializeAccessibilityNodeInfo(host, info);
+      info.setClassName(this.className);
+      info.setCheckable(true);
+      info.setChecked(this.checked);
+    }
+
+    public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
+      androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
+
+      return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
+    }
   }
 
-  public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
-    super.onInitializeAccessibilityNodeInfo(host, info);
-  }
-
-  /**
-   * Handles accessibility Focus/Blur events - If you create new delegates, you need to clone this function... (sorry, {N} won't let you extend native classes twice)
-   */
-  public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
-    androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
-
-    return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
-  }
-}
-
-export class TNSButtonAccessibilityDelegate extends android.view.View.AccessibilityDelegate {
-  private className = android.widget.Button.class.getName();
-  constructor(private owner: View) {
-    super();
-
-    return global.__native(this);
-  }
-
-  public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
-    super.onInitializeAccessibilityEvent(host, event);
-    event.setClassName(this.className);
-  }
-
-  public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
-    super.onInitializeAccessibilityNodeInfo(host, info);
-    info.setClassName(this.className);
-  }
-
-  public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
-    androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
-
-    return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
-  }
-}
-
-export class TNSRadioButtonAccessibilityDelegate extends android.view.View.AccessibilityDelegate {
-  private className = android.widget.RadioButton.class.getName();
-  constructor(private owner: View, private checked: boolean) {
-    super();
-
-    return global.__native(this);
-  }
-
-  public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
-    super.onInitializeAccessibilityEvent(host, event);
-    event.setClassName(this.className);
-    event.setChecked(this.checked);
-  }
-
-  public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
-    super.onInitializeAccessibilityNodeInfo(host, info);
-    info.setClassName(this.className);
-    info.setCheckable(true);
-    info.setChecked(this.checked);
-  }
-
-  public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
-    androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
-
-    return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
-  }
+  TNSRadioButtonAccessibilityDelegate = TNSRadioButtonAccessibilityDelegateImpl;
 }
 
 let accessibilityEventMap: Map<string, number>;
@@ -218,6 +232,8 @@ export class AccessibilityHelper {
 
   public static updateAccessibilityComponentType(tnsView: View, androidView: android.view.View, componentType: string) {
     writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView} componentType:${componentType}`);
+
+    ensureDelegates();
 
     let delegate: android.view.View.AccessibilityDelegate = null;
     switch (componentType) {

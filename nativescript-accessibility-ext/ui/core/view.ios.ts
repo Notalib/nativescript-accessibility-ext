@@ -24,11 +24,18 @@ View.prototype[common.accessibleProperty.setNative] = function setNativeAccessib
   view.isAccessibilityElement = !!value;
   writeTrace(`View<${this}.ios>.accessible = ${value}`);
 
+  if (typeof UIAccessibilityElementFocusedNotification === 'undefined') {
+    // UIAccessibilityElementFocusedNotification is not supported by this iOS version.
+    return;
+  }
+
   if (tnsView[accessibilityFocusObserverSymbol]) {
     if (value) {
+      // Already configured no need to do so again
       return;
     }
 
+    // Remove observer
     nsApp.ios.removeNotificationObserver(tnsView[accessibilityFocusObserverSymbol], UIAccessibilityElementFocusedNotification);
 
     delete tnsView[accessibilityFocusObserverSymbol];

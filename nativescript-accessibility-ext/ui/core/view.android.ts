@@ -156,7 +156,7 @@ View.prototype[common.accessibleProperty.setNative] = function(this: View, isAcc
   writeTrace(`View<${this}.android>.accessible = ${isAccessible}`);
 
   if (isAccessible) {
-    const accessibilityComponentType = (<any>tnsView).accessibilityComponentType;
+    const accessibilityComponentType = tnsView.accessibilityComponentType;
     writeTrace(`View<${this}.android>.accessible = ${isAccessible} -> accessibilityComponentType=${accessibilityComponentType}`);
 
     if (!accessibilityComponentType) {
@@ -199,11 +199,11 @@ setViewFunction(View, common.androidFunctions.sendAccessibilityEvent, function s
 setViewFunction(View, common.commenFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
   writeTrace(`View<${this}.android>.accessibilityAnnouncement(..) -> ${msg}`);
   if (!msg) {
-    msg = (<any>this).accessibilityLabel;
+    msg = this.accessibilityLabel;
     writeTrace(`View<${this}.android>.accessibilityAnnouncement(..) - no msg, sending view.accessibilityLabel = '${msg}' instead`);
   }
 
-  (<any>this).sendAccessibilityEvent('announcement', msg);
+  this.sendAccessibilityEvent('announcement', msg);
 });
 
 View.prototype[common.accessibilityLabelProperty.getDefault] = function getDefaultAccessibilityLabel(this: View) {

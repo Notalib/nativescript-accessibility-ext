@@ -17,28 +17,37 @@ View.prototype[common.accessibleProperty.getDefault] = function getDefaultAccess
 
 const accessibilityFocusObserverSymbol = Symbol('ios:accessibilityFocusObserver');
 const accessibilityHadFocusSymbol = Symbol('ios:accessibilityHadFocusSymbol');
-View.prototype[common.accessibleProperty.setNative] = function setNativeAccessible(this: View, value: boolean) {
-  const view = <UIView>this.nativeView;
-  const tnsView = this;
 
-  view.isAccessibilityElement = !!value;
-  writeTrace(`View<${this}.ios>.accessible = ${value}`);
-
+/**
+ * Wrapper for setting up accessibility focus events for iOS9+
+ * NOTE: This isn't supported on iOS8
+ *
+ * If the UIView changes from accessible = true to accessible = true, event will be remove
+ *
+ * @param {UIView} view         Native iOS UIView
+ * @param {View} tnsView        NativeScript View
+ * @param {boolean} accessible  is element marked as accessible
+ */
+function handleUIAccessibilityElementFocusedNotification(view: UIView, tnsView: View, accessible: boolean) {
   if (typeof UIAccessibilityElementFocusedNotification === 'undefined') {
-    // UIAccessibilityElementFocusedNotification is not supported by this iOS version.
+    writeTrace(`handleUIAccessibilityElementFocusedNotification(${view}, ${tnsView}, ${accessible}): UIAccessibilityElementFocusedNotification is not supported by this iOS version`);
     return;
   }
 
   if (tnsView[accessibilityFocusObserverSymbol]) {
-    if (value) {
-      // Already configured no need to do so again
+    if (accessible) {
+      writeTrace(`handleUIAccessibilityElementFocusedNotification(${view}, ${tnsView}, ${accessible}): Already configured no need to do so again`);
       return;
     }
 
-    // Remove observer
+    writeTrace(`handleUIAccessibilityElementFocusedNotification(${view}, ${tnsView}, ${accessible}) - view no longer accessible, don't configure this again`);
     nsApp.ios.removeNotificationObserver(tnsView[accessibilityFocusObserverSymbol], UIAccessibilityElementFocusedNotification);
 
     delete tnsView[accessibilityFocusObserverSymbol];
+    return;
+  }
+
+  if (!accessible) {
     return;
   }
 
@@ -75,6 +84,16 @@ View.prototype[common.accessibleProperty.setNative] = function setNativeAccessib
   });
 
   tnsView[accessibilityFocusObserverSymbol] = observer;
+}
+
+View.prototype[common.accessibleProperty.setNative] = function setNativeAccessible(this: View, value: boolean) {
+  const view = <UIView>this.nativeView;
+  const tnsView = this;
+
+  view.isAccessibilityElement = !!value;
+  writeTrace(`View<${this}.ios>.accessible = ${value}`);
+
+  handleUIAccessibilityElementFocusedNotification(view, tnsView, value);
 };
 
 let traits: Map<string, number>;
@@ -84,43 +103,81 @@ function ensureTraits() {
   }
 
   traits = new Map<string, number>([
+    // The accessibility element has no traits.
     ['none', UIAccessibilityTraitNone],
+
+    // The accessibility element should be treated as a button.
     ['button', UIAccessibilityTraitButton],
+
+    // The accessibility element should be treated as a link.
     ['link', UIAccessibilityTraitLink],
-    ['header', UIAccessibilityTraitHeader],
+
+    // The accessibility element should be treated as a search field.
     ['search', UIAccessibilityTraitSearchField],
+
+    // The accessibility element should be treated as an image.
     ['image', UIAccessibilityTraitImage],
+
+    // The accessibility element is currently selected.
     ['selected', UIAccessibilityTraitSelected],
+
+    // The accessibility element plays its own sound when activated.
     ['plays', UIAccessibilityTraitPlaysSound],
+
+    // The accessibility element behaves as a keyboard key.
     ['key', UIAccessibilityTraitKeyboardKey],
+
+    // The accessibility element should be treated as static text that cannot change.
     ['text', UIAccessibilityTraitStaticText],
+
+    // The accessibility element provides summary information when the application starts.
     ['summary', UIAccessibilityTraitSummaryElement],
+
+    // The accessibility element is not enabled and does not respond to user interaction.
     ['disabled', UIAccessibilityTraitNotEnabled],
+
+    // The accessibility element frequently updates its label or value.
     ['frequentUpdates', UIAccessibilityTraitUpdatesFrequently],
+
+    // The accessibility element starts a media session when it is activated.
     ['startsMedia', UIAccessibilityTraitStartsMediaSession],
+
+    // The accessibility element allows continuous adjustment through a range of values.
     ['adjustable', UIAccessibilityTraitAdjustable],
+
+    // The accessibility element allows direct touch interaction for VoiceOver users.
     ['allowsDirectInteraction', UIAccessibilityTraitAllowsDirectInteraction],
+
+    // The accessibility element should cause an automatic page turn when VoiceOver finishes reading the text within it.
     ['pageTurn', UIAccessibilityTraitCausesPageTurn],
+
+    // The accessibility element is a header that divides content into sections, such as the title of a navigation bar.
+    ['header', UIAccessibilityTraitHeader],
   ]);
 }
 
-View.prototype[common.accessibilityTraitsProperty.getDefault] = function getDefaultAccessibilityTraits(this: View) {
+function geAccessibilityTraitsFromBitmash(accessibilityTraits: number) {
   const res: string[] = [];
-
-  const view = <UIView>this.nativeView;
-  if (!view.accessibilityTraits) {
+  if (!accessibilityTraits) {
     return res;
   }
 
   ensureTraits();
   for (const [name, trait] of Array.from(traits)) {
-    if (view.accessibilityTraits & trait) {
+    if (accessibilityTraits & trait) {
       res.push(name);
     }
   }
 
-  writeTrace(`View<${this}.ios>.accessibilityTraits - default -> ${res.join(',')}`);
   return res;
+}
+
+View.prototype[common.accessibilityTraitsProperty.getDefault] = function getDefaultAccessibilityTraits(this: View) {
+  const view = <UIView>this.nativeView;
+
+  const accessibilityTraits = geAccessibilityTraitsFromBitmash(view.accessibilityTraits);
+  writeTrace(`View<${this}.ios>.accessibilityTraits - default -> '${view.accessibilityTraits}' = '${accessibilityTraits.join(',')}'`);
+  return accessibilityTraits;
 };
 
 View.prototype[common.accessibilityTraitsProperty.setNative] = function setNativeAccessibilityTraits(this: View, value: string | string[]) {
@@ -128,7 +185,9 @@ View.prototype[common.accessibilityTraitsProperty.setNative] = function setNativ
 
   const view = <UIView>this.nativeView;
   view.accessibilityTraits = inputArrayToBitMask(value, traits);
-  writeTrace(`View<${this}.ios>.accessibilityTraits -> got ${value} -> result: ${view.accessibilityTraits}`);
+
+  const newAccessibilityTraits = geAccessibilityTraitsFromBitmash(view.accessibilityTraits);
+  writeTrace(`View<${this}.ios>.accessibilityTraits -> got ${value} -> result: '${view.accessibilityTraits}' = '${newAccessibilityTraits}'`);
 }
 
 View.prototype[common.accessibilityValueProperty.getDefault] = function getDefaultAccessibilityValue(this: View) {
@@ -201,11 +260,11 @@ setViewFunction(View, common.iosFunctions.postAccessibilityNotification, functio
 
 setViewFunction(View, common.commenFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
   if (!msg) {
-    msg = (<any>this).accessibilityLabel;
+    msg = this.accessibilityLabel;
     writeTrace(`View<${this}.ios>.accessibilityAnnouncement(..) - no msg, sending view.accessibilityLabel = ${msg} instead`);
   }
 
-  (<any>this).postAccessibilityNotification('announcement', msg);
+  this.postAccessibilityNotification('announcement', msg);
   writeTrace(`View<${this}.ios>.accessibilityAnnouncement(..) - sending ${msg}`);
 });
 

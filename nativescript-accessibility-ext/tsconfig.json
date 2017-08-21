@@ -30,7 +30,8 @@
         "skipLibCheck": true
     },
     "files": [
-        "index.ts"
+        "index.ts",
+        "uglify-mangle-excludes.ts"
     ],
     "include": [
         "ui/**/*.ts",

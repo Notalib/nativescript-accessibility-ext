@@ -2,10 +2,12 @@ import { View } from 'tns-core-modules/ui/core/view';
 declare module 'tns-core-modules/ui/core/view' {
   interface View {
     // Common for both platforms
+
     /**
      * If `true` the element is an accessibility element and all the children will be treated as a single selectable component.
      */
     accessible?: boolean;
+
     /**
      * Make an announcement to the screen reader.
      */

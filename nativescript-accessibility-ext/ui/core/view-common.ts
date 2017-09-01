@@ -4,11 +4,12 @@ export { Property, View, ViewCommon } from '../../utils/helpers';
 // Common properties
 export const accessibleProperty: Property<View, boolean> = addPropertyToView<View, boolean>(ViewCommon, 'accessible', false);
 export const accessibilityLabelProperty = addPropertyToView<View, boolean>(ViewCommon, 'accessibilityLabel', false);
-export const accessibilityIdentidierProperty = addPropertyToView<View, boolean>(ViewCommon, 'accessibilityIdentifier', false);
+export const accessibilityIdentifierProperty = addPropertyToView<View, boolean>(ViewCommon, 'accessibilityIdentifier', false);
 
 // iOS properties:
 export const accessibilityTraitsProperty = addPropertyToView<View, string | string[] | null>(ViewCommon, 'accessibilityTraits');
 export const accessibilityValueProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityValue');
+export const accessibilityLanguageProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityLanguage');
 export const accessibilityElementsHidden = addPropertyToView<View, string>(ViewCommon, 'accessibilityElementsHidden', 'no');
 
 // Android properties
@@ -16,7 +17,7 @@ export const importantForAccessibilityProperty = addPropertyToView<View, boolean
 export const accessibilityComponentTypeProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityComponentType');
 export const accessibilityLiveRegionProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityLiveRegion');
 
-export const commenFunctions = {
+export const commonFunctions = {
   'accessibilityAnnouncement': 'accessibilityAnnouncement',
 };
 export const iosFunctions = {
@@ -25,7 +26,7 @@ export const iosFunctions = {
 export const androidFunctions = {
   'sendAccessibilityEvent': 'sendAccessibilityEvent',
 };
-export const allFunctions = Object.assign({}, commenFunctions, iosFunctions, androidFunctions);
+export const allFunctions = Object.assign({}, commonFunctions, iosFunctions, androidFunctions);
 
 for (const fnName of Object.keys(allFunctions)) {
   setViewFunction(ViewCommon, fnName);

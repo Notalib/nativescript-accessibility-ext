@@ -141,6 +141,15 @@ Important note:
     </StackLayout>
 
     <StackLayout class="feature-group">
+      <Label accessibilityTraits="header" class="h1 text-center" textWrap="true" text="accessibilityLanguage (iOS)"></Label>
+      <StackLayout class="m-y-5">
+        <Label class="p-x-5" textWrap="true" accessibilityLanguage="en" text="VoiceOver will read these labels aloud in the appropriate language"></Label>
+        <Label class="p-x-5" accessibilityLanguage="de" text="Es ist ein Text auf Deutsch. Einen schönen Tag noch."></Label>
+        <Label class="p-x-5" accessibilityLanguage="da" text="Dette er en dansk tekst. Hav en god dag."></Label>
+      </StackLayout>
+    </StackLayout>
+
+    <StackLayout class="feature-group">
       <Label accessibilityTraits="header" class="h1 text-center m-2" textWrap="true" text="accessibilityComponentType (Android)"></Label>
       <Label class="body" textWrap="true" text="Alert the user to what kind of element is selected. E.g. is this a button"></Label>
 

@@ -303,3 +303,21 @@ View.prototype[common.accessibilityIdentidierProperty.setNative] = function setN
     view.accessibilityIdentifier = null;
   }
 };
+
+View.prototype[common.accessibilityLanguageProperty.getDefault] = function getDefaultAccessibilityLanguage(this: View) {
+  const view = <UIView>this.nativeView;
+  const lang = view.accessibilityLanguage;
+  writeTrace(`View<${this}.ios>.accessibilityLanguage - default - ${lang}`);
+  return lang;
+};
+
+View.prototype[common.accessibilityLanguageProperty.setNative] = function setNativeAccessibilityLanguage(this: View, lang: string) {
+  const view = <UIView>this.nativeView;
+  if (lang) {
+    writeTrace(`View<${this}.ios>.accessibilityLanguage - ${lang}`);
+    view.accessibilityLanguage = lang;
+  } else {
+    writeTrace(`View<${this}.ios>.accessibilityLanguage - null`);
+    view.accessibilityLanguage = null;
+  }
+};

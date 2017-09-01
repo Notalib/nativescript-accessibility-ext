@@ -9,6 +9,7 @@ export const accessibilityIdentidierProperty = addPropertyToView<View, boolean>(
 // iOS properties:
 export const accessibilityTraitsProperty = addPropertyToView<View, string | string[] | null>(ViewCommon, 'accessibilityTraits');
 export const accessibilityValueProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityValue');
+export const accessibilityLanguageProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityLanguage');
 export const accessibilityElementsHidden = addPropertyToView<View, string>(ViewCommon, 'accessibilityElementsHidden', 'no');
 
 // Android properties

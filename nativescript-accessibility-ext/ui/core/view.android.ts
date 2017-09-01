@@ -196,7 +196,7 @@ setViewFunction(View, common.androidFunctions.sendAccessibilityEvent, function s
   }
 });
 
-setViewFunction(View, common.commenFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
+setViewFunction(View, common.commonFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
   writeTrace(`View<${this}.android>.accessibilityAnnouncement(..) -> ${msg}`);
   if (!msg) {
     msg = this.accessibilityLabel;

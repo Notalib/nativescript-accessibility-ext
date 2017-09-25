@@ -57,9 +57,9 @@ function loadedEventCb({object: page}: PageLoadedEventData) {
       }
     }
 
-    writeTrace(`Page<${page}>.fontScale: setFontScaleClass: before change: page.className='${page.className}'`);
+    writeTrace(`Page<${page}>.fontScale: setFontScaleClass: before change: page.className='${page.className || ''}'`);
     page.className = Array.from(page.cssClasses).join(' ');
-    writeTrace(`Page<${page}>.fontScale: setFontScaleClass: page.className='${page.className}'`);
+    writeTrace(`Page<${page}>.fontScale: setFontScaleClass: page.className='${page.className || ''}'`);
   };
 
   const unloadedCb = () => {

@@ -8,8 +8,12 @@ for (const fnName of Object.keys(common.iosFunctions)) {
   setViewFunction(View, fnName);
 }
 
-View.prototype[common.importantForAccessibilityProperty.getDefault] = function(this: View) {
+View.prototype[common.importantForAccessibilityProperty.getDefault] = function importantForAccessibilityGetDefault(this: View) {
   const view = <android.view.View>this.nativeView;
+  if (!view) {
+    writeTrace(`View<${this}.android>.importantForAccessibility - default = nativeView is missing`);
+    return 'auto';
+  }
 
   const value = view.getImportantForAccessibility();
   if (!value) {
@@ -39,7 +43,7 @@ View.prototype[common.importantForAccessibilityProperty.getDefault] = function(t
   return 'auto';
 };
 
-View.prototype[common.importantForAccessibilityProperty.setNative] = function(this: View, value: string) {
+View.prototype[common.importantForAccessibilityProperty.setNative] = function importantForAccessibilitySetNative(this: View, value: string) {
   const view = <android.view.View>this.nativeView;
 
   if (!value) {
@@ -76,19 +80,18 @@ View.prototype[common.importantForAccessibilityProperty.setNative] = function(th
   }
 };
 
-View.prototype[common.accessibilityComponentTypeProperty.getDefault] = function(this: View) {
+View.prototype[common.accessibilityComponentTypeProperty.getDefault] = function accessibilityComponentTypeGetDefault(this: View) {
   return null;
 };
 
-View.prototype[common.accessibilityComponentTypeProperty.setNative] = function(this: View, value: string) {
+View.prototype[common.accessibilityComponentTypeProperty.setNative] = function accessibilityComponentTypeSetNative(this: View, value: string) {
   const view = <android.view.View>this.nativeView;
-  const tnsView = this;
 
-  AccessibilityHelper.updateAccessibilityComponentType(tnsView, view, value);
+  AccessibilityHelper.updateAccessibilityComponentType(this, view, value);
   writeTrace(`View<${this}.android>.accessibilityComponentType - value: ${value}.`);
 }
 
-View.prototype[common.accessibilityLiveRegionProperty.getDefault] = function(this: View) {
+View.prototype[common.accessibilityLiveRegionProperty.getDefault] = function accessibilityLiveRegionGetDefault(this: View) {
   if (android.os.Build.VERSION.SDK_INT >= 19) {
     const view = <any>this.nativeView;
 
@@ -114,7 +117,7 @@ View.prototype[common.accessibilityLiveRegionProperty.getDefault] = function(thi
   return null;
 };
 
-View.prototype[common.accessibilityLiveRegionProperty.setNative] = function(this: View, value: string) {
+View.prototype[common.accessibilityLiveRegionProperty.setNative] = function accessibilityLiveRegionSetNative(this: View, value: string) {
   if (android.os.Build.VERSION.SDK_INT >= 19) {
     const view = <any>this.nativeView;
 
@@ -140,15 +143,20 @@ View.prototype[common.accessibilityLiveRegionProperty.setNative] = function(this
   }
 };
 
-View.prototype[common.accessibleProperty.getDefault] = function(this: View) {
+View.prototype[common.accessibleProperty.getDefault] = function accessibleGetDefault(this: View) {
   const view = <android.view.View>this.nativeView;
+  if (!view) {
+    writeTrace(`View<${this}.android>.accessible - default = nativeView is missing`);
+    return false;
+  }
+
   const isAccessible = !!view.isFocusable();
 
   writeTrace(`View<${this}.android>.accessible - default = ${isAccessible}`);
   return isAccessible;
 }
 
-View.prototype[common.accessibleProperty.setNative] = function(this: View, isAccessible: boolean) {
+View.prototype[common.accessibleProperty.setNative] = function accessibleSetNative(this: View, isAccessible: boolean) {
   const view = this.nativeView;
   const tnsView = this;
 
@@ -206,14 +214,19 @@ setViewFunction(View, common.commonFunctions.accessibilityAnnouncement, function
   this.sendAccessibilityEvent('announcement', msg);
 });
 
-View.prototype[common.accessibilityLabelProperty.getDefault] = function getDefaultAccessibilityLabel(this: View) {
+View.prototype[common.accessibilityLabelProperty.getDefault] = function accessibilityLabelGetDefault(this: View) {
   const view = <android.view.View>this.nativeView;
+  if (!view) {
+    writeTrace(`View<${this}.android>.accessibilityLabel - default = nativeView is missing`);
+    return null;
+  }
+
   const label = view.getContentDescription();
   writeTrace(`View<${this}.android>.accessibilityLabel - default = ${label}`);
   return label;
 };
 
-View.prototype[common.accessibilityLabelProperty.setNative] = function setNativeAccessibilityLabel(this: View, label: string) {
+View.prototype[common.accessibilityLabelProperty.setNative] = function accessibilityLabelSetNative(this: View, label: string) {
   const view = <android.view.View>this.nativeView;
   if (label) {
     writeTrace(`View<${this}.android>.accessibilityLabel - ${label}`);

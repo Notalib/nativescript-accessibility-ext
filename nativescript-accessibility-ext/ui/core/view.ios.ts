@@ -8,7 +8,7 @@ for (const fnName of Object.keys(common.androidFunctions)) {
   setViewFunction(View, fnName);
 }
 
-View.prototype[common.accessibleProperty.getDefault] = function getDefaultAccessible(this: View) {
+View.prototype[common.accessibleProperty.getDefault] = function accessibleGetDefault(this: View) {
   const view = <UIView>this.nativeView;
   const isAccessble = !!view.isAccessibilityElement;
   writeTrace(`View<${this}.android>.accessible - default = ${isAccessble}`);
@@ -86,7 +86,7 @@ function handleUIAccessibilityElementFocusedNotification(view: UIView, tnsView: 
   tnsView[accessibilityFocusObserverSymbol] = observer;
 }
 
-View.prototype[common.accessibleProperty.setNative] = function setNativeAccessible(this: View, value: boolean) {
+View.prototype[common.accessibleProperty.setNative] = function accessibleSetNative(this: View, value: boolean) {
   const view = <UIView>this.nativeView;
   const tnsView = this;
 
@@ -172,7 +172,7 @@ function geAccessibilityTraitsFromBitmash(accessibilityTraits: number) {
   return res;
 }
 
-View.prototype[common.accessibilityTraitsProperty.getDefault] = function getDefaultAccessibilityTraits(this: View) {
+View.prototype[common.accessibilityTraitsProperty.getDefault] = function accessibilityTraitsGetDefault(this: View) {
   const view = <UIView>this.nativeView;
 
   const accessibilityTraits = geAccessibilityTraitsFromBitmash(view.accessibilityTraits);
@@ -180,7 +180,7 @@ View.prototype[common.accessibilityTraitsProperty.getDefault] = function getDefa
   return accessibilityTraits;
 };
 
-View.prototype[common.accessibilityTraitsProperty.setNative] = function setNativeAccessibilityTraits(this: View, value: string | string[]) {
+View.prototype[common.accessibilityTraitsProperty.setNative] = function accessibilityTraitsSetNative(this: View, value: string | string[]) {
   ensureTraits();
 
   const view = <UIView>this.nativeView;
@@ -190,14 +190,14 @@ View.prototype[common.accessibilityTraitsProperty.setNative] = function setNativ
   writeTrace(`View<${this}.ios>.accessibilityTraits -> got ${value} -> result: '${view.accessibilityTraits}' = '${newAccessibilityTraits}'`);
 };
 
-View.prototype[common.accessibilityValueProperty.getDefault] = function getDefaultAccessibilityValue(this: View) {
+View.prototype[common.accessibilityValueProperty.getDefault] = function accessibilityValueGetDefault(this: View) {
   const view = <UIView>this.nativeView;
   const value = view.accessibilityValue;
   writeTrace(`View<${this}.ios>.accessibilityValue - default - ${value}`);
   return value;
 };
 
-View.prototype[common.accessibilityValueProperty.setNative] = function setNativeAccessibilityValue(this: View, value: string) {
+View.prototype[common.accessibilityValueProperty.setNative] = function accessibilityValueSetNative(this: View, value: string) {
   const view = <UIView>this.nativeView;
   if (value) {
     writeTrace(`View<${this}.ios>.accessibilityValue - ${value}`);
@@ -208,14 +208,14 @@ View.prototype[common.accessibilityValueProperty.setNative] = function setNative
   }
 };
 
-View.prototype[common.accessibilityElementsHidden.getDefault] = function getDefaultAccessibilityElementHidden(this: View) {
+View.prototype[common.accessibilityElementsHidden.getDefault] = function accessibilityElementHiddenGetDefault(this: View) {
   const view = <UIView>this.nativeView;
   const isHidden = !!view.accessibilityElementsHidden;
   writeTrace(`View<${this}.ios>.accessibilityElementsHidden - default - ${isHidden}`);
   return isHidden;
 };
 
-View.prototype[common.accessibilityElementsHidden.setNative] = function setNativeAccessibilityElementHidden(this: View, isHidden: boolean) {
+View.prototype[common.accessibilityElementsHidden.setNative] = function accessibilityElementHiddenSetNative(this: View, isHidden: boolean) {
   const view = <UIView>this.nativeView;
   view.accessibilityElementsHidden = !!isHidden;
   writeTrace(`View<${this}.ios>.accessibilityElementsHidden - ${!!isHidden}`);
@@ -268,14 +268,14 @@ setViewFunction(View, common.commonFunctions.accessibilityAnnouncement, function
   writeTrace(`View<${this}.ios>.accessibilityAnnouncement(..) - sending ${msg}`);
 });
 
-View.prototype[common.accessibilityLabelProperty.getDefault] = function getDefaultAccessibilityLabel(this: View) {
+View.prototype[common.accessibilityLabelProperty.getDefault] = function accessibilityLabelGetDefault(this: View) {
   const view = <UIView>this.nativeView;
   const label = view.accessibilityLabel;
   writeTrace(`View<${this}.ios>.accessibilityLabel - default = ${label}`);
   return label;
 };
 
-View.prototype[common.accessibilityLabelProperty.setNative] = function setNativeAccessibilityLabel(this: View, label: string) {
+View.prototype[common.accessibilityLabelProperty.setNative] = function accessibilityLabelSetNative(this: View, label: string) {
   const view = <UIView>this.nativeView;
   if (label) {
     writeTrace(`View<${this}.ios>.accessibilityLabel - ${label}`);
@@ -286,14 +286,14 @@ View.prototype[common.accessibilityLabelProperty.setNative] = function setNative
   }
 };
 
-View.prototype[common.accessibilityIdentifierProperty.getDefault] = function getDefaultAccessibilityIdentifier(this: View) {
+View.prototype[common.accessibilityIdentifierProperty.getDefault] = function accessibilityIdentifierGetDefault(this: View) {
   const view = <UIView>this.nativeView;
   const identifier = view.accessibilityIdentifier;
   writeTrace(`View<${this}.ios>.accessibilityIdentifier - default = ${identifier}`);
   return identifier;
 };
 
-View.prototype[common.accessibilityIdentifierProperty.setNative] = function setNativeAccessibilityIdentifier(this: View, identifier: string) {
+View.prototype[common.accessibilityIdentifierProperty.setNative] = function accessibilityIdentifierSetNative(this: View, identifier: string) {
   const view = <UIView>this.nativeView;
   if (identifier) {
     writeTrace(`View<${this}.ios>.accessibilityIdentifier - ${identifier}`);
@@ -304,14 +304,14 @@ View.prototype[common.accessibilityIdentifierProperty.setNative] = function setN
   }
 };
 
-View.prototype[common.accessibilityLanguageProperty.getDefault] = function getDefaultAccessibilityLanguage(this: View) {
+View.prototype[common.accessibilityLanguageProperty.getDefault] = function accessibilityLanguageGetDefault(this: View) {
   const view = <UIView>this.nativeView;
   const lang = view.accessibilityLanguage;
   writeTrace(`View<${this}.ios>.accessibilityLanguage - default - ${lang}`);
   return lang;
 };
 
-View.prototype[common.accessibilityLanguageProperty.setNative] = function setNativeAccessibilityLanguage(this: View, lang: string) {
+View.prototype[common.accessibilityLanguageProperty.setNative] = function accessibilityLanguageSetNative(this: View, lang: string) {
   const view = <UIView>this.nativeView;
   if (lang) {
     writeTrace(`View<${this}.ios>.accessibilityLanguage - ${lang}`);

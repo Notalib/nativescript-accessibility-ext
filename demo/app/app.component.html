@@ -133,10 +133,10 @@ Important note:
       <StackLayout
         class="feature-example"
       >
-        <Label textWrap="true" [text]="'Slider with accessibilityValue: VoiceOver should read:\n' + sliderA11YValue"></Label>
-        <Slider [min]="sliderMin" [max]="sliderMax" [(ngModel)]="sliderValue" [accessibilityValue]="sliderA11YValue"></Slider>
+        <Label textWrap="true" [text]="'Slider with accessibilityValue: VoiceOver should read:\n' + (sliderA11YValue | async)"></Label>
+        <Slider [min]="sliderMin" [max]="sliderMax" [value]="sliderValue | async" (valueChange)="sliderValueChange($event)" [accessibilityValue]="sliderA11YValue | async"></Slider>
         <Label text="Slider without accessibilityValue"></Label>
-        <Slider [min]="sliderMin" [max]="sliderMax" [(ngModel)]="sliderValue"></Slider>
+        <Slider [min]="sliderMin" [max]="sliderMax" [value]="sliderValue | async" (valueChange)="sliderValueChange($event)"></Slider>
       </StackLayout>
     </StackLayout>
 

@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { Observable, PropertyChangeData } from 'data/observable';
 
 import * as dialogs from 'tns-core-modules/ui/dialogs';
+import { BehaviorSubject } from 'rxjs';
+import * as rxjs from 'rxjs';
 
 @Component({
   selector: 'my-app',
@@ -37,17 +39,19 @@ export class AppComponent {
     { key: 'radiobutton_unchecked', label: 'Unchecked radiobutton' },
   ];
 
+  public readonly sliderMin = 0;
+  public readonly sliderMax = 100;
+  public readonly sliderValue = new BehaviorSubject(50);
+  public readonly sliderA11YValue: rxjs.Observable<string> = this.sliderValue.map((value) => `slider is now at ${value}`);
+
   public tapped(e: any) {
     const el = e.object;
 
     dialogs.alert(`Tapped: ${el.accessibilityLabel || el.text}`);
   }
 
-  public readonly sliderMin = 0;
-  public readonly sliderMax = 100;
-  public sliderValue = 50;
-
-  public get sliderA11YValue() {
-    return `slider is now at ${this.sliderValue}`;
+  public sliderValueChange(event: any) {
+    console.log(event);
+    this.sliderValue.next(event.value);
   }
 }

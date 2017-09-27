@@ -8,14 +8,14 @@ import { FontScaleObservable } from '../../utils/FontScaleObservable';
 
 import { writeTrace } from '../../utils/helpers';
 
-Label.prototype[common.accessibilityAdjustsFontSizeProperty.getDefault] = function getDefaultAccessibilityAdjustsFontSize(this: Label) {
+Label.prototype[common.accessibilityAdjustsFontSizeProperty.getDefault] = function accessibilityAdjustsFontSizeGetDefault(this: Label) {
   return false;
 };
 
 const fontScalePropSymbol = Symbol('ios:fontScalePropSymbol');
-Label.prototype[common.accessibilityAdjustsFontSizeProperty.setNative] = function setAccessibilityAdjustsFontSize(this: Label, value: boolean) {
+Label.prototype[common.accessibilityAdjustsFontSizeProperty.setNative] = function accessibilityAdjustsFontSizeSetNative(this: Label, value: boolean) {
   const tnsLabel = this;
-  const uiLabel = this.nativeView;
+  const uiLabel = <UILabel>this.ios;
 
   if (tnsLabel[fontScalePropSymbol]) {
     if (value) {

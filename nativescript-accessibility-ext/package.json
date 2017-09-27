@@ -1,6 +1,6 @@
 {
   "name": "@nota/nativescript-accessibility-ext",
-  "version": "3.0.0-alpha.10",
+  "version": "3.2.0-alpha.1",
   "description": "Nativescript plugin for enabling accessiblity features",
   "main": "index.js",
   "scripts": {
@@ -8,8 +8,8 @@
   },
   "nativescript": {
     "platforms": {
-      "android": "3.0.0",
-      "ios": "3.0.0"
+      "android": "3.2.0",
+      "ios": "3.2.0"
     },
     "plugin": {
       "nan": true,
@@ -23,17 +23,26 @@
     "url": "git+https://github.com/Notalib/nativescript-accessibility-ext.git"
   },
   "keywords": [
-    "nativescript",
-    "accessibility"
+    "NativeScript",
+    "Accessibility",
+    "angular",
+    "Android",
+    "iOS",
+    "TalkBack",
+    "VoiceOver"
   ],
   "author": "Morten Sjøgren <m_abs@mabs.dk>",
+  "contributors": {
+    "name": "Daniel Freiling",
+    "email": "ddfreiling@gmail.com"
+  },
   "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/Notalib/nativescript-accessibility-ext/issues"
   },
   "homepage": "https://github.com/Notalib/nativescript-accessibility-ext/#readme",
   "peerDependencies": {
-    "tns-core-modules": "^3.0.0",
+    "tns-core-modules": "^3.2.0",
     "nativescript-globalevents": "^1.1.2"
   }
 }

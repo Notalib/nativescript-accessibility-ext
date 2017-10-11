@@ -1,8 +1,8 @@
-import { Observable, PropertyChangeData }  from 'data/observable';
+import { Observable, PropertyChangeData }  from 'tns-core-modules/data/observable';
 
-import * as nsApp from 'application';
-import { isAndroid, isIOS } from 'platform';
-import * as utils from 'utils/utils';
+import * as nsApp from 'tns-core-modules/application';
+import { isAndroid, isIOS } from 'tns-core-modules/platform';
+import * as utils from 'tns-core-modules/utils/utils';
 import { writeTrace } from './helpers';
 
 function getClosestValidFontScale(fontScale: number) {

@@ -4,7 +4,7 @@
 *.js
 *.js.map
 *.log
-src/*.d.ts
+src/**/*.d.ts
 !src/index.d.ts
 !src/references.d.ts
 !src/scripts/*.js
@@ -31,3 +31,5 @@ demo/report/stats.json
 demo-ng/report/report.html
 demo-ng/report/stats.json
 package-lock.json
+src/css
+src/*.d.ts

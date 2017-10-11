@@ -7,18 +7,36 @@
         "noLib": false,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "lib": ["es6", "dom"],
-        "sourceMap": true,
+        "lib": ["es6", "dom", "es2015.iterable"],
         "pretty": true,
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         "noEmitHelpers": true,
+        "noUnusedLocals": true,
         "noEmitOnError": false,
+        "inlineSourceMap": true,
+        "inlineSources": true,
         "noImplicitAny": false,
         "noImplicitReturns": true,
         "noImplicitUseStrict": false,
-        "noFallthroughCasesInSwitch": true
+        "noFallthroughCasesInSwitch": true,
+        "baseUrl": ".",
+        "paths": {
+            "*": [
+                "../node_modules/*"
+            ]
+        },
+        "skipLibCheck": true
     },
+    "files": [
+        "index.ts",
+        "uglify-mangle-excludes.ts"
+    ],
+    "include": [
+        "ui/**/*.ts",
+        "utils/**/*.ts",
+        "references.d.ts"
+    ],
     "exclude": [
         "node_modules"
     ],

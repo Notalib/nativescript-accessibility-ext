@@ -1,6 +1,6 @@
 import 'nativescript-globalevents';
-import { Page } from 'ui/page';
-import { EventData, Observable, PropertyChangeData } from 'data/observable';
+import { Page } from 'tns-core-modules/ui/page';
+import { EventData, Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
 
 import { writeTrace } from '../../utils/helpers';
 
@@ -100,4 +100,4 @@ function loadedEventCb({object: page}: PageLoadedEventData) {
 }
 
 (<any>Page).on(Page.loadedEvent, loadedEventCb);
-export { Page } from 'ui/page';
+export { Page } from 'tns-core-modules/ui/page';

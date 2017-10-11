@@ -8,7 +8,7 @@
 android {  
   defaultConfig {  
     generatedDensities = []
-    applicationId = "dk.nota.accessdemo"  
+    applicationId = "org.nativescript.demo"  
   }  
   aaptOptions {  
     additionalParameters "--no-version-vectors"  

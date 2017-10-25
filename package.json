@@ -7,8 +7,8 @@
   "scripts": {
     "postinstall": "npm run pack:plugin && npm run install:demo",
     "pack:plugin": "cd nativescript-accessibility-ext && npm pack",
-    "demo:android": "npm run install:demo && cd demo && tns debug android",
-    "demo:ios": "npm run install:demo && cd demo && tns debug ios",
+    "demo:android": "npm run install:demo && cd demo && tns debug android --syncAllFiles",
+    "demo:ios": "npm run install:demo && cd demo && tns debug ios --syncAllFiles",
     "bundle:android": "npm run install:demo && cd demo && npm run start-android-bundle",
     "bundle:ios": "npm run install:demo && cd demo && npm run start-ios-bundle",
     "install:demo": "npm run build && cd demo && npm i && npm prune",

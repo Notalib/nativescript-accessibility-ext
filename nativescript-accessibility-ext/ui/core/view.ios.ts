@@ -26,9 +26,9 @@ View.prototype[common.accessibleProperty.getDefault] = function accessibleGetDef
     return false;
   }
 
-  const isAccessble = !!view.isAccessibilityElement;
-  writeTrace(`View<${this}.android>.accessible - default = ${isAccessble}`);
-  return isAccessble;
+  const isAccessible = !!view.isAccessibilityElement;
+  writeTrace(`View<${this}.android>.accessible - default = ${isAccessible}`);
+  return isAccessible;
 };
 
 const accessibilityFocusObserverSymbol = Symbol('ios:accessibilityFocusObserver');
@@ -42,28 +42,28 @@ const accessibilityHadFocusSymbol = Symbol('ios:accessibilityHadFocusSymbol');
  *
  * @param {UIView} view         Native iOS UIView
  * @param {View} tnsView        NativeScript View
- * @param {boolean} accessible  is element marked as accessible
+ * @param {boolean} isAccessible  is element marked as accessible
  */
-function handleUIAccessibilityElementFocusedNotification(view: UIView, tnsView: View, accessible: boolean) {
+function handleUIAccessibilityElementFocusedNotification(view: UIView, tnsView: View, isAccessible: boolean) {
   if (typeof UIAccessibilityElementFocusedNotification === 'undefined') {
-    writeTrace(`handleUIAccessibilityElementFocusedNotification(${view}, ${tnsView}, ${accessible}): UIAccessibilityElementFocusedNotification is not supported by this iOS version`);
+    writeTrace(`handleUIAccessibilityElementFocusedNotification(${view}, ${tnsView}, ${isAccessible}): UIAccessibilityElementFocusedNotification is not supported by this iOS version`);
     return;
   }
 
   if (tnsView[accessibilityFocusObserverSymbol]) {
-    if (accessible) {
-      writeTrace(`handleUIAccessibilityElementFocusedNotification(${view}, ${tnsView}, ${accessible}): Already configured no need to do so again`);
+    if (isAccessible) {
+      writeTrace(`handleUIAccessibilityElementFocusedNotification(${view}, ${tnsView}, ${isAccessible}): Already configured no need to do so again`);
       return;
     }
 
-    writeTrace(`handleUIAccessibilityElementFocusedNotification(${view}, ${tnsView}, ${accessible}) - view no longer accessible, don't configure this again`);
+    writeTrace(`handleUIAccessibilityElementFocusedNotification(${view}, ${tnsView}, ${isAccessible}) - view no longer accessible, don't configure this again`);
     nsApp.ios.removeNotificationObserver(tnsView[accessibilityFocusObserverSymbol], UIAccessibilityElementFocusedNotification);
 
     delete tnsView[accessibilityFocusObserverSymbol];
     return;
   }
 
-  if (!accessible) {
+  if (!isAccessible) {
     return;
   }
 
@@ -102,18 +102,20 @@ function handleUIAccessibilityElementFocusedNotification(view: UIView, tnsView: 
   tnsView[accessibilityFocusObserverSymbol] = observer;
 }
 
-View.prototype[common.accessibleProperty.setNative] = function accessibleSetNative(this: View, value: boolean) {
+View.prototype[common.accessibleProperty.setNative] = function accessibleSetNative(this: View, isAccessible: boolean) {
   const view = getNativeView(this);
   if (!view) {
     return;
   }
 
-  const tnsView = this;
+  if (typeof isAccessible === 'string') {
+    isAccessible = `${isAccessible}`.toLowerCase() === 'true';
+  }
 
-  view.isAccessibilityElement = !!value;
-  writeTrace(`View<${this}.ios>.accessible = ${value}`);
+  view.isAccessibilityElement = !!isAccessible;
+  writeTrace(`View<${this}.ios>.accessible = ${isAccessible}`);
 
-  handleUIAccessibilityElementFocusedNotification(view, tnsView, value);
+  handleUIAccessibilityElementFocusedNotification(view, this, isAccessible);
 };
 
 let traits: Map<string, number>;
@@ -258,6 +260,10 @@ View.prototype[common.accessibilityElementsHidden.setNative] = function accessib
   const view = getNativeView(this);
   if (!view) {
     return;
+  }
+
+  if (typeof isHidden === 'string') {
+    isHidden = `${isHidden}`.toLowerCase() === 'true';
   }
 
   view.accessibilityElementsHidden = !!isHidden;

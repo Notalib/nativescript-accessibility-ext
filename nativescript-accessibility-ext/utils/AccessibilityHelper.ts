@@ -1,12 +1,33 @@
 import { View } from 'tns-core-modules/ui/core/view';
 import { writeTrace, notityAccessibilityFocusState } from './helpers';
 
-const androidNotityAccessibilityFocusState = (owner: View, viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent) => {
-  const receivedFocus = event.getEventType() === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED;
-  const lostFocus = event.getEventType() === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED;
+function getAccessibilityManager(view: android.view.View): android.view.accessibility.AccessibilityManager {
+  return view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
+}
+
+function isAccessibilityServiceEnabled(view: android.view.View) {
+  const a11yService = getAccessibilityManager(view);
+  return a11yService.isEnabled();
+}
+
+let lastFocusedView: WeakRef<View>;
+const androidNotityAccessibilityFocusState = (view: View, eventType: number) => {
+  const receivedFocus = eventType === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED;
+  const lostFocus = eventType === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED;
+
+  if (receivedFocus) {
+    if (lastFocusedView) {
+      const lastView = lastFocusedView.get();
+      if (lastView) {
+        notityAccessibilityFocusState(lastView, false, true);
+      }
+    }
+
+    lastFocusedView = new WeakRef(view);
+  }
 
   if (receivedFocus || lostFocus) {
-    notityAccessibilityFocusState(owner, receivedFocus, lostFocus);
+    notityAccessibilityFocusState(view, receivedFocus, lostFocus);
   }
 };
 
@@ -34,13 +55,12 @@ function ensureDelegates() {
       super.onInitializeAccessibilityNodeInfo(host, info);
     }
 
-    /**
-     * Handles accessibility Focus/Blur events - If you create new delegates, you need to clone this function... (sorry, {N} won't let you extend native classes twice)
-     */
-    public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
-      androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
+    public sendAccessibilityEvent(host: android.view.ViewGroup, eventType: number) {
+      super.sendAccessibilityEvent(host, eventType);
 
-      return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
+      if (isAccessibilityServiceEnabled(host)) {
+        androidNotityAccessibilityFocusState(this.owner, eventType);
+      }
     }
   }
   TNSBasicAccessibilityDelegate = TNSBasicAccessibilityDelegateImpl;
@@ -63,10 +83,12 @@ function ensureDelegates() {
       info.setClassName(this.className);
     }
 
-    public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
-      androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
+    public sendAccessibilityEvent(host: android.view.ViewGroup, eventType: number) {
+      super.sendAccessibilityEvent(host, eventType);
 
-      return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
+      if (isAccessibilityServiceEnabled(host)) {
+        androidNotityAccessibilityFocusState(this.owner, eventType);
+      }
     }
   }
   TNSButtonAccessibilityDelegate = TNSButtonAccessibilityDelegateImpl;
@@ -92,10 +114,12 @@ function ensureDelegates() {
       info.setChecked(this.checked);
     }
 
-    public onRequestSendAccessibilityEvent(viewGroup: android.view.ViewGroup, child: android.view.View, event: android.view.accessibility.AccessibilityEvent): boolean {
-      androidNotityAccessibilityFocusState(this.owner, viewGroup, child, event);
+    public sendAccessibilityEvent(host: android.view.ViewGroup, eventType: number) {
+      super.sendAccessibilityEvent(host, eventType);
 
-      return super.onRequestSendAccessibilityEvent(viewGroup, child, event);
+      if (isAccessibilityServiceEnabled(host)) {
+        androidNotityAccessibilityFocusState(this.owner, eventType);
+      }
     }
   }
 
@@ -279,7 +303,6 @@ export class AccessibilityHelper {
       }
     } catch (err) {
       console.log('hugo');
-      console.dir(err);
       console.log(err);
     }
   }
@@ -296,7 +319,7 @@ export class AccessibilityHelper {
       return;
     }
 
-    const a11yService = <android.view.accessibility.AccessibilityManager>androidView.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
+    const a11yService = getAccessibilityManager(androidView);
     if (!a11yService.isEnabled()) {
       writeTrace(`sendAccessibilityEvent: ACCESSIBILITY_SERVICE is not enabled do nothing for ${eventName} -> ${text}`);
       return;

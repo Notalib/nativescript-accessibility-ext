@@ -186,8 +186,9 @@ Important note:
           accessibilityLabel="This now a button"
           accessibilityComponentType="button"
           accessibilityTraits="button"
+          (tap)="tapped($event)"
         >
-          <Label text="Text-only button" (tap)="tapped($event)" textWrap="true"></Label>
+          <Label text="Text-only button" textWrap="true"></Label>
         </StackLayout>
 
         <StackLayout

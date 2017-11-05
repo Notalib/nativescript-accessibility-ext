@@ -1,10 +1,13 @@
 import * as trace from 'tns-core-modules/trace';
 import { View } from 'tns-core-modules/ui/core/view';
-export { View } from 'tns-core-modules/ui/core/view';
 import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
-export { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
 import { Property } from 'tns-core-modules/ui/core/properties';
-export { Property } from 'tns-core-modules/ui/core/properties';
+
+export {
+  View,
+  ViewCommon,
+  Property,
+};
 
 export function noop() {
 }

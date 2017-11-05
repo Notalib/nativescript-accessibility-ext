@@ -1,13 +1,9 @@
 import { View } from 'tns-core-modules/ui/core/view';
 import { writeTrace, notityAccessibilityFocusState } from './helpers';
+import { isAccessibilityServiceEnabled } from './utils';
 
 function getAccessibilityManager(view: android.view.View): android.view.accessibility.AccessibilityManager {
   return view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
-}
-
-function isAccessibilityServiceEnabled(view: android.view.View) {
-  const a11yService = getAccessibilityManager(view);
-  return a11yService.isEnabled();
 }
 
 let lastFocusedView: WeakRef<View>;
@@ -58,7 +54,7 @@ function ensureDelegates() {
     public sendAccessibilityEvent(host: android.view.ViewGroup, eventType: number) {
       super.sendAccessibilityEvent(host, eventType);
 
-      if (isAccessibilityServiceEnabled(host)) {
+      if (isAccessibilityServiceEnabled()) {
         androidNotityAccessibilityFocusState(this.owner, eventType);
       }
     }
@@ -86,7 +82,7 @@ function ensureDelegates() {
     public sendAccessibilityEvent(host: android.view.ViewGroup, eventType: number) {
       super.sendAccessibilityEvent(host, eventType);
 
-      if (isAccessibilityServiceEnabled(host)) {
+      if (isAccessibilityServiceEnabled()) {
         androidNotityAccessibilityFocusState(this.owner, eventType);
       }
     }
@@ -117,7 +113,7 @@ function ensureDelegates() {
     public sendAccessibilityEvent(host: android.view.ViewGroup, eventType: number) {
       super.sendAccessibilityEvent(host, eventType);
 
-      if (isAccessibilityServiceEnabled(host)) {
+      if (isAccessibilityServiceEnabled()) {
         androidNotityAccessibilityFocusState(this.owner, eventType);
       }
     }

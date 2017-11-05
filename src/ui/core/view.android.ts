@@ -107,7 +107,7 @@ View.prototype[common.accessibilityComponentTypeProperty.setNative] = function a
 
   AccessibilityHelper.updateAccessibilityComponentType(this, view, value);
   writeTrace(`View<${this}.android>.accessibilityComponentType - value: ${value}.`);
-}
+};
 
 View.prototype[common.accessibilityLiveRegionProperty.getDefault] = function accessibilityLiveRegionGetDefault(this: View) {
   if (android.os.Build.VERSION.SDK_INT >= 19) {
@@ -178,7 +178,7 @@ View.prototype[common.accessibleProperty.getDefault] = function accessibleGetDef
 
   writeTrace(`View<${this}.android>.accessible - default = ${isAccessible}`);
   return isAccessible;
-}
+};
 
 View.prototype[common.accessibleProperty.setNative] = function accessibleSetNative(this: View, isAccessible: boolean) {
   const view = getNativeView(this);

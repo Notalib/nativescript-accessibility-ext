@@ -186,6 +186,10 @@ View.prototype[common.accessibleProperty.setNative] = function accessibleSetNati
     return;
   }
 
+  if (typeof isAccessible === 'string') {
+    isAccessible = `${isAccessible}`.toLowerCase() === 'true';
+  }
+
   view.setFocusable(!!isAccessible);
   writeTrace(`View<${this}.android>.accessible = ${isAccessible}`);
 

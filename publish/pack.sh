@@ -41,8 +41,8 @@ pack() {
     npm pack ../"$TO_SOURCE_DIR"
 
     # delete source directory used to create the package
-    cd ..
-    node_modules/.bin/rimraf "$TO_SOURCE_DIR"
+    ## cd ..
+    ## node_modules/.bin/rimraf "$TO_SOURCE_DIR"
 }
 
 install && pack

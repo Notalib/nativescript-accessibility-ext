@@ -1,6 +1,6 @@
 {
     "name": "@nota/nativescript-accessibility-ext",
-    "version": "3.2.0-alpha.5",
+    "version": "3.2.0-alpha.6",
     "description": "Nativescript plugin for enabling accessiblity features",
     "main": "index.js",
     "typings": "index.d.ts",

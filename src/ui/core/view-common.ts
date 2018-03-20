@@ -3,8 +3,8 @@ export { Property, View, ViewCommon } from '../../utils/helpers';
 
 // Common properties
 export const accessibleProperty: Property<View, boolean> = addPropertyToView<View, boolean>(ViewCommon, 'accessible', false);
-export const accessibilityLabelProperty = addPropertyToView<View, boolean>(ViewCommon, 'accessibilityLabel', false);
-export const accessibilityIdentifierProperty = addPropertyToView<View, boolean>(ViewCommon, 'accessibilityIdentifier', false);
+export const accessibilityLabelProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityLabel');
+export const accessibilityIdentifierProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityIdentifier');
 
 // iOS properties:
 export const accessibilityTraitsProperty = addPropertyToView<View, string | string[] | null>(ViewCommon, 'accessibilityTraits');
@@ -26,7 +26,11 @@ export const iosFunctions = {
 export const androidFunctions = {
   'sendAccessibilityEvent': 'sendAccessibilityEvent',
 };
-export const allFunctions = Object.assign({}, commonFunctions, iosFunctions, androidFunctions);
+export const allFunctions = {
+  ...commonFunctions,
+  ...iosFunctions,
+  ...androidFunctions,
+};
 
 for (const fnName of Object.keys(allFunctions)) {
   setViewFunction(ViewCommon, fnName);

@@ -1,4 +1,6 @@
 import { View } from 'tns-core-modules/ui/core/view';
+import { GestureTypes } from 'tns-core-modules/ui/gestures';
+
 import { writeTrace, notityAccessibilityFocusState } from './helpers';
 import { isAccessibilityServiceEnabled } from './utils';
 
@@ -7,25 +9,53 @@ function getAccessibilityManager(view: android.view.View): android.view.accessib
 }
 
 let lastFocusedView: WeakRef<View>;
-const androidNotityAccessibilityFocusState = (view: View, eventType: number) => {
+function androidNotifyAccessibilityFocusState(view: View, eventType: number) {
+  if (!isAccessibilityServiceEnabled()) {
+    return;
+  }
+
   const receivedFocus = eventType === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED;
   const lostFocus = eventType === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED;
 
-  if (receivedFocus) {
-    if (lastFocusedView) {
-      const lastView = lastFocusedView.get();
-      if (lastView) {
-        notityAccessibilityFocusState(lastView, false, true);
+  if (receivedFocus || lostFocus) {
+    if (receivedFocus) {
+      if (lastFocusedView) {
+        const lastView = lastFocusedView.get();
+        if (lastView) {
+          notityAccessibilityFocusState(lastView, false, true);
+        }
       }
+
+      lastFocusedView = new WeakRef(view);
     }
 
-    lastFocusedView = new WeakRef(view);
+    notityAccessibilityFocusState(view, receivedFocus, lostFocus);
+    return;
   }
 
-  if (receivedFocus || lostFocus) {
-    notityAccessibilityFocusState(view, receivedFocus, lostFocus);
+  if (android.os.Build.VERSION.SDK_INT >= 26) {
+    /**
+     * Android API >= 26 handles accessibility tap-events by converting them to TYPE_VIEW_CLICKED
+     * These aren't triggered for custom tap events in NativeScript.
+     */
+    if (
+      eventType === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_CLICKED &&
+      view.getGestureObservers(GestureTypes.tap)
+    ) {
+      // Find all tap gestures and trigger them.
+      for (const tapGesture of view.getGestureObservers(GestureTypes.tap)) {
+        tapGesture.callback({
+          android: null,
+          eventName: 'tap',
+          ios: null,
+          object: view,
+          type: GestureTypes.tap,
+          view,
+        });
+      }
+    }
   }
-};
+}
 
 let TNSBasicAccessibilityDelegate: new (owner: View) => android.view.View.AccessibilityDelegate;
 let TNSButtonAccessibilityDelegate: new (owner: View) => android.view.View.AccessibilityDelegate;
@@ -37,7 +67,7 @@ function ensureDelegates() {
   }
 
   class TNSBasicAccessibilityDelegateImpl extends android.view.View.AccessibilityDelegate {
-    constructor(private owner: View) {
+    constructor(private readonly owner: View) {
       super();
 
       return global.__native(this);
@@ -55,14 +85,14 @@ function ensureDelegates() {
       super.sendAccessibilityEvent(host, eventType);
 
       if (isAccessibilityServiceEnabled()) {
-        androidNotityAccessibilityFocusState(this.owner, eventType);
+        androidNotifyAccessibilityFocusState(this.owner, eventType);
       }
     }
   }
   TNSBasicAccessibilityDelegate = TNSBasicAccessibilityDelegateImpl;
 
   class TNSButtonAccessibilityDelegateImpl extends android.view.View.AccessibilityDelegate {
-    private className = android.widget.Button.class.getName();
+    private readonly className = android.widget.Button.class.getName();
     constructor(private owner: View) {
       super();
 
@@ -83,14 +113,14 @@ function ensureDelegates() {
       super.sendAccessibilityEvent(host, eventType);
 
       if (isAccessibilityServiceEnabled()) {
-        androidNotityAccessibilityFocusState(this.owner, eventType);
+        androidNotifyAccessibilityFocusState(this.owner, eventType);
       }
     }
   }
   TNSButtonAccessibilityDelegate = TNSButtonAccessibilityDelegateImpl;
 
   class TNSRadioButtonAccessibilityDelegateImpl extends android.view.View.AccessibilityDelegate {
-    private className = android.widget.RadioButton.class.getName();
+    private readonly className = android.widget.RadioButton.class.getName();
     constructor(private owner: View, private checked: boolean) {
       super();
 
@@ -100,21 +130,21 @@ function ensureDelegates() {
     public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
       super.onInitializeAccessibilityEvent(host, event);
       event.setClassName(this.className);
-      event.setChecked(this.checked);
+      event.setChecked(!!this.checked);
     }
 
     public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
       super.onInitializeAccessibilityNodeInfo(host, info);
       info.setClassName(this.className);
       info.setCheckable(true);
-      info.setChecked(this.checked);
+      info.setChecked(!!this.checked);
     }
 
     public sendAccessibilityEvent(host: android.view.ViewGroup, eventType: number) {
       super.sendAccessibilityEvent(host, eventType);
 
       if (isAccessibilityServiceEnabled()) {
-        androidNotityAccessibilityFocusState(this.owner, eventType);
+        androidNotifyAccessibilityFocusState(this.owner, eventType);
       }
     }
   }

@@ -9,7 +9,7 @@ function getAccessibilityManager(view: android.view.View): android.view.accessib
 }
 
 let lastFocusedView: WeakRef<View>;
-function androidNotifyAccessibilityFocusState(view: View, eventType: number) {
+function accessibilityEventHelper(view: View, eventType: number) {
   if (!isAccessibilityServiceEnabled()) {
     return;
   }
@@ -84,9 +84,7 @@ function ensureDelegates() {
     public sendAccessibilityEvent(host: android.view.ViewGroup, eventType: number) {
       super.sendAccessibilityEvent(host, eventType);
 
-      if (isAccessibilityServiceEnabled()) {
-        androidNotifyAccessibilityFocusState(this.owner, eventType);
-      }
+      accessibilityEventHelper(this.owner, eventType);
     }
   }
   TNSBasicAccessibilityDelegate = TNSBasicAccessibilityDelegateImpl;
@@ -112,9 +110,7 @@ function ensureDelegates() {
     public sendAccessibilityEvent(host: android.view.ViewGroup, eventType: number) {
       super.sendAccessibilityEvent(host, eventType);
 
-      if (isAccessibilityServiceEnabled()) {
-        androidNotifyAccessibilityFocusState(this.owner, eventType);
-      }
+      accessibilityEventHelper(this.owner, eventType);
     }
   }
   TNSButtonAccessibilityDelegate = TNSButtonAccessibilityDelegateImpl;
@@ -143,9 +139,7 @@ function ensureDelegates() {
     public sendAccessibilityEvent(host: android.view.ViewGroup, eventType: number) {
       super.sendAccessibilityEvent(host, eventType);
 
-      if (isAccessibilityServiceEnabled()) {
-        androidNotifyAccessibilityFocusState(this.owner, eventType);
-      }
+      accessibilityEventHelper(this.owner, eventType);
     }
   }
 

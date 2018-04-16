@@ -117,7 +117,7 @@ function ensureDelegates() {
 
   class TNSRadioButtonAccessibilityDelegateImpl extends android.view.View.AccessibilityDelegate {
     private readonly className = android.widget.RadioButton.class.getName();
-    constructor(private owner: View, private checked: boolean) {
+    constructor(private readonly owner: View, private checked: boolean) {
       super();
 
       return global.__native(this);
@@ -125,12 +125,14 @@ function ensureDelegates() {
 
     public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
       super.onInitializeAccessibilityEvent(host, event);
+
       event.setClassName(this.className);
       event.setChecked(!!this.checked);
     }
 
     public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
       super.onInitializeAccessibilityNodeInfo(host, info);
+
       info.setClassName(this.className);
       info.setCheckable(true);
       info.setChecked(!!this.checked);
@@ -279,7 +281,7 @@ export class AccessibilityHelper {
 
     ensureDelegates();
 
-    let delegate: android.view.View.AccessibilityDelegate = null;
+    let delegate: android.view.View.AccessibilityDelegate;
     switch (componentType) {
       case AccessibilityHelper.BUTTON: {
         writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} BUTTON`);
@@ -313,7 +315,7 @@ export class AccessibilityHelper {
       }
     }
 
-    writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView}`);
+    writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView}, delegate:${!!delegate}`);
 
     try {
       if (delegate) {
@@ -322,13 +324,15 @@ export class AccessibilityHelper {
         AccessibilityHelper.removeAccessibilityComponentType(androidView);
       }
     } catch (err) {
-      console.log('hugo');
-      console.log(err);
+      writeTrace(`Failed to set accessibility delegate: ${err}`);
+
+      console.error(`Failed to set accessibility delegate: ${err}`);
+      console.error(err);
     }
   }
 
   public static removeAccessibilityComponentType(androidView: android.view.View) {
-    writeTrace('removeAccessibilityComponentType');
+    writeTrace(`removeAccessibilityComponentType from ${androidView}`);
 
     androidView.setAccessibilityDelegate(null);
   }

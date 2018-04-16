@@ -36,7 +36,7 @@ export function isAccessibilityServiceEnabled(): boolean {
   }
 
   return isEnabled;
-};
+}
 
 Object.defineProperty(utils, 'isAccessibilityServiceEnabled', {
   value: isAccessibilityServiceEnabled,

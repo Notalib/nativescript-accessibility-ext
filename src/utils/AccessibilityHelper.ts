@@ -86,6 +86,8 @@ function ensureDelegates() {
 
       accessibilityEventHelper(this.owner, eventType);
     }
+
+    // TODO: Android support for a11yLanguage property, see https://stackoverflow.com/a/44446853
   }
   TNSBasicAccessibilityDelegate = TNSBasicAccessibilityDelegateImpl;
 

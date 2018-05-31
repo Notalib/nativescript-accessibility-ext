@@ -21,12 +21,12 @@ export function isAccessibilityServiceEnabled(): boolean {
       return false;
     }
 
-    const a11yService = <android.view.accessibility.AccessibilityManager>context.getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
-    if (!a11yService) {
+    const a11yManager = <android.view.accessibility.AccessibilityManager>context.getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
+    if (!a11yManager) {
       writeTrace(`isAccessibilityServiceEnabled().android: no a11yService`);
       return false;
     }
-    isEnabled = a11yService.isEnabled();
+    isEnabled = android.support.v4.view.accessibility.AccessibilityManagerCompat.isTouchExplorationEnabled(a11yManager);
     writeTrace(`isAccessibilityServiceEnabled().android: isEnabled:${isEnabled}`);
   } else if (isIOS) {
     isEnabled = UIAccessibilityIsVoiceOverRunning();

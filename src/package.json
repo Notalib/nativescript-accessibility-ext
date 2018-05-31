@@ -1,6 +1,6 @@
 {
     "name": "@nota/nativescript-accessibility-ext",
-    "version": "3.2.0-alpha.6",
+    "version": "3.4.0",
     "description": "Nativescript plugin for enabling accessiblity features",
     "main": "index.js",
     "typings": "index.d.ts",
@@ -53,13 +53,19 @@
         "iOS"
     ],
     "author": {
-        "name": "Morten Sjøgren",
-        "email": "m_abs@mabs.dk"
+        "name": "Nota",
+        "email": "app@nota.dk"
     },
-    "contributors": {
-        "name": "Daniel Freiling",
-        "email": "ddfreiling@gmail.com"
-    },
+    "contributors": [
+        {
+            "name": "Morten Sjøgren",
+            "email": "m_abs@mabs.dk"
+        },
+        {
+            "name": "Daniel Freiling",
+            "email": "ddfreiling@gmail.com"
+        }
+    ],
     "license": "BSD-3-Clause",
     "bugs": {
         "url": "https://github.com/Notalib/nativescript-accessibility-ext/issues"
@@ -72,13 +78,13 @@
         "npm-run-all": "^4.1.1",
         "prompt": "^1.0.0",
         "rimraf": "^2.5.0",
-        "tns-core-modules": "^3.3.0",
-        "tns-platform-declarations": "^3.2.0",
+        "tns-core-modules": "^3.4.0",
+        "tns-platform-declarations": "^3.4.0",
         "tslint": "^5.0.0",
         "typescript": "~2.3.0"
     },
     "peerDependencies": {
-        "tns-core-modules": "^3.2.0",
+        "tns-core-modules": "^3.4.0",
         "nativescript-globalevents": "^1.2.0"
     },
     "dependencies": {},

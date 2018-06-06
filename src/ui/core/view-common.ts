@@ -26,11 +26,7 @@ export const iosFunctions = {
 export const androidFunctions = {
   'sendAccessibilityEvent': 'sendAccessibilityEvent',
 };
-export const allFunctions = {
-  ...commonFunctions,
-  ...iosFunctions,
-  ...androidFunctions,
-};
+export const allFunctions = Object.assign({}, commonFunctions, iosFunctions, androidFunctions);
 
 for (const fnName of Object.keys(allFunctions)) {
   setViewFunction(ViewCommon, fnName);

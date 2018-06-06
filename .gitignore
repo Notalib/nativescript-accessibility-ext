@@ -33,3 +33,4 @@ demo-ng/report/stats.json
 package-lock.json
 src/css
 src/*.d.ts
+*.aar

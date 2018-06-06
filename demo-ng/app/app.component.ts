@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
-import { Observable, PropertyChangeData } from 'data/observable';
-
+import { PropertyChangeData } from 'data/observable';
 import * as dialogs from 'tns-core-modules/ui/dialogs';
-import { BehaviorSubject } from 'rxjs';
-import * as rxjs from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'my-app',
@@ -42,7 +41,9 @@ export class AppComponent {
   public readonly sliderMin = 0;
   public readonly sliderMax = 100;
   public readonly sliderValue = new BehaviorSubject(50);
-  public readonly sliderA11YValue: rxjs.Observable<string> = this.sliderValue.map((value) => `slider is now at ${value}`);
+  public readonly sliderA11YValue: Observable<string> = this.sliderValue.pipe(
+    map((value) => `slider is now at ${value}`),
+  );
 
   public tapped(e: any) {
     const el = e.object;
@@ -51,7 +52,6 @@ export class AppComponent {
   }
 
   public sliderValueChange(event: any) {
-    console.log(event);
     this.sliderValue.next(event.value);
   }
 }

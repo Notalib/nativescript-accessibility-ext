@@ -1,8 +1,8 @@
-import * as common from './label-common';
-import { Label } from './label-common';
 import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
 import { Font } from 'tns-core-modules/ui/styling/font';
 import * as utils from 'tns-core-modules/utils/utils';
+import * as common from './label-common';
+import { Label } from './label-common';
 
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
 

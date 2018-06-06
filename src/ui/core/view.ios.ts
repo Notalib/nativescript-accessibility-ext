@@ -1,8 +1,8 @@
-import { View } from './view-common';
 import * as nsApp from 'tns-core-modules/application';
+import { View } from './view-common';
 
+import { inputArrayToBitMask, notityAccessibilityFocusState, setViewFunction, writeTrace } from '../../utils/helpers';
 import * as common from './view-common';
-import { setViewFunction, inputArrayToBitMask, writeTrace, notityAccessibilityFocusState } from '../../utils/helpers';
 
 for (const fnName of Object.keys(common.androidFunctions)) {
   setViewFunction(View, fnName);

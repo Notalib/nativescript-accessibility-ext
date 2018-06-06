@@ -1,4 +1,4 @@
-import { setViewFunction, addPropertyToView, Property, View, ViewCommon } from '../../utils/helpers';
+import { addPropertyToView, Property, setViewFunction, View, ViewCommon } from '../../utils/helpers';
 export { Property, View, ViewCommon } from '../../utils/helpers';
 
 // Common properties

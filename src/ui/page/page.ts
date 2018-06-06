@@ -1,8 +1,8 @@
 import '../core/view';
 
 import 'nativescript-globalevents';
-import { Page } from 'tns-core-modules/ui/page';
 import { EventData, Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
+import { Page } from 'tns-core-modules/ui/page';
 
 import { writeTrace } from '../../utils/helpers';
 

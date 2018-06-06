@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-        "declaration": true,
-        "target": "es5",
+        "declaration": false,
+        "target": "es6",
         "module": "commonjs",
         "noLib": false,
         "lib": [
@@ -34,5 +34,9 @@
         "node_modules",
         "platforms",
         "app/main.aot.ts"
+    ],
+    "include": [
+        "app/**/*.ts",
+        "node_modules/@nota/nativescript-accessibility-ext/**/*.ts"
     ]
 }

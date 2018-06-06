@@ -1,5 +1,5 @@
-import '../core/view';
 import { Label } from 'tns-core-modules/ui/label';
+import '../core/view';
 
 import { addPropertyToView, Property } from '../../utils/helpers';
 

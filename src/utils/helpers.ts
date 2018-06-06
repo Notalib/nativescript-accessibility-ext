@@ -1,7 +1,7 @@
 import * as trace from 'tns-core-modules/trace';
-import { View } from 'tns-core-modules/ui/core/view';
-import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
 import { Property } from 'tns-core-modules/ui/core/properties';
+import { traceMessageType, View } from 'tns-core-modules/ui/core/view';
+import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
 
 export {
   View,
@@ -16,7 +16,7 @@ export interface ViewType<T extends ViewCommon> {
   new (): T;
 }
 
-export function setViewFunction(viewClass: any, fnName: string, fn: Function = noop) {
+export function setViewFunction(viewClass: any, fnName: string, fn?: Function) {
   viewClass.prototype[fnName] = fn || noop;
 }
 
@@ -55,10 +55,18 @@ export function addPropertyToView<ViewClass extends View, T>(viewClass: ViewType
 /**
  * Write to NativeScript's trace.
  */
-export function writeTrace(message: string) {
+export function writeTrace(message: string, type: number = traceMessageType.info) {
   if (trace.isEnabled()) {
-    trace.write(message, 'A11Y');
+    trace.write(message, 'A11Y', type);
   }
+}
+
+export function writeErrorTrace(message) {
+  writeTrace(message, traceMessageType.error);
+}
+
+export function writeWarnTrace(message) {
+  writeTrace(message, traceMessageType.warn);
 }
 
 /**

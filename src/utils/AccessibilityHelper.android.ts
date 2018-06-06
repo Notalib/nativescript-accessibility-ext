@@ -1,7 +1,7 @@
 import { View } from 'tns-core-modules/ui/core/view';
 import { GestureTypes } from 'tns-core-modules/ui/gestures';
 
-import { writeTrace, notityAccessibilityFocusState } from './helpers';
+import { notityAccessibilityFocusState, writeTrace } from './helpers';
 import { isAccessibilityServiceEnabled } from './utils';
 
 function getAccessibilityManager(view: android.view.View): android.view.accessibility.AccessibilityManager {
@@ -342,6 +342,11 @@ export class AccessibilityHelper {
   public static sendAccessibilityEvent(androidView: android.view.View, eventName: string, text?: string) {
     if (!eventName) {
       writeTrace(`sendAccessibilityEvent: no eventName provided`);
+      return;
+    }
+
+    if (!isAccessibilityServiceEnabled()) {
+      writeTrace(`sendAccessibilityEvent: ACCESSIBILITY_SERVICE is not enabled do nothing for ${eventName} -> ${text}`);
       return;
     }
 

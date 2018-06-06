@@ -1,8 +1,8 @@
 import { View } from 'tns-core-modules/ui/core/view';
 
-import * as common from './view-common';
-import { setViewFunction, writeTrace } from '../../utils/helpers';
 import { AccessibilityHelper } from '../../utils/AccessibilityHelper';
+import { setViewFunction, writeTrace } from '../../utils/helpers';
+import * as common from './view-common';
 
 for (const fnName of Object.keys(common.iosFunctions)) {
   setViewFunction(View, fnName);

@@ -32,12 +32,14 @@ export function isAccessibilityServiceEnabled(): boolean {
     isEnabled = UIAccessibilityIsVoiceOverRunning();
     writeTrace(`isAccessibilityServiceEnabled().ios: isEnabled:${isEnabled}`);
   } else {
-    throw new Error('isAccessibilityServiceEnabled().ios: unknown platform');
+    throw new Error('isAccessibilityServiceEnabled(): unknown platform');
   }
 
   return isEnabled;
 }
 
 Object.defineProperty(utils, 'isAccessibilityServiceEnabled', {
-  value: isAccessibilityServiceEnabled,
+  get() {
+    return isAccessibilityServiceEnabled();
+  },
 });

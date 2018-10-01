@@ -79,10 +79,10 @@ export function writeWarnTrace(message) {
  * @param {boolean} receivedFocus
  * @param {boolean} lostFocus
  */
-export function notityAccessibilityFocusState(view: View, receivedFocus: boolean, lostFocus: boolean): void {
+export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean, lostFocus: boolean): void {
   if (receivedFocus || lostFocus) {
-    writeTrace(`notityAccessibilityFocusState: ${JSON.stringify({
-      name: 'notityAccessibilityFocusState',
+    writeTrace(`notifyAccessibilityFocusState: ${JSON.stringify({
+      name: 'notifyAccessibilityFocusState',
       receivedFocus,
       lostFocus,
       view: String(view),

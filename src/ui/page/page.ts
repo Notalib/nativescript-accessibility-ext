@@ -83,7 +83,7 @@ function loadedEventCb({object: page}: PageLoadedEventData) {
   const cb = (args: PropertyChangeData) => {
     const page = owner.get();
     if (!page) {
-      writeTrace(`Page.fontScale: Page no longe exists remove ${Observable.propertyChangeEvent} listener`);
+      writeTrace(`Page.fontScale: Page no longer exists remove ${Observable.propertyChangeEvent} listener`);
       removeListener();
       return;
     }

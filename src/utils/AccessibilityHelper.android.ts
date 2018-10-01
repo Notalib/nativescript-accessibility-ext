@@ -1,7 +1,7 @@
 import { View } from 'tns-core-modules/ui/core/view';
 import { GestureTypes } from 'tns-core-modules/ui/gestures';
 
-import { notityAccessibilityFocusState, writeTrace } from './helpers';
+import { notifyAccessibilityFocusState, writeTrace } from './helpers';
 import { isAccessibilityServiceEnabled } from './utils';
 
 function getAccessibilityManager(view: android.view.View): android.view.accessibility.AccessibilityManager {
@@ -22,14 +22,14 @@ function accessibilityEventHelper(view: View, eventType: number) {
       if (lastFocusedView) {
         const lastView = lastFocusedView.get();
         if (lastView) {
-          notityAccessibilityFocusState(lastView, false, true);
+          notifyAccessibilityFocusState(lastView, false, true);
         }
       }
 
       lastFocusedView = new WeakRef(view);
     }
 
-    notityAccessibilityFocusState(view, receivedFocus, lostFocus);
+    notifyAccessibilityFocusState(view, receivedFocus, lostFocus);
     return;
   }
 
@@ -267,7 +267,7 @@ export class AccessibilityHelper {
   }
 
   public static get RADIOBUTTON_CHECKED() {
-    return'radiobutton_checked';
+    return 'radiobutton_checked';
   }
 
   public static get RADIOBUTTON_UNCHECKED() {

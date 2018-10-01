@@ -1,7 +1,7 @@
 import * as nsApp from 'tns-core-modules/application';
-import { View } from './view-common';
 
-import { inputArrayToBitMask, notityAccessibilityFocusState, setViewFunction, writeTrace } from '../../utils/helpers';
+import { inputArrayToBitMask, notifyAccessibilityFocusState, setViewFunction, writeTrace } from '../../utils/helpers';
+import { View } from './view-common';
 import * as common from './view-common';
 
 for (const fnName of Object.keys(common.androidFunctions)) {
@@ -89,7 +89,7 @@ function handleUIAccessibilityElementFocusedNotification(view: UIView, tnsView: 
     writeTrace(`View<${this}.ios>.accessible: observer<${UIAccessibilityElementFocusedNotification}>, view: ${localTnsView}, receivedFocus: ${receivedFocus}, lostFocus: ${lostFocus}`);
 
     if (receivedFocus || lostFocus) {
-      notityAccessibilityFocusState(localTnsView, receivedFocus, lostFocus);
+      notifyAccessibilityFocusState(localTnsView, receivedFocus, lostFocus);
 
       if (receivedFocus) {
         localView[accessibilityHadFocusSymbol] = true;
@@ -178,7 +178,7 @@ function ensureTraits() {
   ]);
 }
 
-function geAccessibilityTraitsFromBitmash(accessibilityTraits: number) {
+function getAccessibilityTraitsFromBitmask(accessibilityTraits: number) {
   const res: string[] = [];
   if (!accessibilityTraits) {
     return res;
@@ -200,7 +200,7 @@ View.prototype[common.accessibilityTraitsProperty.getDefault] = function accessi
     return '';
   }
 
-  const accessibilityTraits = geAccessibilityTraitsFromBitmash(view.accessibilityTraits);
+  const accessibilityTraits = getAccessibilityTraitsFromBitmask(view.accessibilityTraits);
   writeTrace(`View<${this}.ios>.accessibilityTraits - default -> '${view.accessibilityTraits}' = '${accessibilityTraits.join(',')}'`);
   return accessibilityTraits;
 };
@@ -215,7 +215,7 @@ View.prototype[common.accessibilityTraitsProperty.setNative] = function accessib
 
   view.accessibilityTraits = inputArrayToBitMask(value, traits);
 
-  const newAccessibilityTraits = geAccessibilityTraitsFromBitmash(view.accessibilityTraits);
+  const newAccessibilityTraits = getAccessibilityTraitsFromBitmask(view.accessibilityTraits);
   writeTrace(`View<${this}.ios>.accessibilityTraits -> got ${value} -> result: '${view.accessibilityTraits}' = '${newAccessibilityTraits}'`);
 };
 

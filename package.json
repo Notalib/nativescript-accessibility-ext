@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nota/nativescript-accessibility-ext",
-  "version": "3.2.0-alpha.3",
+  "version": "~5.0.0-alpha.1",
   "description": "Nativescript plugin for enabling accessiblity features",
   "main": "index.js",
   "scripts": {
@@ -32,10 +32,10 @@
   },
   "homepage": "https://github.com/Notalib/nativescript-accessibility-ext/#readme",
   "devDependencies": {
-    "node-sass": "^4.5.3",
-    "tns-core-modules": "^3.2.0",
-    "tns-platform-declarations": "^3.2.0",
-    "nativescript-globalevents": "^1.1.2",
-    "typescript": "^2.4.0"
+    "nativescript-globalevents": "^1.2.2",
+    "node-sass": "^4.10.0",
+    "tns-core-modules": "^5.0.2",
+    "tns-platform-declarations": "^5.0.2",
+    "typescript": "^3.1.6"
   }
 }

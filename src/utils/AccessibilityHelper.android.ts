@@ -57,6 +57,13 @@ function accessibilityEventHelper(view: View, eventType: number) {
   }
 }
 
+/**
+ * Workaround:
+ *   tns-platform-declarations@^5.0.0 declares AccessibilityDelegate as a type not a class, so it can't be extended.
+ *   A class named android.view.View.androidviewViewAccessibilityDelegate is declared in tns-platform-declarations@^5.0.0 but doesn't exist at runtime.
+ */
+const AccessibilityDelegate = android.view.View['AccessibilityDelegate'] as new () => android.view.View.AccessibilityDelegate;
+
 let TNSBasicAccessibilityDelegate: new (owner: View) => android.view.View.AccessibilityDelegate;
 let TNSButtonAccessibilityDelegate: new (owner: View) => android.view.View.AccessibilityDelegate;
 let TNSRadioButtonAccessibilityDelegate: new (owner: View, checked: boolean) => android.view.View.AccessibilityDelegate;
@@ -66,7 +73,7 @@ function ensureDelegates() {
     return;
   }
 
-  class TNSBasicAccessibilityDelegateImpl extends android.view.View.AccessibilityDelegate {
+  class TNSBasicAccessibilityDelegateImpl extends AccessibilityDelegate {
     constructor(private readonly owner: View) {
       super();
 
@@ -91,7 +98,7 @@ function ensureDelegates() {
   }
   TNSBasicAccessibilityDelegate = TNSBasicAccessibilityDelegateImpl;
 
-  class TNSButtonAccessibilityDelegateImpl extends android.view.View.AccessibilityDelegate {
+  class TNSButtonAccessibilityDelegateImpl extends AccessibilityDelegate {
     private readonly className = android.widget.Button.class.getName();
     constructor(private owner: View) {
       super();
@@ -117,7 +124,7 @@ function ensureDelegates() {
   }
   TNSButtonAccessibilityDelegate = TNSButtonAccessibilityDelegateImpl;
 
-  class TNSRadioButtonAccessibilityDelegateImpl extends android.view.View.AccessibilityDelegate {
+  class TNSRadioButtonAccessibilityDelegateImpl extends AccessibilityDelegate {
     private readonly className = android.widget.RadioButton.class.getName();
     constructor(private readonly owner: View, private checked: boolean) {
       super();

@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es5",
+        "target": "es6",
         "module": "commonjs",
         "declaration": true,
         "removeComments": true,
@@ -21,11 +21,6 @@
         "noImplicitUseStrict": false,
         "noFallthroughCasesInSwitch": true,
         "baseUrl": ".",
-        "paths": {
-            "*": [
-                "../node_modules/*"
-            ]
-        },
         "skipLibCheck": true
     },
     "files": [

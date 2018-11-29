@@ -17,15 +17,15 @@
     }
   },
   "scripts": {
-    "format": "prettier --write --config ../.prettierrc.json '**/*.ts' '../demo-ng/app/**/*.ts' '../demo/app/**/*.ts'",
-    "format:check": "prettier-check --config ../.prettierrc.json '**/*.ts' '../demo-ng/app/**/*.ts' '../demo/app/**/*.ts'",
+    "format": "prettier --write --config $(git rev-parse --show-toplevel)/.prettierrc.json '**/*.ts' '../demo-ng/app/**/*.ts' '../demo/app/**/*.ts'",
+    "format:check": "prettier-check --config $(git rev-parse --show-toplevel)/.prettierrc.json '**/*.ts' '../demo-ng/app/**/*.ts' '../demo/app/**/*.ts'",
     "scss": "node-sass --recursive --output css scss",
     "tsc": "tsc -skipLibCheck",
     "build": "npm i && npm-run-all lint tsc scss",
     "postclone": "npm i && node scripts/postclone.js && cd ../demo && npm i && cd ../src && npm run plugin.link",
     "test.android": "npm i && npm run tsc && npm run tslint && cd ../demo && tns build android && tns test android --justlaunch",
     "test.ios": "npm i && npm run tsc && npm run tslint && cd ../demo && tns build ios && tns test ios --justlaunch",
-    "tslint": "tslint '**/*.ts' '../demo-ng/app/**/*.ts' '../demo/app/**/*.ts' --config ../tslint.json --exclude \"**/node_modules/**\"",
+    "tslint": "tslint '**/*.ts' '../demo-ng/app/**/*.ts' '../demo/app/**/*.ts' --config $(git rev-parse --show-toplevel)/tslint.json --exclude \"**/node_modules/**\"",
     "tslint:fix": "npm run tslint -- --fix",
     "lint": "npm-run-all tslint format:check",
     "plugin.link": "npm link && npm-run-all plugin.link.demo plugin.link.demo-ng",
@@ -69,7 +69,8 @@
     "name": "Nota",
     "email": "app@nota.dk"
   },
-  "contributors": [{
+  "contributors": [
+    {
       "name": "Morten Anton Bach Sjøgren",
       "url": "http://mabs.dk",
       "email": "mabs@mabs.dk"

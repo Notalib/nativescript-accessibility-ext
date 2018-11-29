@@ -26,7 +26,7 @@ declare module 'tns-core-modules/ui/core/view' {
     // Android Specific
     importantForAccessibility?: 'yes' | 'no' | 'auto' | 'no-hide-descendants';
     accessibilityComponentType?: 'button' | 'radiobutton_checked' | 'radiobutton_unchecked';
-    accessibilityLiveRegion?: 'none'  | 'polite' | 'assertive';
+    accessibilityLiveRegion?: 'none' | 'polite' | 'assertive';
     sendAccessibilityEvent(eventName: string, text?: string);
 
     // iOS Specific

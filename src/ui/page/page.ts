@@ -16,7 +16,7 @@ function fontScaleToCssClass(fontScale: number) {
   return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;
 }
 
-function loadedEventCb({object: page}: PageLoadedEventData) {
+function loadedEventCb({ object: page }: PageLoadedEventData) {
   if ((<any>page).fontScaleObservable) {
     writeTrace(`Page<${page}>.loadedEvent -> already have FontScaleObservable`);
     return;
@@ -27,8 +27,7 @@ function loadedEventCb({object: page}: PageLoadedEventData) {
   const fontScaleObservable = new FontScaleObservable();
   (<any>page).fontScaleObservable = fontScaleObservable;
 
-  const fontScaleCssClasses = FontScaleObservable.VALID_FONT_SCALES
-    .map(fontScaleToCssClass);
+  const fontScaleCssClasses = FontScaleObservable.VALID_FONT_SCALES.map(fontScaleToCssClass);
 
   writeTrace(`Page<${page}>.fontScale loaded -> font scale classes: ${fontScaleCssClasses.join(',')}`);
 

@@ -18,13 +18,13 @@ export const accessibilityComponentTypeProperty = addPropertyToView<View, string
 export const accessibilityLiveRegionProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityLiveRegion');
 
 export const commonFunctions = {
-  'accessibilityAnnouncement': 'accessibilityAnnouncement',
+  accessibilityAnnouncement: 'accessibilityAnnouncement',
 };
 export const iosFunctions = {
-  'postAccessibilityNotification': 'postAccessibilityNotification',
+  postAccessibilityNotification: 'postAccessibilityNotification',
 };
 export const androidFunctions = {
-  'sendAccessibilityEvent': 'sendAccessibilityEvent',
+  sendAccessibilityEvent: 'sendAccessibilityEvent',
 };
 export const allFunctions = Object.assign({}, commonFunctions, iosFunctions, androidFunctions);
 

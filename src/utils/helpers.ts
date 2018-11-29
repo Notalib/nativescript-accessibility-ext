@@ -3,13 +3,10 @@ import { Property } from 'tns-core-modules/ui/core/properties';
 import { traceMessageType, View } from 'tns-core-modules/ui/core/view';
 import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
 
-export {
-  View,
-  ViewCommon,
-  Property,
-};
+export { View, ViewCommon, Property };
 
 export function noop() {
+  // ignore
 }
 
 export interface ViewType<T extends ViewCommon> {
@@ -20,7 +17,7 @@ export function setViewFunction(viewClass: any, fnName: string, fn?: Function) {
   viewClass.prototype[fnName] = fn || noop;
 }
 
-export function enforceArray(val: string | string[]): string[] {
+export function enforceArray(val: string | string[]): string[] {
   if (Array.isArray(val)) {
     return val;
   }
@@ -34,12 +31,14 @@ export function enforceArray(val: string | string[]): string[] {
   return [];
 }
 
-export function inputArrayToBitMask(val: string | string[], map: Map<string, number>): number {
-  return enforceArray(val)
-    .filter((val) => !!val)
-    .map((val) => val.toLocaleLowerCase())
-    .filter((val) => map.has(val))
-    .reduce((c, val) => c | map.get(val), 0) || 0;
+export function inputArrayToBitMask(val: string | string[], map: Map<string, number>): number {
+  return (
+    enforceArray(val)
+      .filter((val) => !!val)
+      .map((val) => val.toLocaleLowerCase())
+      .filter((val) => map.has(val))
+      .reduce((c, val) => c | map.get(val), 0) || 0
+  );
 }
 
 export function addPropertyToView<ViewClass extends View, T>(viewClass: ViewType<ViewClass>, name: string, defaultValue?: T): Property<ViewClass, T> {
@@ -81,12 +80,14 @@ export function writeWarnTrace(message) {
  */
 export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean, lostFocus: boolean): void {
   if (receivedFocus || lostFocus) {
-    writeTrace(`notifyAccessibilityFocusState: ${JSON.stringify({
-      name: 'notifyAccessibilityFocusState',
-      receivedFocus,
-      lostFocus,
-      view: String(view),
-    })}`);
+    writeTrace(
+      `notifyAccessibilityFocusState: ${JSON.stringify({
+        name: 'notifyAccessibilityFocusState',
+        receivedFocus,
+        lostFocus,
+        view: String(view),
+      })}`,
+    );
 
     view.notify({
       eventName: 'accessibilityFocusChanged',

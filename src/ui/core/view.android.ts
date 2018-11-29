@@ -71,9 +71,15 @@ View.prototype[common.importantForAccessibilityProperty.setNative] = function im
     case 'no-hide-descendants': {
       if (android.os.Build.VERSION.SDK_INT >= 19) {
         view.setImportantForAccessibility((<any>android.view.View).IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
-        writeTrace(`View<${this}.android>.importantForAccessibility - value: ${value}. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS`);
+        writeTrace(
+          `View<${this}.android>.importantForAccessibility - value: ${value}. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS`,
+        );
       } else {
-        writeTrace(`View<${this}.android>.importantForAccessibility - value: ${value}, but sdk is ${android.os.Build.VERSION.SDK_INT} < 19. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO`);
+        writeTrace(
+          `View<${this}.android>.importantForAccessibility - value: ${value}, but sdk is ${
+            android.os.Build.VERSION.SDK_INT
+          } < 19. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO`,
+        );
         view.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
       }
       break;

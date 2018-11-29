@@ -49,11 +49,13 @@ Label.prototype[common.accessibilityAdjustsFontSizeProperty.setNative] = functio
       }
 
       const newFontSize = oldFont.fontSize * fontScale;
-      writeTrace(`Label<ios>.accessibilityAdjustsFontSize - updateFontSize - timer -> update fontScale: ${JSON.stringify({
-        fontScale,
-        newFontSize,
-        oldFontSize: oldFont.fontSize,
-      })}`);
+      writeTrace(
+        `Label<ios>.accessibilityAdjustsFontSize - updateFontSize - timer -> update fontScale: ${JSON.stringify({
+          fontScale,
+          newFontSize,
+          oldFontSize: oldFont.fontSize,
+        })}`,
+      );
 
       const oldUIFont = (<any>oldFont)._uiFont || UIFont.systemFontOfSize(utils.ios.getter(UIFont, UIFont.labelFontSize));
 
@@ -82,7 +84,7 @@ Label.prototype[common.accessibilityAdjustsFontSizeProperty.setNative] = functio
 
   tnsLabel.style.on(Observable.propertyChangeEvent, styleCb);
 
-  const fontScaleObservable = tnsLabel[fontScalePropSymbol] = new FontScaleObservable();
+  const fontScaleObservable = (tnsLabel[fontScalePropSymbol] = new FontScaleObservable());
   fontScaleObservable.on(Observable.propertyChangeEvent, (args: PropertyChangeData) => {
     if (!weakTnsLabel.get()) {
       fontScaleObservable.off(Observable.propertyChangeEvent);

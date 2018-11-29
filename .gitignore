@@ -34,3 +34,4 @@ package-lock.json
 src/css
 src/*.d.ts
 *.aar
+*.tgz

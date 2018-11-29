@@ -8,17 +8,24 @@ function getAccessibilityManager(view: android.view.View): android.view.accessib
   return view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
 }
 
+const TYPE_VIEW_ACCESSIBILITY_FOCUSED = android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED;
+const TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED = android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED;
 let lastFocusedView: WeakRef<View>;
-function accessibilityEventHelper(view: View, eventType: number) {
+function accessibilityEventHelper(viewRef: WeakRef<View>, eventType: number) {
   if (!isAccessibilityServiceEnabled()) {
     return;
   }
 
-  const receivedFocus = eventType === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED;
-  const lostFocus = eventType === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED;
+  const view = viewRef.get();
+  if (!view) {
+    return;
+  }
 
-  if (receivedFocus || lostFocus) {
-    if (receivedFocus) {
+  const isReceivedFocusEvent = eventType === TYPE_VIEW_ACCESSIBILITY_FOCUSED;
+  const isLostFocusEvent = eventType === TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED;
+
+  if (isReceivedFocusEvent || isLostFocusEvent) {
+    if (isReceivedFocusEvent) {
       if (lastFocusedView) {
         const lastView = lastFocusedView.get();
         if (lastView) {
@@ -26,10 +33,10 @@ function accessibilityEventHelper(view: View, eventType: number) {
         }
       }
 
-      lastFocusedView = new WeakRef(view);
+      lastFocusedView = viewRef;
     }
 
-    notifyAccessibilityFocusState(view, receivedFocus, lostFocus);
+    notifyAccessibilityFocusState(view, isReceivedFocusEvent, isLostFocusEvent);
     return;
   }
 
@@ -38,10 +45,7 @@ function accessibilityEventHelper(view: View, eventType: number) {
      * Android API >= 26 handles accessibility tap-events by converting them to TYPE_VIEW_CLICKED
      * These aren't triggered for custom tap events in NativeScript.
      */
-    if (
-      eventType === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_CLICKED &&
-      view.getGestureObservers(GestureTypes.tap)
-    ) {
+    if (eventType === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_CLICKED && view.getGestureObservers(GestureTypes.tap)) {
       // Find all tap gestures and trigger them.
       for (const tapGesture of view.getGestureObservers(GestureTypes.tap)) {
         tapGesture.callback({
@@ -74,8 +78,11 @@ function ensureDelegates() {
   }
 
   class TNSBasicAccessibilityDelegateImpl extends AccessibilityDelegate {
-    constructor(private readonly owner: View) {
+    private readonly owner: WeakRef<View>;
+    constructor(owner: View) {
       super();
+
+      this.owner = new WeakRef(owner);
 
       return global.__native(this);
     }
@@ -93,15 +100,17 @@ function ensureDelegates() {
 
       accessibilityEventHelper(this.owner, eventType);
     }
-
-    // TODO: Android support for a11yLanguage property, see https://stackoverflow.com/a/44446853
   }
   TNSBasicAccessibilityDelegate = TNSBasicAccessibilityDelegateImpl;
 
+  const ButtonClassName = android.widget.Button.class.getName();
   class TNSButtonAccessibilityDelegateImpl extends AccessibilityDelegate {
-    private readonly className = android.widget.Button.class.getName();
-    constructor(private owner: View) {
+    private readonly className = ButtonClassName;
+    private readonly owner: WeakRef<View>;
+    constructor(owner: View) {
       super();
+
+      this.owner = new WeakRef(owner);
 
       return global.__native(this);
     }
@@ -124,10 +133,14 @@ function ensureDelegates() {
   }
   TNSButtonAccessibilityDelegate = TNSButtonAccessibilityDelegateImpl;
 
+  const RadioButtonClassName = android.widget.RadioButton.class.getName();
   class TNSRadioButtonAccessibilityDelegateImpl extends AccessibilityDelegate {
-    private readonly className = android.widget.RadioButton.class.getName();
-    constructor(private readonly owner: View, private checked: boolean) {
+    private readonly className = RadioButtonClassName;
+    private readonly owner: WeakRef<View>;
+    constructor(owner: View, private checked: boolean) {
       super();
+
+      this.owner = new WeakRef(owner);
 
       return global.__native(this);
     }

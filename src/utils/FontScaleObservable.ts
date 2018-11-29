@@ -1,4 +1,4 @@
-import { Observable, PropertyChangeData }  from 'tns-core-modules/data/observable';
+import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
 
 import * as nsApp from 'tns-core-modules/application';
 import { isAndroid, isIOS } from 'tns-core-modules/platform';
@@ -34,17 +34,19 @@ function ensureObservable() {
 
     useAndroidFontScale();
 
-    nsApp.android.context.registerComponentCallbacks(new android.content.ComponentCallbacks2({
-      onLowMemory() {
-        // Dummy
-      },
-      onTrimMemory() {
-        // Dummy
-      },
-      onConfigurationChanged(newConfig: android.content.res.Configuration) {
-        fontScaleChanged(Number(newConfig.fontScale));
-      }
-    }));
+    nsApp.android.context.registerComponentCallbacks(
+      new android.content.ComponentCallbacks2({
+        onLowMemory() {
+          // Dummy
+        },
+        onTrimMemory() {
+          // Dummy
+        },
+        onConfigurationChanged(newConfig: android.content.res.Configuration) {
+          fontScaleChanged(Number(newConfig.fontScale));
+        },
+      }),
+    );
 
     nsApp.on(nsApp.resumeEvent, () => {
       useAndroidFontScale();
@@ -56,8 +58,8 @@ function ensureObservable() {
       [UIContentSizeCategoryMedium, 0.85],
       [UIContentSizeCategoryLarge, 1],
       [UIContentSizeCategoryExtraLarge, 1.15],
-      [UIContentSizeCategoryExtraExtraLarge, 1.30],
-      [UIContentSizeCategoryExtraExtraExtraLarge, 1.50],
+      [UIContentSizeCategoryExtraExtraLarge, 1.3],
+      [UIContentSizeCategoryExtraExtraExtraLarge, 1.5],
       [UIContentSizeCategoryAccessibilityMedium, 2],
       [UIContentSizeCategoryAccessibilityLarge, 2.5],
       [UIContentSizeCategoryAccessibilityExtraLarge, 3],
@@ -91,27 +93,9 @@ export class FontScaleObservable extends Observable {
   public static get VALID_FONT_SCALES() {
     if (isIOS) {
       // iOS supports a wider number of font scales than Android does.
-      return [
-        0.5,
-        0.7,
-        0.85,
-        1,
-        1.15,
-        1.30,
-        1.5,
-        2,
-        2.5,
-        3,
-        3.5,
-        4,
-      ];
+      return [0.5, 0.7, 0.85, 1, 1.15, 1.3, 1.5, 2, 2.5, 3, 3.5, 4];
     } else if (isAndroid) {
-      return [
-        0.85,
-        1,
-        1.15,
-        1.30,
-      ];
+      return [0.85, 1, 1.15, 1.3];
     } else {
       return [1];
     }

@@ -1,15 +1,10 @@
-import * as nsApp from "tns-core-modules/application";
-import {
-  Observable,
-  PropertyChangeData
-} from "tns-core-modules/data/observable";
-import * as utils from "tns-core-modules/utils/utils";
-import { writeTrace } from "./helpers";
+import * as nsApp from 'tns-core-modules/application';
+import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
+import * as utils from 'tns-core-modules/utils/utils';
+import { writeTrace } from './helpers';
 
 function getClosestValidFontScale(fontScale: number) {
-  return FontScaleObservable.VALID_FONT_SCALES.sort(
-    (a, b) => Math.abs(fontScale - a) - Math.abs(fontScale - b)
-  ).shift();
+  return FontScaleObservable.VALID_FONT_SCALES.sort((a, b) => Math.abs(fontScale - a) - Math.abs(fontScale - b)).shift();
 }
 
 let internalObservable: Observable;
@@ -42,7 +37,7 @@ function ensureObservable() {
     [UIContentSizeCategoryAccessibilityLarge, 2.5],
     [UIContentSizeCategoryAccessibilityExtraLarge, 3],
     [UIContentSizeCategoryAccessibilityExtraExtraLarge, 3.5],
-    [UIContentSizeCategoryAccessibilityExtraExtraExtraLarge, 4]
+    [UIContentSizeCategoryAccessibilityExtraExtraExtraLarge, 4],
   ]);
 
   const contentSizeUpdated = (fontSize: string) => {
@@ -53,33 +48,20 @@ function ensureObservable() {
     }
   };
 
-  contentSizeUpdated(
-    utils.ios.getter(
-      nsApp.ios.nativeApp,
-      nsApp.ios.nativeApp.preferredContentSizeCategory
-    )
-  );
+  contentSizeUpdated(utils.ios.getter(nsApp.ios.nativeApp, nsApp.ios.nativeApp.preferredContentSizeCategory));
 
-  const fontSizeObserver = nsApp.ios.addNotificationObserver(
-    UIContentSizeCategoryDidChangeNotification,
-    args => {
-      const fontSize = args.userInfo.valueForKey(
-        UIContentSizeCategoryNewValueKey
-      );
-      contentSizeUpdated(fontSize);
-    }
-  );
+  const fontSizeObserver = nsApp.ios.addNotificationObserver(UIContentSizeCategoryDidChangeNotification, (args) => {
+    const fontSize = args.userInfo.valueForKey(UIContentSizeCategoryNewValueKey);
+    contentSizeUpdated(fontSize);
+  });
 
   nsApp.on(nsApp.exitEvent, () => {
-    nsApp.ios.removeNotificationObserver(
-      fontSizeObserver,
-      UIContentSizeCategoryDidChangeNotification
-    );
+    nsApp.ios.removeNotificationObserver(fontSizeObserver, UIContentSizeCategoryDidChangeNotification);
   });
 }
 
 export class FontScaleObservable extends Observable {
-  public static FONT_SCALE = "fontScale";
+  public static FONT_SCALE = 'fontScale';
   public static get VALID_FONT_SCALES() {
     // iOS supports a wider number of font scales than Android does.
     return [0.5, 0.7, 0.85, 1, 1.15, 1.3, 1.5, 2, 2.5, 3, 3.5, 4];
@@ -101,9 +83,6 @@ export class FontScaleObservable extends Observable {
     }
 
     internalObservable.on(Observable.propertyChangeEvent, callback);
-    this.set(
-      FontScaleObservable.FONT_SCALE,
-      internalObservable.get(FontScaleObservable.FONT_SCALE)
-    );
+    this.set(FontScaleObservable.FONT_SCALE, internalObservable.get(FontScaleObservable.FONT_SCALE));
   }
 }

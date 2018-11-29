@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { PropertyChangeData } from 'data/observable';
-import * as dialogs from 'tns-core-modules/ui/dialogs';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import * as dialogs from 'tns-core-modules/ui/dialogs';
 
 @Component({
   selector: 'my-app',
@@ -22,23 +22,19 @@ export class AppComponent {
     },
     {
       key: 'header',
-      label:
-        ' Used when an element acts as a header for a content section (e.g. the title of a navigation bar).',
+      label: ' Used when an element acts as a header for a content section (e.g. the title of a navigation bar).',
     },
     {
       key: 'search',
-      label:
-        ' Used when the text field element should also be treated as a search field.',
+      label: ' Used when the text field element should also be treated as a search field.',
     },
     {
       key: 'image',
-      label:
-        ' Used when the element should be treated as an image. Can be combined with button or link, for example.',
+      label: ' Used when the element should be treated as an image. Can be combined with button or link, for example.',
     },
     {
       key: 'selected',
-      label:
-        ' Used when the element is selected. For example, a selected row in a table or a selected button within a segmented control.',
+      label: ' Used when the element is selected. For example, a selected row in a table or a selected button within a segmented control.',
     },
     {
       key: 'plays',
@@ -47,8 +43,7 @@ export class AppComponent {
     { key: 'key', label: ' Used when the element acts as a keyboard key.' },
     {
       key: 'text',
-      label:
-        ' Used when the element should be treated as static text that cannot change.',
+      label: ' Used when the element should be treated as static text that cannot change.',
     },
     {
       key: 'summary',
@@ -57,8 +52,7 @@ export class AppComponent {
     },
     {
       key: 'disabled',
-      label:
-        ' Used when the control is not enabled and does not respond to user input.',
+      label: ' Used when the control is not enabled and does not respond to user input.',
     },
     {
       key: 'frequentUpdates',
@@ -76,13 +70,11 @@ export class AppComponent {
     },
     {
       key: 'allowsDirectInteraction',
-      label:
-        ' Used when an element allows direct touch interaction for VoiceOver users (for example, a view representing a piano keyboard).',
+      label: ' Used when an element allows direct touch interaction for VoiceOver users (for example, a view representing a piano keyboard).',
     },
     {
       key: 'pageTurn',
-      label:
-        ' Informs VoiceOver that it should scroll to the next page when it finishes reading the contents of the element.',
+      label: ' Informs VoiceOver that it should scroll to the next page when it finishes reading the contents of the element.',
     },
   ];
 
@@ -95,9 +87,7 @@ export class AppComponent {
   public readonly sliderMin = 0;
   public readonly sliderMax = 100;
   public readonly sliderValue = new BehaviorSubject(50);
-  public readonly sliderA11YValue: Observable<string> = this.sliderValue.pipe(
-    map((value) => `slider is now at ${value}`),
-  );
+  public readonly sliderA11YValue: Observable<string> = this.sliderValue.pipe(map((value) => `slider is now at ${value}`));
 
   public tapped(e: any) {
     const el = e.object;

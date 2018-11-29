@@ -1,6 +1,6 @@
-export * from "tns-core-modules/utils/utils";
+export * from 'tns-core-modules/utils/utils';
 
-import { writeTrace } from "./helpers";
+import { writeTrace } from './helpers';
 
 export function isAccessibilityServiceEnabled(): boolean {
   const isEnabled = UIAccessibilityIsVoiceOverRunning();

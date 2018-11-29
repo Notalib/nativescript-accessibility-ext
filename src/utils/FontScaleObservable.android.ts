@@ -1,14 +1,9 @@
-import * as nsApp from "tns-core-modules/application";
-import {
-  Observable,
-  PropertyChangeData
-} from "tns-core-modules/data/observable";
-import { writeTrace } from "./helpers";
+import * as nsApp from 'tns-core-modules/application';
+import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
+import { writeTrace } from './helpers';
 
 function getClosestValidFontScale(fontScale: number) {
-  return FontScaleObservable.VALID_FONT_SCALES.sort(
-    (a, b) => Math.abs(fontScale - a) - Math.abs(fontScale - b)
-  ).shift();
+  return FontScaleObservable.VALID_FONT_SCALES.sort((a, b) => Math.abs(fontScale - a) - Math.abs(fontScale - b)).shift();
 }
 
 let internalObservable: Observable;
@@ -24,9 +19,7 @@ function fontScaleChanged(fontScale: number) {
 }
 
 function useAndroidFontScale() {
-  fontScaleChanged(
-    Number(nsApp.android.context.getResources().getConfiguration().fontScale)
-  );
+  fontScaleChanged(Number(nsApp.android.context.getResources().getConfiguration().fontScale));
 }
 
 function ensureObservable() {
@@ -48,8 +41,8 @@ function ensureObservable() {
       },
       onConfigurationChanged(newConfig: android.content.res.Configuration) {
         fontScaleChanged(Number(newConfig.fontScale));
-      }
-    })
+      },
+    }),
   );
 
   nsApp.on(nsApp.resumeEvent, () => {
@@ -58,7 +51,7 @@ function ensureObservable() {
 }
 
 export class FontScaleObservable extends Observable {
-  public static FONT_SCALE = "fontScale";
+  public static FONT_SCALE = 'fontScale';
   public static get VALID_FONT_SCALES() {
     return [0.85, 1, 1.15, 1.3];
   }
@@ -79,9 +72,6 @@ export class FontScaleObservable extends Observable {
     }
 
     internalObservable.on(Observable.propertyChangeEvent, callback);
-    this.set(
-      FontScaleObservable.FONT_SCALE,
-      internalObservable.get(FontScaleObservable.FONT_SCALE)
-    );
+    this.set(FontScaleObservable.FONT_SCALE, internalObservable.get(FontScaleObservable.FONT_SCALE));
   }
 }

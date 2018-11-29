@@ -46,7 +46,9 @@ const accessibilityHadFocusSymbol = Symbol('ios:accessibilityHadFocusSymbol');
  */
 function handleUIAccessibilityElementFocusedNotification(view: UIView, tnsView: View, isAccessible: boolean) {
   if (typeof UIAccessibilityElementFocusedNotification === 'undefined') {
-    writeTrace(`handleUIAccessibilityElementFocusedNotification(${view}, ${tnsView}, ${isAccessible}): UIAccessibilityElementFocusedNotification is not supported by this iOS version`);
+    writeTrace(
+      `handleUIAccessibilityElementFocusedNotification(${view}, ${tnsView}, ${isAccessible}): UIAccessibilityElementFocusedNotification is not supported by this iOS version`,
+    );
     return;
   }
 
@@ -86,7 +88,9 @@ function handleUIAccessibilityElementFocusedNotification(view: UIView, tnsView: 
     const receivedFocus = object === localView;
     const lostFocus = localView[accessibilityHadFocusSymbol] && !receivedFocus;
 
-    writeTrace(`View<${this}.ios>.accessible: observer<${UIAccessibilityElementFocusedNotification}>, view: ${localTnsView}, receivedFocus: ${receivedFocus}, lostFocus: ${lostFocus}`);
+    writeTrace(
+      `View<${this}.ios>.accessible: observer<${UIAccessibilityElementFocusedNotification}>, view: ${localTnsView}, receivedFocus: ${receivedFocus}, lostFocus: ${lostFocus}`,
+    );
 
     if (receivedFocus || lostFocus) {
       notifyAccessibilityFocusState(localTnsView, receivedFocus, lostFocus);
@@ -283,7 +287,11 @@ function ensurePostNotificationMap() {
   ]);
 }
 
-setViewFunction(View, common.iosFunctions.postAccessibilityNotification, function postAccessibilityNotification(this: View, notificationType: string, msg?: string) {
+setViewFunction(View, common.iosFunctions.postAccessibilityNotification, function postAccessibilityNotification(
+  this: View,
+  notificationType: string,
+  msg?: string,
+) {
   if (!notificationType) {
     writeTrace(`View<${this}.ios>.postAccessibilityNotification(..) - falsy notificationType`);
     return;
@@ -300,8 +308,8 @@ setViewFunction(View, common.iosFunctions.postAccessibilityNotification, functio
       args = <UIView>this.ios;
     }
 
-    UIAccessibilityPostNotification(notificationInt, args || null);
-    writeTrace(`View<${this}.ios>.postAccessibilityNotification(..) - send ${notificationType} with ${args || null}`);
+    UIAccessibilityPostNotification(notificationInt, args || null);
+    writeTrace(`View<${this}.ios>.postAccessibilityNotification(..) - send ${notificationType} with ${args || null}`);
   } else {
     writeTrace(`View<${this}.ios>.postAccessibilityNotification(..) - ${notificationType} is known notificationType`);
   }

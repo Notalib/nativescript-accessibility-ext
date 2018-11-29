@@ -1,0 +1,22 @@
+{
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/*.js": {
+      "when": "$(basename).ts"
+    },
+    "**/*.d.ts": {
+      "when": "$(basename).ts"
+    }
+  },
+  "cSpell.words": [
+    "Bitmask",
+    "fontscale",
+    "fontscales",
+    "globalevents",
+    "radiobutton"
+  ]
+}

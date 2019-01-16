@@ -1,5 +1,4 @@
 import * as nsApp from 'tns-core-modules/application';
-
 import { inputArrayToBitMask, notifyAccessibilityFocusState, setViewFunction, writeTrace } from '../../utils/helpers';
 import { View } from './view-common';
 import * as common from './view-common';
@@ -31,8 +30,8 @@ View.prototype[common.accessibleProperty.getDefault] = function accessibleGetDef
   return isAccessible;
 };
 
-const accessibilityFocusObserverSymbol = Symbol('ios:accessibilityFocusObserver');
-const accessibilityHadFocusSymbol = Symbol('ios:accessibilityHadFocusSymbol');
+const accessibilityFocusObserverSymbol = Symbol.for('ios:accessibilityFocusObserver');
+const accessibilityHadFocusSymbol = Symbol.for('ios:accessibilityHadFocusSymbol');
 
 /**
  * Wrapper for setting up accessibility focus events for iOS9+

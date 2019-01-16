@@ -1,22 +1,24 @@
-import '../core/view';
-
 import 'nativescript-globalevents';
 import { EventData, Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
+import { isAndroid, isIOS } from 'tns-core-modules/platform';
 import { Page } from 'tns-core-modules/ui/page';
-
+import { FontScaleObservable } from '../../utils/FontScaleObservable';
 import { writeTrace } from '../../utils/helpers';
+import '../core/view';
 
 export interface PageLoadedEventData extends EventData {
   object: Page;
 }
-
-import { FontScaleObservable } from '../../utils/FontScaleObservable';
 
 function fontScaleToCssClass(fontScale: number) {
   return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;
 }
 
 function loadedEventCb({ object: page }: PageLoadedEventData) {
+  setupPageFontScaling(page);
+}
+
+export function setupPageFontScaling(page: Page) {
   if ((<any>page).fontScaleObservable) {
     writeTrace(`Page<${page}>.loadedEvent -> already have FontScaleObservable`);
     return;
@@ -32,6 +34,16 @@ function loadedEventCb({ object: page }: PageLoadedEventData) {
   writeTrace(`Page<${page}>.fontScale loaded -> font scale classes: ${fontScaleCssClasses.join(',')}`);
 
   const owner = new WeakRef<Page>(page);
+
+  if (isAndroid) {
+    page.cssClasses.add('android');
+    page.cssClasses.delete('ios');
+  } else if (isIOS) {
+    page.cssClasses.add('ios');
+    page.cssClasses.delete('android');
+  }
+
+  page.className = [...page.cssClasses].join(' ');
 
   const setFontScaleClass = (fontScale: number) => {
     writeTrace(`Page.fontScale: setFontScaleClass: Got fontScale = ${fontScale}`);
@@ -101,4 +113,5 @@ function loadedEventCb({ object: page }: PageLoadedEventData) {
 }
 
 (<any>Page).on(Page.loadedEvent, loadedEventCb);
+
 export { Page };

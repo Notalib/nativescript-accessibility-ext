@@ -30,7 +30,8 @@
     "email": "app@nota.dk",
     "url": "https://nota.dk"
   },
-  "contributors": [{
+  "contributors": [
+    {
       "name": "Morten Anton Bach Sjøgren",
       "url": "http://mabs.dk",
       "email": "mabs@mabs.dk"
@@ -47,9 +48,9 @@
   "homepage": "https://github.com/Notalib/nativescript-accessibility-ext/#readme",
   "devDependencies": {
     "nativescript-globalevents": "^1.2.2",
-    "node-sass": "^4.10.0",
-    "tns-core-modules": "^5.0.5",
-    "tns-platform-declarations": "^5.0.5",
+    "node-sass": "^4.11.0",
+    "tns-core-modules": "^5.1.2",
+    "tns-platform-declarations": "^5.1.2",
     "typescript": "^3.1.6"
   }
 }

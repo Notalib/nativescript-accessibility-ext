@@ -1,9 +1,9 @@
 import * as trace from 'tns-core-modules/trace';
 import { Property } from 'tns-core-modules/ui/core/properties';
-import { traceMessageType, View } from 'tns-core-modules/ui/core/view';
+import { EventData, traceMessageType, View } from 'tns-core-modules/ui/core/view';
 import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
 
-export { View, ViewCommon, Property };
+export { EventData, View, ViewCommon, Property };
 
 export function noop() {
   // ignore

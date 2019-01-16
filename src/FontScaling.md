@@ -73,7 +73,7 @@ $my-custom-margin: 2;
 @each $scale, $params in $a11y-font-scales {
   $factor: map-get($params, factor);
 
-  /deep/ Page.a11y-fontscale-#{$scale} {
+  Page.a11y-fontscale-#{$scale} :host {
     &.ios {
       .my-class {
         font-size: $my-custom-font-size: * $factor;
@@ -91,5 +91,4 @@ $my-custom-margin: 2;
     }
   }
 }
-
 ```

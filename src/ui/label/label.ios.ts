@@ -12,7 +12,7 @@ Label.prototype[common.accessibilityAdjustsFontSizeProperty.getDefault] = functi
   return false;
 };
 
-const fontScalePropSymbol = Symbol('ios:fontScalePropSymbol');
+const fontScalePropSymbol = Symbol.for('ios:fontScalePropSymbol');
 Label.prototype[common.accessibilityAdjustsFontSizeProperty.setNative] = function accessibilityAdjustsFontSizeSetNative(this: Label, value: boolean) {
   const tnsLabel = this;
   const uiLabel = <UILabel>this.ios;

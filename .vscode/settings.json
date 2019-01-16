@@ -7,9 +7,6 @@
     "**/.DS_Store": true,
     "**/*.js": {
       "when": "$(basename).ts"
-    },
-    "**/*.d.ts": {
-      "when": "$(basename).ts"
     }
   },
   "cSpell.words": [

@@ -1,7 +1,6 @@
 import { Label } from 'tns-core-modules/ui/label';
-import '../core/view';
-
 import { addPropertyToView, Property } from '../../utils/helpers';
+import '../core/view';
 
 export const accessibilityAdjustsFontSizeProperty: Property<Label, boolean> = addPropertyToView<Label, boolean>(Label, 'accessibilityAdjustsFontSize');
 

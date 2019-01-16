@@ -5,7 +5,11 @@
   margin: 2;
   padding: 2;
 
-  .h1, .h2, .h3, .h4, .h5 {
+  .h1,
+  .h2,
+  .h3,
+  .h4,
+  .h5 {
     border-bottom-width: 1;
     background-color: #999;
     border-bottom-color: #cecece;
@@ -21,6 +25,6 @@
   }
 }
 
-Image {
+image {
   stretch: aspectFit;
 }

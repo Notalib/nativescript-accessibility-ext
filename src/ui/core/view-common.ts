@@ -1,5 +1,5 @@
 import { addPropertyToView, Property, setViewFunction, View, ViewCommon } from '../../utils/helpers';
-export { Property, View, ViewCommon } from '../../utils/helpers';
+export { EventData, Property, View, ViewCommon } from '../../utils/helpers';
 
 // Common properties
 export const accessibleProperty: Property<View, boolean> = addPropertyToView<View, boolean>(ViewCommon, 'accessible', false);

@@ -22,22 +22,25 @@ cd $WORKDIR;
 pack() {
     echo 'Clearing /src and /package...'
     cd "${WORKDIR}"
-    npx rimraf "${TO_SOURCE_DIR}"
     npx rimraf "${PACK_DIR}"
 
     # copy src
     echo 'Copying src...'
-    git clean -d -f -x "${SOURCE_DIR}" && (cd "${SOURCE_DIR}" && npm i)
-    npx ncp "${SOURCE_DIR}" "${TO_SOURCE_DIR}"
-
-    # copy README & LICENSE to src
-    echo 'Copying README and LICENSE to /src...'
-    npx ncp "${ROOT_DIR}"/LICENSE "${TO_SOURCE_DIR}"/LICENSE
-    npx ncp "${ROOT_DIR}"/README.md "${TO_SOURCE_DIR}"/README.md
+    rsync -avP \
+        --delete \
+        --delete-excluded \
+        --exclude node_modules \
+        --exclude "*.js"\
+        --exclude "*.css" \
+         "${SOURCE_DIR}/" \
+         "${ROOT_DIR}/LICENSE" \
+         "${ROOT_DIR}/README.md" \
+         "${TO_SOURCE_DIR}/"
 
     # compile package and copy files required by npm
     echo 'Building /src...'
     cd "${TO_SOURCE_DIR}"
+    npm ci
     npm run build
     cd "${WORKDIR}"
 

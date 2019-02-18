@@ -3,3 +3,5 @@
 !*.d.ts
 tsconfig.json
 *.arr
+.prettierignore
+references.d.ts

@@ -210,7 +210,10 @@ View.prototype[common.accessibilityTraitsProperty.getDefault] = function accessi
   return accessibilityTraits;
 };
 
-View.prototype[common.accessibilityTraitsProperty.setNative] = function accessibilityTraitsSetNative(this: View, value: AccessibilityTrait | AccessibilityTrait[]) {
+View.prototype[common.accessibilityTraitsProperty.setNative] = function accessibilityTraitsSetNative(
+  this: View,
+  value: AccessibilityTrait | AccessibilityTrait[],
+) {
   const view = getNativeView(this);
   if (!view) {
     return;

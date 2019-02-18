@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es6",
+        "target": "es5",
         "module": "commonjs",
         "declaration": true,
         "removeComments": true,
@@ -21,7 +21,8 @@
         "noImplicitUseStrict": false,
         "noFallthroughCasesInSwitch": true,
         "baseUrl": ".",
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "downlevelIteration": true
     },
     "files": [
         "index.ts"

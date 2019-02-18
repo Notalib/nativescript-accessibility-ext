@@ -1,17 +1,29 @@
-import { View } from 'tns-core-modules/ui/core/view';
+import { View as TNSView } from 'tns-core-modules/ui/core/view';
 import { GestureTypes } from 'tns-core-modules/ui/gestures';
-
 import { notifyAccessibilityFocusState, writeTrace } from './helpers';
 import { isAccessibilityServiceEnabled } from './utils';
 
-function getAccessibilityManager(view: android.view.View): android.view.accessibility.AccessibilityManager {
+const AccessibilityEvent = android.view.accessibility.AccessibilityEvent;
+type AccessibilityEvent = android.view.accessibility.AccessibilityEvent;
+const AccessibilityManager = android.view.accessibility.AccessibilityManager;
+type AccessibilityManager = android.view.accessibility.AccessibilityManager;
+const AccessibilityDelegateCompat = android.support.v4.view.AccessibilityDelegateCompat;
+type AccessibilityDelegateCompat = android.support.v4.view.AccessibilityDelegateCompat;
+const AccessibilityNodeInfoCompat = android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+type AccessibilityNodeInfoCompat = android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+const AndroidView = android.view.View;
+type AndroidView = android.view.View;
+const ViewCompat = android.support.v4.view.ViewCompat;
+type ViewCompat = android.support.v4.view.ViewCompat;
+
+function getAccessibilityManager(view: AndroidView): AccessibilityManager {
   return view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
 }
 
-const TYPE_VIEW_ACCESSIBILITY_FOCUSED = android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED;
-const TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED = android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED;
-let lastFocusedView: WeakRef<View>;
-function accessibilityEventHelper(viewRef: WeakRef<View>, eventType: number) {
+const TYPE_VIEW_ACCESSIBILITY_FOCUSED = AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED;
+const TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED = AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED;
+let lastFocusedView: WeakRef<TNSView>;
+function accessibilityEventHelper(viewRef: WeakRef<TNSView>, eventType: number) {
   if (!isAccessibilityServiceEnabled()) {
     return;
   }
@@ -45,7 +57,7 @@ function accessibilityEventHelper(viewRef: WeakRef<View>, eventType: number) {
      * Android API >= 26 handles accessibility tap-events by converting them to TYPE_VIEW_CLICKED
      * These aren't triggered for custom tap events in NativeScript.
      */
-    if (eventType === android.view.accessibility.AccessibilityEvent.TYPE_VIEW_CLICKED && view.getGestureObservers(GestureTypes.tap)) {
+    if (eventType === AccessibilityEvent.TYPE_VIEW_CLICKED && view.getGestureObservers(GestureTypes.tap)) {
       // Find all tap gestures and trigger them.
       for (const tapGesture of view.getGestureObservers(GestureTypes.tap)) {
         tapGesture.callback({
@@ -61,83 +73,20 @@ function accessibilityEventHelper(viewRef: WeakRef<View>, eventType: number) {
   }
 }
 
-/**
- * Workaround:
- *   tns-platform-declarations@^5.0.0 declares AccessibilityDelegate as a type not a class, so it can't be extended.
- *   A class named android.view.View.androidviewViewAccessibilityDelegate is declared in tns-platform-declarations@^5.0.0 but doesn't exist at runtime.
- */
-const AccessibilityDelegate = android.view.View['AccessibilityDelegate'] as new () => android.view.View.AccessibilityDelegate;
-
-let TNSBasicAccessibilityDelegate: new (owner: View) => android.view.View.AccessibilityDelegate;
-let TNSButtonAccessibilityDelegate: new (owner: View) => android.view.View.AccessibilityDelegate;
-let TNSRadioButtonAccessibilityDelegate: new (owner: View, checked: boolean) => android.view.View.AccessibilityDelegate;
+let TNSAccessibilityDelegateCompat: new (owner: TNSView) => AccessibilityDelegateCompat;
 
 function ensureDelegates() {
-  if (TNSBasicAccessibilityDelegate) {
+  if (TNSAccessibilityDelegateCompat) {
     return;
   }
 
-  class TNSBasicAccessibilityDelegateImpl extends AccessibilityDelegate {
-    private readonly owner: WeakRef<View>;
-    constructor(owner: View) {
-      super();
-
-      this.owner = new WeakRef(owner);
-
-      return global.__native(this);
-    }
-
-    public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
-      super.onInitializeAccessibilityEvent(host, event);
-    }
-
-    public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
-      super.onInitializeAccessibilityNodeInfo(host, info);
-    }
-
-    public sendAccessibilityEvent(host: android.view.ViewGroup, eventType: number) {
-      super.sendAccessibilityEvent(host, eventType);
-
-      accessibilityEventHelper(this.owner, eventType);
-    }
-  }
-  TNSBasicAccessibilityDelegate = TNSBasicAccessibilityDelegateImpl;
-
   const ButtonClassName = android.widget.Button.class.getName();
-  class TNSButtonAccessibilityDelegateImpl extends AccessibilityDelegate {
-    private readonly className = ButtonClassName;
-    private readonly owner: WeakRef<View>;
-    constructor(owner: View) {
-      super();
-
-      this.owner = new WeakRef(owner);
-
-      return global.__native(this);
-    }
-
-    public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
-      super.onInitializeAccessibilityEvent(host, event);
-      event.setClassName(this.className);
-    }
-
-    public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
-      super.onInitializeAccessibilityNodeInfo(host, info);
-      info.setClassName(this.className);
-    }
-
-    public sendAccessibilityEvent(host: android.view.ViewGroup, eventType: number) {
-      super.sendAccessibilityEvent(host, eventType);
-
-      accessibilityEventHelper(this.owner, eventType);
-    }
-  }
-  TNSButtonAccessibilityDelegate = TNSButtonAccessibilityDelegateImpl;
-
   const RadioButtonClassName = android.widget.RadioButton.class.getName();
-  class TNSRadioButtonAccessibilityDelegateImpl extends AccessibilityDelegate {
-    private readonly className = RadioButtonClassName;
-    private readonly owner: WeakRef<View>;
-    constructor(owner: View, private checked: boolean) {
+
+  class TNSAccessibilityDelegateCompatImpl extends AccessibilityDelegateCompat {
+    private readonly owner: WeakRef<TNSView>;
+
+    constructor(owner: TNSView) {
       super();
 
       this.owner = new WeakRef(owner);
@@ -145,19 +94,32 @@ function ensureDelegates() {
       return global.__native(this);
     }
 
-    public onInitializeAccessibilityEvent(host: android.view.View, event: android.view.accessibility.AccessibilityEvent) {
-      super.onInitializeAccessibilityEvent(host, event);
-
-      event.setClassName(this.className);
-      event.setChecked(!!this.checked);
-    }
-
-    public onInitializeAccessibilityNodeInfo(host: android.view.View, info: android.view.accessibility.AccessibilityNodeInfo) {
+    public onInitializeAccessibilityNodeInfo(host: AndroidView, info: AccessibilityNodeInfoCompat) {
       super.onInitializeAccessibilityNodeInfo(host, info);
 
-      info.setClassName(this.className);
-      info.setCheckable(true);
-      info.setChecked(!!this.checked);
+      const owner = this.owner.get();
+      if (!owner) {
+        return;
+      }
+
+      switch (owner.accessibilityComponentType) {
+        case 'button': {
+          info.setClassName(ButtonClassName);
+          break;
+        }
+        case 'radiobutton_checked': {
+          info.setClassName(RadioButtonClassName);
+          info.setCheckable(true);
+          info.setChecked(true);
+          break;
+        }
+        case 'radiobutton_unchecked': {
+          info.setClassName(RadioButtonClassName);
+          info.setCheckable(true);
+          info.setChecked(false);
+          break;
+        }
+      }
     }
 
     public sendAccessibilityEvent(host: android.view.ViewGroup, eventType: number) {
@@ -167,7 +129,7 @@ function ensureDelegates() {
     }
   }
 
-  TNSRadioButtonAccessibilityDelegate = TNSRadioButtonAccessibilityDelegateImpl;
+  TNSAccessibilityDelegateCompat = TNSAccessibilityDelegateCompatImpl;
 }
 
 let accessibilityEventMap: Map<string, number>;
@@ -176,108 +138,107 @@ function ensureAccessibilityEventMap() {
     return;
   }
 
-  const ae = android.view.accessibility.AccessibilityEvent;
   accessibilityEventMap = new Map<string, number>([
     /**
      * Invalid selection/focus position.
      */
-    ['invalid_position', ae.INVALID_POSITION],
+    ['invalid_position', AccessibilityEvent.INVALID_POSITION],
     /**
      * Maximum length of the text fields.
      */
-    ['max_text_length', ae.MAX_TEXT_LENGTH],
+    ['max_text_length', AccessibilityEvent.MAX_TEXT_LENGTH],
     /**
      * Represents the event of clicking on a android.view.View like android.widget.Button, android.widget.CompoundButton, etc.
      */
-    ['view_clicked', ae.TYPE_VIEW_CLICKED],
+    ['view_clicked', AccessibilityEvent.TYPE_VIEW_CLICKED],
     /**
      * Represents the event of long clicking on a android.view.View like android.widget.Button, android.widget.CompoundButton, etc.
      */
-    ['view_long_clicked', ae.TYPE_VIEW_LONG_CLICKED],
+    ['view_long_clicked', AccessibilityEvent.TYPE_VIEW_LONG_CLICKED],
     /**
      * Represents the event of selecting an item usually in the context of an android.widget.AdapterView.
      */
-    ['view_selected', ae.TYPE_VIEW_SELECTED],
+    ['view_selected', AccessibilityEvent.TYPE_VIEW_SELECTED],
     /**
      * Represents the event of setting input focus of a android.view.View.
      */
-    ['view_focused', ae.TYPE_VIEW_FOCUSED],
+    ['view_focused', AccessibilityEvent.TYPE_VIEW_FOCUSED],
     /**
      * Represents the event of changing the text of an android.widget.EditText.
      */
-    ['view_text_changed', ae.TYPE_VIEW_TEXT_CHANGED],
+    ['view_text_changed', AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED],
     /**
      * Represents the event of opening a android.widget.PopupWindow, android.view.Menu, android.app.Dialog, etc.
      */
-    ['window_state_changed', ae.TYPE_WINDOW_STATE_CHANGED],
+    ['window_state_changed', AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED],
     /**
      * Represents the event showing a android.app.Notification.
      */
-    ['notification_state_changed', ae.TYPE_NOTIFICATION_STATE_CHANGED],
+    ['notification_state_changed', AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED],
     /**
      * Represents the event of a hover enter over a android.view.View.
      */
-    ['view_hover_enter', ae.TYPE_VIEW_HOVER_ENTER],
+    ['view_hover_enter', AccessibilityEvent.TYPE_VIEW_HOVER_ENTER],
     /**
      * Represents the event of a hover exit over a android.view.View.
      */
-    ['view_hover_exit', ae.TYPE_VIEW_HOVER_EXIT],
+    ['view_hover_exit', AccessibilityEvent.TYPE_VIEW_HOVER_EXIT],
     /**
      * Represents the event of starting a touch exploration gesture.
      */
-    ['touch_exploration_gesture_start', ae.TYPE_TOUCH_EXPLORATION_GESTURE_START],
+    ['touch_exploration_gesture_start', AccessibilityEvent.TYPE_TOUCH_EXPLORATION_GESTURE_START],
     /**
      * Represents the event of ending a touch exploration gesture.
      */
-    ['touch_exploration_gesture_end', ae.TYPE_TOUCH_EXPLORATION_GESTURE_END],
+    ['touch_exploration_gesture_end', AccessibilityEvent.TYPE_TOUCH_EXPLORATION_GESTURE_END],
     /**
      * Represents the event of changing the content of a window and more specifically the sub-tree rooted at the event's source.
      */
-    ['window_content_changed', ae.TYPE_WINDOW_CONTENT_CHANGED],
+    ['window_content_changed', AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED],
     /**
      * Represents the event of scrolling a view.
      */
-    ['view_scrolled', ae.TYPE_VIEW_SCROLLED],
+    ['view_scrolled', AccessibilityEvent.TYPE_VIEW_SCROLLED],
     /**
      * Represents the event of changing the selection in an android.widget.EditText.
      */
-    ['view_text_selection_changed', ae.TYPE_VIEW_TEXT_SELECTION_CHANGED],
+    ['view_text_selection_changed', AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED],
     /**
      * Represents the event of an application making an announcement.
      */
-    ['announcement', ae.TYPE_ANNOUNCEMENT],
+    ['announcement', AccessibilityEvent.TYPE_ANNOUNCEMENT],
     /**
      * Represents the event of gaining accessibility focus.
      */
-    ['view_accessibility_focused', ae.TYPE_VIEW_ACCESSIBILITY_FOCUSED],
+    ['view_accessibility_focused', AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED],
     /**
      * Represents the event of clearing accessibility focus.
      */
-    ['view_accessibility_focus_cleared', ae.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED],
+    ['view_accessibility_focus_cleared', AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED],
     /**
      * Represents the event of traversing the text of a view at a given movement granularity.
      */
-    ['view_text_traversed_at_movement_granularity', ae.TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY],
+    ['view_text_traversed_at_movement_granularity', AccessibilityEvent.TYPE_VIEW_TEXT_TRAVERSED_AT_MOVEMENT_GRANULARITY],
     /**
      * Represents the event of beginning gesture detection.
      */
-    ['gesture_detection_start', ae.TYPE_GESTURE_DETECTION_START],
+    ['gesture_detection_start', AccessibilityEvent.TYPE_GESTURE_DETECTION_START],
     /**
      * Represents the event of ending gesture detection.
      */
-    ['gesture_detection_end', ae.TYPE_GESTURE_DETECTION_END],
+    ['gesture_detection_end', AccessibilityEvent.TYPE_GESTURE_DETECTION_END],
     /**
      * Represents the event of the user starting to touch the screen.
      */
-    ['touch_interaction_start', ae.TYPE_TOUCH_INTERACTION_START],
+    ['touch_interaction_start', AccessibilityEvent.TYPE_TOUCH_INTERACTION_START],
     /**
      * Represents the event of the user ending to touch the screen.
      */
-    ['touch_interaction_end', ae.TYPE_TOUCH_INTERACTION_END],
+    ['touch_interaction_end', AccessibilityEvent.TYPE_TOUCH_INTERACTION_END],
     /**
      * Mask for AccessibilityEvent all types.
      */
-    ['all', ae.TYPES_ALL_MASK],
+    ['all', AccessibilityEvent.TYPES_ALL_MASK],
   ]);
 }
 
@@ -298,68 +259,15 @@ export class AccessibilityHelper {
     return 'accessible';
   }
 
-  public static updateAccessibilityComponentType(tnsView: View, androidView: android.view.View, componentType: string) {
+  public static updateAccessibilityComponentType(tnsView: TNSView, androidView: AndroidView, componentType: string) {
     writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView} componentType:${componentType}`);
 
     ensureDelegates();
 
-    let delegate: android.view.View.AccessibilityDelegate;
-    switch (componentType) {
-      case AccessibilityHelper.BUTTON: {
-        writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} BUTTON`);
-
-        delegate = new TNSButtonAccessibilityDelegate(tnsView);
-        break;
-      }
-      case AccessibilityHelper.RADIOBUTTON_CHECKED: {
-        writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} RADIOBUTTON_CHECKED`);
-
-        delegate = new TNSRadioButtonAccessibilityDelegate(tnsView, true);
-        break;
-      }
-      case AccessibilityHelper.RADIOBUTTON_UNCHECKED: {
-        writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} RADIOBUTTON_UNCHECKED`);
-
-        delegate = new TNSRadioButtonAccessibilityDelegate(tnsView, false);
-        break;
-      }
-      case AccessibilityHelper.ACCESSIBLE: {
-        writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView} ACCESSIBLE`);
-
-        delegate = new TNSBasicAccessibilityDelegate(tnsView);
-        break;
-      }
-      default: {
-        writeTrace(`updateAccessibilityComponentType: unknown componentType: ${componentType}`);
-
-        AccessibilityHelper.removeAccessibilityComponentType(androidView);
-        return;
-      }
-    }
-
-    writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView}, delegate:${!!delegate}`);
-
-    try {
-      if (delegate) {
-        androidView.setAccessibilityDelegate(delegate);
-      } else {
-        AccessibilityHelper.removeAccessibilityComponentType(androidView);
-      }
-    } catch (err) {
-      writeTrace(`Failed to set accessibility delegate: ${err}`);
-
-      console.error(`Failed to set accessibility delegate: ${err}`);
-      console.error(err);
-    }
+    ViewCompat.setAccessibilityDelegate(androidView, new TNSAccessibilityDelegateCompat(tnsView));
   }
 
-  public static removeAccessibilityComponentType(androidView: android.view.View) {
-    writeTrace(`removeAccessibilityComponentType from ${androidView}`);
-
-    androidView.setAccessibilityDelegate(null);
-  }
-
-  public static sendAccessibilityEvent(androidView: android.view.View, eventName: string, text?: string) {
+  public static sendAccessibilityEvent(androidView: AndroidView, eventName: string, text?: string) {
     if (!eventName) {
       writeTrace(`sendAccessibilityEvent: no eventName provided`);
       return;
@@ -385,7 +293,7 @@ export class AccessibilityHelper {
       return;
     }
 
-    const a11yEvent = android.view.accessibility.AccessibilityEvent.obtain(eventInt);
+    const a11yEvent = AccessibilityEvent.obtain(eventInt);
     a11yEvent.setSource(androidView);
 
     a11yEvent.getText().clear();

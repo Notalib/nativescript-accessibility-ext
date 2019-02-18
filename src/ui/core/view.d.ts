@@ -1,5 +1,57 @@
 import { View } from 'tns-core-modules/ui/core/view';
 declare module 'tns-core-modules/ui/core/view' {
+  enum AccessibilityTrait {
+    // The accessibility element has no traits.
+    None = 'none',
+
+    // The accessibility element should be treated as a button.
+    Button = 'button',
+
+    // The accessibility element should be treated as a link.
+    Link = 'link',
+
+    // The accessibility element should be treated as a search field.
+    SearchField = 'search',
+
+    // The accessibility element should be treated as an image.
+    Image = 'image',
+
+    // The accessibility element is currently selected.
+    Selected = 'selected',
+
+    // The accessibility element plays its own sound when activated.
+    PlaysSound = 'plays',
+
+    // The accessibility element behaves as a keyboard key.
+    KeybordKey = 'key',
+
+    // The accessibility element should be treated as static text that cannot change.
+    StaticText = 'text',
+
+    // The accessibility element provides summary information when the application starts.
+    SummaryElement = 'summary',
+
+    // The accessibility element is not enabled and does not respond to user interaction.
+    NotEnabled = 'disabled',
+
+    // The accessibility element frequently updates its label or value.
+    UpdatesFrequently = 'frequentUpdates',
+
+    // The accessibility element starts a media session when it is activated.
+    StartsMediaSession = 'startsMedia',
+
+    // The accessibility element allows continuous adjustment through a range of values.
+    Adjustable = 'adjustable',
+
+    // The accessibility element allows direct touch interaction for VoiceOver users.
+    AllowsDirectInteraction = 'allowsDirectInteraction',
+
+    // The accessibility element should cause an automatic page turn when VoiceOver finishes reading the text within it.
+    CausesPageTurn = 'pageTurn',
+
+    // The accessibility element is a header that divides content into sections, such as the title of a navigation bar.
+    Header = 'header',
+  }
   interface View {
     // Common for both platforms
 
@@ -30,7 +82,7 @@ declare module 'tns-core-modules/ui/core/view' {
     sendAccessibilityEvent(eventName: string, text?: string);
 
     // iOS Specific
-    accessibilityTraits?: string | string[];
+    accessibilityTraits?: AccessibilityTrait | AccessibilityTrait[];
     accessibilityValue?: string;
     accessibilityElementsHidden?: boolean;
     /**

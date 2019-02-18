@@ -1,7 +1,8 @@
 import * as nsApp from 'tns-core-modules/application';
+import { AccessibilityTrait } from 'tns-core-modules/ui/page/page';
 import { inputArrayToBitMask, notifyAccessibilityFocusState, setViewFunction, writeTrace } from '../../utils/helpers';
-import { View } from './view-common';
 import * as common from './view-common';
+import { View } from './view-common';
 
 for (const fnName of Object.keys(common.androidFunctions)) {
   setViewFunction(View, fnName);
@@ -188,6 +189,7 @@ function getAccessibilityTraitsFromBitmask(accessibilityTraits: number) {
   }
 
   ensureTraits();
+
   for (const [name, trait] of Array.from(traits)) {
     if (accessibilityTraits & trait) {
       res.push(name);
@@ -208,7 +210,7 @@ View.prototype[common.accessibilityTraitsProperty.getDefault] = function accessi
   return accessibilityTraits;
 };
 
-View.prototype[common.accessibilityTraitsProperty.setNative] = function accessibilityTraitsSetNative(this: View, value: string | string[]) {
+View.prototype[common.accessibilityTraitsProperty.setNative] = function accessibilityTraitsSetNative(this: View, value: AccessibilityTrait | AccessibilityTrait[]) {
   const view = getNativeView(this);
   if (!view) {
     return;

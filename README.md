@@ -58,6 +58,8 @@ If you want auto scaling on iOS Labels see: Label.accessibilityAdjustsFontSize
 
 ### Attributes and functions for `iOS`-only
 
+Reading https://nshipster.com/uiaccessibility/ is recommended.
+
 #### Attribute: View.accessibilityTraits (iOS)
 Set one or more traits that best fits the elemnet. Comma or space separated list of traits.
 
@@ -87,6 +89,11 @@ Define the value of an accessibility element.
 This is to give the user more information about the value of a field.
 For instance a `Slider` would normally have a value between 0-100%, but if the Slider represents time, you can give the user better information about the value.
 
+#### Attribute: View.accessibilityHint (iOS)
+Describes the result of performing an action on the view.
+
+Should only be provided if the result isn't obvious from the label.
+
 #### Attribute: View.accessibilityIdentifier (iOS)
 Set the elements unique accessibilityIdentifier.
 Important note:
@@ -96,7 +103,7 @@ Important note:
 #### Attribute: View.accessibilityElementsHidden (iOS)
 Indicating whether the accessibility elements contained within this accessibility element are hidden.
 
-Defaults to false.
+Defaults to `false`.
 
 ## Attribute: Label.accessibilityAdjustsFontSize (iOS)
 Scales the font on a Label on iOS according to the settings in Settings -> General -> Accessibility -> Larger text

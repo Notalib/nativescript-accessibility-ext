@@ -392,3 +392,21 @@ View.prototype[common.accessibilityLanguageProperty.setNative] = function access
     view.accessibilityLanguage = null;
   }
 };
+
+View.prototype[common.accessibilityHintProperty.getDefault] = function accessibilityHintGetDefault() {
+  const view = getNativeView(this);
+  if (!view) {
+    return null;
+  }
+
+  return view.accessibilityHint;
+};
+
+View.prototype[common.accessibilityHintProperty.setNative] = function accessibilityHintSetNative(value: string) {
+  const view = getNativeView(this);
+  if (!view) {
+    return null;
+  }
+
+  view.accessibilityHint = value;
+};

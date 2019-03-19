@@ -87,6 +87,8 @@ declare module 'tns-core-modules/ui/core/view' {
     accessibilityTraits?: AccessibilityTrait | AccessibilityTrait[];
     accessibilityValue?: string;
     accessibilityElementsHidden?: boolean;
+    accessibilityHint?: string;
+
     /**
      * Sets the language in which to speak the element's label and value.
      * Accepts language ID tags that follows the "BCP 47" specification.

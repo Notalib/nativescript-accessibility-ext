@@ -23,12 +23,11 @@ function getAccessibilityManager(view: AndroidView): AccessibilityManager {
 const TYPE_VIEW_ACCESSIBILITY_FOCUSED = AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED;
 const TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED = AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED;
 let lastFocusedView: WeakRef<TNSView>;
-function accessibilityEventHelper(viewRef: WeakRef<TNSView>, eventType: number) {
+function accessibilityEventHelper(view: TNSView, eventType: number) {
   if (!isAccessibilityServiceEnabled()) {
     return;
   }
 
-  const view = viewRef.get();
   if (!view) {
     return;
   }
@@ -38,28 +37,26 @@ function accessibilityEventHelper(viewRef: WeakRef<TNSView>, eventType: number) 
 
   if (isReceivedFocusEvent || isLostFocusEvent) {
     if (isReceivedFocusEvent) {
-      if (lastFocusedView) {
-        const lastView = lastFocusedView.get();
-        if (lastView) {
-          notifyAccessibilityFocusState(lastView, false, true);
-        }
+      const lastView = lastFocusedView && lastFocusedView.get();
+      if (lastView && view !== lastView) {
+        notifyAccessibilityFocusState(lastView, false, true);
       }
 
-      lastFocusedView = viewRef;
+      lastFocusedView = new WeakRef(view);
     }
 
     notifyAccessibilityFocusState(view, isReceivedFocusEvent, isLostFocusEvent);
     return;
   }
 
+  /**
+   * Android API >= 26 handles accessibility tap-events by converting them to TYPE_VIEW_CLICKED
+   * These aren't triggered for custom tap events in NativeScript.
+   */
   if (android.os.Build.VERSION.SDK_INT >= 26) {
-    /**
-     * Android API >= 26 handles accessibility tap-events by converting them to TYPE_VIEW_CLICKED
-     * These aren't triggered for custom tap events in NativeScript.
-     */
-    if (eventType === AccessibilityEvent.TYPE_VIEW_CLICKED && view.getGestureObservers(GestureTypes.tap)) {
+    if (eventType === AccessibilityEvent.TYPE_VIEW_CLICKED) {
       // Find all tap gestures and trigger them.
-      for (const tapGesture of view.getGestureObservers(GestureTypes.tap)) {
+      for (const tapGesture of view.getGestureObservers(GestureTypes.tap) || []) {
         tapGesture.callback({
           android: null,
           eventName: 'tap',
@@ -69,6 +66,8 @@ function accessibilityEventHelper(viewRef: WeakRef<TNSView>, eventType: number) 
           view,
         });
       }
+
+      return;
     }
   }
 }
@@ -125,7 +124,7 @@ function ensureDelegates() {
     public sendAccessibilityEvent(host: android.view.ViewGroup, eventType: number) {
       super.sendAccessibilityEvent(host, eventType);
 
-      accessibilityEventHelper(this.owner, eventType);
+      accessibilityEventHelper(this.owner.get(), eventType);
     }
   }
 

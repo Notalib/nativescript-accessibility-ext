@@ -1,4 +1,5 @@
-import { View } from 'tns-core-modules/ui/core/view';
+import { EventData } from 'tns-core-modules/ui/core/view';
+
 declare module 'tns-core-modules/ui/core/view' {
   enum AccessibilityTrait {
     // The accessibility element has no traits.
@@ -52,6 +53,7 @@ declare module 'tns-core-modules/ui/core/view' {
     // The accessibility element is a header that divides content into sections, such as the title of a navigation bar.
     Header = 'header',
   }
+
   interface View {
     // Common for both platforms
 
@@ -91,5 +93,33 @@ declare module 'tns-core-modules/ui/core/view' {
      */
     accessibilityLanguage?: string;
     postAccessibilityNotification(notificationType: string, args?: string);
+  }
+
+  // Adding static properties
+  namespace View {
+    /**
+     * Event triggered than the view receives the accessibility focus
+     */
+    let accessibilityFocusEvent: string;
+
+    /**
+     * Event triggered than the view looses the accessibility focus
+     */
+    let accessibilityBlurEvent: string;
+  
+    /**
+     * Event triggered than the view looses or receives the accessibility focus
+     */
+    let accessibilityFocusChangedEvent: string;
+  }
+
+  interface AccessibilityFocusEventData extends EventData {
+    object: View;
+  }
+  
+  interface AccessibilityBlurEventData extends AccessibilityFocusEventData {}
+
+  interface AccessibilityFocusChangedEventData extends AccessibilityFocusEventData {
+    value: boolean;
   }
 }

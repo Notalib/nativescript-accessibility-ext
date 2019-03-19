@@ -1,8 +1,9 @@
-import { addPropertyToView, Property, setViewFunction, View, ViewCommon } from '../../utils/helpers';
-export { EventData, Property, View, ViewCommon } from '../../utils/helpers';
+import { View } from 'tns-core-modules/ui/core/view';
+import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
+import { addBooleanPropertyToView, addPropertyToView, setViewFunction } from '../../utils/helpers';
 
 // Common properties
-export const accessibleProperty: Property<View, boolean> = addPropertyToView<View, boolean>(ViewCommon, 'accessible', false);
+export const accessibleProperty = addBooleanPropertyToView<View>(ViewCommon, 'accessible', false);
 export const accessibilityLabelProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityLabel');
 export const accessibilityIdentifierProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityIdentifier');
 
@@ -10,10 +11,10 @@ export const accessibilityIdentifierProperty = addPropertyToView<View, string | 
 export const accessibilityTraitsProperty = addPropertyToView<View, string | string[] | null>(ViewCommon, 'accessibilityTraits');
 export const accessibilityValueProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityValue');
 export const accessibilityLanguageProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityLanguage');
-export const accessibilityElementsHidden = addPropertyToView<View, string>(ViewCommon, 'accessibilityElementsHidden', 'no');
+export const accessibilityElementsHidden = addBooleanPropertyToView<View>(ViewCommon, 'accessibilityElementsHidden', false);
 
 // Android properties
-export const importantForAccessibilityProperty = addPropertyToView<View, boolean>(ViewCommon, 'importantForAccessibility', false);
+export const importantForAccessibilityProperty = addBooleanPropertyToView<View>(ViewCommon, 'importantForAccessibility', false);
 export const accessibilityComponentTypeProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityComponentType');
 export const accessibilityLiveRegionProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityLiveRegion');
 
@@ -26,8 +27,16 @@ export const iosFunctions = {
 export const androidFunctions = {
   sendAccessibilityEvent: 'sendAccessibilityEvent',
 };
-export const allFunctions = Object.assign({}, commonFunctions, iosFunctions, androidFunctions);
+export const allFunctions = {
+  ...commonFunctions,
+  ...iosFunctions,
+  ...androidFunctions,
+};
 
 for (const fnName of Object.keys(allFunctions)) {
   setViewFunction(ViewCommon, fnName);
 }
+
+View.accessibilityFocusEvent = 'accessibilityFocus';
+View.accessibilityBlurEvent = 'accessibilityBlur';
+View.accessibilityFocusChangedEvent = 'accessibilityFocusChanged';

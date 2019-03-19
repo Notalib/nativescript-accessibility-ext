@@ -195,17 +195,19 @@ Trigger an accessibility event on Android
 If not provided with `announcement` the elements `automationText` value will be announced instead.
 
 #### The following are not implemented (yet)
-* accessibilityLabel (NativeScript implements this as automationText. android maps to ContentDescription and iOS to both accessibilityLabel and acccesibilityIdentifier)
 * onAccessibilityTap (iOS)
 * onMagicTap (iOS)
 
 ### Helpers:
 
 #### FontScaleObservable
+
 NativeScript Observable for getting the native fontScale on either platform.
 Note: For this to work properly on Android you need to add fontScale to the `android:configChanges` in your **AndroidManifest.xml**
-Note: Android: Font scale between 0.85 and 1.3 (85% -> 130%)
-      iOS: Font scale between 50% and 400%. 200% -> 400% are extra large accessibility font
+
+**Note:**
+Android: Font scale between 0.85 and 1.3 (85% -> 130%)
+iOS: Font scale between 50% and 400%. 200% -> 400% are extra large accessibility font
 
 ## Using the plugin
 To use the plugin in your nativescript-app, install and import the module:

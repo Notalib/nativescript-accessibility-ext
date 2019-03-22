@@ -267,6 +267,12 @@ export class AccessibilityHelper {
     ViewCompat.setAccessibilityDelegate(androidView, new TNSAccessibilityDelegateCompat(tnsView));
   }
 
+  public static removeAccessibilityComponentType(androidView: AndroidView) {
+    writeTrace(`removeAccessibilityComponentType from ${androidView}`);
+
+    ViewCompat.setAccessibilityDelegate(androidView, null);
+  }
+
   public static sendAccessibilityEvent(androidView: AndroidView, eventName: string, text?: string) {
     if (!eventName) {
       writeTrace(`sendAccessibilityEvent: no eventName provided`);

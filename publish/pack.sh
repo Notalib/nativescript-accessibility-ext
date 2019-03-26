@@ -20,7 +20,7 @@ PUBLISH=--publish
 cd $WORKDIR;
 
 pack() {
-    echo 'Clearing /src and /package...'
+    echo "Clearing ${TO_SOURCE_DIR} and ${PACK_DIR}..."
     cd "${WORKDIR}"
     npx rimraf "${PACK_DIR}"
 

@@ -104,7 +104,7 @@ View.prototype[common.accessibilityComponentTypeProperty.setNative] = function a
 
 View.prototype[common.accessibilityLiveRegionProperty.getDefault] = function accessibilityLiveRegionGetDefault(this: View) {
   if (android.os.Build.VERSION.SDK_INT >= 19) {
-    const view = <any>getNativeView(this);
+    const view = getNativeView(this);
     if (!view) {
       return null;
     }

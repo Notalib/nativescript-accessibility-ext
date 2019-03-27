@@ -3,6 +3,8 @@
     "editor.formatOnSave": true
   },
   "files.exclude": {
+    "**/platforms": true,
+    "**/node_modules": true,
     "**/.git": true,
     "**/.svn": true,
     "**/.hg": true,
@@ -10,6 +12,9 @@
     "**/.DS_Store": true,
     "**/*.js": {
       "when": "$(basename).ts"
+    },
+    "**/*.css": {
+      "when": "$(basename).scss"
     }
   },
   "cSpell.words": [

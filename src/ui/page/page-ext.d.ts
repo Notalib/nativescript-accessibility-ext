@@ -1,4 +1,4 @@
-import { Page, EventData, Page } from 'tns-core-modules/ui/page';
+import { Page, EventData } from 'tns-core-modules/ui/page';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
 
 declare module 'tns-core-modules/ui/page' {

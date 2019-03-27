@@ -187,20 +187,14 @@ View.prototype[common.accessibleProperty.setNative] = function accessibleSetNati
   writeTrace(`View<${this}.android>.accessible = ${isAccessible}`);
 
   if (isAccessible) {
-    const accessibilityComponentType = this.accessibilityComponentType;
+    const accessibilityComponentType = this.accessibilityComponentType || AccessibilityHelper.ACCESSIBLE;
     writeTrace(`View<${this}.android>.accessible = ${isAccessible} -> accessibilityComponentType=${accessibilityComponentType}`);
 
-    if (!accessibilityComponentType) {
-      writeTrace(`View<${this}.android>.accessible = ${isAccessible} -> setting accessibilityComponentType to PLAIN`);
-
-      AccessibilityHelper.updateAccessibilityComponentType(this, view, AccessibilityHelper.ACCESSIBLE);
-    } else {
-      writeTrace(`View<${this}.android>.accessible = ${isAccessible} -> already have accessibilityComponentType`);
-      AccessibilityHelper.updateAccessibilityComponentType(this, view, accessibilityComponentType);
-    }
-  } else {
-    AccessibilityHelper.removeAccessibilityComponentType(view);
+    AccessibilityHelper.updateAccessibilityComponentType(this, view, accessibilityComponentType);
+    return;
   }
+
+  AccessibilityHelper.removeAccessibilityComponentType(view);
 };
 
 setViewFunction(View, common.androidFunctions.sendAccessibilityEvent, function sendAccessibilityEvent(this: View, eventName: string, msg?: string) {

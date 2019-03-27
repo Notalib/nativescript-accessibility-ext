@@ -1,18 +1,17 @@
+/// <reference path="./page-ext.d.ts" />
 import 'nativescript-globalevents';
 
 import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
 import { isAndroid, isIOS } from 'tns-core-modules/platform';
-import { Page, PageLoadedEventData } from 'tns-core-modules/ui/page';
+import { Page, PageEventData } from 'tns-core-modules/ui/page';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
 import { writeTrace } from '../../utils/helpers';
-
-import './page-ext';
 
 function fontScaleToCssClass(fontScale: number) {
   return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;
 }
 
-function loadedEventCb({ object: page }: PageLoadedEventData) {
+function loadedEventCb({ object: page }: PageEventData) {
   setupPageFontScaling(page);
 }
 

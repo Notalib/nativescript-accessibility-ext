@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
-import { PropertyChangeData } from 'data/observable';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as dialogs from 'tns-core-modules/ui/dialogs';
-
 @Component({
   selector: 'my-app',
   templateUrl: 'app.component.html',

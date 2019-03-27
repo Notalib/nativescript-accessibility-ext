@@ -6,47 +6,39 @@
   "nativescript": {
     "id": "dk.nota.a11ydemong",
     "tns-ios": {
-      "version": "5.1.0"
+      "version": "5.2.0"
     },
     "tns-android": {
-      "version": "5.1.0"
+      "version": "5.2.1"
     }
   },
-  "scripts": {
-    "ns-bundle": "ns-bundle",
-    "publish-ios-bundle": "npm run ns-bundle --ios --publish-app",
-    "generate-android-snapshot": "generate-android-snapshot --targetArchs arm,arm64,ia32 --install",
-    "start-android-bundle": "npm run ns-bundle --android --run-app",
-    "start-ios-bundle": "npm run ns-bundle --ios --run-app",
-    "build-android-bundle": "npm run ns-bundle --android --build-app",
-    "build-ios-bundle": "npm run ns-bundle --ios --build-app"
-  },
+  "scripts": {},
   "dependencies": {
-    "@angular/animations": "~7.1.0",
-    "@angular/common": "~7.1.0",
-    "@angular/compiler": "~7.1.0",
-    "@angular/core": "~7.1.0",
-    "@angular/forms": "~7.1.0",
-    "@angular/http": "~7.1.0",
-    "@angular/platform-browser": "~7.1.0",
-    "@angular/platform-browser-dynamic": "~7.1.0",
-    "@angular/router": "~7.1.0",
+    "@angular/animations": "~7.2.10",
+    "@angular/common": "~7.2.10",
+    "@angular/compiler": "~7.2.10",
+    "@angular/core": "~7.2.10",
+    "@angular/forms": "~7.2.10",
+    "@angular/http": "~7.2.10",
+    "@angular/platform-browser-dynamic": "~7.2.10",
+    "@angular/platform-browser": "~7.2.10",
+    "@angular/router": "~7.2.10",
     "@nota/nativescript-accessibility-ext": "file:../src",
-    "nativescript-angular": "^7.1.1",
-    "nativescript-globalevents": "^1.2.2",
-    "nativescript-theme-core": "^1.0.4",
+    "nativescript-angular": "~7.2.3",
+    "nativescript-globalevents": "~1.2.2",
+    "nativescript-theme-core": "~1.0.4",
     "reflect-metadata": "~0.1.13",
-    "rxjs": "^6.3.3",
-    "tns-core-modules": "^5.1.2",
+    "rxjs": "~6.4.0",
+    "tns-core-modules": "~5.2.2",
     "zone.js": "^0.8.27"
   },
   "devDependencies": {
-    "nativescript-dev-sass": "^1.6.0",
-    "nativescript-dev-typescript": "^0.7.9",
-    "nativescript-dev-webpack": "^0.19.0",
-    "tns-platform-declarations": "^5.1.2",
-    "typescript": "~3.1.6",
-    "@angular/compiler-cli": "~7.1.0",
-    "@ngtools/webpack": "~7.1.0"
+    "@angular/compiler-cli": "~7.2.10",
+    "@ngtools/webpack": "~7.2.0",
+    "nativescript-dev-sass": "^1.7.0",
+    "nativescript-dev-typescript": "^0.9.0",
+    "nativescript-dev-webpack": "^0.20.3",
+    "tns-platform-declarations": "~5.2.2",
+    "typescript": "~3.1.6"
   }
 }

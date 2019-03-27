@@ -44,8 +44,8 @@ export function setupPageFontScaling(page: Page) {
   page.className = [...page.cssClasses].join(' ');
 
   const setFontScaleClass = (fontScale: number) => {
-    const cls2 = `${cls}: setFontScaleClass:`;
-    writeTrace(`${cls2}: Got fontScale = ${fontScale}`);
+    const clsSetClass = `${cls}: setFontScaleClass:`;
+    writeTrace(`${clsSetClass}: Got fontScale = ${fontScale}`);
 
     const page = owner.get();
     if (!page) {
@@ -55,23 +55,23 @@ export function setupPageFontScaling(page: Page) {
 
     const newCssClass = fontScaleToCssClass(fontScale);
     if (page.cssClasses.has(newCssClass)) {
-      writeTrace(`${cls2}: '${newCssClass}' is already defined on page`);
+      writeTrace(`${clsSetClass}: '${newCssClass}' is already defined on page`);
       return;
     }
 
     for (const cssClass of fontScaleCssClasses) {
       if (cssClass === newCssClass) {
         page.cssClasses.add(cssClass);
-        writeTrace(`${cls2}: '${newCssClass}' added to page`);
+        writeTrace(`${clsSetClass}: '${newCssClass}' added to page`);
       } else if (page.cssClasses.has(cssClass)) {
         page.cssClasses.delete(cssClass);
-        writeTrace(`${cls2}: '${cssClass}' remove from page`);
+        writeTrace(`${clsSetClass}: '${cssClass}' remove from page`);
       }
     }
 
-    writeTrace(`${cls2}: before change: page.className='${page.className || ''}'`);
+    writeTrace(`${clsSetClass}: before change: page.className='${page.className || ''}'`);
     page.className = [...page.cssClasses].join(' ');
-    writeTrace(`${cls2}: page.className='${page.className || ''}'`);
+    writeTrace(`${clsSetClass}: page.className='${page.className || ''}'`);
   };
 
   const unloadedCb = () => {

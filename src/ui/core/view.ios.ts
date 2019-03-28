@@ -1,5 +1,5 @@
 import * as nsApp from 'tns-core-modules/application';
-import { AccessibilityTrait, View } from 'tns-core-modules/ui/core/view';
+import { View } from 'tns-core-modules/ui/core/view';
 import { inputArrayToBitMask, notifyAccessibilityFocusState, setViewFunction, writeTrace } from '../../utils/helpers';
 import * as common from './view-common';
 
@@ -198,7 +198,7 @@ View.prototype[common.accessibilityTraitsProperty.getDefault] = function accessi
 
 View.prototype[common.accessibilityTraitsProperty.setNative] = function accessibilityTraitsSetNative(
   this: View,
-  value: AccessibilityTrait | AccessibilityTrait[],
+  value: View.AccessibilityTrait | View.AccessibilityTrait[],
 ) {
   const view = getNativeView(this);
   if (!view) {
@@ -410,3 +410,7 @@ View.prototype[common.accessibilityHintProperty.setNative] = function accessibil
 
   view.accessibilityHint = value;
 };
+
+setViewFunction(View, common.commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: View) {
+  this.postAccessibilityNotification('screen');
+});

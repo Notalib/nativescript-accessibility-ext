@@ -4,7 +4,7 @@ import { setViewFunction, writeTrace } from '../../utils/helpers';
 import * as common from './view-common';
 
 function getNativeView(view: View): android.view.View {
-  return view.android;
+  return view.nativeView || view.nativeViewProtected;
 }
 
 View.prototype[common.importantForAccessibilityProperty.getDefault] = function importantForAccessibilityGetDefault(this: View) {
@@ -258,3 +258,7 @@ View.prototype[common.accessibilityLabelProperty.setNative] = function accessibi
     view.setContentDescription('');
   }
 };
+
+setViewFunction(View, common.commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: View) {
+  this.sendAccessibilityEvent('window_state_changed');
+});

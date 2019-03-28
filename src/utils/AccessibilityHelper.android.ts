@@ -310,9 +310,11 @@ export class AccessibilityHelper {
       writeTrace(`sendAccessibilityEvent: '${eventName}' text not provided uses androidView.getContentDescription()`);
     }
 
-    writeTrace(`sendAccessibilityEvent: send event: '${eventName}' with text: '${text}'`);
+    writeTrace(`sendAccessibilityEvent: send event: '${eventName}' with text: '${JSON.stringify(text)}'`);
 
-    a11yEvent.getText().add(text);
+    if (text) {
+      a11yEvent.getText().add(text);
+    }
 
     a11yService.sendAccessibilityEvent(a11yEvent);
   }

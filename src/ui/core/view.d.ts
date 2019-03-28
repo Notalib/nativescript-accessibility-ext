@@ -1,59 +1,6 @@
 import { EventData } from 'tns-core-modules/ui/core/view';
 
 declare module 'tns-core-modules/ui/core/view' {
-  enum AccessibilityTrait {
-    // The accessibility element has no traits.
-    None = 'none',
-
-    // The accessibility element should be treated as a button.
-    Button = 'button',
-
-    // The accessibility element should be treated as a link.
-    Link = 'link',
-
-    // The accessibility element should be treated as a search field.
-    SearchField = 'search',
-
-    // The accessibility element should be treated as an image.
-    Image = 'image',
-
-    // The accessibility element is currently selected.
-    Selected = 'selected',
-
-    // The accessibility element plays its own sound when activated.
-    PlaysSound = 'plays',
-
-    // The accessibility element behaves as a keyboard key.
-    KeybordKey = 'key',
-
-    // The accessibility element should be treated as static text that cannot change.
-    StaticText = 'text',
-
-    // The accessibility element provides summary information when the application starts.
-    SummaryElement = 'summary',
-
-    // The accessibility element is not enabled and does not respond to user interaction.
-    NotEnabled = 'disabled',
-
-    // The accessibility element frequently updates its label or value.
-    UpdatesFrequently = 'frequentUpdates',
-
-    // The accessibility element starts a media session when it is activated.
-    StartsMediaSession = 'startsMedia',
-
-    // The accessibility element allows continuous adjustment through a range of values.
-    Adjustable = 'adjustable',
-
-    // The accessibility element allows direct touch interaction for VoiceOver users.
-    AllowsDirectInteraction = 'allowsDirectInteraction',
-
-    // The accessibility element should cause an automatic page turn when VoiceOver finishes reading the text within it.
-    CausesPageTurn = 'pageTurn',
-
-    // The accessibility element is a header that divides content into sections, such as the title of a navigation bar.
-    Header = 'header',
-  }
-
   interface View {
     // Common for both platforms
 
@@ -65,7 +12,12 @@ declare module 'tns-core-modules/ui/core/view' {
     /**
      * Make an announcement to the screen reader.
      */
-    accessibilityAnnouncement(msg?: string);
+    accessibilityAnnouncement(msg?: string): void;
+
+    /**
+     * Announce screen changed. Used on Page.navigatedToEvent
+     */
+    accessibilityScreenChanged(): void;
 
     /**
      * Set the accessibility label on the element, this will be read by the screen reader inplace in any 'text' value the element has.
@@ -84,7 +36,7 @@ declare module 'tns-core-modules/ui/core/view' {
     sendAccessibilityEvent(eventName: string, text?: string);
 
     // iOS Specific
-    accessibilityTraits?: AccessibilityTrait | AccessibilityTrait[];
+    accessibilityTraits?: View.AccessibilityTrait | View.AccessibilityTrait[];
     accessibilityValue?: string;
     accessibilityElementsHidden?: boolean;
     accessibilityHint?: string;
@@ -108,17 +60,70 @@ declare module 'tns-core-modules/ui/core/view' {
      * Event triggered than the view looses the accessibility focus
      */
     let accessibilityBlurEvent: string;
-  
+
     /**
      * Event triggered than the view looses or receives the accessibility focus
      */
     let accessibilityFocusChangedEvent: string;
+
+    enum AccessibilityTrait {
+      // The accessibility element has no traits.
+      None = 'none',
+
+      // The accessibility element should be treated as a button.
+      Button = 'button',
+
+      // The accessibility element should be treated as a link.
+      Link = 'link',
+
+      // The accessibility element should be treated as a search field.
+      SearchField = 'search',
+
+      // The accessibility element should be treated as an image.
+      Image = 'image',
+
+      // The accessibility element is currently selected.
+      Selected = 'selected',
+
+      // The accessibility element plays its own sound when activated.
+      PlaysSound = 'plays',
+
+      // The accessibility element behaves as a keyboard key.
+      KeybordKey = 'key',
+
+      // The accessibility element should be treated as static text that cannot change.
+      StaticText = 'text',
+
+      // The accessibility element provides summary information when the application starts.
+      SummaryElement = 'summary',
+
+      // The accessibility element is not enabled and does not respond to user interaction.
+      NotEnabled = 'disabled',
+
+      // The accessibility element frequently updates its label or value.
+      UpdatesFrequently = 'frequentUpdates',
+
+      // The accessibility element starts a media session when it is activated.
+      StartsMediaSession = 'startsMedia',
+
+      // The accessibility element allows continuous adjustment through a range of values.
+      Adjustable = 'adjustable',
+
+      // The accessibility element allows direct touch interaction for VoiceOver users.
+      AllowsDirectInteraction = 'allowsDirectInteraction',
+
+      // The accessibility element should cause an automatic page turn when VoiceOver finishes reading the text within it.
+      CausesPageTurn = 'pageTurn',
+
+      // The accessibility element is a header that divides content into sections, such as the title of a navigation bar.
+      Header = 'header',
+    }
   }
 
   interface AccessibilityFocusEventData extends EventData {
     object: View;
   }
-  
+
   interface AccessibilityBlurEventData extends AccessibilityFocusEventData {}
 
   interface AccessibilityFocusChangedEventData extends AccessibilityFocusEventData {

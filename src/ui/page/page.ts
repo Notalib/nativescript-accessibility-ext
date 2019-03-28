@@ -1,6 +1,5 @@
 /// <reference path="./page-ext.d.ts" />
 import 'nativescript-globalevents';
-
 import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
 import { isAndroid, isIOS } from 'tns-core-modules/platform';
 import { Page, PageEventData } from 'tns-core-modules/ui/page';
@@ -112,5 +111,19 @@ export function setupPageFontScaling(page: Page) {
 }
 
 Page.on(Page.loadedEvent, loadedEventCb);
+
+Page.on(Page.navigatedToEvent, (args: PageEventData) => {
+  const page = args.object;
+
+  if (page.actionBarHidden || page.accessibilityLabel) {
+    page.accessibilityScreenChanged();
+  } else if (!page.actionBar.accessibilityLabel) {
+    page.actionBar.accessibilityLabel = page.actionBar.title;
+    page.actionBar.accessibilityScreenChanged();
+    page.actionBar.accessibilityLabel = null;
+  } else {
+    page.actionBar.accessibilityScreenChanged();
+  }
+});
 
 export { Page };

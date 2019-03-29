@@ -294,11 +294,11 @@ export class AccessibilityHelper {
     ensureAccessibilityEventMap();
 
     eventName = eventName.toLowerCase();
-    const eventInt = accessibilityEventMap.get(eventName);
-    if (eventInt === undefined) {
+    if (!accessibilityEventMap.has(eventName)) {
       writeTrace(`sendAccessibilityEvent: '${eventName}' is unknown`);
       return;
     }
+    const eventInt = accessibilityEventMap.get(eventName);
 
     const a11yEvent = AccessibilityEvent.obtain(eventInt);
     a11yEvent.setSource(androidView);

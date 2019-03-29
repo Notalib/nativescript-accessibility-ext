@@ -4,3 +4,4 @@ hooks/
 
 app/**/*.js
 
+*.css

@@ -234,7 +234,7 @@ View.prototype[common.accessibilityValueProperty.setNative] = function accessibi
     writeTrace(`View<${this}.ios>.accessibilityValue - ${value}`);
     view.accessibilityValue = `${value}`;
   } else {
-    writeTrace(`View<${this}.ios>.accessibilityValue - ${value} is falsy, set to null to remove value`);
+    writeTrace(`View<${this}.ios>.accessibilityValue - ${JSON.stringify(value)} is falsy, set to null to remove value`);
     view.accessibilityValue = null;
   }
 };
@@ -282,37 +282,41 @@ setViewFunction(View, common.iosFunctions.postAccessibilityNotification, functio
   notificationType: string,
   msg?: string,
 ) {
+  const cls = `View<${this}.ios>.postAccessibilityNotification("${notificationType}", "${msg}")`
   if (!notificationType) {
-    writeTrace(`View<${this}.ios>.postAccessibilityNotification(..) - falsy notificationType`);
+    writeTrace(`${cls} - falsy notificationType`);
     return;
   }
 
   ensurePostNotificationMap();
 
-  const notificationInt = postNotificationMap.get(notificationType.toLocaleLowerCase());
-  if (notificationInt !== undefined) {
-    let args: string | UIView;
-    if (typeof msg === 'string' && msg) {
-      args = msg;
-    } else {
-      args = getNativeView(this);
-    }
-
-    UIAccessibilityPostNotification(notificationInt, args || null);
-    writeTrace(`View<${this}.ios>.postAccessibilityNotification(..) - send ${notificationType} with ${args || null}`);
-  } else {
-    writeTrace(`View<${this}.ios>.postAccessibilityNotification(..) - ${notificationType} is known notificationType`);
+  notificationType = notificationType.toLowerCase();
+  if (!postNotificationMap.has(notificationType)) {
+    writeTrace(`${cls} - unknown notificationType`);
+    return;
   }
+
+  const notificationInt = postNotificationMap.get(notificationType);
+  let args: string | UIView | null;
+  if (typeof msg === 'string' && msg) {
+    args = msg;
+  } else {
+    args = getNativeView(this);
+  }
+
+  UIAccessibilityPostNotification(notificationInt, args || null);
+  writeTrace(`${cls} - send ${notificationInt} with ${args || null}`);
 });
 
 setViewFunction(View, common.commonFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
+  const cls = `View<${this}.ios>.accessibilityAnnouncement("${msg}")`;
   if (!msg) {
+    writeTrace(`${cls} - no msg, sending view.accessibilityLabel = ${this.accessibilityLabel} instead`);
     msg = this.accessibilityLabel;
-    writeTrace(`View<${this}.ios>.accessibilityAnnouncement(..) - no msg, sending view.accessibilityLabel = ${msg} instead`);
   }
 
+  writeTrace(`${cls} - sending ${msg}`);
   this.postAccessibilityNotification('announcement', msg);
-  writeTrace(`View<${this}.ios>.accessibilityAnnouncement(..) - sending ${msg}`);
 });
 
 View.prototype[common.accessibilityLabelProperty.getDefault] = function accessibilityLabelGetDefault(this: View) {
@@ -332,11 +336,12 @@ View.prototype[common.accessibilityLabelProperty.setNative] = function accessibi
     return;
   }
 
+  const cls = `View<${this}.ios>.accessibilityLabel = ${labsl}`
   if (label) {
-    writeTrace(`View<${this}.ios>.accessibilityLabel - ${label}`);
+    writeTrace(`${cls}`);
     view.accessibilityLabel = `${label}`;
   } else {
-    writeTrace(`View<${this}.ios>.accessibilityLabel - null`);
+    writeTrace(`${cls} - falsy value setting null`);
     view.accessibilityLabel = null;
   }
 };
@@ -357,12 +362,13 @@ View.prototype[common.accessibilityIdentifierProperty.setNative] = function acce
   if (!view) {
     return;
   }
+  const cls = `View<${this}.ios>.accessibilityIdentifier = ${identifier}`
 
   if (identifier) {
-    writeTrace(`View<${this}.ios>.accessibilityIdentifier - ${identifier}`);
+    writeTrace(`${cls}`);
     view.accessibilityIdentifier = `${identifier}`;
   } else {
-    writeTrace(`View<${this}.ios>.accessibilityIdentifier - null`);
+    writeTrace(`${cls} - falsy value setting null`);
     view.accessibilityIdentifier = null;
   }
 };
@@ -384,11 +390,12 @@ View.prototype[common.accessibilityLanguageProperty.setNative] = function access
     return;
   }
 
+  const cls = `View<${this}.ios>.accessibilityIdentifier = ${lang}`
   if (lang) {
-    writeTrace(`View<${this}.ios>.accessibilityLanguage - ${lang}`);
+    writeTrace(`${cls}`);
     view.accessibilityLanguage = lang;
   } else {
-    writeTrace(`View<${this}.ios>.accessibilityLanguage - null`);
+    writeTrace(`${cls} - falsy value setting null`);
     view.accessibilityLanguage = null;
   }
 };

@@ -8,6 +8,11 @@ declare module 'tns-core-modules/ui/page' {
 
   interface Page {
     fontScaleObservable?: FontScaleObservable | void;
+
+    /**
+     * Disable anounce page on `nagivatedTo`
+     */
+    disableAnnouncePage?: boolean;
   }
 
   namespace Page {
@@ -15,5 +20,10 @@ declare module 'tns-core-modules/ui/page' {
     function addEventListener(eventNames: string, callback: (data: PageEventData) => void, thisArg?: any): void;
     function off(eventNames: string, callback: (data: PageEventData) => void, thisArg?: any): void;
     function removeEventListener(eventNames: string, callback: (data: PageEventData) => void, thisArg?: any): void;
+
+    /**
+     * Disable anounce page on `nagivatedTo`
+     */
+    let disableAnnouncePage: boolean | void;
   }
 }

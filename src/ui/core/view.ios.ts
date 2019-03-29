@@ -282,7 +282,7 @@ setViewFunction(View, common.iosFunctions.postAccessibilityNotification, functio
   notificationType: string,
   msg?: string,
 ) {
-  const cls = `View<${this}.ios>.postAccessibilityNotification("${notificationType}", "${msg}")`
+  const cls = `View<${this}.ios>.postAccessibilityNotification("${notificationType}", "${msg}")`;
   if (!notificationType) {
     writeTrace(`${cls} - falsy notificationType`);
     return;
@@ -336,7 +336,7 @@ View.prototype[common.accessibilityLabelProperty.setNative] = function accessibi
     return;
   }
 
-  const cls = `View<${this}.ios>.accessibilityLabel = ${labsl}`
+  const cls = `View<${this}.ios>.accessibilityLabel = ${label}`;
   if (label) {
     writeTrace(`${cls}`);
     view.accessibilityLabel = `${label}`;
@@ -362,7 +362,7 @@ View.prototype[common.accessibilityIdentifierProperty.setNative] = function acce
   if (!view) {
     return;
   }
-  const cls = `View<${this}.ios>.accessibilityIdentifier = ${identifier}`
+  const cls = `View<${this}.ios>.accessibilityIdentifier = ${identifier}`;
 
   if (identifier) {
     writeTrace(`${cls}`);
@@ -390,7 +390,7 @@ View.prototype[common.accessibilityLanguageProperty.setNative] = function access
     return;
   }
 
-  const cls = `View<${this}.ios>.accessibilityIdentifier = ${lang}`
+  const cls = `View<${this}.ios>.accessibilityIdentifier = ${lang}`;
   if (lang) {
     writeTrace(`${cls}`);
     view.accessibilityLanguage = lang;

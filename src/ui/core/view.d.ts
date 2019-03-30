@@ -1,6 +1,8 @@
 import { EventData } from 'tns-core-modules/ui/core/view';
 
 declare module 'tns-core-modules/ui/core/view' {
+  type PostAccessibilityNotificationType = 'announcement' | 'screen' | 'layout';
+
   interface View {
     // Common for both platforms
 
@@ -46,7 +48,19 @@ declare module 'tns-core-modules/ui/core/view' {
      * Accepts language ID tags that follows the "BCP 47" specification.
      */
     accessibilityLanguage?: string;
-    postAccessibilityNotification(notificationType: string, args?: string);
+
+    /**
+     * iOS: post accessibility notification.
+     * type = 'announcement' will announce `args` via VoiceOver. If no args element will be announced instead.
+     */
+    postAccessibilityNotification(type: 'announcement', args?: string);
+
+    /**
+     * iOS: post accessibility notification.
+     * type = 'layout' used when the layout of a screen changes.
+     * type = 'screen' large change made to the screen.
+     */
+    postAccessibilityNotification(type: PostAccessibilityNotificationType);
   }
 
   // Adding static properties

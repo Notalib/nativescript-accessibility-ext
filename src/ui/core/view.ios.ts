@@ -1,5 +1,5 @@
 import * as nsApp from 'tns-core-modules/application';
-import { View } from 'tns-core-modules/ui/core/view';
+import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/core/view';
 import { inputArrayToBitMask, notifyAccessibilityFocusState, setViewFunction, writeTrace } from '../../utils/helpers';
 import * as common from './view-common';
 
@@ -264,22 +264,9 @@ View.prototype[common.accessibilityElementsHidden.setNative] = function accessib
   writeTrace(`View<${this}.ios>.accessibilityElementsHidden - ${!!isHidden}`);
 };
 
-let postNotificationMap: Map<string, number>;
-function ensurePostNotificationMap() {
-  if (postNotificationMap) {
-    return;
-  }
-
-  postNotificationMap = new Map<string, number>([
-    ['announcement', UIAccessibilityAnnouncementNotification],
-    ['layout', UIAccessibilityLayoutChangedNotification],
-    ['screen', UIAccessibilityScreenChangedNotification],
-  ]);
-}
-
 setViewFunction(View, common.iosFunctions.postAccessibilityNotification, function postAccessibilityNotification(
   this: View,
-  notificationType: string,
+  notificationType: PostAccessibilityNotificationType,
   msg?: string,
 ) {
   const cls = `View<${this}.ios>.postAccessibilityNotification("${notificationType}", "${msg}")`;
@@ -288,24 +275,33 @@ setViewFunction(View, common.iosFunctions.postAccessibilityNotification, functio
     return;
   }
 
-  ensurePostNotificationMap();
+  let notification: number;
+  let args: string | UIView | null = getNativeView(this);
+  switch (notificationType.toLowerCase()) {
+    case 'announcement': {
+      notification = UIAccessibilityAnnouncementNotification;
+      if (typeof msg === 'string' && msg) {
+        args = msg;
+      }
 
-  notificationType = notificationType.toLowerCase();
-  if (!postNotificationMap.has(notificationType)) {
-    writeTrace(`${cls} - unknown notificationType`);
-    return;
+      break;
+    }
+    case 'layout': {
+      notification = UIAccessibilityLayoutChangedNotification;
+      break;
+    }
+    case 'screen': {
+      notification = UIAccessibilityScreenChangedNotification;
+      break;
+    }
+    default: {
+      writeTrace(`${cls} - unknown notificationType`);
+      return;
+    }
   }
 
-  const notificationInt = postNotificationMap.get(notificationType);
-  let args: string | UIView | null;
-  if (typeof msg === 'string' && msg) {
-    args = msg;
-  } else {
-    args = getNativeView(this);
-  }
-
-  UIAccessibilityPostNotification(notificationInt, args || null);
-  writeTrace(`${cls} - send ${notificationInt} with ${args || null}`);
+  writeTrace(`${cls} - send ${notification} with ${args || null}`);
+  UIAccessibilityPostNotification(notification, args || null);
 });
 
 setViewFunction(View, common.commonFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {

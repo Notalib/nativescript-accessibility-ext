@@ -4,9 +4,8 @@ import 'nativescript-globalevents';
 import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
 import { isAndroid, isIOS } from 'tns-core-modules/platform';
 import { Page, PageEventData } from 'tns-core-modules/ui/page';
-import { commonFunctions } from '../../ui/core/view-common';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
-import { setViewFunction, writeTrace } from '../../utils/helpers';
+import { writeTrace } from '../../utils/helpers';
 
 function fontScaleToCssClass(fontScale: number) {
   return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;
@@ -125,16 +124,15 @@ Page.on(Page.navigatedToEvent, (args: PageEventData) => {
     return;
   }
 
-  page.accessibilityScreenChanged();
+  if (page.actionBarHidden || page.accessibilityLabel) {
+    page.accessibilityScreenChanged();
+  } else if (!page.actionBar.accessibilityLabel) {
+    page.actionBar.accessibilityLabel = page.actionBar.title;
+    page.actionBar.accessibilityScreenChanged();
+    page.actionBar.accessibilityLabel = null;
+  } else {
+    page.actionBar.accessibilityScreenChanged();
+  }
 });
 
 export { Page };
-
-setViewFunction(Page, commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: Page) {
-  const accessibilityLabel = this.accessibilityLabel || this.actionBar.accessibilityLabel || this.actionBar.title;
-  if (isAndroid) {
-    this.sendAccessibilityEvent('window_state_changed', accessibilityLabel);
-  } else if (isIOS) {
-    this.postAccessibilityNotification('screen', accessibilityLabel);
-  }
-});

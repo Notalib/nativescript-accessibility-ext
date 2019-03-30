@@ -275,19 +275,20 @@ export class AccessibilityHelper {
   }
 
   public static sendAccessibilityEvent(androidView: AndroidView, eventName: string, text?: string) {
+    const cls = `AccessibilityHelper.sendAccessibilityEvent(${androidView}, ${eventName}, ${text})`;
     if (!eventName) {
-      writeTrace(`sendAccessibilityEvent: no eventName provided`);
+      writeTrace(`${cls}: no eventName provided`);
       return;
     }
 
     if (!isAccessibilityServiceEnabled()) {
-      writeTrace(`sendAccessibilityEvent: ACCESSIBILITY_SERVICE is not enabled do nothing for ${eventName} -> ${text}`);
+      writeTrace(`${cls} - TalkBack not enabled`);
       return;
     }
 
     const a11yService = getAccessibilityManager(androidView);
     if (!a11yService.isEnabled()) {
-      writeTrace(`sendAccessibilityEvent: ACCESSIBILITY_SERVICE is not enabled do nothing for ${eventName} -> ${text}`);
+      writeTrace(`${cls} - a11yService not enabled`);
       return;
     }
 
@@ -295,7 +296,7 @@ export class AccessibilityHelper {
 
     eventName = eventName.toLowerCase();
     if (!accessibilityEventMap.has(eventName)) {
-      writeTrace(`sendAccessibilityEvent: '${eventName}' is unknown`);
+      writeTrace(`${cls} - unknown event`);
       return;
     }
     const eventInt = accessibilityEventMap.get(eventName);
@@ -307,10 +308,10 @@ export class AccessibilityHelper {
 
     if (!text) {
       text = androidView.getContentDescription();
-      writeTrace(`sendAccessibilityEvent: '${eventName}' text not provided uses androidView.getContentDescription()`);
+      writeTrace(`${cls} - text not provided use androidView.getContentDescription()`);
     }
 
-    writeTrace(`sendAccessibilityEvent: send event: '${eventName}' with text: '${JSON.stringify(text)}'`);
+    writeTrace(`${cls}: send event with text: '${JSON.stringify(text)}'`);
 
     if (text) {
       a11yEvent.getText().add(text);

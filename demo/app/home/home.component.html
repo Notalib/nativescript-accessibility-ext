@@ -1,20 +1,21 @@
-<ActionBar title="{N} accessibility" accessibilityLabel="{N} accessibility"  icon="" class="action-bar"></ActionBar>
+<ActionBar title="{N} accessibility" accessibilityLabel="{N} accessibility" class="action-bar"></ActionBar>
 
 <StackLayout class="p-20">
-  <StackLayout *ngIf="!screenReaderEnabled" class="text-center h1 grey">
-    <ios>
+  <ios>
+    <StackLayout *ngIf="!screenReaderEnabled" class="text-center h1 screen-reader">
       <Label text="You need to enable VoiceOver" textWrap="true"></Label>
-    </ios>
-    <android>
-      <Label text="You need to enable TalkBack" textWrap="true"></Label>
-    </android>
-  </StackLayout>
-  <StackLayout *ngIf="screenReaderEnabled" class="text-center h1 grey">
-    <ios>
+    </StackLayout>
+    <StackLayout *ngIf="screenReaderEnabled" class="text-center h1 screen-reader">
       <Label text="VoiceOver enabled" textWrap="true"></Label>
-    </ios>
-    <android>
+    </StackLayout>
+  </ios>
+
+  <android>
+    <StackLayout *ngIf="!screenReaderEnabled" class="text-center h1 screen-reader">
+      <Label text="You need to enable TalkBack" textWrap="true"></Label>
+    </StackLayout>
+    <StackLayout *ngIf="screenReaderEnabled" class="text-center h1 screen-reader">
       <Label text="TalkBack enabled" textWrap="true"></Label>
-    </android>
-  </StackLayout>
+    </StackLayout>
+  </android>
 </StackLayout>

@@ -7,4 +7,5 @@ export declare class AccessibilityHelper {
   static updateAccessibilityComponentType(tnsView: View, androidView: android.view.View, componentType: string): void;
   static removeAccessibilityComponentType(androidView: android.view.View): void;
   static sendAccessibilityEvent(androidView: android.view.View, eventName: string, text?: string): void;
+  static updateContentDescription(tnsView: View, androidView: android.view.View): void;
 }

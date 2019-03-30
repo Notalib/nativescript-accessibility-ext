@@ -22,9 +22,19 @@ declare module 'tns-core-modules/ui/core/view' {
     accessibilityScreenChanged(): void;
 
     /**
-     * Set the accessibility label on the element, this will be read by the screen reader inplace in any 'text' value the element has.
+     * Short description of the element, ideally one word.
      */
     accessibilityLabel?: string;
+
+    /**
+     *
+     */
+    accessibilityValue?: string;
+
+    /**
+     * A hint describes the elements behavior. Example: 'Tap change playback speed'
+     */
+    accessibilityHint?: string;
 
     /**
      * Set the elements unique accessibilityIdentifier.
@@ -39,9 +49,7 @@ declare module 'tns-core-modules/ui/core/view' {
 
     // iOS Specific
     accessibilityTraits?: View.AccessibilityTrait | View.AccessibilityTrait[];
-    accessibilityValue?: string;
     accessibilityElementsHidden?: boolean;
-    accessibilityHint?: string;
 
     /**
      * Sets the language in which to speak the element's label and value.
@@ -52,15 +60,10 @@ declare module 'tns-core-modules/ui/core/view' {
     /**
      * iOS: post accessibility notification.
      * type = 'announcement' will announce `args` via VoiceOver. If no args element will be announced instead.
-     */
-    postAccessibilityNotification(type: 'announcement', args?: string);
-
-    /**
-     * iOS: post accessibility notification.
      * type = 'layout' used when the layout of a screen changes.
      * type = 'screen' large change made to the screen.
      */
-    postAccessibilityNotification(type: PostAccessibilityNotificationType);
+    postAccessibilityNotification(type: PostAccessibilityNotificationType, args?: string);
   }
 
   // Adding static properties

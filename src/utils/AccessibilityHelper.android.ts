@@ -318,4 +318,44 @@ export class AccessibilityHelper {
 
     a11yService.sendAccessibilityEvent(a11yEvent);
   }
+
+  public static updateContentDescription(tnsView: TNSView, androidView: AndroidView) {
+    const cls = `AccessibilityHelper.updateContentDescription(${tnsView}, ${androidView}`;
+
+    let contentDescription = '';
+    let haveValue = false;
+    if (tnsView.accessibilityLabel) {
+      writeTrace(`${cls} - have accessibilityLabel`);
+      haveValue = true;
+      contentDescription += `${tnsView.accessibilityLabel}. `;
+    }
+
+    if (tnsView.accessibilityValue) {
+      writeTrace(`${cls} - have accessibilityValue`);
+      haveValue = true;
+      contentDescription += `${tnsView.accessibilityValue}. `;
+    }
+
+    if (tnsView.accessibilityHint) {
+      writeTrace(`${cls} - have accessibilityHint`);
+      haveValue = true;
+      contentDescription += `${tnsView.accessibilityHint}. `;
+    }
+
+    contentDescription = contentDescription.trim().replace(/^\.$/, '');
+
+    if (contentDescription !== androidView.getContentDescription()) {
+      if (haveValue) {
+        writeTrace(`${cls} - set to "${contentDescription}"`);
+        androidView.setContentDescription(contentDescription);
+      } else {
+        writeTrace(`${cls} - remove value`);
+        androidView.setContentDescription(null);
+      }
+    } else {
+      writeTrace(`${cls} - no change`);
+    }
+
+    return contentDescription;
+  }
 }

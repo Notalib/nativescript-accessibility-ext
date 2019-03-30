@@ -277,13 +277,13 @@ setViewFunction(View, common.iosFunctions.postAccessibilityNotification, functio
 
   let notification: number;
   let args: string | UIView | null = getNativeView(this);
+  if (typeof msg === 'string' && msg) {
+    args = msg;
+  }
+
   switch (notificationType.toLowerCase()) {
     case 'announcement': {
       notification = UIAccessibilityAnnouncementNotification;
-      if (typeof msg === 'string' && msg) {
-        args = msg;
-      }
-
       break;
     }
     case 'layout': {

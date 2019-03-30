@@ -231,32 +231,34 @@ setViewFunction(View, common.commonFunctions.accessibilityAnnouncement, function
   this.sendAccessibilityEvent('announcement', msg);
 });
 
-View.prototype[common.accessibilityLabelProperty.getDefault] = function accessibilityLabelGetDefault(this: View) {
-  const view = getNativeView(this);
-  if (!view) {
-    writeTrace(`View<${this}.android>.accessibilityLabel - default = nativeView is missing`);
-    return null;
-  }
-  writeTrace(`View<${this}.android>.accessibilityLabel - default`);
-
-  const label = view.getContentDescription();
-  writeTrace(`View<${this}.android>.accessibilityLabel - default = ${label}`);
-  return label;
-};
-
 View.prototype[common.accessibilityLabelProperty.setNative] = function accessibilityLabelSetNative(this: View, label: string) {
   const view = getNativeView(this);
   if (!view) {
     return;
   }
 
-  if (label) {
-    writeTrace(`View<${this}.android>.accessibilityLabel - ${label}`);
-    view.setContentDescription(`${label}`);
-  } else {
-    writeTrace(`View<${this}.android>.accessibilityLabel - empty string`);
-    view.setContentDescription('');
+  const newValue = AccessibilityHelper.updateContentDescription(this, view);
+  writeTrace(`View<${this}.android>.accessibilityLabel = ${label} - contentDesc = ${newValue}`);
+};
+
+View.prototype[common.accessibilityValueProperty.setNative] = function accessibilityLabelSetNative(this: View, value: string) {
+  const view = getNativeView(this);
+  if (!view) {
+    return;
   }
+
+  const newValue = AccessibilityHelper.updateContentDescription(this, view);
+  writeTrace(`View<${this}.android>.accessibilityValue = ${value} - contentDesc = ${newValue}`);
+};
+
+View.prototype[common.accessibilityHintProperty.setNative] = function accessibilityLabelSetNative(this: View, hint: string) {
+  const view = getNativeView(this);
+  if (!view) {
+    return;
+  }
+
+  const newValue = AccessibilityHelper.updateContentDescription(this, view);
+  writeTrace(`View<${this}.android>.accessibilityHint = ${hint} - contentDesc = ${newValue}`);
 };
 
 setViewFunction(View, common.commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: View) {

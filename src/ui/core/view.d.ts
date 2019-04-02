@@ -83,6 +83,12 @@ declare module 'tns-core-modules/ui/core/view' {
      */
     let accessibilityFocusChangedEvent: string;
 
+    function on(event: string, callback: (data: EventData) => void, thisArg?: any);
+    function once(event: string, callback: (data: EventData) => void, thisArg?: any);
+    function off(eventNames: string, callback?: any, thisArg?: any);
+    function addEventListener(eventNames: string, callback: (data: EventData) => void, thisArg?: any);
+    function removeEventListener(eventNames: string, callback?: any, thisArg?: any);
+
     enum AccessibilityTrait {
       /**
        * The accessibility element has no traits.

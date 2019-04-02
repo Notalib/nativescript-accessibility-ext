@@ -75,7 +75,6 @@
   "homepage": "https://github.com/Notalib/nativescript-accessibility-ext/#readme",
   "readmeFilename": "README.md",
   "devDependencies": {
-    "nativescript-globalevents": "^1.2.2",
     "node-sass": "^4.11.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^1.16.4",
@@ -88,8 +87,7 @@
     "typescript": "~3.1.6"
   },
   "peerDependencies": {
-    "tns-core-modules": "^5.2.2",
-    "nativescript-globalevents": "^1.2.2"
+    "tns-core-modules": "^5.2.2"
   },
   "dependencies": {},
   "bootstrapper": "nativescript-plugin-seed"

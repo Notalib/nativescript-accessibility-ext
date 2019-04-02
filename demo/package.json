@@ -23,7 +23,6 @@
     "@angular/router": "~7.2.0",
     "@nota/nativescript-accessibility-ext": "file:../src",
     "nativescript-angular": "~7.2.3",
-    "nativescript-globalevents": "^1.2.2",
     "nativescript-theme-core": "~1.0.4",
     "reflect-metadata": "~0.1.12",
     "rxjs": "~6.4.0",

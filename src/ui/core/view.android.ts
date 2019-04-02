@@ -222,10 +222,13 @@ setViewFunction(View, common.androidFunctions.sendAccessibilityEvent, function s
 });
 
 setViewFunction(View, common.commonFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
-  writeTrace(`View<${this}.android>.accessibilityAnnouncement(..) -> ${msg}`);
+  const cls = `View<${this}.android>.accessibilityAnnouncement(${JSON.stringify(msg)})`;
+  writeTrace(cls);
+
   if (!msg) {
     msg = this.accessibilityLabel;
-    writeTrace(`View<${this}.android>.accessibilityAnnouncement(..) - no msg, sending view.accessibilityLabel = '${msg}' instead`);
+
+    writeTrace(`${cls} - no msg sending accessibilityLabel = ${JSON.stringify(this.accessibilityLabel)} instead`);
   }
 
   this.sendAccessibilityEvent('announcement', msg);
@@ -238,7 +241,7 @@ View.prototype[common.accessibilityLabelProperty.setNative] = function accessibi
   }
 
   const newValue = AccessibilityHelper.updateContentDescription(this, view);
-  writeTrace(`View<${this}.android>.accessibilityLabel = ${label} - contentDesc = ${newValue}`);
+  writeTrace(`View<${this}.android>.accessibilityLabel = "${label}" - contentDesc = "${newValue}"`);
 };
 
 View.prototype[common.accessibilityValueProperty.setNative] = function accessibilityLabelSetNative(this: View, value: string) {
@@ -248,7 +251,7 @@ View.prototype[common.accessibilityValueProperty.setNative] = function accessibi
   }
 
   const newValue = AccessibilityHelper.updateContentDescription(this, view);
-  writeTrace(`View<${this}.android>.accessibilityValue = ${value} - contentDesc = ${newValue}`);
+  writeTrace(`View<${this}.android>.accessibilityValue = "${value}" - contentDesc = "${newValue}"`);
 };
 
 View.prototype[common.accessibilityHintProperty.setNative] = function accessibilityLabelSetNative(this: View, hint: string) {
@@ -258,7 +261,7 @@ View.prototype[common.accessibilityHintProperty.setNative] = function accessibil
   }
 
   const newValue = AccessibilityHelper.updateContentDescription(this, view);
-  writeTrace(`View<${this}.android>.accessibilityHint = ${hint} - contentDesc = ${newValue}`);
+  writeTrace(`View<${this}.android>.accessibilityHint = "${hint}" - contentDesc = "${newValue}"`);
 };
 
 setViewFunction(View, common.commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: View) {

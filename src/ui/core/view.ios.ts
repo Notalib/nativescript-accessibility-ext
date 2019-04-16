@@ -25,13 +25,13 @@ const accessibilityHadFocusSymbol = Symbol.for('ios:accessibilityHadFocusSymbol'
  * Wrapper for setting up accessibility focus events for iOS9+
  * NOTE: This isn't supported on iOS8
  *
- * If the UIView changes from accessible = true to accessible = false, event will be remove
+ * If the UIView changes from accessible = true to accessible = false, event will be removed
  *
  * @param {View} tnsView        NativeScript View
  * @param {boolean} isAccessible  is element marked as accessible
  */
-function handleUIAccessibilityElementFocusedNotification(tnsView: View, isAccessible: boolean) {
-  const cls = `handleUIAccessibilityElementFocusedNotification(${tnsView}, ${isAccessible})`;
+function setupAccessibilityFocusEvents(tnsView: View, isAccessible: boolean) {
+  const cls = `setupAccessibilityFocusEvents(${tnsView}, ${isAccessible})`;
   if (typeof UIAccessibilityElementFocusedNotification === 'undefined') {
     writeTrace(`${cls}: UIAccessibilityElementFocusedNotification is not supported by this iOS version`);
     return;
@@ -105,7 +105,7 @@ View.prototype[common.accessibleProperty.setNative] = function accessibleSetNati
   view.isAccessibilityElement = !!isAccessible;
   writeTrace(`View<${this}.ios>.accessible = ${isAccessible}`);
 
-  handleUIAccessibilityElementFocusedNotification(this, isAccessible);
+  setupAccessibilityFocusEvents(this, isAccessible);
 };
 
 let traits: Map<string, number>;

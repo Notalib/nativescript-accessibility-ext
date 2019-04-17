@@ -254,6 +254,11 @@ module.exports = env => {
                 { from: { glob: "fonts/**" } },
                 { from: { glob: "**/*.jpg" } },
                 { from: { glob: "**/*.png" } },
+                {
+                  from: resolve(__dirname, 'node_modules/@nota/nativescript-accessibility-ext/css/'),
+                  to: 'assets/a11y-css/',
+                  toType: 'dir',
+                },
             ], { ignore: [`${relative(appPath, appResourcesFullPath)}/**`] }),
             // Generate a bundle starter script and activate it in package.json
             new nsWebpack.GenerateBundleStarterPlugin([

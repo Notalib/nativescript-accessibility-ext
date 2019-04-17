@@ -27,7 +27,7 @@ declare module 'tns-core-modules/ui/core/view' {
     accessibilityLabel?: string;
 
     /**
-     *
+     * Current value of the element in a localized string.
      */
     accessibilityValue?: string;
 

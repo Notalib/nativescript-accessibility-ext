@@ -323,27 +323,30 @@ export class AccessibilityHelper {
   public static updateContentDescription(tnsView: TNSView, androidView: AndroidView) {
     const cls = `AccessibilityHelper.updateContentDescription(${tnsView}, ${androidView}`;
 
-    let contentDescription = '';
+    let contentDescriptionBuilder: string[] = [];
     let haveValue = false;
     if (tnsView.accessibilityLabel) {
       writeTrace(`${cls} - have accessibilityLabel`);
       haveValue = true;
-      contentDescription += `${tnsView.accessibilityLabel}. `;
+      contentDescriptionBuilder.push(`${tnsView.accessibilityLabel}. `);
     }
 
     if (tnsView.accessibilityValue) {
       writeTrace(`${cls} - have accessibilityValue`);
       haveValue = true;
-      contentDescription += `${tnsView.accessibilityValue}. `;
+      contentDescriptionBuilder.push(`${tnsView.accessibilityValue}. `);
     }
 
     if (tnsView.accessibilityHint) {
       writeTrace(`${cls} - have accessibilityHint`);
       haveValue = true;
-      contentDescription += `${tnsView.accessibilityHint}. `;
+      contentDescriptionBuilder.push(`${tnsView.accessibilityHint}. `);
     }
 
-    contentDescription = contentDescription.trim().replace(/^\.$/, '');
+    const contentDescription = contentDescriptionBuilder
+      .join('')
+      .trim()
+      .replace(/^\.$/, '');
 
     if (contentDescription !== androidView.getContentDescription()) {
       if (haveValue) {

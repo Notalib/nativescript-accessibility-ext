@@ -4,7 +4,7 @@ import { setViewFunction, writeTrace } from '../../utils/helpers';
 import * as common from './view-common';
 
 function getNativeView(view: View): android.view.View {
-  return view.android;
+  return view.nativeView || view.nativeViewProtected;
 }
 
 View.prototype[common.importantForAccessibilityProperty.getDefault] = function importantForAccessibilityGetDefault(this: View) {
@@ -19,7 +19,7 @@ View.prototype[common.importantForAccessibilityProperty.getDefault] = function i
     return 'auto';
   }
 
-  if (android.os.Build.VERSION.SDK_INT >= 19 && value === (<any>android.view.View).IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {
+  if (android.os.Build.VERSION.SDK_INT >= 19 && value === android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {
     writeTrace(`View<${this}.android>.importantForAccessibility - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS`);
     return 'no-hide-descendants';
   }
@@ -57,7 +57,7 @@ View.prototype[common.importantForAccessibilityProperty.setNative] = function im
   switch (value.toLowerCase()) {
     case 'no-hide-descendants': {
       if (android.os.Build.VERSION.SDK_INT >= 19) {
-        view.setImportantForAccessibility((<any>android.view.View).IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+        view.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
         writeTrace(
           `View<${this}.android>.importantForAccessibility - value: ${value}. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS`,
         );
@@ -104,7 +104,7 @@ View.prototype[common.accessibilityComponentTypeProperty.setNative] = function a
 
 View.prototype[common.accessibilityLiveRegionProperty.getDefault] = function accessibilityLiveRegionGetDefault(this: View) {
   if (android.os.Build.VERSION.SDK_INT >= 19) {
-    const view = <any>getNativeView(this);
+    const view = getNativeView(this);
     if (!view) {
       return null;
     }
@@ -115,12 +115,12 @@ View.prototype[common.accessibilityLiveRegionProperty.getDefault] = function acc
       return 'none';
     }
 
-    if (value === (<any>android.view.View).ACCESSIBILITY_LIVE_REGION_ASSERTIVE) {
+    if (value === android.view.View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE) {
       writeTrace(`View<${this}.android>.accessibilityLiveRegion - default - 'assertive'`);
       return 'assertive';
     }
 
-    if (value === (<any>android.view.View).ACCESSIBILITY_LIVE_REGION_POLITE) {
+    if (value === android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE) {
       writeTrace(`View<${this}.android>.accessibilityLiveRegion - default - 'polite'`);
       return 'polite';
     }
@@ -133,24 +133,24 @@ View.prototype[common.accessibilityLiveRegionProperty.getDefault] = function acc
 
 View.prototype[common.accessibilityLiveRegionProperty.setNative] = function accessibilityLiveRegionSetNative(this: View, value: string) {
   if (android.os.Build.VERSION.SDK_INT >= 19) {
-    const view = <any>getNativeView(this);
+    const view = getNativeView(this);
     if (!view) {
       return;
     }
 
     switch (value.toLowerCase()) {
       case 'assertive': {
-        view.setAccessibilityLiveRegion((<any>android.view.View).ACCESSIBILITY_LIVE_REGION_ASSERTIVE);
+        view.setAccessibilityLiveRegion(android.view.View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE);
         writeTrace(`View<${this}.android>.accessibilityLiveRegion - value: ${value}. Sets to android.view.View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE`);
         break;
       }
       case 'polite': {
-        view.setAccessibilityLiveRegion((<any>android.view.View).ACCESSIBILITY_LIVE_REGION_POLITE);
+        view.setAccessibilityLiveRegion(android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE);
         writeTrace(`View<${this}.android>.accessibilityLiveRegion - value: ${value}. Sets to android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE`);
         break;
       }
       default: {
-        view.setAccessibilityLiveRegion((<any>android.view.View).ACCESSIBILITY_LIVE_REGION_NONE);
+        view.setAccessibilityLiveRegion(android.view.View.ACCESSIBILITY_LIVE_REGION_NONE);
         writeTrace(`View<${this}.android>.accessibilityLiveRegion - value: ${value}. Sets to android.view.View.ACCESSIBILITY_LIVE_REGION_NONE`);
         break;
       }
@@ -187,68 +187,52 @@ View.prototype[common.accessibleProperty.setNative] = function accessibleSetNati
   writeTrace(`View<${this}.android>.accessible = ${isAccessible}`);
 
   if (isAccessible) {
-    const accessibilityComponentType = this.accessibilityComponentType;
+    const accessibilityComponentType = this.accessibilityComponentType || AccessibilityHelper.ACCESSIBLE;
     writeTrace(`View<${this}.android>.accessible = ${isAccessible} -> accessibilityComponentType=${accessibilityComponentType}`);
 
-    if (!accessibilityComponentType) {
-      writeTrace(`View<${this}.android>.accessible = ${isAccessible} -> setting accessibilityComponentType to PLAIN`);
-
-      AccessibilityHelper.updateAccessibilityComponentType(this, view, AccessibilityHelper.ACCESSIBLE);
-    } else {
-      writeTrace(`View<${this}.android>.accessible = ${isAccessible} -> already have accessibilityComponentType`);
-      AccessibilityHelper.updateAccessibilityComponentType(this, view, accessibilityComponentType);
-    }
-  } else {
-    AccessibilityHelper.removeAccessibilityComponentType(view);
+    AccessibilityHelper.updateAccessibilityComponentType(this, view, accessibilityComponentType);
+    return;
   }
+
+  AccessibilityHelper.removeAccessibilityComponentType(view);
 };
 
 setViewFunction(View, common.androidFunctions.sendAccessibilityEvent, function sendAccessibilityEvent(this: View, eventName: string, msg?: string) {
+  const cls = `View<${this}.android>.sendAccessibilityEvent(${eventName} -> ${msg})`;
+
   const view = getNativeView(this);
   if (view) {
-    writeTrace(`View<${this}.android>.sendAccessibilityEvent(..) -> ${eventName} -> ${msg}`);
+    writeTrace(`${cls}`);
     AccessibilityHelper.sendAccessibilityEvent(view, eventName, msg);
-  } else {
-    writeTrace(`View<${this}.android>.sendAccessibilityEvent(..) -> waiting for view to be loaded`);
-
-    const loadedFn = () => {
-      const view = getNativeView(this);
-      if (view) {
-        writeTrace(`View<${this}.android>.sendAccessibilityEvent(..) -> view loaded -> ${eventName} -> ${msg}`);
-        AccessibilityHelper.sendAccessibilityEvent(view, eventName, msg);
-      } else {
-        writeTrace(`View<${this}.android>.sendAccessibilityEvent(..) -> view not loaded -> ${eventName} -> ${msg}`);
-      }
-
-      this.off(View.loadedEvent, loadedFn);
-    };
-
-    this.on(View.loadedEvent, loadedFn);
+    return;
   }
+
+  writeTrace(`${cls} -> waiting for view to be loaded`);
+
+  this.once(View.loadedEvent, () => {
+    const view = getNativeView(this);
+    if (!view) {
+      writeTrace(`${cls} -> view not loaded -> ${eventName} -> ${msg}`);
+      return;
+    }
+
+    writeTrace(`${cls} -> view loaded -> ${eventName} -> ${msg}`);
+    AccessibilityHelper.sendAccessibilityEvent(view, eventName, msg);
+  });
 });
 
 setViewFunction(View, common.commonFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
-  writeTrace(`View<${this}.android>.accessibilityAnnouncement(..) -> ${msg}`);
+  const cls = `View<${this}.android>.accessibilityAnnouncement(${JSON.stringify(msg)})`;
+  writeTrace(cls);
+
   if (!msg) {
     msg = this.accessibilityLabel;
-    writeTrace(`View<${this}.android>.accessibilityAnnouncement(..) - no msg, sending view.accessibilityLabel = '${msg}' instead`);
+
+    writeTrace(`${cls} - no msg sending accessibilityLabel = ${JSON.stringify(this.accessibilityLabel)} instead`);
   }
 
   this.sendAccessibilityEvent('announcement', msg);
 });
-
-View.prototype[common.accessibilityLabelProperty.getDefault] = function accessibilityLabelGetDefault(this: View) {
-  const view = getNativeView(this);
-  if (!view) {
-    writeTrace(`View<${this}.android>.accessibilityLabel - default = nativeView is missing`);
-    return null;
-  }
-  writeTrace(`View<${this}.android>.accessibilityLabel - default`);
-
-  const label = view.getContentDescription();
-  writeTrace(`View<${this}.android>.accessibilityLabel - default = ${label}`);
-  return label;
-};
 
 View.prototype[common.accessibilityLabelProperty.setNative] = function accessibilityLabelSetNative(this: View, label: string) {
   const view = getNativeView(this);
@@ -256,11 +240,30 @@ View.prototype[common.accessibilityLabelProperty.setNative] = function accessibi
     return;
   }
 
-  if (label) {
-    writeTrace(`View<${this}.android>.accessibilityLabel - ${label}`);
-    view.setContentDescription(`${label}`);
-  } else {
-    writeTrace(`View<${this}.android>.accessibilityLabel - empty string`);
-    view.setContentDescription('');
-  }
+  const newValue = AccessibilityHelper.updateContentDescription(this, view);
+  writeTrace(`View<${this}.android>.accessibilityLabel = "${label}" - contentDesc = "${newValue}"`);
 };
+
+View.prototype[common.accessibilityValueProperty.setNative] = function accessibilityLabelSetNative(this: View, value: string) {
+  const view = getNativeView(this);
+  if (!view) {
+    return;
+  }
+
+  const newValue = AccessibilityHelper.updateContentDescription(this, view);
+  writeTrace(`View<${this}.android>.accessibilityValue = "${value}" - contentDesc = "${newValue}"`);
+};
+
+View.prototype[common.accessibilityHintProperty.setNative] = function accessibilityLabelSetNative(this: View, hint: string) {
+  const view = getNativeView(this);
+  if (!view) {
+    return;
+  }
+
+  const newValue = AccessibilityHelper.updateContentDescription(this, view);
+  writeTrace(`View<${this}.android>.accessibilityHint = "${hint}" - contentDesc = "${newValue}"`);
+};
+
+setViewFunction(View, common.commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: View) {
+  this.sendAccessibilityEvent('window_state_changed');
+});

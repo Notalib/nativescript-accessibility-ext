@@ -1,10 +1,9 @@
 /// <reference path="./page-ext.d.ts" />
-import 'nativescript-globalevents';
-
 import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
 import { isAndroid, isIOS } from 'tns-core-modules/platform';
 import { Page, PageEventData } from 'tns-core-modules/ui/page';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
+import '../../utils/global-events';
 import { writeTrace } from '../../utils/helpers';
 
 function fontScaleToCssClass(fontScale: number) {
@@ -44,8 +43,8 @@ export function setupPageFontScaling(page: Page) {
   page.className = [...page.cssClasses].join(' ');
 
   const setFontScaleClass = (fontScale: number) => {
-    const cls2 = `${cls}: setFontScaleClass:`;
-    writeTrace(`${cls2}: Got fontScale = ${fontScale}`);
+    const clsSetClass = `${cls}: setFontScaleClass`;
+    writeTrace(`${clsSetClass}: Got fontScale = ${fontScale}`);
 
     const page = owner.get();
     if (!page) {
@@ -53,25 +52,24 @@ export function setupPageFontScaling(page: Page) {
       return;
     }
 
-    const newCssClass = fontScaleToCssClass(fontScale);
-    if (page.cssClasses.has(newCssClass)) {
-      writeTrace(`${cls2}: '${newCssClass}' is already defined on page`);
-      return;
-    }
+    const oldClassNames = page.className || '';
 
+    const newCssClass = fontScaleToCssClass(fontScale);
     for (const cssClass of fontScaleCssClasses) {
       if (cssClass === newCssClass) {
         page.cssClasses.add(cssClass);
-        writeTrace(`${cls2}: '${newCssClass}' added to page`);
+        writeTrace(`${clsSetClass}: '${newCssClass}' added to page`);
       } else if (page.cssClasses.has(cssClass)) {
         page.cssClasses.delete(cssClass);
-        writeTrace(`${cls2}: '${cssClass}' remove from page`);
+        writeTrace(`${clsSetClass}: '${cssClass}' remove from page`);
       }
     }
 
-    writeTrace(`${cls2}: before change: page.className='${page.className || ''}'`);
-    page.className = [...page.cssClasses].join(' ');
-    writeTrace(`${cls2}: page.className='${page.className || ''}'`);
+    const newClassNames = [...page.cssClasses].join(' ');
+    if (oldClassNames !== newClassNames) {
+      writeTrace(`${clsSetClass}: change from '${oldClassNames}' to '${newClassNames}'`);
+      page.className = newClassNames;
+    }
   };
 
   const unloadedCb = () => {
@@ -83,11 +81,12 @@ export function setupPageFontScaling(page: Page) {
   const removeListener = () => {
     fontScaleObservable.off(Observable.propertyChangeEvent, cb);
     const page = owner.get();
-    if (page) {
-      delete page.fontScaleObservable;
-
-      page.off(Page.unloadedEvent, unloadedCb);
+    if (!page) {
+      return;
     }
+
+    delete page.fontScaleObservable;
+    page.off(Page.unloadedEvent, unloadedCb);
   };
 
   const cb = (args: PropertyChangeData) => {
@@ -98,11 +97,12 @@ export function setupPageFontScaling(page: Page) {
       return;
     }
 
-    if (args.propertyName === FontScaleObservable.FONT_SCALE) {
-      writeTrace(`${cls}: ${FontScaleObservable.FONT_SCALE} changed to ${args.value}`);
-
-      setFontScaleClass(args.value);
+    if (args.propertyName !== FontScaleObservable.FONT_SCALE) {
+      return;
     }
+
+    writeTrace(`${cls}: ${FontScaleObservable.FONT_SCALE} changed to ${args.value}`);
+    setFontScaleClass(args.value);
   };
 
   fontScaleObservable.on(Observable.propertyChangeEvent, cb);
@@ -112,5 +112,26 @@ export function setupPageFontScaling(page: Page) {
 }
 
 Page.on(Page.loadedEvent, loadedEventCb);
+
+Page.on(Page.navigatedToEvent, (args: PageEventData) => {
+  if (Page.disableAnnouncePage) {
+    return;
+  }
+  const page = args.object;
+
+  if (page.disableAnnouncePage) {
+    return;
+  }
+
+  if (page.actionBarHidden || page.accessibilityLabel) {
+    page.accessibilityScreenChanged();
+  } else if (!page.actionBar.accessibilityLabel) {
+    page.actionBar.accessibilityLabel = page.actionBar.title;
+    page.actionBar.accessibilityScreenChanged();
+    page.actionBar.accessibilityLabel = null;
+  } else {
+    page.actionBar.accessibilityScreenChanged();
+  }
+});
 
 export { Page };

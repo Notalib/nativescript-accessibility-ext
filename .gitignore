@@ -34,3 +34,4 @@ src/css
 src/*.d.ts
 *.aar
 *.tgz
+!webpack.config.js

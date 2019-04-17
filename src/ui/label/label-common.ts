@@ -1,8 +1,6 @@
+/// <reference path="./label.d.ts" />
 import { Label } from 'tns-core-modules/ui/label';
-import { addPropertyToView } from '../../utils/helpers';
+import { addBooleanPropertyToView } from '../../utils/helpers';
 import '../core/view';
 
-export const accessibilityAdjustsFontSizeProperty = addPropertyToView<Label, boolean>(Label, 'accessibilityAdjustsFontSize');
-
-export { Property } from 'tns-core-modules/ui/core/properties/properties';
-export { Label } from 'tns-core-modules/ui/label';
+export const accessibilityAdjustsFontSizeProperty = addBooleanPropertyToView<Label>(Label, 'accessibilityAdjustsFontSize', false);

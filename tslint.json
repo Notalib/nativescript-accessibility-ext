@@ -1,6 +1,8 @@
 {
     "linterOptions": {
         "exclude": [
+            "**/platforms",
+            "**/node_modules",
             "**/*.d.ts"
         ]
     },

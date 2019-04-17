@@ -1,5 +1,5 @@
 import * as nsApp from 'tns-core-modules/application';
-import { AccessibilityTrait, View } from 'tns-core-modules/ui/core/view';
+import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/core/view';
 import { inputArrayToBitMask, notifyAccessibilityFocusState, setViewFunction, writeTrace } from '../../utils/helpers';
 import * as common from './view-common';
 
@@ -198,7 +198,7 @@ View.prototype[common.accessibilityTraitsProperty.getDefault] = function accessi
 
 View.prototype[common.accessibilityTraitsProperty.setNative] = function accessibilityTraitsSetNative(
   this: View,
-  value: AccessibilityTrait | AccessibilityTrait[],
+  value: View.AccessibilityTrait | View.AccessibilityTrait[],
 ) {
   const view = getNativeView(this);
   if (!view) {
@@ -234,7 +234,7 @@ View.prototype[common.accessibilityValueProperty.setNative] = function accessibi
     writeTrace(`View<${this}.ios>.accessibilityValue - ${value}`);
     view.accessibilityValue = `${value}`;
   } else {
-    writeTrace(`View<${this}.ios>.accessibilityValue - ${value} is falsy, set to null to remove value`);
+    writeTrace(`View<${this}.ios>.accessibilityValue - ${JSON.stringify(value)} is falsy, set to null to remove value`);
     view.accessibilityValue = null;
   }
 };
@@ -264,55 +264,55 @@ View.prototype[common.accessibilityElementsHidden.setNative] = function accessib
   writeTrace(`View<${this}.ios>.accessibilityElementsHidden - ${!!isHidden}`);
 };
 
-let postNotificationMap: Map<string, number>;
-function ensurePostNotificationMap() {
-  if (postNotificationMap) {
-    return;
-  }
-
-  postNotificationMap = new Map<string, number>([
-    ['announcement', UIAccessibilityAnnouncementNotification],
-    ['layout', UIAccessibilityLayoutChangedNotification],
-    ['screen', UIAccessibilityScreenChangedNotification],
-  ]);
-}
-
 setViewFunction(View, common.iosFunctions.postAccessibilityNotification, function postAccessibilityNotification(
   this: View,
-  notificationType: string,
+  notificationType: PostAccessibilityNotificationType,
   msg?: string,
 ) {
+  const cls = `View<${this}.ios>.postAccessibilityNotification("${notificationType}", "${msg}")`;
   if (!notificationType) {
-    writeTrace(`View<${this}.ios>.postAccessibilityNotification(..) - falsy notificationType`);
+    writeTrace(`${cls} - falsy notificationType`);
     return;
   }
 
-  ensurePostNotificationMap();
-
-  const notificationInt = postNotificationMap.get(notificationType.toLocaleLowerCase());
-  if (notificationInt !== undefined) {
-    let args: string | UIView;
-    if (typeof msg === 'string' && msg) {
-      args = msg;
-    } else {
-      args = getNativeView(this);
-    }
-
-    UIAccessibilityPostNotification(notificationInt, args || null);
-    writeTrace(`View<${this}.ios>.postAccessibilityNotification(..) - send ${notificationType} with ${args || null}`);
-  } else {
-    writeTrace(`View<${this}.ios>.postAccessibilityNotification(..) - ${notificationType} is known notificationType`);
+  let notification: number;
+  let args: string | UIView | null = getNativeView(this);
+  if (typeof msg === 'string' && msg) {
+    args = msg;
   }
+
+  switch (notificationType.toLowerCase()) {
+    case 'announcement': {
+      notification = UIAccessibilityAnnouncementNotification;
+      break;
+    }
+    case 'layout': {
+      notification = UIAccessibilityLayoutChangedNotification;
+      break;
+    }
+    case 'screen': {
+      notification = UIAccessibilityScreenChangedNotification;
+      break;
+    }
+    default: {
+      writeTrace(`${cls} - unknown notificationType`);
+      return;
+    }
+  }
+
+  writeTrace(`${cls} - send ${notification} with ${args || null}`);
+  UIAccessibilityPostNotification(notification, args || null);
 });
 
 setViewFunction(View, common.commonFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
+  const cls = `View<${this}.ios>.accessibilityAnnouncement("${msg}")`;
   if (!msg) {
+    writeTrace(`${cls} - no msg, sending view.accessibilityLabel = ${this.accessibilityLabel} instead`);
     msg = this.accessibilityLabel;
-    writeTrace(`View<${this}.ios>.accessibilityAnnouncement(..) - no msg, sending view.accessibilityLabel = ${msg} instead`);
   }
 
+  writeTrace(`${cls} - sending ${msg}`);
   this.postAccessibilityNotification('announcement', msg);
-  writeTrace(`View<${this}.ios>.accessibilityAnnouncement(..) - sending ${msg}`);
 });
 
 View.prototype[common.accessibilityLabelProperty.getDefault] = function accessibilityLabelGetDefault(this: View) {
@@ -332,11 +332,12 @@ View.prototype[common.accessibilityLabelProperty.setNative] = function accessibi
     return;
   }
 
+  const cls = `View<${this}.ios>.accessibilityLabel = ${label}`;
   if (label) {
-    writeTrace(`View<${this}.ios>.accessibilityLabel - ${label}`);
+    writeTrace(`${cls}`);
     view.accessibilityLabel = `${label}`;
   } else {
-    writeTrace(`View<${this}.ios>.accessibilityLabel - null`);
+    writeTrace(`${cls} - falsy value setting null`);
     view.accessibilityLabel = null;
   }
 };
@@ -357,12 +358,13 @@ View.prototype[common.accessibilityIdentifierProperty.setNative] = function acce
   if (!view) {
     return;
   }
+  const cls = `View<${this}.ios>.accessibilityIdentifier = ${identifier}`;
 
   if (identifier) {
-    writeTrace(`View<${this}.ios>.accessibilityIdentifier - ${identifier}`);
+    writeTrace(`${cls}`);
     view.accessibilityIdentifier = `${identifier}`;
   } else {
-    writeTrace(`View<${this}.ios>.accessibilityIdentifier - null`);
+    writeTrace(`${cls} - falsy value setting null`);
     view.accessibilityIdentifier = null;
   }
 };
@@ -384,11 +386,12 @@ View.prototype[common.accessibilityLanguageProperty.setNative] = function access
     return;
   }
 
+  const cls = `View<${this}.ios>.accessibilityIdentifier = ${lang}`;
   if (lang) {
-    writeTrace(`View<${this}.ios>.accessibilityLanguage - ${lang}`);
+    writeTrace(`${cls}`);
     view.accessibilityLanguage = lang;
   } else {
-    writeTrace(`View<${this}.ios>.accessibilityLanguage - null`);
+    writeTrace(`${cls} - falsy value setting null`);
     view.accessibilityLanguage = null;
   }
 };
@@ -410,3 +413,7 @@ View.prototype[common.accessibilityHintProperty.setNative] = function accessibil
 
   view.accessibilityHint = value;
 };
+
+setViewFunction(View, common.commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: View) {
+  this.postAccessibilityNotification('screen');
+});

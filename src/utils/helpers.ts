@@ -20,6 +20,18 @@ export function setViewFunction(viewClass: any, fnName: string, fn?: Function) {
   viewClass.prototype[fnName] = fn || noop;
 }
 
+export function wrapViewFunction(viewClass: any, fnName: string, fn: Function) {
+  const origFN = viewClass.prototype[fnName] as Function;
+
+  viewClass.prototype[fnName] = function(...args: any[]) {
+    const res = origFN.call(this, ...args);
+
+    fn.call(this, ...args);
+
+    return res;
+  };
+}
+
 export function enforceArray(val: string | string[]): string[] {
   if (Array.isArray(val)) {
     return val;

@@ -275,30 +275,31 @@ export class AccessibilityHelper {
   }
 
   public static sendAccessibilityEvent(androidView: AndroidView, eventName: string, text?: string) {
+    const cls = `AccessibilityHelper.sendAccessibilityEvent(${androidView}, ${eventName}, ${text})`;
     if (!eventName) {
-      writeTrace(`sendAccessibilityEvent: no eventName provided`);
+      writeTrace(`${cls}: no eventName provided`);
       return;
     }
 
     if (!isAccessibilityServiceEnabled()) {
-      writeTrace(`sendAccessibilityEvent: ACCESSIBILITY_SERVICE is not enabled do nothing for ${eventName} -> ${text}`);
+      writeTrace(`${cls} - TalkBack not enabled`);
       return;
     }
 
     const a11yService = getAccessibilityManager(androidView);
     if (!a11yService.isEnabled()) {
-      writeTrace(`sendAccessibilityEvent: ACCESSIBILITY_SERVICE is not enabled do nothing for ${eventName} -> ${text}`);
+      writeTrace(`${cls} - a11yService not enabled`);
       return;
     }
 
     ensureAccessibilityEventMap();
 
     eventName = eventName.toLowerCase();
-    const eventInt = accessibilityEventMap.get(eventName);
-    if (eventInt === undefined) {
-      writeTrace(`sendAccessibilityEvent: '${eventName}' is unknown`);
+    if (!accessibilityEventMap.has(eventName)) {
+      writeTrace(`${cls} - unknown event`);
       return;
     }
+    const eventInt = accessibilityEventMap.get(eventName);
 
     const a11yEvent = AccessibilityEvent.obtain(eventInt);
     a11yEvent.setSource(androidView);
@@ -307,13 +308,58 @@ export class AccessibilityHelper {
 
     if (!text) {
       text = androidView.getContentDescription();
-      writeTrace(`sendAccessibilityEvent: '${eventName}' text not provided uses androidView.getContentDescription()`);
+      writeTrace(`${cls} - text not provided use androidView.getContentDescription()`);
     }
 
-    writeTrace(`sendAccessibilityEvent: send event: '${eventName}' with text: '${text}'`);
+    writeTrace(`${cls}: send event with text: '${JSON.stringify(text)}'`);
 
-    a11yEvent.getText().add(text);
+    if (text) {
+      a11yEvent.getText().add(text);
+    }
 
     a11yService.sendAccessibilityEvent(a11yEvent);
+  }
+
+  public static updateContentDescription(tnsView: TNSView, androidView: AndroidView) {
+    const cls = `AccessibilityHelper.updateContentDescription(${tnsView}, ${androidView}`;
+
+    let contentDescriptionBuilder: string[] = [];
+    let haveValue = false;
+    if (tnsView.accessibilityLabel) {
+      writeTrace(`${cls} - have accessibilityLabel`);
+      haveValue = true;
+      contentDescriptionBuilder.push(`${tnsView.accessibilityLabel}. `);
+    }
+
+    if (tnsView.accessibilityValue) {
+      writeTrace(`${cls} - have accessibilityValue`);
+      haveValue = true;
+      contentDescriptionBuilder.push(`${tnsView.accessibilityValue}. `);
+    }
+
+    if (tnsView.accessibilityHint) {
+      writeTrace(`${cls} - have accessibilityHint`);
+      haveValue = true;
+      contentDescriptionBuilder.push(`${tnsView.accessibilityHint}. `);
+    }
+
+    const contentDescription = contentDescriptionBuilder
+      .join('')
+      .trim()
+      .replace(/^\.$/, '');
+
+    if (contentDescription !== androidView.getContentDescription()) {
+      if (haveValue) {
+        writeTrace(`${cls} - set to "${contentDescription}"`);
+        androidView.setContentDescription(contentDescription);
+      } else {
+        writeTrace(`${cls} - remove value`);
+        androidView.setContentDescription(null);
+      }
+    } else {
+      writeTrace(`${cls} - no change`);
+    }
+
+    return contentDescription;
   }
 }

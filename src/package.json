@@ -48,7 +48,8 @@
     "clean.demo": "cd ../demo && rimraf hooks node_modules platforms package-lock.json",
     "clean.demo-ng": "cd ../demo-ng && rimraf hooks node_modules platforms package-lock.json",
     "clean.src": "cd ../src && rimraf node_modules package-lock.json",
-    "ci.lint": "npm i && npm run lint"
+    "ci.build": "npm ci && npm-run-all tsc scss",
+    "ci.lint": "npm ci && npm run lint"
   },
   "repository": {
     "type": "git",

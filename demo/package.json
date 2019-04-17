@@ -24,7 +24,7 @@
     "@angular/platform-browser": "~7.2.0",
     "@angular/platform-browser-dynamic": "~7.2.0",
     "@angular/router": "~7.2.0",
-    "@nota/nativescript-accessibility-ext": "file:../src/nota-nativescript-accessibility-ext-5.1.0-alpha.2.tgz",
+    "@nota/nativescript-accessibility-ext": "../src",
     "nativescript-angular": "~7.2.3",
     "nativescript-theme-core": "~1.0.4",
     "reflect-metadata": "~0.1.12",

@@ -37,6 +37,5 @@
     ],
     "include": [
         "app/**/*.ts",
-        "node_modules/@nota/nativescript-accessibility-ext/**/*.ts"
     ]
 }

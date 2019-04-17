@@ -97,26 +97,20 @@ function ensureDelegates() {
       super.onInitializeAccessibilityNodeInfo(host, info);
 
       const owner = this.owner.get();
-      if (!owner) {
+      if (!owner || !owner.accessibilityComponentType) {
         return;
       }
 
       switch (owner.accessibilityComponentType) {
-        case 'button': {
+        case AccessibilityHelper.BUTTON: {
           info.setClassName(ButtonClassName);
           break;
         }
-        case 'radiobutton_checked': {
+        case AccessibilityHelper.RADIOBUTTON_CHECKED:
+        case AccessibilityHelper.RADIOBUTTON_UNCHECKED: {
           info.setClassName(RadioButtonClassName);
           info.setCheckable(true);
-          info.setChecked(true);
-          break;
-        }
-        case 'radiobutton_unchecked': {
-          info.setClassName(RadioButtonClassName);
-          info.setCheckable(true);
-          info.setChecked(false);
-          break;
+          info.setChecked(owner.accessibilityComponentType === AccessibilityHelper.RADIOBUTTON_CHECKED);
         }
       }
     }
@@ -241,6 +235,8 @@ function ensureAccessibilityEventMap() {
   ]);
 }
 
+const lastComponentTypeSymbol = Symbol('Android:lastComponentType');
+
 export class AccessibilityHelper {
   public static get BUTTON() {
     return 'button';
@@ -263,7 +259,13 @@ export class AccessibilityHelper {
 
     ensureDelegates();
 
+    if (componentType && androidView[lastComponentTypeSymbol] === componentType) {
+      writeTrace(`updateAccessibilityComponentType - ${tnsView} - componentType not changed`);
+      return;
+    }
+
     ViewCompat.setAccessibilityDelegate(androidView, new TNSAccessibilityDelegateCompat(tnsView));
+    androidView[lastComponentTypeSymbol] = componentType;
   }
 
   public static removeAccessibilityComponentType(androidView: AndroidView) {

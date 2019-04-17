@@ -33,7 +33,7 @@ const accessibilityHadFocusSymbol = Symbol.for('ios:accessibilityHadFocusSymbol'
 function setupAccessibilityFocusEvents(tnsView: View, isAccessible: boolean) {
   const cls = `setupAccessibilityFocusEvents(${tnsView}, ${isAccessible})`;
   if (typeof UIAccessibilityElementFocusedNotification === 'undefined') {
-    writeTrace(`${cls}: UIAccessibilityElementFocusedNotification is not supported by this iOS version`);
+    writeTrace(`${cls}: not supported by this iOS version`);
     return;
   }
 
@@ -103,7 +103,7 @@ View.prototype[common.accessibleProperty.setNative] = function accessibleSetNati
   }
 
   view.isAccessibilityElement = !!isAccessible;
-  writeTrace(`View<${this}.ios>.accessible = ${isAccessible}`);
+  writeTrace(`View<${this}.ios>.accessible = ${view.isAccessibilityElement}`);
 
   setupAccessibilityFocusEvents(this, isAccessible);
 };
@@ -295,7 +295,7 @@ setViewFunction(View, common.iosFunctions.postAccessibilityNotification, functio
     if (typeof msg === 'string' && msg) {
       args = msg;
     } else {
-      args = <UIView>this.ios;
+      args = getNativeView(this);
     }
 
     UIAccessibilityPostNotification(notificationInt, args || null);
@@ -405,7 +405,7 @@ View.prototype[common.accessibilityHintProperty.getDefault] = function accessibi
 View.prototype[common.accessibilityHintProperty.setNative] = function accessibilityHintSetNative(value: string) {
   const view = getNativeView(this);
   if (!view) {
-    return null;
+    return;
   }
 
   view.accessibilityHint = value;

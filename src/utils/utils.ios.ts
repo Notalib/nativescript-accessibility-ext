@@ -1,10 +1,15 @@
+import { writeErrorTrace, writeTrace } from './helpers';
+
 export * from 'tns-core-modules/utils/utils';
 
-import { writeTrace } from './helpers';
-
 export function isAccessibilityServiceEnabled(): boolean {
-  const isEnabled = UIAccessibilityIsVoiceOverRunning();
-  writeTrace(`isAccessibilityServiceEnabled().ios: isEnabled:${isEnabled}`);
+  const cls = `isAccessibilityServiceEnabled<ios>()`;
+  if (typeof UIAccessibilityIsVoiceOverRunning !== 'function') {
+    writeErrorTrace(`${cls} - UIAccessibilityIsVoiceOverRunning() - is not a function`);
+    return false;
+  }
 
+  const isEnabled = !!UIAccessibilityIsVoiceOverRunning();
+  writeTrace(`${cls}: isEnabled:${isEnabled}`);
   return isEnabled;
 }

@@ -1,37 +1,35 @@
+/// <reference path="./page-ext.d.ts" />
 import 'nativescript-globalevents';
-import { EventData, Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
+
+import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
 import { isAndroid, isIOS } from 'tns-core-modules/platform';
-import { Page } from 'tns-core-modules/ui/page';
+import { Page, PageEventData } from 'tns-core-modules/ui/page';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
 import { writeTrace } from '../../utils/helpers';
-import '../core/view';
-
-export interface PageLoadedEventData extends EventData {
-  object: Page;
-}
 
 function fontScaleToCssClass(fontScale: number) {
   return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;
 }
 
-function loadedEventCb({ object: page }: PageLoadedEventData) {
+function loadedEventCb({ object: page }: PageEventData) {
   setupPageFontScaling(page);
 }
 
 export function setupPageFontScaling(page: Page) {
-  if ((<any>page).fontScaleObservable) {
-    writeTrace(`Page<${page}>.loadedEvent -> already have FontScaleObservable`);
+  const cls = `Page<${page}>.fontScale`;
+  if (page.fontScaleObservable) {
+    writeTrace(`${cls}: already have FontScaleObservable`);
     return;
   }
 
-  writeTrace(`Page<${page}>.fontScale loaded -> setting up FontScaleObservable()`);
+  writeTrace(`${cls}: loaded -> setting up FontScaleObservable()`);
 
   const fontScaleObservable = new FontScaleObservable();
-  (<any>page).fontScaleObservable = fontScaleObservable;
+  page.fontScaleObservable = fontScaleObservable;
 
   const fontScaleCssClasses = FontScaleObservable.VALID_FONT_SCALES.map(fontScaleToCssClass);
 
-  writeTrace(`Page<${page}>.fontScale loaded -> font scale classes: ${fontScaleCssClasses.join(',')}`);
+  writeTrace(`${cls}: loaded -> font scale classes: ${fontScaleCssClasses.join(',')}`);
 
   const owner = new WeakRef<Page>(page);
 
@@ -46,37 +44,38 @@ export function setupPageFontScaling(page: Page) {
   page.className = [...page.cssClasses].join(' ');
 
   const setFontScaleClass = (fontScale: number) => {
-    writeTrace(`Page.fontScale: setFontScaleClass: Got fontScale = ${fontScale}`);
+    const cls2 = `${cls}: setFontScaleClass:`;
+    writeTrace(`${cls2}: Got fontScale = ${fontScale}`);
 
     const page = owner.get();
     if (!page) {
-      writeTrace(`setFontScaleClass: page is undefined`);
+      writeTrace(`${cls}: page is undefined`);
       return;
     }
 
     const newCssClass = fontScaleToCssClass(fontScale);
     if (page.cssClasses.has(newCssClass)) {
-      writeTrace(`Page<${page}>.fontScale: setFontScaleClass: '${newCssClass}' is already defined on page`);
+      writeTrace(`${cls2}: '${newCssClass}' is already defined on page`);
       return;
     }
 
     for (const cssClass of fontScaleCssClasses) {
       if (cssClass === newCssClass) {
         page.cssClasses.add(cssClass);
-        writeTrace(`Page<${page}>.fontScale: setFontScaleClass: '${newCssClass}' added to page`);
+        writeTrace(`${cls2}: '${newCssClass}' added to page`);
       } else if (page.cssClasses.has(cssClass)) {
         page.cssClasses.delete(cssClass);
-        writeTrace(`Page<${page}>.fontScale: setFontScaleClass: '${cssClass}' remove from page`);
+        writeTrace(`${cls2}: '${cssClass}' remove from page`);
       }
     }
 
-    writeTrace(`Page<${page}>.fontScale: setFontScaleClass: before change: page.className='${page.className || ''}'`);
-    page.className = Array.from(page.cssClasses).join(' ');
-    writeTrace(`Page<${page}>.fontScale: setFontScaleClass: page.className='${page.className || ''}'`);
+    writeTrace(`${cls2}: before change: page.className='${page.className || ''}'`);
+    page.className = [...page.cssClasses].join(' ');
+    writeTrace(`${cls2}: page.className='${page.className || ''}'`);
   };
 
   const unloadedCb = () => {
-    writeTrace(`Page<${page}>.fontScale: page unloaded remove listener`);
+    writeTrace(`${cls}: page unloaded remove listener`);
 
     removeListener();
   };
@@ -85,7 +84,7 @@ export function setupPageFontScaling(page: Page) {
     fontScaleObservable.off(Observable.propertyChangeEvent, cb);
     const page = owner.get();
     if (page) {
-      delete (<any>page).fontScaleObservable;
+      delete page.fontScaleObservable;
 
       page.off(Page.unloadedEvent, unloadedCb);
     }
@@ -94,13 +93,13 @@ export function setupPageFontScaling(page: Page) {
   const cb = (args: PropertyChangeData) => {
     const page = owner.get();
     if (!page) {
-      writeTrace(`Page.fontScale: Page no longer exists remove ${Observable.propertyChangeEvent} listener`);
+      writeTrace(`${cls}: Page no longer exists remove ${Observable.propertyChangeEvent} listener`);
       removeListener();
       return;
     }
 
     if (args.propertyName === FontScaleObservable.FONT_SCALE) {
-      writeTrace(`Page<${page}>.fontScale: ${FontScaleObservable.FONT_SCALE} changed to ${args.value}`);
+      writeTrace(`${cls}: ${FontScaleObservable.FONT_SCALE} changed to ${args.value}`);
 
       setFontScaleClass(args.value);
     }
@@ -112,6 +111,6 @@ export function setupPageFontScaling(page: Page) {
   setFontScaleClass(fontScaleObservable.get(FontScaleObservable.FONT_SCALE));
 }
 
-(<any>Page).on(Page.loadedEvent, loadedEventCb);
+Page.on(Page.loadedEvent, loadedEventCb);
 
 export { Page };

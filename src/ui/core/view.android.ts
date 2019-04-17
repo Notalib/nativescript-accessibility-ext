@@ -1,23 +1,10 @@
 import { View } from 'tns-core-modules/ui/core/view';
-
 import { AccessibilityHelper } from '../../utils/AccessibilityHelper';
 import { setViewFunction, writeTrace } from '../../utils/helpers';
 import * as common from './view-common';
 
-for (const fnName of Object.keys(common.iosFunctions)) {
-  setViewFunction(View, fnName);
-}
-
 function getNativeView(view: View): android.view.View {
-  if (view.nativeViewProtected) {
-    return view.nativeViewProtected;
-  }
-
-  if (view.nativeView) {
-    return view.nativeView;
-  }
-
-  return null;
+  return view.android;
 }
 
 View.prototype[common.importantForAccessibilityProperty.getDefault] = function importantForAccessibilityGetDefault(this: View) {

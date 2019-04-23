@@ -1,0 +1,8 @@
+@import '~/_app-variables.scss';
+
+.screen-reader {
+  color: $grey-dark;
+  border-width: 1;
+  border-color: black;
+  border-radius: 10;
+}

@@ -1,20 +1,35 @@
 import * as trace from 'tns-core-modules/trace';
 import { Property } from 'tns-core-modules/ui/core/properties';
-import { EventData, traceMessageType, View } from 'tns-core-modules/ui/core/view';
-import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
-
-export { EventData, View, ViewCommon, Property };
+import {
+  AccessibilityBlurEventData,
+  AccessibilityFocusChangedEventData,
+  AccessibilityFocusEventData,
+  booleanConverter,
+  View,
+} from 'tns-core-modules/ui/core/view';
 
 export function noop() {
   // ignore
 }
 
-export interface ViewType<T extends ViewCommon> {
+export interface ViewType<T extends View> {
   new (): T;
 }
 
 export function setViewFunction(viewClass: any, fnName: string, fn?: Function) {
   viewClass.prototype[fnName] = fn || noop;
+}
+
+export function wrapViewFunction(viewClass: any, fnName: string, fn: Function) {
+  const origFN = viewClass.prototype[fnName] as Function;
+
+  viewClass.prototype[fnName] = function(...args: any[]) {
+    const res = origFN.call(this, ...args);
+
+    fn.call(this, ...args);
+
+    return res;
+  };
 }
 
 export function enforceArray(val: string | string[]): string[] {
@@ -31,41 +46,64 @@ export function enforceArray(val: string | string[]): string[] {
   return [];
 }
 
-export function inputArrayToBitMask(val: string | string[], map: Map<string, number>): number {
+/**
+ * Convert array of values into a bitmask.
+ *
+ * @param values string values
+ * @param map    map lower-case name to integer value.
+ */
+export function inputArrayToBitMask(values: string | string[], map: Map<string, number>): number {
   return (
-    enforceArray(val)
-      .filter((val) => !!val)
-      .map((val) => val.toLocaleLowerCase())
-      .filter((val) => map.has(val))
-      .reduce((c, val) => c | map.get(val), 0) || 0
+    enforceArray(values)
+      .filter((value) => !!value)
+      .map((value) => `${value}`.toLocaleLowerCase())
+      .filter((value) => map.has(value))
+      .reduce((res, value) => res | map.get(value), 0) || 0
   );
 }
 
-export function addPropertyToView<ViewClass extends View, T>(viewClass: ViewType<ViewClass>, name: string, defaultValue?: T): Property<ViewClass, T> {
+/**
+ * Extend NativeScript View with a new property.
+ */
+export function addPropertyToView<ViewClass extends View, T>(
+  viewClass: ViewType<ViewClass>,
+  name: string,
+  defaultValue?: T,
+  valueConverter?: (value: string) => T,
+): Property<ViewClass, T> {
   const property = new Property<ViewClass, T>({
     name,
     defaultValue,
+    valueConverter,
   });
   property.register(viewClass);
 
   return property;
 }
 
+export function addBooleanPropertyToView<ViewClass extends View>(
+  viewClass: ViewType<ViewClass>,
+  name: string,
+  defaultValue?: boolean,
+): Property<ViewClass, boolean> {
+  return addPropertyToView(viewClass, name, defaultValue, booleanConverter);
+}
+
 /**
  * Write to NativeScript's trace.
  */
-export function writeTrace(message: string, type: number = traceMessageType.info) {
+export function writeTrace(message: string, type = trace.messageType.info) {
   if (trace.isEnabled()) {
     trace.write(message, 'A11Y', type);
   }
 }
 
 export function writeErrorTrace(message) {
-  writeTrace(message, traceMessageType.error);
+  writeTrace(message, trace.messageType.error);
 }
 
 export function writeWarnTrace(message) {
-  writeTrace(message, traceMessageType.warn);
+  writeTrace(message, trace.messageType.warn);
 }
 
 /**
@@ -79,32 +117,34 @@ export function writeWarnTrace(message) {
  * @param {boolean} lostFocus
  */
 export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean, lostFocus: boolean): void {
-  if (receivedFocus || lostFocus) {
-    writeTrace(
-      `notifyAccessibilityFocusState: ${JSON.stringify({
-        name: 'notifyAccessibilityFocusState',
-        receivedFocus,
-        lostFocus,
-        view: String(view),
-      })}`,
-    );
+  if (!receivedFocus && !lostFocus) {
+    return;
+  }
 
+  writeTrace(
+    `notifyAccessibilityFocusState: ${JSON.stringify({
+      name: 'notifyAccessibilityFocusState',
+      receivedFocus,
+      lostFocus,
+      view: String(view),
+    })}`,
+  );
+
+  view.notify({
+    eventName: View.accessibilityFocusChangedEvent,
+    object: view,
+    value: !!receivedFocus,
+  } as AccessibilityFocusChangedEventData);
+
+  if (receivedFocus) {
     view.notify({
-      eventName: 'accessibilityFocusChanged',
+      eventName: View.accessibilityFocusEvent,
       object: view,
-      value: receivedFocus,
-    });
-
-    if (receivedFocus) {
-      view.notify({
-        eventName: 'accessibilityFocus',
-        object: view,
-      });
-    } else if (lostFocus) {
-      view.notify({
-        eventName: 'accessibilityBlur',
-        object: view,
-      });
-    }
+    } as AccessibilityFocusEventData);
+  } else if (lostFocus) {
+    view.notify({
+      eventName: View.accessibilityBlurEvent,
+      object: view,
+    } as AccessibilityBlurEventData);
   }
 }

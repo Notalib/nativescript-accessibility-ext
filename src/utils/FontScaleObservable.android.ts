@@ -7,13 +7,14 @@ function getClosestValidFontScale(fontScale: number) {
 }
 
 let internalObservable: Observable;
-
 function fontScaleChanged(fontScale: number) {
-  writeTrace(`fontScaleChanged: got: ${fontScale}`);
+  const cls = `fontScaleChanged(${fontScale})`;
+
+  writeTrace(`${cls}`);
 
   fontScale = getClosestValidFontScale(fontScale);
 
-  writeTrace(`fontScaleChanged: setting to: ${fontScale}`);
+  writeTrace(`${cls} - settings closest vaalid value: ${fontScale}`);
 
   internalObservable.set(FontScaleObservable.FONT_SCALE, fontScale);
 }
@@ -61,14 +62,16 @@ export class FontScaleObservable extends Observable {
 
     ensureObservable();
 
-    const self = new WeakRef(this);
+    const selfRef = new WeakRef(this);
 
     function callback(args: PropertyChangeData) {
-      if (self.get()) {
-        self.get().set(args.propertyName, args.value);
-      } else {
-        internalObservable.off(Observable.propertyChangeEvent, callback);
+      const self = selfRef.get();
+      if (self) {
+        self.set(args.propertyName, args.value);
+        return;
       }
+
+      internalObservable.off(Observable.propertyChangeEvent, callback);
     }
 
     internalObservable.on(Observable.propertyChangeEvent, callback);

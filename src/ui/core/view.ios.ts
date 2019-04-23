@@ -1,23 +1,10 @@
 import * as nsApp from 'tns-core-modules/application';
-import { AccessibilityTrait } from 'tns-core-modules/ui/page/page';
+import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/core/view';
 import { inputArrayToBitMask, notifyAccessibilityFocusState, setViewFunction, writeTrace } from '../../utils/helpers';
 import * as common from './view-common';
-import { View } from './view-common';
-
-for (const fnName of Object.keys(common.androidFunctions)) {
-  setViewFunction(View, fnName);
-}
 
 function getNativeView(view: View): UIView {
-  if (view.nativeViewProtected) {
-    return view.nativeViewProtected;
-  }
-
-  if (view.nativeView) {
-    return view.nativeView;
-  }
-
-  return null;
+  return view.ios;
 }
 
 View.prototype[common.accessibleProperty.getDefault] = function accessibleGetDefault(this: View) {
@@ -27,7 +14,7 @@ View.prototype[common.accessibleProperty.getDefault] = function accessibleGetDef
   }
 
   const isAccessible = !!view.isAccessibilityElement;
-  writeTrace(`View<${this}.android>.accessible - default = ${isAccessible}`);
+  writeTrace(`View<${this}.ios>.accessible - default = ${isAccessible}`);
   return isAccessible;
 };
 
@@ -38,27 +25,25 @@ const accessibilityHadFocusSymbol = Symbol.for('ios:accessibilityHadFocusSymbol'
  * Wrapper for setting up accessibility focus events for iOS9+
  * NOTE: This isn't supported on iOS8
  *
- * If the UIView changes from accessible = true to accessible = true, event will be remove
+ * If the UIView changes from accessible = true to accessible = false, event will be removed
  *
- * @param {UIView} view         Native iOS UIView
  * @param {View} tnsView        NativeScript View
  * @param {boolean} isAccessible  is element marked as accessible
  */
-function handleUIAccessibilityElementFocusedNotification(view: UIView, tnsView: View, isAccessible: boolean) {
+function setupAccessibilityFocusEvents(tnsView: View, isAccessible: boolean) {
+  const cls = `setupAccessibilityFocusEvents(${tnsView}, ${isAccessible})`;
   if (typeof UIAccessibilityElementFocusedNotification === 'undefined') {
-    writeTrace(
-      `handleUIAccessibilityElementFocusedNotification(${view}, ${tnsView}, ${isAccessible}): UIAccessibilityElementFocusedNotification is not supported by this iOS version`,
-    );
+    writeTrace(`${cls}: not supported by this iOS version`);
     return;
   }
 
   if (tnsView[accessibilityFocusObserverSymbol]) {
     if (isAccessible) {
-      writeTrace(`handleUIAccessibilityElementFocusedNotification(${view}, ${tnsView}, ${isAccessible}): Already configured no need to do so again`);
+      writeTrace(`${cls}: Already configured no need to do so again`);
       return;
     }
 
-    writeTrace(`handleUIAccessibilityElementFocusedNotification(${view}, ${tnsView}, ${isAccessible}) - view no longer accessible, don't configure this again`);
+    writeTrace(`${cls}: view no longer accessible, remove listener`);
     nsApp.ios.removeNotificationObserver(tnsView[accessibilityFocusObserverSymbol], UIAccessibilityElementFocusedNotification);
 
     delete tnsView[accessibilityFocusObserverSymbol];
@@ -69,37 +54,38 @@ function handleUIAccessibilityElementFocusedNotification(view: UIView, tnsView: 
     return;
   }
 
-  const selfView = new WeakRef<UIView>(view);
   const selfTnsView = new WeakRef<View>(tnsView);
 
-  const observer = nsApp.ios.addNotificationObserver(UIAccessibilityElementFocusedNotification, (args) => {
+  let observer = nsApp.ios.addNotificationObserver(UIAccessibilityElementFocusedNotification, (args: NSNotification) => {
     const localTnsView = selfTnsView.get();
-    const localView = selfView.get();
-    if (!localTnsView || !localView) {
+    if (!localTnsView || !localTnsView.ios) {
       nsApp.ios.removeNotificationObserver(observer, UIAccessibilityElementFocusedNotification);
+      observer = null;
       if (localTnsView) {
         delete localTnsView[accessibilityFocusObserverSymbol];
       }
       return;
     }
 
-    const object = args.userInfo.objectForKey(UIAccessibilityFocusedElementKey);
+    const localView = localTnsView.ios as UIView;
+
+    const object = args.userInfo.objectForKey(UIAccessibilityFocusedElementKey) as UIView;
 
     const receivedFocus = object === localView;
     const lostFocus = localView[accessibilityHadFocusSymbol] && !receivedFocus;
 
-    writeTrace(
-      `View<${this}.ios>.accessible: observer<${UIAccessibilityElementFocusedNotification}>, view: ${localTnsView}, receivedFocus: ${receivedFocus}, lostFocus: ${lostFocus}`,
-    );
+    if (!receivedFocus && !lostFocus) {
+      return;
+    }
 
-    if (receivedFocus || lostFocus) {
-      notifyAccessibilityFocusState(localTnsView, receivedFocus, lostFocus);
+    writeTrace(`${cls}, view: ${localTnsView}, receivedFocus: ${receivedFocus}, lostFocus: ${lostFocus}`);
 
-      if (receivedFocus) {
-        localView[accessibilityHadFocusSymbol] = true;
-      } else if (lostFocus) {
-        localView[accessibilityHadFocusSymbol] = false;
-      }
+    notifyAccessibilityFocusState(localTnsView, receivedFocus, lostFocus);
+
+    if (receivedFocus) {
+      localView[accessibilityHadFocusSymbol] = true;
+    } else if (lostFocus) {
+      localView[accessibilityHadFocusSymbol] = false;
     }
   });
 
@@ -117,9 +103,9 @@ View.prototype[common.accessibleProperty.setNative] = function accessibleSetNati
   }
 
   view.isAccessibilityElement = !!isAccessible;
-  writeTrace(`View<${this}.ios>.accessible = ${isAccessible}`);
+  writeTrace(`View<${this}.ios>.accessible = ${view.isAccessibilityElement}`);
 
-  handleUIAccessibilityElementFocusedNotification(view, this, isAccessible);
+  setupAccessibilityFocusEvents(this, isAccessible);
 };
 
 let traits: Map<string, number>;
@@ -190,7 +176,7 @@ function getAccessibilityTraitsFromBitmask(accessibilityTraits: number) {
 
   ensureTraits();
 
-  for (const [name, trait] of Array.from(traits)) {
+  for (const [name, trait] of traits) {
     if (accessibilityTraits & trait) {
       res.push(name);
     }
@@ -212,7 +198,7 @@ View.prototype[common.accessibilityTraitsProperty.getDefault] = function accessi
 
 View.prototype[common.accessibilityTraitsProperty.setNative] = function accessibilityTraitsSetNative(
   this: View,
-  value: AccessibilityTrait | AccessibilityTrait[],
+  value: View.AccessibilityTrait | View.AccessibilityTrait[],
 ) {
   const view = getNativeView(this);
   if (!view) {
@@ -248,12 +234,12 @@ View.prototype[common.accessibilityValueProperty.setNative] = function accessibi
     writeTrace(`View<${this}.ios>.accessibilityValue - ${value}`);
     view.accessibilityValue = `${value}`;
   } else {
-    writeTrace(`View<${this}.ios>.accessibilityValue - ${value} is falsy, set to null to remove value`);
+    writeTrace(`View<${this}.ios>.accessibilityValue - ${JSON.stringify(value)} is falsy, set to null to remove value`);
     view.accessibilityValue = null;
   }
 };
 
-View.prototype[common.accessibilityElementsHidden.getDefault] = function accessibilityElementHiddenGetDefault(this: View) {
+View.prototype[common.accessibilityElementsHidden.getDefault] = function accessibilityElementsHiddenGetDefault(this: View) {
   const view = getNativeView(this);
   if (!view) {
     return false;
@@ -264,7 +250,7 @@ View.prototype[common.accessibilityElementsHidden.getDefault] = function accessi
   return isHidden;
 };
 
-View.prototype[common.accessibilityElementsHidden.setNative] = function accessibilityElementHiddenSetNative(this: View, isHidden: boolean) {
+View.prototype[common.accessibilityElementsHidden.setNative] = function accessibilityElementsHiddenSetNative(this: View, isHidden: boolean) {
   const view = getNativeView(this);
   if (!view) {
     return;
@@ -278,55 +264,55 @@ View.prototype[common.accessibilityElementsHidden.setNative] = function accessib
   writeTrace(`View<${this}.ios>.accessibilityElementsHidden - ${!!isHidden}`);
 };
 
-let postNotificationMap: Map<string, number>;
-function ensurePostNotificationMap() {
-  if (postNotificationMap) {
-    return;
-  }
-
-  postNotificationMap = new Map<string, number>([
-    ['announcement', UIAccessibilityAnnouncementNotification],
-    ['layout', UIAccessibilityLayoutChangedNotification],
-    ['screen', UIAccessibilityScreenChangedNotification],
-  ]);
-}
-
 setViewFunction(View, common.iosFunctions.postAccessibilityNotification, function postAccessibilityNotification(
   this: View,
-  notificationType: string,
+  notificationType: PostAccessibilityNotificationType,
   msg?: string,
 ) {
+  const cls = `View<${this}.ios>.postAccessibilityNotification("${notificationType}", "${msg}")`;
   if (!notificationType) {
-    writeTrace(`View<${this}.ios>.postAccessibilityNotification(..) - falsy notificationType`);
+    writeTrace(`${cls} - falsy notificationType`);
     return;
   }
 
-  ensurePostNotificationMap();
-
-  const notificationInt = postNotificationMap.get(notificationType.toLocaleLowerCase());
-  if (notificationInt !== undefined) {
-    let args: string | UIView;
-    if (typeof msg === 'string' && msg) {
-      args = msg;
-    } else {
-      args = <UIView>this.ios;
-    }
-
-    UIAccessibilityPostNotification(notificationInt, args || null);
-    writeTrace(`View<${this}.ios>.postAccessibilityNotification(..) - send ${notificationType} with ${args || null}`);
-  } else {
-    writeTrace(`View<${this}.ios>.postAccessibilityNotification(..) - ${notificationType} is known notificationType`);
+  let notification: number;
+  let args: string | UIView | null = getNativeView(this);
+  if (typeof msg === 'string' && msg) {
+    args = msg;
   }
+
+  switch (notificationType.toLowerCase()) {
+    case 'announcement': {
+      notification = UIAccessibilityAnnouncementNotification;
+      break;
+    }
+    case 'layout': {
+      notification = UIAccessibilityLayoutChangedNotification;
+      break;
+    }
+    case 'screen': {
+      notification = UIAccessibilityScreenChangedNotification;
+      break;
+    }
+    default: {
+      writeTrace(`${cls} - unknown notificationType`);
+      return;
+    }
+  }
+
+  writeTrace(`${cls} - send ${notification} with ${args || null}`);
+  UIAccessibilityPostNotification(notification, args || null);
 });
 
 setViewFunction(View, common.commonFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
+  const cls = `View<${this}.ios>.accessibilityAnnouncement("${msg}")`;
   if (!msg) {
+    writeTrace(`${cls} - no msg, sending view.accessibilityLabel = ${this.accessibilityLabel} instead`);
     msg = this.accessibilityLabel;
-    writeTrace(`View<${this}.ios>.accessibilityAnnouncement(..) - no msg, sending view.accessibilityLabel = ${msg} instead`);
   }
 
+  writeTrace(`${cls} - sending ${msg}`);
   this.postAccessibilityNotification('announcement', msg);
-  writeTrace(`View<${this}.ios>.accessibilityAnnouncement(..) - sending ${msg}`);
 });
 
 View.prototype[common.accessibilityLabelProperty.getDefault] = function accessibilityLabelGetDefault(this: View) {
@@ -346,11 +332,12 @@ View.prototype[common.accessibilityLabelProperty.setNative] = function accessibi
     return;
   }
 
+  const cls = `View<${this}.ios>.accessibilityLabel = ${label}`;
   if (label) {
-    writeTrace(`View<${this}.ios>.accessibilityLabel - ${label}`);
+    writeTrace(`${cls}`);
     view.accessibilityLabel = `${label}`;
   } else {
-    writeTrace(`View<${this}.ios>.accessibilityLabel - null`);
+    writeTrace(`${cls} - falsy value setting null`);
     view.accessibilityLabel = null;
   }
 };
@@ -371,12 +358,13 @@ View.prototype[common.accessibilityIdentifierProperty.setNative] = function acce
   if (!view) {
     return;
   }
+  const cls = `View<${this}.ios>.accessibilityIdentifier = ${identifier}`;
 
   if (identifier) {
-    writeTrace(`View<${this}.ios>.accessibilityIdentifier - ${identifier}`);
+    writeTrace(`${cls}`);
     view.accessibilityIdentifier = `${identifier}`;
   } else {
-    writeTrace(`View<${this}.ios>.accessibilityIdentifier - null`);
+    writeTrace(`${cls} - falsy value setting null`);
     view.accessibilityIdentifier = null;
   }
 };
@@ -398,11 +386,34 @@ View.prototype[common.accessibilityLanguageProperty.setNative] = function access
     return;
   }
 
+  const cls = `View<${this}.ios>.accessibilityIdentifier = ${lang}`;
   if (lang) {
-    writeTrace(`View<${this}.ios>.accessibilityLanguage - ${lang}`);
+    writeTrace(`${cls}`);
     view.accessibilityLanguage = lang;
   } else {
-    writeTrace(`View<${this}.ios>.accessibilityLanguage - null`);
+    writeTrace(`${cls} - falsy value setting null`);
     view.accessibilityLanguage = null;
   }
 };
+
+View.prototype[common.accessibilityHintProperty.getDefault] = function accessibilityHintGetDefault() {
+  const view = getNativeView(this);
+  if (!view) {
+    return null;
+  }
+
+  return view.accessibilityHint;
+};
+
+View.prototype[common.accessibilityHintProperty.setNative] = function accessibilityHintSetNative(value: string) {
+  const view = getNativeView(this);
+  if (!view) {
+    return;
+  }
+
+  view.accessibilityHint = value;
+};
+
+setViewFunction(View, common.commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: View) {
+  this.postAccessibilityNotification('screen');
+});

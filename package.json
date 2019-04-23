@@ -1,19 +1,16 @@
 {
   "private": true,
   "name": "@nota/nativescript-accessibility-ext",
-  "version": "5.0.0-alpha.1",
-  "description": "Nativescript plugin for enabling accessiblity features",
+  "version": "5.3.0-alpha.1",
+  "description": "Add support for 'VoiceOver' and 'TalkBack' in NativeScript",
   "main": "index.js",
   "scripts": {
-    "postinstall": "npm run pack:plugin && npm run install:demo",
-    "pack:plugin": "cd src && npm pack",
-    "demo:android": "npm run install:demo && cd demo && tns debug android --syncAllFiles",
-    "demo:ios": "npm run install:demo && cd demo && tns debug ios --syncAllFiles",
-    "bundle:android": "npm run install:demo && cd demo && npm run start-android-bundle",
-    "bundle:ios": "npm run install:demo && cd demo && npm run start-ios-bundle",
-    "install:demo": "npm run build && cd demo && npm i && npm prune",
+    "postinstall": "npm run install:demo",
+    "demo:android": "npm run install:demo && cd demo && tns debug android --bundle --syncAllFiles",
+    "demo:ios": "npm run install:demo && cd demo && tns debug ios --bundle --syncAllFiles",
+    "install:demo": "npm run build && cd demo && npm i",
     "sass": "cd src && rm -rf css && node-sass --recursive --output css scss",
-    "build": "npm run tsc && npm run sass",
+    "build": "npm-run-all tsc sass",
     "tsc": "cd src && tsc",
     "tsc-w": "cd src && tsc -w"
   },
@@ -34,23 +31,23 @@
     {
       "name": "Morten Anton Bach Sjøgren",
       "url": "http://mabs.dk",
-      "email": "mabs@mabs.dk"
+      "email": "m_abs@mabs.dk"
     },
     {
       "name": "Daniel Dam Freiling",
-      "email": "dfg@nota.dk"
+      "email": "ddfreiling@gmail.com"
     }
   ],
-  "license": "BSD-3-Clause",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/Notalib/nativescript-accessibility-ext/issues"
   },
   "homepage": "https://github.com/Notalib/nativescript-accessibility-ext/#readme",
   "devDependencies": {
-    "nativescript-globalevents": "^1.2.2",
     "node-sass": "^4.11.0",
-    "tns-core-modules": "^5.1.2",
-    "tns-platform-declarations": "^5.1.2",
+    "npm-run-all": "^4.1.5",
+    "tns-core-modules": "^5.3.0",
+    "tns-platform-declarations": "^5.3.0",
     "typescript": "^3.1.6"
   }
 }

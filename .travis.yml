@@ -10,14 +10,14 @@ matrix:
       env:
         - Platform="iOS"
       osx_image: xcode10.2
-      language: node_js 
+      language: node_js
       node_js: "8"
       jdk: oraclejdk8
       script:
-        - cd src && npm run ci.build && npm pack
-        - cd ../demo && tns plugin add ../src/*.tgz
+        - cd src && npm run ci.build
+        - cd ../demo
         - npm i && tns build ios --bundle --env.aot --env.uglify
-        - cd ../demo-ng && tns plugin add ../src/*.tgz
+        - cd ../demo-ng
         - npm i && tns build ios --bundle --env.aot --env.uglify
     - language: android
       os: linux
@@ -26,10 +26,10 @@ matrix:
       jdk: oraclejdk8
       before_install: nvm install 8
       script:
-        - cd src && npm run ci.build && npm pack
-        - cd ../demo && tns plugin add ../src/*.tgz
-        - tns build ios --bundle --env.aot --env.uglify
-        - cd ../demo-ng && tns plugin add ../src/*.tgz
+        - cd src && npm run ci.build
+        - cd ../demo
+        - tns build android --bundle --env.aot --env.uglify
+        - cd ../demo-ng
         - tns build android --bundle --env.aot --env.uglify
     # TODO: E2E tests
     # - os: linux
@@ -50,10 +50,8 @@ android:
     - tools
     - platform-tools
     - build-tools-28.0.3
-    # - android-21
     - android-28
     - extra-android-m2repository
-    # - sys-img-armeabi-v7a-android-21
 
 before_cache:
     - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -63,7 +61,7 @@ cache:
         - .nvm
         - $HOME/.gradle/caches/
         - $HOME/.gradle/wrapper/
-        
+
 before_install:
     - sudo pip install --upgrade pip
     - sudo pip install six

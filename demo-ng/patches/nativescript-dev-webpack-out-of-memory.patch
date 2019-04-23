@@ -1,0 +1,13 @@
+--- demo-ng/node_modules/nativescript-dev-webpack/lib/compiler.js.orig	2019-03-15 13:49:53.818510739 +0100
++++ demo-ng/node_modules/nativescript-dev-webpack/lib/compiler.js	2019-03-15 13:50:44.973968703 +0100
+@@ -52,8 +52,10 @@ exports.runWebpackCompiler = function ru
+             const envParams = buildEnvCommandLineParams(config, envData, $logger);
+ 
+             const args = [
++                "--max_old_space_size=4096",
+                 "--preserve-symlinks",
+                 pathResolve(projectDir, "node_modules", "webpack", "bin", "webpack.js"),
++                '--bail',
+                 `--config=${pathResolve(projectDir, "webpack.config.js")}`,
+                 ...(config.watch ? ["--watch"] : []),
+                 ...envParams,

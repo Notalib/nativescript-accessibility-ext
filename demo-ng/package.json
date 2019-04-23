@@ -1,4 +1,7 @@
 {
+  "private": true,
+  "name": "a11y-demo-ng",
+  "version": "0.0.0",
   "description": "NativeScript Application",
   "license": "SEE LICENSE IN <your-license-filename>",
   "readme": "NativeScript Application",
@@ -12,7 +15,9 @@
       "version": "5.3.1"
     }
   },
-  "scripts": {},
+  "scripts": {
+    "postinstall": "./patches/apply-patches.sh"
+  },
   "dependencies": {
     "@angular/animations": "~7.2.10",
     "@angular/common": "~7.2.10",
@@ -25,7 +30,6 @@
     "@angular/router": "~7.2.10",
     "@nota/nativescript-accessibility-ext": "file:../src",
     "nativescript-angular": "~7.2.3",
-    "nativescript-globalevents": "~1.2.2",
     "nativescript-theme-core": "~1.0.4",
     "reflect-metadata": "~0.1.13",
     "rxjs": "~6.4.0",
@@ -37,8 +41,7 @@
     "@ngtools/webpack": "~7.2.0",
     "nativescript-dev-sass": "^1.7.0",
     "nativescript-dev-typescript": "^0.9.0",
-    "nativescript-dev-webpack": "^0.20.3",
-    "tns-platform-declarations": "~5.3.1",
+    "nativescript-dev-webpack": "^0.21.2",
     "typescript": "~3.1.6"
   }
 }

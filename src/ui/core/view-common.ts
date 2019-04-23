@@ -1,3 +1,5 @@
+/// <reference path="./view.d.ts" />
+
 import { View } from 'tns-core-modules/ui/core/view';
 import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
 import { addBooleanPropertyToView, addPropertyToView, setViewFunction } from '../../utils/helpers';
@@ -58,7 +60,7 @@ export enum AccessibilityTrait {
   /**
    * The accessibility element behaves as a keyboard key.
    */
-  KeybordKey = 'key',
+  KeyboardKey = 'key',
 
   /**
    * The accessibility element should be treated as static text that cannot change.

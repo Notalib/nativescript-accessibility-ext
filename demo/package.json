@@ -1,4 +1,5 @@
 {
+  "private": true,
   "name": "a11y-demo",
   "license": "SEE LICENSE IN <your-license-filename>",
   "version": "0.0.0",
@@ -41,8 +42,7 @@
     "ajv": "~6.9.2",
     "nativescript-dev-sass": "~1.7.0",
     "nativescript-dev-typescript": "~0.9.0",
-    "nativescript-dev-webpack": "^0.20.3",
-    "tns-platform-declarations": "~5.3.1",
+    "nativescript-dev-webpack": "^0.21.2",
     "typescript": "~3.1.6"
   }
 }

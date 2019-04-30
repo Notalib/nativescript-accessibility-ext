@@ -15,7 +15,7 @@ export const accessibilityLanguageProperty = addPropertyToView<View, string>(Vie
 export const accessibilityElementsHidden = addBooleanPropertyToView<View>(ViewCommon, 'accessibilityElementsHidden', false);
 
 // Android properties
-export const importantForAccessibilityProperty = addBooleanPropertyToView<View>(ViewCommon, 'importantForAccessibility', false);
+export const importantForAccessibilityProperty = addPropertyToView<View, string>(ViewCommon, 'importantForAccessibility');
 export const accessibilityComponentTypeProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityComponentType');
 export const accessibilityLiveRegionProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityLiveRegion');
 

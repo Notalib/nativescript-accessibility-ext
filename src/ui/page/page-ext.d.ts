@@ -10,14 +10,14 @@ declare module 'tns-core-modules/ui/page' {
     fontScaleObservable?: FontScaleObservable | void;
 
     /**
-     * Disable anounce page on `nagivatedTo`
+     * Disable announce page on `navigatedTo`
      */
     disableAnnouncePage?: boolean;
   }
 
   namespace Page {
     /**
-     * Disable anounce page on `nagivatedTo`
+     * Disable announce page on `navigatedTo`
      */
     let disableAnnouncePage: boolean | void;
   }

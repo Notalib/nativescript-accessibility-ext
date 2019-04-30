@@ -11,7 +11,9 @@ function fontScaleToCssClass(fontScale: number) {
 }
 
 function loadedEventCb({ object: page }: PageEventData) {
-  setupPageFontScaling(page);
+  if (page instanceof Page) {
+    setupPageFontScaling(page);
+  }
 }
 
 export function setupPageFontScaling(page: Page) {
@@ -43,12 +45,12 @@ export function setupPageFontScaling(page: Page) {
   page.className = [...page.cssClasses].join(' ');
 
   const setFontScaleClass = (fontScale: number) => {
-    const clsSetClass = `${cls}: setFontScaleClass`;
-    writeTrace(`${clsSetClass}: Got fontScale = ${fontScale}`);
+    const clsSetClass = `${cls}: setFontScaleClass(${fontScale})`;
+    writeTrace(clsSetClass);
 
     const page = owner.get();
     if (!page) {
-      writeTrace(`${cls}: page is undefined`);
+      writeTrace(`${clsSetClass}: page is undefined`);
       return;
     }
 
@@ -117,6 +119,7 @@ Page.on(Page.navigatedToEvent, (args: PageEventData) => {
   if (Page.disableAnnouncePage) {
     return;
   }
+
   const page = args.object;
 
   if (page.disableAnnouncePage) {

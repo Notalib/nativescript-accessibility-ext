@@ -2,7 +2,7 @@
   "private": true,
   "name": "@nota/nativescript-accessibility-ext",
   "version": "5.0.0-alpha.1",
-  "description": "Nativescript plugin for enabling accessiblity features",
+  "description": "Nativescript plugin for enabling accessibility features",
   "main": "index.js",
   "scripts": {
     "postinstall": "npm run pack:plugin && npm run install:demo",

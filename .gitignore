@@ -35,3 +35,4 @@ src/*.d.ts
 *.aar
 *.tgz
 !webpack.config.js
+tsconfig.tsbuildinfo

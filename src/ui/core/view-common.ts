@@ -58,7 +58,7 @@ export enum AccessibilityTrait {
   /**
    * The accessibility element behaves as a keyboard key.
    */
-  KeybordKey = 'key',
+  KeyboardKey = 'key',
 
   /**
    * The accessibility element should be treated as static text that cannot change.

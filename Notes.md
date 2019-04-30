@@ -33,7 +33,7 @@ On iOS certain accessibility features requires us to define functions to the Nat
   Performs a salient action.
 
   User action: A two-finger double-tap that performs the most-intended action.
-               This could be play/pause in an audioplayer or pick/hang up in a phone-app.
+               This could be play/pause in an audio-player or pick/hang up in a phone-app.
   Dev note: Can be added to the AppDelegate in NativeScript.
 
 ## Links

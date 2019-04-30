@@ -1,4 +1,4 @@
-# Scalíng fonts in your application
+# Scaling fonts in your application
 
 Problem:
 You need to support users with a visual impairment that requires larger fonts.
@@ -17,7 +17,7 @@ and the UI height is always updated. This causes the UI to jump.
 **nativescript-theme-core** provides CSS classes for standardized font-sizes.
 `.t-NN, .hN, .body, .body2... etc`
 
-**@nota/nativescript-accessibility-ext** provides extends theses classes, by setting an approchiate CSS-class on the Page.
+**@nota/nativescript-accessibility-ext** provides extends theses classes, by setting an appropriate CSS-class on the Page.
 
 To use it all you need to do is add this to your `app.ios.scss`:
 

@@ -1,11 +1,15 @@
 {
+  "private": true,
   "name": "a11y-demo",
   "license": "SEE LICENSE IN <your-license-filename>",
   "version": "0.0.0",
   "nativescript": {
     "id": "dk.nota.a11ydemo",
     "tns-android": {
-      "version": "5.3.0"
+      "version": "5.3.1"
+    },
+    "tns-ios": {
+      "version": "5.3.1"
     }
   },
   "scripts": {
@@ -21,7 +25,7 @@
     "@angular/platform-browser": "~7.2.0",
     "@angular/platform-browser-dynamic": "~7.2.0",
     "@angular/router": "~7.2.0",
-    "@nota/nativescript-accessibility-ext": "file:../src",
+    "@nota/nativescript-accessibility-ext": "../src",
     "nativescript-angular": "~7.2.3",
     "nativescript-theme-core": "~1.0.4",
     "reflect-metadata": "~0.1.12",
@@ -38,8 +42,7 @@
     "ajv": "~6.9.2",
     "nativescript-dev-sass": "~1.7.0",
     "nativescript-dev-typescript": "~0.9.0",
-    "nativescript-dev-webpack": "^0.20.3",
-    "tns-platform-declarations": "~5.3.0",
+    "nativescript-dev-webpack": "^0.21.2",
     "typescript": "~3.1.6"
   }
 }

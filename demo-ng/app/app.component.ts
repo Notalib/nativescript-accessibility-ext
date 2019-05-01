@@ -2,10 +2,12 @@ import { Component } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as dialogs from 'tns-core-modules/ui/dialogs';
+
 @Component({
+  moduleId: module.id,
   selector: 'my-app',
   templateUrl: 'app.component.html',
-  styleUrls: ['app.component.css'],
+  styleUrls: ['app.component.scss'],
 })
 export class AppComponent {
   public readonly traits = [

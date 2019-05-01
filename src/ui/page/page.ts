@@ -1,4 +1,5 @@
 /// <reference path="./page-ext.d.ts" />
+
 import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
 import { isAndroid, isIOS } from 'tns-core-modules/platform';
 import { Page, PageEventData } from 'tns-core-modules/ui/page';

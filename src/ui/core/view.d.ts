@@ -1,6 +1,9 @@
-import { EventData } from 'tns-core-modules/ui/core/view';
+// @ts-ignore
+import { EventData } from 'tns-core-modules/data/observable';
 
+// @ts-ignore
 declare module 'tns-core-modules/ui/core/view' {
+  // @ts-ignore
   type PostAccessibilityNotificationType = 'announcement' | 'screen' | 'layout';
 
   interface View {
@@ -89,6 +92,7 @@ declare module 'tns-core-modules/ui/core/view' {
     function addEventListener(eventNames: string, callback: (data: EventData) => void, thisArg?: any);
     function removeEventListener(eventNames: string, callback?: any, thisArg?: any);
 
+    // @ts-ignore
     enum AccessibilityTrait {
       /**
        * The accessibility element has no traits.

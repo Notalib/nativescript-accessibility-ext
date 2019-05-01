@@ -26,6 +26,13 @@
             ]
         }
     },
+    "files": [
+        "./app/main.ts"
+    ],
+    "include": [
+        "./app/**/*.ts",
+        "../src/**/*.ts"
+    ],
     "exclude": [
         "node_modules",
         "platforms"

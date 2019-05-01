@@ -19,6 +19,6 @@ declare module 'tns-core-modules/ui/page' {
     /**
      * Disable announce page on `navigatedTo`
      */
-    let disableAnnouncePage: boolean | void;
+    var disableAnnouncePage: boolean | void;
   }
 }

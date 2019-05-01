@@ -1,3 +1,5 @@
+/// <reference path="./view.d.ts" />
+
 import { View } from 'tns-core-modules/ui/core/view';
 import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
 import { addBooleanPropertyToView, addPropertyToView, setViewFunction } from '../../utils/helpers';

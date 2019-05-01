@@ -11,10 +11,19 @@ const AccessibilityDelegateCompat = android.support.v4.view.AccessibilityDelegat
 type AccessibilityDelegateCompat = android.support.v4.view.AccessibilityDelegateCompat;
 const AccessibilityNodeInfoCompat = android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 type AccessibilityNodeInfoCompat = android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+const RecyclerViewAccessibilityDelegate = android.support.v7.widget.RecyclerViewAccessibilityDelegate;
+type RecyclerViewAccessibilityDelegate = android.support.v7.widget.RecyclerViewAccessibilityDelegate;
+const RecyclerViewAccessibilityItemDelegate = android.support.v7.widget.RecyclerViewAccessibilityDelegate.ItemDelegate;
+type RecyclerViewAccessibilityItemDelegate = android.support.v7.widget.RecyclerViewAccessibilityDelegate.ItemDelegate;
+
 const AndroidView = android.view.View;
 type AndroidView = android.view.View;
+const AndroidViewGroup = android.view.ViewGroup;
+type AndroidViewGroup = android.view.ViewGroup;
 const ViewCompat = android.support.v4.view.ViewCompat;
 type ViewCompat = android.support.v4.view.ViewCompat;
+const AndroidBundle = android.os.Bundle;
+type AndroidBundle = android.os.Bundle;
 
 function getAccessibilityManager(view: AndroidView): AccessibilityManager {
   return view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
@@ -74,7 +83,12 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
   }
 }
 
-let TNSAccessibilityDelegateCompat: new (owner: TNSView) => AccessibilityDelegateCompat;
+export let TNSAccessibilityDelegateCompat: new (owner: TNSView) => AccessibilityDelegateCompat;
+export let TNSRecylerViewAccessibilityDelegateCompat: new (owner: TNSView) => RecyclerViewAccessibilityDelegate;
+export let TNSRecylerViewAccessibilityItemDelegateCompat: new (
+  recyclerViewDelegate: RecyclerViewAccessibilityDelegate,
+  owner: TNSView,
+) => RecyclerViewAccessibilityItemDelegate;
 
 function ensureDelegates() {
   if (TNSAccessibilityDelegateCompat) {
@@ -117,7 +131,7 @@ function ensureDelegates() {
       }
     }
 
-    public sendAccessibilityEvent(host: android.view.ViewGroup, eventType: number) {
+    public sendAccessibilityEvent(host: AndroidViewGroup, eventType: number) {
       super.sendAccessibilityEvent(host, eventType);
 
       accessibilityEventHelper(this.owner.get(), eventType);
@@ -125,6 +139,112 @@ function ensureDelegates() {
   }
 
   TNSAccessibilityDelegateCompat = TNSAccessibilityDelegateCompatImpl;
+
+  class TNSRecylerViewAccessibilityDelegateCompatImpl extends RecyclerViewAccessibilityDelegate {
+    private readonly owner: WeakRef<TNSView>;
+
+    constructor(owner: TNSView) {
+      super();
+
+      this.owner = new WeakRef(owner);
+
+      return global.__native(this);
+    }
+
+    public performAccessibilityAction(host: AndroidView, action: number, bundle: AndroidBundle) {
+      console.log(`${this}<${this.owner.get()}>.performAccessibilityAction(${host}, ${action}, ${bundle})`);
+      return super.performAccessibilityAction(host, action, bundle);
+    }
+    public onInitializeAccessibilityNodeInfo(host: AndroidView, info: AccessibilityNodeInfoCompat) {
+      console.log(`${this}<${this.owner.get()}>.onInitializeAccessibilityNodeInfo(${host}, ${info})`);
+      return super.onInitializeAccessibilityNodeInfo(host, info);
+    }
+    public onInitializeAccessibilityEvent(host: AndroidView, event: AccessibilityEvent) {
+      console.log(`${this}<${this.owner.get()}>.onInitializeAccessibilityEvent(${host}, ${event})`);
+      super.onInitializeAccessibilityEvent(host, event);
+    }
+    public getItemDelegate() {
+      console.log(`${this}<${this.owner.get()}>.getItemDelegate()`);
+      return new TNSRecylerViewAccessibilityItemDelegateCompat(this, this.owner.get());
+    }
+    public dispatchPopulateAccessibilityEvent(host: AndroidView, event: AccessibilityEvent) {
+      console.log(`${this}<${this.owner.get()}>.dispatchPopulateAccessibilityEvent(${host}, ${event})`);
+      return super.dispatchPopulateAccessibilityEvent(host, event);
+    }
+    public getAccessibilityNodeProvider(host: AndroidView) {
+      console.log(`${this}<${this.owner.get()}>.getAccessibilityNodeProvider(${host})`);
+      return super.getAccessibilityNodeProvider(host);
+    }
+    public sendAccessibilityEvent(host: AndroidView, eventType: number) {
+      console.log(`${this}<${this.owner.get()}>.sendAccessibilityEvent(${host}, ${eventType})`);
+      super.sendAccessibilityEvent(host, eventType);
+    }
+    public sendAccessibilityEventUnchecked(host: AndroidView, eventType: AccessibilityEvent) {
+      console.log(`${this}<${this.owner.get()}>.sendAccessibilityEventUnchecked(${host}, ${eventType})`);
+      super.sendAccessibilityEventUnchecked(host, eventType);
+    }
+    public onRequestSendAccessibilityEvent(viewGroup: AndroidViewGroup, host: AndroidView, event: AccessibilityEvent) {
+      console.log(`${this}<${this.owner.get()}>.onRequestSendAccessibilityEvent(${host}, ${host}, ${event})`);
+      return super.onRequestSendAccessibilityEvent(viewGroup, host, event);
+    }
+    public onPopulateAccessibilityEvent(host: AndroidView, event: AccessibilityEvent) {
+      console.log(`${this}<${this.owner.get()}>.onPopulateAccessibilityEvent(${host}, ${event})`);
+      return super.onPopulateAccessibilityEvent(host, event);
+    }
+  }
+
+  TNSRecylerViewAccessibilityDelegateCompat = TNSRecylerViewAccessibilityDelegateCompatImpl;
+
+  class TNSRecylerViewAccessibilityItemDelegateCompatImpl extends RecyclerViewAccessibilityItemDelegate {
+    private readonly owner: WeakRef<TNSView>;
+
+    constructor(recyclerViewDelegate: RecyclerViewAccessibilityDelegate, owner: TNSView) {
+      super(recyclerViewDelegate);
+
+      this.owner = new WeakRef(owner);
+
+      return global.__native(this);
+    }
+
+    public performAccessibilityAction(host: AndroidView, action: number, bundle: AndroidBundle) {
+      console.log(`${this}<${this.owner.get()}>.performAccessibilityAction(${host}, ${action}, ${bundle})`);
+      return super.performAccessibilityAction(host, action, bundle);
+    }
+    public onInitializeAccessibilityNodeInfo(host: AndroidView, info: AccessibilityNodeInfoCompat) {
+      console.log(`${this}<${this.owner.get()}>.onInitializeAccessibilityNodeInfo(${host}, ${info})`);
+      return super.onInitializeAccessibilityNodeInfo(host, info);
+    }
+    public onInitializeAccessibilityEvent(host: AndroidView, event: AccessibilityEvent) {
+      console.log(`${this}<${this.owner.get()}>.onInitializeAccessibilityEvent(${host}, ${event})`);
+      super.onInitializeAccessibilityEvent(host, event);
+    }
+    public dispatchPopulateAccessibilityEvent(host: AndroidView, event: AccessibilityEvent) {
+      console.log(`${this}<${this.owner.get()}>.dispatchPopulateAccessibilityEvent(${host}, ${event})`);
+      return super.dispatchPopulateAccessibilityEvent(host, event);
+    }
+    public getAccessibilityNodeProvider(host: AndroidView) {
+      console.log(`${this}<${this.owner.get()}>.getAccessibilityNodeProvider(${host})`);
+      return super.getAccessibilityNodeProvider(host);
+    }
+    public sendAccessibilityEvent(host: AndroidView, eventType: number) {
+      console.log(`${this}<${this.owner.get()}>.sendAccessibilityEvent(${host}, ${eventType})`);
+      super.sendAccessibilityEvent(host, eventType);
+    }
+    public sendAccessibilityEventUnchecked(host: AndroidView, eventType: AccessibilityEvent) {
+      console.log(`${this}<${this.owner.get()}>.sendAccessibilityEventUnchecked(${host}, ${eventType})`);
+      super.sendAccessibilityEventUnchecked(host, eventType);
+    }
+    public onRequestSendAccessibilityEvent(viewGroup: AndroidViewGroup, host: AndroidView, event: AccessibilityEvent) {
+      console.log(`${this}<${this.owner.get()}>.onRequestSendAccessibilityEvent(${host}, ${host}, ${event})`);
+      return super.onRequestSendAccessibilityEvent(viewGroup, host, event);
+    }
+    public onPopulateAccessibilityEvent(host: AndroidView, event: AccessibilityEvent) {
+      console.log(`${this}<${this.owner.get()}>.onPopulateAccessibilityEvent(${host}, ${event})`);
+      return super.onPopulateAccessibilityEvent(host, event);
+    }
+  }
+
+  TNSRecylerViewAccessibilityItemDelegateCompat = TNSRecylerViewAccessibilityItemDelegateCompatImpl;
 }
 
 let accessibilityEventMap: Map<string, number>;

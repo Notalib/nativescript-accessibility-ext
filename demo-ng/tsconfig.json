@@ -15,6 +15,9 @@
         "noEmitOnError": true,
         "baseUrl": ".",
         "paths": {
+            "@nota/nativescript-accessibility-ext/*": [
+                "../src/*"
+            ],
             "*": [
                 "./node_modules/tns-core-modules/*",
                 "./node_modules/*"

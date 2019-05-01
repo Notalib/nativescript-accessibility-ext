@@ -34,6 +34,7 @@
   },
   "cSpell.words": [
     "Bitmask",
+    "Flexbox",
     "Focusable",
     "Freiling",
     "Morten",
@@ -44,6 +45,11 @@
     "ddfreiling",
     "devkit",
     "devtool",
+    "Recycler",
+    "Sjøgren",
+    "assistive",
+    "bootstrapper",
+    "ddfreiling",
     "downlevel",
     "fontscale",
     "fontscales",
@@ -67,6 +73,12 @@
     "toplevel",
     "tscwatch",
     "uglifyjs",
-    "xcode"
+    "xcode",
+    "prettierrc",
+    "radiobutton",
+    "sasswatch",
+    "selectable",
+    "toplevel",
+    "tscwatch"
   ]
 }

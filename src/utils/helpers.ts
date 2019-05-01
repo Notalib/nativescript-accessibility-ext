@@ -1,3 +1,5 @@
+/// <reference path="../ui/core/view.d.ts" />
+
 import * as trace from 'tns-core-modules/trace';
 import { Property } from 'tns-core-modules/ui/core/properties';
 import {

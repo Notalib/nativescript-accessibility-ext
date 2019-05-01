@@ -1,5 +1,5 @@
 import { View as TNSView } from 'tns-core-modules/ui/core/view';
-import { GestureTypes } from 'tns-core-modules/ui/gestures';
+import { GestureTypes } from 'tns-core-modules/ui/gestures/gestures';
 import { notifyAccessibilityFocusState, writeTrace } from './helpers';
 import { isAccessibilityServiceEnabled } from './utils';
 
@@ -20,53 +20,55 @@ function getAccessibilityManager(view: AndroidView): AccessibilityManager {
   return view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
 }
 
-const TYPE_VIEW_ACCESSIBILITY_FOCUSED = AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED;
-const TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED = AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED;
 let lastFocusedView: WeakRef<TNSView>;
-function accessibilityEventHelper(view: TNSView, eventType: number) {
+function accessibilityEventHelper(owner: TNSView, eventType: number) {
   if (!isAccessibilityServiceEnabled()) {
     return;
   }
 
-  if (!view) {
+  if (!owner) {
     return;
   }
 
-  const isReceivedFocusEvent = eventType === TYPE_VIEW_ACCESSIBILITY_FOCUSED;
-  const isLostFocusEvent = eventType === TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED;
+  switch (eventType) {
+    case AccessibilityEvent.TYPE_VIEW_CLICKED: {
+      /**
+       * Android API >= 26 handles accessibility tap-events by converting them to TYPE_VIEW_CLICKED
+       * These aren't triggered for custom tap events in NativeScript.
+       */
+      if (android.os.Build.VERSION.SDK_INT >= 26) {
+        // Find all tap gestures and trigger them.
+        for (const tapGesture of owner.getGestureObservers(GestureTypes.tap) || []) {
+          tapGesture.callback({
+            android: owner.android,
+            eventName: 'tap',
+            ios: null,
+            object: owner,
+            type: GestureTypes.tap,
+            view: owner,
+          });
+        }
+      }
 
-  if (isReceivedFocusEvent || isLostFocusEvent) {
-    if (isReceivedFocusEvent) {
+      return;
+    }
+    case AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED: {
       const lastView = lastFocusedView && lastFocusedView.get();
-      if (lastView && view !== lastView) {
+      if (lastView && owner !== lastView) {
         notifyAccessibilityFocusState(lastView, false, true);
       }
 
-      lastFocusedView = new WeakRef(view);
+      lastFocusedView = new WeakRef(owner);
+      notifyAccessibilityFocusState(owner, true, false);
+      return;
     }
-
-    notifyAccessibilityFocusState(view, isReceivedFocusEvent, isLostFocusEvent);
-    return;
-  }
-
-  /**
-   * Android API >= 26 handles accessibility tap-events by converting them to TYPE_VIEW_CLICKED
-   * These aren't triggered for custom tap events in NativeScript.
-   */
-  if (android.os.Build.VERSION.SDK_INT >= 26) {
-    if (eventType === AccessibilityEvent.TYPE_VIEW_CLICKED) {
-      // Find all tap gestures and trigger them.
-      for (const tapGesture of view.getGestureObservers(GestureTypes.tap) || []) {
-        tapGesture.callback({
-          android: null,
-          eventName: 'tap',
-          ios: null,
-          object: view,
-          type: GestureTypes.tap,
-          view,
-        });
+    case AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED: {
+      const lastView = lastFocusedView && lastFocusedView.get();
+      if (lastView && owner === lastView) {
+        lastFocusedView = null;
       }
 
+      notifyAccessibilityFocusState(owner, false, true);
       return;
     }
   }

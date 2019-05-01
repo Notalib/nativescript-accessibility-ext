@@ -28,16 +28,16 @@ Make an announcement to the screen reader.
 
 | msg | Description |
 | --- | ----------- |
-| annnouncement text | The text that will be read by the screen reader |
+| announcement text | The text that will be read by the screen reader |
 | null | The elements automationText of the element will be read by the screen reader instead |
 
 #### Attribute: View.accessibilityLabel (iOS, Android)
-Set the accessibility label on the element, this will be read by the screen reader inplace in any 'text' value the element has.
+Set the accessibility label on the element, this will be read by the screen reader in-place in any 'text' value the element has.
 Important note:
   NativeScript provides the property automationText, this sets both `accessibilityLabel` AND `accessibilityIdentifier` on iOS which can break automated tests.
   If you use `accessibilityLabel` from this plugin, don't use `automationText` at the same time.
 
-### CSSClasse: Page.a11y-fontscale (iOS, Android)
+### CSSClasses: Page.a11y-fontscale (iOS, Android)
 If you need to apply different styling when fonts are scaled, these css-classes are available on the Page.
 
 The number indicated pct font scale:
@@ -61,7 +61,7 @@ If you want auto scaling on iOS Labels see: Label.accessibilityAdjustsFontSize
 Reading https://nshipster.com/uiaccessibility/ is recommended.
 
 #### Attribute: View.accessibilityTraits (iOS)
-Set one or more traits that best fits the elemnet. Comma or space separated list of traits.
+Set one or more traits that best fits the element. Comma or space separated list of traits.
 
 | key | Description |
 | --- | ----------- |
@@ -108,7 +108,7 @@ Defaults to `false`.
 ## Attribute: Label.accessibilityAdjustsFontSize (iOS)
 Scales the font on a Label on iOS according to the settings in Settings -> General -> Accessibility -> Larger text
 On Android this is handled automatically, on iOS you have to specify it yourself.
-Note: It's similar to UILabel.adjustsFontForContentSizeCategory but affects all fonts not just the preferedFonts.
+Note: It's similar to UILabel.adjustsFontForContentSizeCategory but affects all fonts not just the preferredFonts.
 Note: Font Scale between 50% and 400%. 200% -> 400% are extra large accessibility font scaling
 
 #### Function: View.postAccessibilityNotification(notificationType: string, arg?: string | null) (iOS)
@@ -119,13 +119,13 @@ Post an accessibility notification to iOS.
 
 | notificationType | Description |
 | --- | ----------- |
-| screen | Notify iOS that the sceen have changed |
+| screen | Notify iOS that the screen have changed |
 | layout | Notify iOS that the layout have changed |
-| announcement | Make an announcement to the scren reader (Please use: view.accessibilityAnnouncement(msg) for both platforms) |
+| announcement | Make an announcement to the screen reader (Please use: view.accessibilityAnnouncement(msg) for both platforms) |
 
 | arg | Description |
 | --- | ----------- |
-| text | notificationType = 'announcement': Annoucement text to be read |
+| text | notificationType = 'announcement': Announcement text to be read |
 | null | notificationType = 'layout': do nothing. notificationType = 'screen': auto selects, the first accessible element within this element will be given accessibility focus |
 
 ### Attributes and functions for `Android`-only

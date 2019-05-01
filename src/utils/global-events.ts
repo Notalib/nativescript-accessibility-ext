@@ -31,20 +31,21 @@ import { TimePicker } from 'tns-core-modules/ui/time-picker/time-picker';
 import { WebView } from 'tns-core-modules/ui/web-view/web-view';
 import { wrapViewFunction } from '../utils/helpers';
 
-const observable = new Observable();
-
 export function setupGlobalEventsOnViewType(View: any) {
+  const observable = new Observable();
   wrapViewFunction(View, 'notify', function customNotify(arg: EventData) {
     observable.notify(arg);
   });
 
-  View.on = View.addEventListener = function(eventNames: string, callback: (data: EventData) => void, thisArg?: any) {
+  View.on = View.addEventListener = function customAddEventListener(eventNames: string, callback: (data: EventData) => void, thisArg?: any) {
     observable.on(eventNames, callback, thisArg);
   };
-  View.once = function(eventNames: string, callback: (data: EventData) => void, thisArg?: any) {
+
+  View.once = function customAddOnceEventListener(eventNames: string, callback: (data: EventData) => void, thisArg?: any) {
     observable.once(eventNames, callback, thisArg);
   };
-  View.off = View.removeEventListener = function(eventNames: string, callback?: any, thisArg?: any) {
+
+  View.off = View.removeEventListener = function customRemoveEventListener(eventNames: string, callback?: any, thisArg?: any) {
     observable.off(eventNames, callback, thisArg);
   };
 }

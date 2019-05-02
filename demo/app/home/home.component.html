@@ -1,21 +1,30 @@
 <ActionBar title="{N} accessibility" accessibilityLabel="{N} accessibility" class="action-bar"></ActionBar>
 
-<StackLayout class="p-20">
-  <ios>
-    <StackLayout *ngIf="!screenReaderEnabled" class="text-center h1 screen-reader">
-      <Label text="You need to enable VoiceOver" textWrap="true"></Label>
-    </StackLayout>
-    <StackLayout *ngIf="screenReaderEnabled" class="text-center h1 screen-reader">
-      <Label text="VoiceOver enabled" textWrap="true"></Label>
-    </StackLayout>
-  </ios>
+<GridLayout class="p-b-10 p-t-10" rows="auto, *" columns="*">
+  <StackLayout row="0">
+    <ios>
+      <StackLayout *ngIf="!screenReaderEnabled" class="text-center h1 screen-reader">
+        <Label text="You need to enable VoiceOver" textWrap="true"></Label>
+      </StackLayout>
+      <StackLayout *ngIf="screenReaderEnabled" class="text-center h1 screen-reader">
+        <Label text="VoiceOver enabled" textWrap="true"></Label>
+      </StackLayout>
+    </ios>
 
-  <android>
-    <StackLayout *ngIf="!screenReaderEnabled" class="text-center h1 screen-reader">
-      <Label text="You need to enable TalkBack" textWrap="true"></Label>
-    </StackLayout>
-    <StackLayout *ngIf="screenReaderEnabled" class="text-center h1 screen-reader">
-      <Label text="TalkBack enabled" textWrap="true"></Label>
-    </StackLayout>
-  </android>
-</StackLayout>
+    <android>
+      <StackLayout *ngIf="!screenReaderEnabled" class="text-center h1 screen-reader">
+        <Label text="You need to enable TalkBack" textWrap="true"></Label>
+      </StackLayout>
+      <StackLayout *ngIf="screenReaderEnabled" class="text-center h1 screen-reader">
+        <Label text="TalkBack enabled" textWrap="true"></Label>
+      </StackLayout>
+    </android>
+  </StackLayout>
+  <ListView row="1" [items]="source" (loaded)="onLoaded($event)" (itemLoading)="onItemLoading($event)" (itemTap)="onItemTap($event)" class="list-group">
+    <ng-template let-item="item" let-index="index" let-odd="odd" let-even="even">
+      <StackLayout [class.odd]="odd" [class.even]="even" accessible="true" (accessibilityFocus)="onAccessibilityFocus($event, index)" class="list-group-item">
+        <Label [text]="item.name"></Label>
+      </StackLayout>
+    </ng-template>
+  </ListView>
+</GridLayout>

@@ -1,5 +1,7 @@
-import { View as TNSView } from 'tns-core-modules/ui/core/view';
+import { EventData, View as TNSView } from 'tns-core-modules/ui/core/view';
 import { GestureTypes } from 'tns-core-modules/ui/gestures/gestures';
+import { ListView } from 'tns-core-modules/ui/list-view/list-view';
+import * as utils from 'tns-core-modules/utils/utils';
 import { notifyAccessibilityFocusState, writeTrace } from './helpers';
 import { isAccessibilityServiceEnabled } from './utils';
 
@@ -11,24 +13,19 @@ const AccessibilityDelegateCompat = android.support.v4.view.AccessibilityDelegat
 type AccessibilityDelegateCompat = android.support.v4.view.AccessibilityDelegateCompat;
 const AccessibilityNodeInfoCompat = android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 type AccessibilityNodeInfoCompat = android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
-const RecyclerViewAccessibilityDelegate = android.support.v7.widget.RecyclerViewAccessibilityDelegate;
-type RecyclerViewAccessibilityDelegate = android.support.v7.widget.RecyclerViewAccessibilityDelegate;
-const RecyclerViewAccessibilityItemDelegate = android.support.v7.widget.RecyclerViewAccessibilityDelegate.ItemDelegate;
-type RecyclerViewAccessibilityItemDelegate = android.support.v7.widget.RecyclerViewAccessibilityDelegate.ItemDelegate;
-
 const AndroidView = android.view.View;
 type AndroidView = android.view.View;
 const AndroidViewGroup = android.view.ViewGroup;
 type AndroidViewGroup = android.view.ViewGroup;
 const ViewCompat = android.support.v4.view.ViewCompat;
 type ViewCompat = android.support.v4.view.ViewCompat;
-const AndroidBundle = android.os.Bundle;
-type AndroidBundle = android.os.Bundle;
 
 function getAccessibilityManager(view: AndroidView): AccessibilityManager {
   return view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
 }
 
+let suspendAccessibilityEvents = false;
+const a11yScrollOnFocus = 'a11y-scroll-on-focus';
 let lastFocusedView: WeakRef<TNSView>;
 function accessibilityEventHelper(owner: TNSView, eventType: number) {
   if (!isAccessibilityServiceEnabled()) {
@@ -68,7 +65,25 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
       }
 
       lastFocusedView = new WeakRef(owner);
+
+      const androidView = owner.android as AndroidView;
       notifyAccessibilityFocusState(owner, true, false);
+
+      console.log(`${owner} - ${androidView.isAccessibilityFocused()} - start`);
+
+      for (let node = owner; node; node = node.parent as TNSView) {
+        node.notify({
+          eventName: a11yScrollOnFocus,
+          object: owner,
+        });
+
+        if (node.typeName === 'ListView') {
+          break;
+        }
+      }
+
+      console.log(`${owner} - ${androidView.isAccessibilityFocused()} - end`);
+
       return;
     }
     case AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED: {
@@ -84,11 +99,6 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
 }
 
 export let TNSAccessibilityDelegateCompat: new (owner: TNSView) => AccessibilityDelegateCompat;
-export let TNSRecylerViewAccessibilityDelegateCompat: new (owner: TNSView) => RecyclerViewAccessibilityDelegate;
-export let TNSRecylerViewAccessibilityItemDelegateCompat: new (
-  recyclerViewDelegate: RecyclerViewAccessibilityDelegate,
-  owner: TNSView,
-) => RecyclerViewAccessibilityItemDelegate;
 
 function ensureDelegates() {
   if (TNSAccessibilityDelegateCompat) {
@@ -134,117 +144,19 @@ function ensureDelegates() {
     public sendAccessibilityEvent(host: AndroidViewGroup, eventType: number) {
       super.sendAccessibilityEvent(host, eventType);
 
+      if (suspendAccessibilityEvents) {
+        return;
+      }
+
       accessibilityEventHelper(this.owner.get(), eventType);
+    }
+
+    public onRequestSendAccessibilityEvent(host: AndroidViewGroup, view: AndroidView, event: AccessibilityEvent) {
+      return super.onRequestSendAccessibilityEvent(host, view, event);
     }
   }
 
   TNSAccessibilityDelegateCompat = TNSAccessibilityDelegateCompatImpl;
-
-  class TNSRecylerViewAccessibilityDelegateCompatImpl extends RecyclerViewAccessibilityDelegate {
-    private readonly owner: WeakRef<TNSView>;
-
-    constructor(owner: TNSView) {
-      super();
-
-      this.owner = new WeakRef(owner);
-
-      return global.__native(this);
-    }
-
-    public performAccessibilityAction(host: AndroidView, action: number, bundle: AndroidBundle) {
-      console.log(`${this}<${this.owner.get()}>.performAccessibilityAction(${host}, ${action}, ${bundle})`);
-      return super.performAccessibilityAction(host, action, bundle);
-    }
-    public onInitializeAccessibilityNodeInfo(host: AndroidView, info: AccessibilityNodeInfoCompat) {
-      console.log(`${this}<${this.owner.get()}>.onInitializeAccessibilityNodeInfo(${host}, ${info})`);
-      return super.onInitializeAccessibilityNodeInfo(host, info);
-    }
-    public onInitializeAccessibilityEvent(host: AndroidView, event: AccessibilityEvent) {
-      console.log(`${this}<${this.owner.get()}>.onInitializeAccessibilityEvent(${host}, ${event})`);
-      super.onInitializeAccessibilityEvent(host, event);
-    }
-    public getItemDelegate() {
-      console.log(`${this}<${this.owner.get()}>.getItemDelegate()`);
-      return new TNSRecylerViewAccessibilityItemDelegateCompat(this, this.owner.get());
-    }
-    public dispatchPopulateAccessibilityEvent(host: AndroidView, event: AccessibilityEvent) {
-      console.log(`${this}<${this.owner.get()}>.dispatchPopulateAccessibilityEvent(${host}, ${event})`);
-      return super.dispatchPopulateAccessibilityEvent(host, event);
-    }
-    public getAccessibilityNodeProvider(host: AndroidView) {
-      console.log(`${this}<${this.owner.get()}>.getAccessibilityNodeProvider(${host})`);
-      return super.getAccessibilityNodeProvider(host);
-    }
-    public sendAccessibilityEvent(host: AndroidView, eventType: number) {
-      console.log(`${this}<${this.owner.get()}>.sendAccessibilityEvent(${host}, ${eventType})`);
-      super.sendAccessibilityEvent(host, eventType);
-    }
-    public sendAccessibilityEventUnchecked(host: AndroidView, eventType: AccessibilityEvent) {
-      console.log(`${this}<${this.owner.get()}>.sendAccessibilityEventUnchecked(${host}, ${eventType})`);
-      super.sendAccessibilityEventUnchecked(host, eventType);
-    }
-    public onRequestSendAccessibilityEvent(viewGroup: AndroidViewGroup, host: AndroidView, event: AccessibilityEvent) {
-      console.log(`${this}<${this.owner.get()}>.onRequestSendAccessibilityEvent(${host}, ${host}, ${event})`);
-      return super.onRequestSendAccessibilityEvent(viewGroup, host, event);
-    }
-    public onPopulateAccessibilityEvent(host: AndroidView, event: AccessibilityEvent) {
-      console.log(`${this}<${this.owner.get()}>.onPopulateAccessibilityEvent(${host}, ${event})`);
-      return super.onPopulateAccessibilityEvent(host, event);
-    }
-  }
-
-  TNSRecylerViewAccessibilityDelegateCompat = TNSRecylerViewAccessibilityDelegateCompatImpl;
-
-  class TNSRecylerViewAccessibilityItemDelegateCompatImpl extends RecyclerViewAccessibilityItemDelegate {
-    private readonly owner: WeakRef<TNSView>;
-
-    constructor(recyclerViewDelegate: RecyclerViewAccessibilityDelegate, owner: TNSView) {
-      super(recyclerViewDelegate);
-
-      this.owner = new WeakRef(owner);
-
-      return global.__native(this);
-    }
-
-    public performAccessibilityAction(host: AndroidView, action: number, bundle: AndroidBundle) {
-      console.log(`${this}<${this.owner.get()}>.performAccessibilityAction(${host}, ${action}, ${bundle})`);
-      return super.performAccessibilityAction(host, action, bundle);
-    }
-    public onInitializeAccessibilityNodeInfo(host: AndroidView, info: AccessibilityNodeInfoCompat) {
-      console.log(`${this}<${this.owner.get()}>.onInitializeAccessibilityNodeInfo(${host}, ${info})`);
-      return super.onInitializeAccessibilityNodeInfo(host, info);
-    }
-    public onInitializeAccessibilityEvent(host: AndroidView, event: AccessibilityEvent) {
-      console.log(`${this}<${this.owner.get()}>.onInitializeAccessibilityEvent(${host}, ${event})`);
-      super.onInitializeAccessibilityEvent(host, event);
-    }
-    public dispatchPopulateAccessibilityEvent(host: AndroidView, event: AccessibilityEvent) {
-      console.log(`${this}<${this.owner.get()}>.dispatchPopulateAccessibilityEvent(${host}, ${event})`);
-      return super.dispatchPopulateAccessibilityEvent(host, event);
-    }
-    public getAccessibilityNodeProvider(host: AndroidView) {
-      console.log(`${this}<${this.owner.get()}>.getAccessibilityNodeProvider(${host})`);
-      return super.getAccessibilityNodeProvider(host);
-    }
-    public sendAccessibilityEvent(host: AndroidView, eventType: number) {
-      console.log(`${this}<${this.owner.get()}>.sendAccessibilityEvent(${host}, ${eventType})`);
-      super.sendAccessibilityEvent(host, eventType);
-    }
-    public sendAccessibilityEventUnchecked(host: AndroidView, eventType: AccessibilityEvent) {
-      console.log(`${this}<${this.owner.get()}>.sendAccessibilityEventUnchecked(${host}, ${eventType})`);
-      super.sendAccessibilityEventUnchecked(host, eventType);
-    }
-    public onRequestSendAccessibilityEvent(viewGroup: AndroidViewGroup, host: AndroidView, event: AccessibilityEvent) {
-      console.log(`${this}<${this.owner.get()}>.onRequestSendAccessibilityEvent(${host}, ${host}, ${event})`);
-      return super.onRequestSendAccessibilityEvent(viewGroup, host, event);
-    }
-    public onPopulateAccessibilityEvent(host: AndroidView, event: AccessibilityEvent) {
-      console.log(`${this}<${this.owner.get()}>.onPopulateAccessibilityEvent(${host}, ${event})`);
-      return super.onPopulateAccessibilityEvent(host, event);
-    }
-  }
-
-  TNSRecylerViewAccessibilityItemDelegateCompat = TNSRecylerViewAccessibilityItemDelegateCompatImpl;
 }
 
 let accessibilityEventMap: Map<string, number>;
@@ -485,3 +397,77 @@ export class AccessibilityHelper {
     return contentDescription;
   }
 }
+
+function a11yScrollToEvent(listView: ListView, index: number, event: EventData) {
+  if (suspendAccessibilityEvents) {
+    return;
+  }
+
+  try {
+    suspendAccessibilityEvents = true;
+
+    const view = event.object as TNSView;
+    const androidListView = listView.android as android.widget.ListView;
+
+    const viewSize = view.getActualSize();
+    const viewPos = view.getLocationRelativeTo(listView);
+    const listViewSize = listView.getActualSize();
+
+    const viewPosDelta = {
+      x2: viewSize.width + viewPos.x,
+      y2: viewSize.height + viewPos.y,
+    };
+
+    const offsetPadding = 10;
+    const minOffset = offsetPadding;
+    const maxOffset = listViewSize.height - offsetPadding;
+    if (viewPos.y >= minOffset && viewPosDelta.y2 <= maxOffset) {
+      console.log('on-screen', {
+        ...viewSize,
+        ...viewPos,
+        ...viewPosDelta,
+        index,
+      });
+
+      return;
+    }
+
+    const wantedScrollOffset = viewPos.y < 0 ? offsetPadding : listViewSize.height - viewSize.height - offsetPadding;
+    const scrollByDIP = viewPos.y - wantedScrollOffset;
+    const scrollByDP = utils.layout.toDevicePixels(scrollByDIP);
+
+    console.log({
+      ...viewSize,
+      ...viewPos,
+      ...viewPosDelta,
+      wantedScrollOffset,
+      scrollByDIP,
+      scrollByDP,
+      listViewSize,
+      index,
+    });
+
+    // We get a better result from ListViewCompat.scrollListBy than from ListView.scrollListBy.
+    android.support.v4.widget.ListViewCompat.scrollListBy(androidListView, scrollByDP);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    suspendAccessibilityEvents = false;
+  }
+}
+
+ListView.on(ListView.itemLoadingEvent, (args: any) => {
+  const listView = args.object as ListView;
+  const index = args.index as number;
+  const view = args.view as TNSView;
+
+  if (!view) {
+    return;
+  }
+
+  view.off(a11yScrollOnFocus);
+
+  console.log(`${ListView.itemLoadingEvent} ${view} ${listView} ${index}`);
+
+  view.on(a11yScrollOnFocus, a11yScrollToEvent.bind(null, listView, index));
+});

@@ -10,7 +10,8 @@
         "lib": [
             "es6",
             "dom",
-            "es2015.iterable"
+            "es2015.iterable",
+            "es2017.object"
         ],
         "baseUrl": ".",
         "paths": {

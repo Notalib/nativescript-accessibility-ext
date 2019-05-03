@@ -398,16 +398,26 @@ export class AccessibilityHelper {
   }
 }
 
-function a11yScrollToEvent(listView: ListView, index: number, event: EventData) {
+/**
+ * When the user navigates to a ListView item, we need to keep it on screen.
+ * Otherwise we risk buggy behavior, where the ListView jumps to the top or selects a < half
+ * visible element.
+ */
+function ensureListViewItemIsOnScreen(listView: ListView, index: number, event: EventData) {
+  const view = event.object as TNSView;
+
+  console.log(`${listView} - ${index} - ${view} - ${suspendAccessibilityEvents}`);
   if (suspendAccessibilityEvents) {
     return;
   }
 
   try {
     suspendAccessibilityEvents = true;
-
-    const view = event.object as TNSView;
     const androidListView = listView.android as android.widget.ListView;
+    if (!listView.android) {
+      // This really shouldn't happen, but just in case.
+      return;
+    }
 
     const viewSize = view.getActualSize();
     const viewPos = view.getLocationRelativeTo(listView);
@@ -418,10 +428,17 @@ function a11yScrollToEvent(listView: ListView, index: number, event: EventData) 
       y2: viewSize.height + viewPos.y,
     };
 
+    // To make sure the prev/next element exists add a small padding
     const offsetPadding = 10;
+
+    // Minimum y-offset for the view to be on screen.
     const minOffset = offsetPadding;
+
+    // Maximum y-offset for the view to be on screen
     const maxOffset = listViewSize.height - offsetPadding;
+
     if (viewPos.y >= minOffset && viewPosDelta.y2 <= maxOffset) {
+      // The view is on screen, no need to scroll anything.
       console.log('on-screen', {
         ...viewSize,
         ...viewPos,
@@ -432,8 +449,20 @@ function a11yScrollToEvent(listView: ListView, index: number, event: EventData) 
       return;
     }
 
+    /**
+     * The ListView needs to be scrolled.
+     *
+     * ListView can only be scrolled relative to the current position,
+     * so we need to calculate the relative scrollBy value.
+     */
+
+    // 1st calculate at which offset the view should end up at.
     const wantedScrollOffset = viewPos.y < 0 ? offsetPadding : listViewSize.height - viewSize.height - offsetPadding;
+
+    // 2nd calcucate the difference between the current y-offset and the wanted offset.
     const scrollByDIP = viewPos.y - wantedScrollOffset;
+
+    // 3nd convert to real device pixels.
     const scrollByDP = utils.layout.toDevicePixels(scrollByDIP);
 
     console.log({
@@ -447,7 +476,8 @@ function a11yScrollToEvent(listView: ListView, index: number, event: EventData) 
       index,
     });
 
-    // We get a better result from ListViewCompat.scrollListBy than from ListView.scrollListBy.
+    // Finally scroll this ListView.
+    // Note: We get a better result from ListViewCompat.scrollListBy than from ListView.scrollListBy.
     android.support.v4.widget.ListViewCompat.scrollListBy(androidListView, scrollByDP);
   } catch (err) {
     console.error(err);
@@ -456,18 +486,45 @@ function a11yScrollToEvent(listView: ListView, index: number, event: EventData) 
   }
 }
 
-ListView.on(ListView.itemLoadingEvent, (args: any) => {
-  const listView = args.object as ListView;
-  const index = args.index as number;
-  const view = args.view as TNSView;
-
-  if (!view) {
+/**
+ * Set the ListView item's AccessibilityDelegate on load. this is needed to scroll into view.
+ */
+function listViewItemLoaded(event: EventData) {
+  const tnsView = event.object as TNSView;
+  if (!tnsView.android) {
     return;
   }
 
-  view.off(a11yScrollOnFocus);
+  ViewCompat.setAccessibilityDelegate(tnsView.android, new TNSAccessibilityDelegateCompat(tnsView));
+}
 
-  console.log(`${ListView.itemLoadingEvent} ${view} ${listView} ${index}`);
+ListView.on(ListView.itemLoadingEvent, (args: any) => {
+  const listView = args.object as ListView;
+  const index = args.index as number;
+  const tnsView = args.view as TNSView;
 
-  view.on(a11yScrollOnFocus, a11yScrollToEvent.bind(null, listView, index));
+  console.log(`${ListView.itemLoadingEvent} - ${listView} - ${index} - ${tnsView} - ${suspendAccessibilityEvents}`);
+
+  if (!tnsView) {
+    return;
+  }
+
+  tnsView.off(a11yScrollOnFocus);
+
+  tnsView.on(a11yScrollOnFocus, ensureListViewItemIsOnScreen.bind(null, listView, index));
+
+  for (let p = tnsView; p && p !== listView; p = p.parent as TNSView) {
+    p.off(TNSView.loadedEvent, listViewItemLoaded);
+
+    if (!p.isLoaded) {
+      p.on(TNSView.loadedEvent, listViewItemLoaded);
+      continue;
+    }
+
+    if (!p.android) {
+      continue;
+    }
+
+    ViewCompat.setAccessibilityDelegate(p.android, new TNSAccessibilityDelegateCompat(tnsView));
+  }
 });

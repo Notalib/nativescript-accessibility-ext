@@ -31,7 +31,7 @@ $a11y-font-sizes: (
   ),
   30: (
     scales: $a11y-font-scales,
-  )
+  ),
 ) !default;
 
 @each $font-size, $values in $a11y-font-sizes {
@@ -40,8 +40,8 @@ $a11y-font-sizes: (
   @each $scale, $params in $scales {
     $factor: map-get($params, factor);
 
-    Page.a11y-fontscale-#{$scale} {
-      .t-#{$font-size} {
+    .t-#{$font-size} {
+      &.a11y-fontscale-#{$scale} {
         font-size: $font-size * $factor;
       }
     }

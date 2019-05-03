@@ -1,5 +1,6 @@
 // @ts-ignore
 import { EventData } from 'tns-core-modules/data/observable';
+import { FontScaleObservable } from '../../utils/FontScaleObservable';
 
 // @ts-ignore
 declare module 'tns-core-modules/ui/core/view' {
@@ -7,6 +8,7 @@ declare module 'tns-core-modules/ui/core/view' {
   type PostAccessibilityNotificationType = 'announcement' | 'screen' | 'layout';
 
   interface View {
+    fontScaleObservable?: FontScaleObservable | void;
     // Common for both platforms
 
     /**

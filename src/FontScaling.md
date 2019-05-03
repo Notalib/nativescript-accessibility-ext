@@ -6,6 +6,7 @@ You need to support users with a visual impairment that requires larger fonts.
 You can solve this in a number of ways.
 
 ## Using: Label.accessibilityAdjustsFontSize (iOS only)
+
 On Android Labels are already scaled, so you don't need to do anything here.
 
 On iOS you can set the property **accessibilityAdjustsFontSize** on a Label, to have the text scale automatically.
@@ -14,6 +15,7 @@ It works by listening to the Label's font scale and iOS' setting for the font sc
 and the UI height is always updated. This causes the UI to jump.
 
 ## Using stylesheets.
+
 **nativescript-theme-core** provides CSS classes for standardized font-sizes.
 `.t-NN, .hN, .body, .body2... etc`
 
@@ -41,21 +43,15 @@ $my-custom-height: 40;
 $my-custom-margin: 2;
 @each $scale, $params in $a11y-font-scales {
   $factor: map-get($params, factor);
-  Page.a11y-fontscale-#{$scale} {
-    &.ios {
-      .my-class {
+  .my-class {
+    &.a11y-fontscale-#{$scale} {
+      height: $my-custom-height * $factor;
+      $.ios {
         font-size: $my-custom-font-size: * $factor;
       }
-    }
-
-    &.android {
-      .my-class {
+      &.android {
         margin: $my-custom-margin * $factor;
       }
-    }
-
-    .my-class {
-      height: $my-custom-height * $factor;
     }
   }
 }
@@ -72,22 +68,15 @@ $my-custom-height: 40;
 $my-custom-margin: 2;
 @each $scale, $params in $a11y-font-scales {
   $factor: map-get($params, factor);
-
-  Page.a11y-fontscale-#{$scale} :host {
-    &.ios {
-      .my-class {
+  .my-class {
+    &.a11y-fontscale-#{$scale} {
+      height: $my-custom-height * $factor;
+      $.ios {
         font-size: $my-custom-font-size: * $factor;
       }
-    }
-
-    &.android {
-      .my-class {
+      &.android {
         margin: $my-custom-margin * $factor;
       }
-    }
-
-    .my-class {
-      height: $my-custom-height * $factor;
     }
   }
 }

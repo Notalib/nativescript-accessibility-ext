@@ -23,12 +23,13 @@ function useAndroidFontScale() {
   fontScaleChanged(Number(nsApp.android.context.getResources().getConfiguration().fontScale));
 }
 
-function ensureObservable() {
-  if (internalObservable) {
+function setupConfigListener() {
+  nsApp.off(nsApp.launchEvent, setupConfigListener);
+
+  if (!nsApp.android.context) {
+    nsApp.on(nsApp.launchEvent, setupConfigListener);
     return;
   }
-
-  internalObservable = new Observable();
 
   useAndroidFontScale();
 
@@ -46,9 +47,17 @@ function ensureObservable() {
     }),
   );
 
-  nsApp.on(nsApp.resumeEvent, () => {
-    useAndroidFontScale();
-  });
+  nsApp.on(nsApp.resumeEvent, useAndroidFontScale);
+}
+
+function ensureObservable() {
+  if (internalObservable) {
+    return;
+  }
+
+  internalObservable = new Observable();
+
+  setupConfigListener();
 }
 
 export class FontScaleObservable extends Observable {

@@ -103,7 +103,7 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
   }
 }
 
-export let TNSAccessibilityDelegateCompat: new (owner: TNSView) => AccessibilityDelegateCompat;
+let TNSAccessibilityDelegateCompat: new (owner: TNSView) => AccessibilityDelegateCompat;
 
 function ensureDelegates() {
   if (TNSAccessibilityDelegateCompat) {

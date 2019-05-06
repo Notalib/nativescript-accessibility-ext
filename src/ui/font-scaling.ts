@@ -8,7 +8,12 @@ import { FontScaleObservable } from '../utils/FontScaleObservable';
 import '../utils/global-events';
 
 const fontScaleCssClasses = FontScaleObservable.VALID_FONT_SCALES.map(fontScaleToCssClass);
-const viewRefMap = new Set<WeakRef<View>>();
+
+/**
+ * Keep a list of WeakRefs to loaded views.
+ * These are needed when the fontScale value changes.
+ **/
+const loadedViewRefs = new Set<WeakRef<View>>();
 
 function fontScaleToCssClass(fontScale: number) {
   return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;
@@ -57,10 +62,11 @@ fontScaleObservable.on(Observable.propertyChangeEvent, (args: PropertyChangeData
 
   const fontScale = args.value;
   writeFontScaleTrace(`${cls}: ${FontScaleObservable.FONT_SCALE} changed to ${fontScale}`);
-  for (const viewRef of viewRefMap) {
+  for (const viewRef of loadedViewRefs) {
     const view = viewRef.get();
     if (!view) {
-      viewRefMap.delete(viewRef);
+      // This view doesn't exists anymore, remove the WeakRef from the set.
+      loadedViewRefs.delete(viewRef);
       continue;
     }
 
@@ -76,10 +82,11 @@ View.on(View.loadedEvent, function loadedEventCb({ object: view }: EventData) {
     return;
   }
 
-  for (const viewRef of viewRefMap) {
+  for (const viewRef of loadedViewRefs) {
     const otherView = viewRef.get();
     if (!otherView) {
-      viewRefMap.delete(viewRef);
+      // This view doesn't exists anymore, remove the WeakRef from the set.
+      loadedViewRefs.delete(viewRef);
       continue;
     }
 
@@ -96,7 +103,7 @@ View.on(View.loadedEvent, function loadedEventCb({ object: view }: EventData) {
 
   const fontScale = fontScaleObservable.get(FontScaleObservable.FONT_SCALE);
   setFontScaleClass(view, fontScale);
-  viewRefMap.add(new WeakRef(view));
+  loadedViewRefs.add(new WeakRef(view));
 });
 
 View.on(View.unloadedEvent, function unloadedEventCb({ object: view }: EventData) {
@@ -104,15 +111,16 @@ View.on(View.unloadedEvent, function unloadedEventCb({ object: view }: EventData
     return;
   }
 
-  for (const viewRef of viewRefMap) {
+  for (const viewRef of loadedViewRefs) {
     const otherView = viewRef.get();
     if (!otherView) {
-      viewRefMap.delete(viewRef);
+      // This view doesn't exists anymore, remove the WeakRef from the set.
+      loadedViewRefs.delete(viewRef);
       continue;
     }
 
     if (otherView === view) {
-      viewRefMap.delete(viewRef);
+      loadedViewRefs.delete(viewRef);
       return;
     }
   }

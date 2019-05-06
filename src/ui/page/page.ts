@@ -3,9 +3,9 @@
 import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
 import { isAndroid, isIOS } from 'tns-core-modules/platform';
 import { Page, PageEventData } from 'tns-core-modules/ui/page';
+import { writeTrace } from '../../trace';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
 import '../../utils/global-events';
-import { writeTrace } from '../../utils/helpers';
 
 function fontScaleToCssClass(fontScale: number) {
   return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;

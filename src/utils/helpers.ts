@@ -1,6 +1,5 @@
 /// <reference path="../ui/core/view.d.ts" />
 
-import * as trace from 'tns-core-modules/trace';
 import { Property } from 'tns-core-modules/ui/core/properties';
 import {
   AccessibilityBlurEventData,
@@ -9,6 +8,7 @@ import {
   booleanConverter,
   View,
 } from 'tns-core-modules/ui/core/view';
+import { isTraceEnabled, writeTrace } from '../trace';
 
 export function noop() {
   // ignore
@@ -43,7 +43,9 @@ export function enforceArray(val: string | string[]): string[] {
     return val.split(/[, ]/g).filter((v: string) => !!v);
   }
 
-  writeTrace(`enforceArray: val is of unsupported type: ${val} -> ${typeof val}`);
+  if (isTraceEnabled()) {
+    writeTrace(`enforceArray: val is of unsupported type: ${val} -> ${typeof val}`);
+  }
 
   return [];
 }
@@ -92,23 +94,6 @@ export function addBooleanPropertyToView<ViewClass extends View>(
 }
 
 /**
- * Write to NativeScript's trace.
- */
-export function writeTrace(message: string, type = trace.messageType.info) {
-  if (trace.isEnabled()) {
-    trace.write(message, 'A11Y', type);
-  }
-}
-
-export function writeErrorTrace(message) {
-  writeTrace(message, trace.messageType.error);
-}
-
-export function writeWarnTrace(message) {
-  writeTrace(message, trace.messageType.warn);
-}
-
-/**
  * Send notification when accessibility focus state changes.
  * If either receivedFocus or lostFocus is true, 'accessibilityFocusChanged' is send with value true if element received focus
  * If receivedFocus, 'accessibilityFocus' is send
@@ -123,14 +108,16 @@ export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean
     return;
   }
 
-  writeTrace(
-    `notifyAccessibilityFocusState: ${JSON.stringify({
-      name: 'notifyAccessibilityFocusState',
-      receivedFocus,
-      lostFocus,
-      view: String(view),
-    })}`,
-  );
+  if (isTraceEnabled()) {
+    writeTrace(
+      `notifyAccessibilityFocusState: ${JSON.stringify({
+        name: 'notifyAccessibilityFocusState',
+        receivedFocus,
+        lostFocus,
+        view: String(view),
+      })}`,
+    );
+  }
 
   view.notify({
     eventName: View.accessibilityFocusChangedEvent,

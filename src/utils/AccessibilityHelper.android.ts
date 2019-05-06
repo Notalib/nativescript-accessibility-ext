@@ -1,6 +1,7 @@
 import { View as TNSView } from 'tns-core-modules/ui/core/view';
 import { GestureTypes } from 'tns-core-modules/ui/gestures/gestures';
-import { notifyAccessibilityFocusState, writeTrace } from './helpers';
+import { writeTrace } from '../trace';
+import { notifyAccessibilityFocusState } from './helpers';
 import { isAccessibilityServiceEnabled } from './utils';
 
 const AccessibilityEvent = android.view.accessibility.AccessibilityEvent;

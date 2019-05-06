@@ -1,6 +1,6 @@
 import * as nsApp from 'tns-core-modules/application';
 import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
-import { writeTrace } from './helpers';
+import { isTraceEnabled, writeFontScaleTrace } from '../trace';
 
 function getClosestValidFontScale(fontScale: number) {
   return FontScaleObservable.VALID_FONT_SCALES.sort((a, b) => Math.abs(fontScale - a) - Math.abs(fontScale - b)).shift();
@@ -10,11 +10,15 @@ let internalObservable: Observable;
 function fontScaleChanged(fontScale: number) {
   const cls = `fontScaleChanged(${fontScale})`;
 
-  writeTrace(`${cls}`);
+  if (isTraceEnabled()) {
+    writeFontScaleTrace(`${cls}`);
+  }
 
   fontScale = getClosestValidFontScale(fontScale);
 
-  writeTrace(`${cls} - settings closest vaalid value: ${fontScale}`);
+  if (isTraceEnabled()) {
+    writeFontScaleTrace(`${cls} - settings closest valid value: ${fontScale}`);
+  }
 
   internalObservable.set(FontScaleObservable.FONT_SCALE, fontScale);
 }
@@ -23,12 +27,13 @@ function useAndroidFontScale() {
   fontScaleChanged(Number(nsApp.android.context.getResources().getConfiguration().fontScale));
 }
 
-function ensureObservable() {
-  if (internalObservable) {
+function setupConfigListener() {
+  nsApp.off(nsApp.launchEvent, setupConfigListener);
+
+  if (!nsApp.android.context) {
+    nsApp.on(nsApp.launchEvent, setupConfigListener);
     return;
   }
-
-  internalObservable = new Observable();
 
   useAndroidFontScale();
 
@@ -46,9 +51,17 @@ function ensureObservable() {
     }),
   );
 
-  nsApp.on(nsApp.resumeEvent, () => {
-    useAndroidFontScale();
-  });
+  nsApp.on(nsApp.resumeEvent, useAndroidFontScale);
+}
+
+function ensureObservable() {
+  if (internalObservable) {
+    return;
+  }
+
+  internalObservable = new Observable();
+
+  setupConfigListener();
 }
 
 export class FontScaleObservable extends Observable {

@@ -1,6 +1,7 @@
 import { View } from 'tns-core-modules/ui/core/view';
+import { isTraceEnabled, writeTrace } from '../../trace';
 import { AccessibilityHelper } from '../../utils/AccessibilityHelper';
-import { setViewFunction, writeTrace } from '../../utils/helpers';
+import { setViewFunction } from '../../utils/helpers';
 import * as common from './view-common';
 
 function getNativeView(view: View): android.view.View {
@@ -10,7 +11,9 @@ function getNativeView(view: View): android.view.View {
 View.prototype[common.importantForAccessibilityProperty.getDefault] = function importantForAccessibilityGetDefault(this: View) {
   const view = getNativeView(this);
   if (!view) {
-    writeTrace(`View<${this}.android>.importantForAccessibility - default = nativeView is missing`);
+    if (isTraceEnabled()) {
+      writeTrace(`View<${this}.android>.importantForAccessibility - default = nativeView is missing`);
+    }
     return 'auto';
   }
 
@@ -20,22 +23,30 @@ View.prototype[common.importantForAccessibilityProperty.getDefault] = function i
   }
 
   if (android.os.Build.VERSION.SDK_INT >= 19 && value === android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {
-    writeTrace(`View<${this}.android>.importantForAccessibility - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS`);
+    if (isTraceEnabled()) {
+      writeTrace(`View<${this}.android>.importantForAccessibility - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS`);
+    }
     return 'no-hide-descendants';
   }
 
   if (value === android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES) {
-    writeTrace(`View<${this}.android>.importantForAccessibility - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES`);
+    if (isTraceEnabled()) {
+      writeTrace(`View<${this}.android>.importantForAccessibility - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES`);
+    }
     return 'yes';
   }
 
   if (value === android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO) {
-    writeTrace(`View<${this}.android>.importantForAccessibility - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO`);
+    if (isTraceEnabled()) {
+      writeTrace(`View<${this}.android>.importantForAccessibility - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO`);
+    }
     return 'no';
   }
 
   if (value === android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
-    writeTrace(`View<${this}.android>.importantForAccessibility - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO`);
+    if (isTraceEnabled()) {
+      writeTrace(`View<${this}.android>.importantForAccessibility - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO`);
+    }
     return 'auto';
   }
 
@@ -50,7 +61,9 @@ View.prototype[common.importantForAccessibilityProperty.setNative] = function im
 
   if (!value) {
     view.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
-    writeTrace(`View<${this}.android>.importantForAccessibility - value: ${value} is falsy setting to 'auto'`);
+    if (isTraceEnabled()) {
+      writeTrace(`View<${this}.android>.importantForAccessibility - value: ${value} is falsy setting to 'auto'`);
+    }
     return;
   }
 
@@ -58,32 +71,42 @@ View.prototype[common.importantForAccessibilityProperty.setNative] = function im
     case 'no-hide-descendants': {
       if (android.os.Build.VERSION.SDK_INT >= 19) {
         view.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
-        writeTrace(
-          `View<${this}.android>.importantForAccessibility - value: ${value}. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS`,
-        );
+        if (isTraceEnabled()) {
+          writeTrace(
+            `View<${this}.android>.importantForAccessibility - value: ${value}. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS`,
+          );
+        }
       } else {
-        writeTrace(
-          `View<${this}.android>.importantForAccessibility - value: ${value}, but sdk is ${
-            android.os.Build.VERSION.SDK_INT
-          } < 19. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO`,
-        );
+        if (isTraceEnabled()) {
+          writeTrace(
+            `View<${this}.android>.importantForAccessibility - value: ${value}, but sdk is ${
+              android.os.Build.VERSION.SDK_INT
+            } < 19. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO`,
+          );
+        }
         view.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
       }
       break;
     }
     case 'yes': {
       view.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES);
-      writeTrace(`View<${this}.android>.importantForAccessibility - value: ${value}. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES`);
+      if (isTraceEnabled()) {
+        writeTrace(`View<${this}.android>.importantForAccessibility - value: ${value}. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES`);
+      }
       break;
     }
     case 'no': {
       view.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-      writeTrace(`View<${this}.android>.importantForAccessibility - value: ${value}. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO`);
+      if (isTraceEnabled()) {
+        writeTrace(`View<${this}.android>.importantForAccessibility - value: ${value}. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO`);
+      }
       break;
     }
     default: {
       view.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
-      writeTrace(`View<${this}.android>.importantForAccessibility - value: ${value}. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO`);
+      if (isTraceEnabled()) {
+        writeTrace(`View<${this}.android>.importantForAccessibility - value: ${value}. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO`);
+      }
     }
   }
 };
@@ -99,7 +122,9 @@ View.prototype[common.accessibilityComponentTypeProperty.setNative] = function a
   }
 
   AccessibilityHelper.updateAccessibilityComponentType(this, view, value);
-  writeTrace(`View<${this}.android>.accessibilityComponentType - value: ${value}.`);
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.android>.accessibilityComponentType - value: ${value}.`);
+  }
 };
 
 View.prototype[common.accessibilityLiveRegionProperty.getDefault] = function accessibilityLiveRegionGetDefault(this: View) {
@@ -111,21 +136,29 @@ View.prototype[common.accessibilityLiveRegionProperty.getDefault] = function acc
 
     const value = view.getAccessibilityLiveRegion();
     if (!value) {
-      writeTrace(`View<${this}.android>.accessibilityLiveRegion - default - 'none'`);
+      if (isTraceEnabled()) {
+        writeTrace(`View<${this}.android>.accessibilityLiveRegion - default - 'none'`);
+      }
       return 'none';
     }
 
     if (value === android.view.View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE) {
-      writeTrace(`View<${this}.android>.accessibilityLiveRegion - default - 'assertive'`);
+      if (isTraceEnabled()) {
+        writeTrace(`View<${this}.android>.accessibilityLiveRegion - default - 'assertive'`);
+      }
       return 'assertive';
     }
 
     if (value === android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE) {
-      writeTrace(`View<${this}.android>.accessibilityLiveRegion - default - 'polite'`);
+      if (isTraceEnabled()) {
+        writeTrace(`View<${this}.android>.accessibilityLiveRegion - default - 'polite'`);
+      }
       return 'polite';
     }
   } else {
-    writeTrace(`View<${this}.android>.accessibilityLiveRegion - not supported`);
+    if (isTraceEnabled()) {
+      writeTrace(`View<${this}.android>.accessibilityLiveRegion - not supported`);
+    }
   }
 
   return null;
@@ -141,35 +174,47 @@ View.prototype[common.accessibilityLiveRegionProperty.setNative] = function acce
     switch (value.toLowerCase()) {
       case 'assertive': {
         view.setAccessibilityLiveRegion(android.view.View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE);
-        writeTrace(`View<${this}.android>.accessibilityLiveRegion - value: ${value}. Sets to android.view.View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE`);
+        if (isTraceEnabled()) {
+          writeTrace(`View<${this}.android>.accessibilityLiveRegion - value: ${value}. Sets to android.view.View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE`);
+        }
         break;
       }
       case 'polite': {
         view.setAccessibilityLiveRegion(android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE);
-        writeTrace(`View<${this}.android>.accessibilityLiveRegion - value: ${value}. Sets to android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE`);
+        if (isTraceEnabled()) {
+          writeTrace(`View<${this}.android>.accessibilityLiveRegion - value: ${value}. Sets to android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE`);
+        }
         break;
       }
       default: {
         view.setAccessibilityLiveRegion(android.view.View.ACCESSIBILITY_LIVE_REGION_NONE);
-        writeTrace(`View<${this}.android>.accessibilityLiveRegion - value: ${value}. Sets to android.view.View.ACCESSIBILITY_LIVE_REGION_NONE`);
+        if (isTraceEnabled()) {
+          writeTrace(`View<${this}.android>.accessibilityLiveRegion - value: ${value}. Sets to android.view.View.ACCESSIBILITY_LIVE_REGION_NONE`);
+        }
         break;
       }
     }
   } else {
-    writeTrace(`View<${this}.android>.accessibilityLiveRegion - not support on SDK < 19`);
+    if (isTraceEnabled()) {
+      writeTrace(`View<${this}.android>.accessibilityLiveRegion - not support on SDK < 19`);
+    }
   }
 };
 
 View.prototype[common.accessibleProperty.getDefault] = function accessibleGetDefault(this: View) {
   const view = getNativeView(this);
   if (!view) {
-    writeTrace(`View<${this}.android>.accessible - default = nativeView is missing`);
+    if (isTraceEnabled()) {
+      writeTrace(`View<${this}.android>.accessible - default = nativeView is missing`);
+    }
     return false;
   }
 
   const isAccessible = !!view.isFocusable();
 
-  writeTrace(`View<${this}.android>.accessible - default = ${isAccessible}`);
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.android>.accessible - default = ${isAccessible}`);
+  }
   return isAccessible;
 };
 
@@ -184,11 +229,17 @@ View.prototype[common.accessibleProperty.setNative] = function accessibleSetNati
   }
 
   view.setFocusable(!!isAccessible);
-  writeTrace(`View<${this}.android>.accessible = ${isAccessible}`);
+
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.android>.accessible = ${isAccessible}`);
+  }
 
   if (isAccessible) {
     const accessibilityComponentType = this.accessibilityComponentType || AccessibilityHelper.ACCESSIBLE;
-    writeTrace(`View<${this}.android>.accessible = ${isAccessible} -> accessibilityComponentType=${accessibilityComponentType}`);
+
+    if (isTraceEnabled()) {
+      writeTrace(`View<${this}.android>.accessible = ${isAccessible} -> accessibilityComponentType=${accessibilityComponentType}`);
+    }
 
     AccessibilityHelper.updateAccessibilityComponentType(this, view, accessibilityComponentType);
     return;
@@ -202,33 +253,46 @@ setViewFunction(View, common.androidFunctions.sendAccessibilityEvent, function s
 
   const view = getNativeView(this);
   if (view) {
-    writeTrace(`${cls}`);
+    if (isTraceEnabled()) {
+      writeTrace(`${cls}`);
+    }
     AccessibilityHelper.sendAccessibilityEvent(view, eventName, msg);
     return;
   }
 
-  writeTrace(`${cls} -> waiting for view to be loaded`);
+  if (isTraceEnabled()) {
+    writeTrace(`${cls} -> waiting for view to be loaded`);
+  }
 
   this.once(View.loadedEvent, () => {
     const view = getNativeView(this);
     if (!view) {
-      writeTrace(`${cls} -> view not loaded -> ${eventName} -> ${msg}`);
+      if (isTraceEnabled()) {
+        writeTrace(`${cls} -> view not loaded -> ${eventName} -> ${msg}`);
+      }
       return;
     }
 
-    writeTrace(`${cls} -> view loaded -> ${eventName} -> ${msg}`);
+    if (isTraceEnabled()) {
+      writeTrace(`${cls} -> view loaded -> ${eventName} -> ${msg}`);
+    }
     AccessibilityHelper.sendAccessibilityEvent(view, eventName, msg);
   });
 });
 
 setViewFunction(View, common.commonFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
   const cls = `View<${this}.android>.accessibilityAnnouncement(${JSON.stringify(msg)})`;
-  writeTrace(cls);
+
+  if (isTraceEnabled()) {
+    writeTrace(cls);
+  }
 
   if (!msg) {
     msg = this.accessibilityLabel;
 
-    writeTrace(`${cls} - no msg sending accessibilityLabel = ${JSON.stringify(this.accessibilityLabel)} instead`);
+    if (isTraceEnabled()) {
+      writeTrace(`${cls} - no msg sending accessibilityLabel = ${JSON.stringify(this.accessibilityLabel)} instead`);
+    }
   }
 
   this.sendAccessibilityEvent('announcement', msg);
@@ -241,7 +305,9 @@ View.prototype[common.accessibilityLabelProperty.setNative] = function accessibi
   }
 
   const newValue = AccessibilityHelper.updateContentDescription(this, view);
-  writeTrace(`View<${this}.android>.accessibilityLabel = "${label}" - contentDesc = "${newValue}"`);
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.android>.accessibilityLabel = "${label}" - contentDesc = "${newValue}"`);
+  }
 };
 
 View.prototype[common.accessibilityValueProperty.setNative] = function accessibilityLabelSetNative(this: View, value: string) {
@@ -251,7 +317,9 @@ View.prototype[common.accessibilityValueProperty.setNative] = function accessibi
   }
 
   const newValue = AccessibilityHelper.updateContentDescription(this, view);
-  writeTrace(`View<${this}.android>.accessibilityValue = "${value}" - contentDesc = "${newValue}"`);
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.android>.accessibilityValue = "${value}" - contentDesc = "${newValue}"`);
+  }
 };
 
 View.prototype[common.accessibilityHintProperty.setNative] = function accessibilityLabelSetNative(this: View, hint: string) {
@@ -261,7 +329,9 @@ View.prototype[common.accessibilityHintProperty.setNative] = function accessibil
   }
 
   const newValue = AccessibilityHelper.updateContentDescription(this, view);
-  writeTrace(`View<${this}.android>.accessibilityHint = "${hint}" - contentDesc = "${newValue}"`);
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.android>.accessibilityHint = "${hint}" - contentDesc = "${newValue}"`);
+  }
 };
 
 setViewFunction(View, common.commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: View) {

@@ -1,7 +1,6 @@
 import * as nsApp from 'tns-core-modules/application';
 import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
-import * as utils from 'tns-core-modules/utils/utils';
-import { writeTrace } from './helpers';
+import { isTraceEnabled, writeFontScaleTrace } from '../trace';
 
 function getClosestValidFontScale(fontScale: number) {
   return FontScaleObservable.VALID_FONT_SCALES.sort((a, b) => Math.abs(fontScale - a) - Math.abs(fontScale - b)).shift();
@@ -11,11 +10,15 @@ let internalObservable: Observable;
 function fontScaleChanged(fontScale: number) {
   const cls = `fontScaleChanged(${fontScale})`;
 
-  writeTrace(`${cls}`);
+  if (isTraceEnabled()) {
+    writeFontScaleTrace(`${cls}`);
+  }
 
   fontScale = getClosestValidFontScale(fontScale);
 
-  writeTrace(`${cls} - settings closest vaalid value: ${fontScale}`);
+  if (isTraceEnabled()) {
+    writeFontScaleTrace(`${cls} - settings closest valid value: ${fontScale}`);
+  }
 
   internalObservable.set(FontScaleObservable.FONT_SCALE, fontScale);
 }
@@ -42,15 +45,17 @@ function ensureObservable() {
     [UIContentSizeCategoryAccessibilityExtraExtraExtraLarge, 4],
   ]);
 
-  const contentSizeUpdated = (fontSize: string) => {
+  function contentSizeUpdated(fontSize: string) {
     if (sizeMap.has(fontSize)) {
       fontScaleChanged(sizeMap.get(fontSize));
     } else {
-      writeTrace(`fontSize: ${fontSize} is unknown`);
+      if (isTraceEnabled()) {
+        writeFontScaleTrace(`fontSize: ${fontSize} is unknown`);
+      }
     }
-  };
+  }
 
-  contentSizeUpdated(utils.ios.getter(nsApp.ios.nativeApp, nsApp.ios.nativeApp.preferredContentSizeCategory));
+  contentSizeUpdated(nsApp.ios.nativeApp.preferredContentSizeCategory);
 
   const fontSizeObserver = nsApp.ios.addNotificationObserver(UIContentSizeCategoryDidChangeNotification, (args) => {
     const fontSize = args.userInfo.valueForKey(UIContentSizeCategoryNewValueKey);

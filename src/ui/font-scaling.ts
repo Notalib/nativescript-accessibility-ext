@@ -55,7 +55,8 @@ fontScaleObservable.on(Observable.propertyChangeEvent, (args: PropertyChangeData
     return;
   }
 
-  writeFontScaleTrace(`${cls}: ${FontScaleObservable.FONT_SCALE} changed to ${args.value}`);
+  const fontScale = args.value;
+  writeFontScaleTrace(`${cls}: ${FontScaleObservable.FONT_SCALE} changed to ${fontScale}`);
   for (const viewRef of viewRefMap) {
     const view = viewRef.get();
     if (!view) {
@@ -63,7 +64,7 @@ fontScaleObservable.on(Observable.propertyChangeEvent, (args: PropertyChangeData
       continue;
     }
 
-    setFontScaleClass(view, args.value);
+    setFontScaleClass(view, fontScale);
   }
 });
 
@@ -93,7 +94,8 @@ View.on(View.loadedEvent, function loadedEventCb({ object: view }: EventData) {
 
   view.className = [...view.cssClasses].join(' ');
 
-  setFontScaleClass(view, fontScaleObservable.get(FontScaleObservable.FONT_SCALE));
+  const fontScale = fontScaleObservable.get(FontScaleObservable.FONT_SCALE);
+  setFontScaleClass(view, fontScale);
   viewRefMap.add(new WeakRef(view));
 });
 

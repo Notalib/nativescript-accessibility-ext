@@ -3,7 +3,8 @@ import { EventData, View as TNSView } from 'tns-core-modules/ui/core/view';
 import { GestureTypes } from 'tns-core-modules/ui/gestures/gestures';
 import { ListView } from 'tns-core-modules/ui/list-view/list-view';
 import * as utils from 'tns-core-modules/utils/utils';
-import { isTraceEnabled, notifyAccessibilityFocusState, writeErrorTrace, writeTrace } from './helpers';
+import { isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
+import { notifyAccessibilityFocusState } from './helpers';
 import { isAccessibilityServiceEnabled } from './utils';
 
 function writeHelperTrace(message: string, type = trace.messageType.info) {

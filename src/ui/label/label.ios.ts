@@ -2,8 +2,8 @@ import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable
 import { View } from 'tns-core-modules/ui/core/view';
 import { Label } from 'tns-core-modules/ui/label';
 import { Font } from 'tns-core-modules/ui/styling/font';
+import { isTraceEnabled, writeTrace } from '../../trace';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
-import { isTraceEnabled, writeTrace } from '../../utils/helpers';
 import * as common from './label-common';
 
 function getNativeView(view: View): UILabel {

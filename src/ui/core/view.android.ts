@@ -1,6 +1,7 @@
 import { View } from 'tns-core-modules/ui/core/view';
+import { isTraceEnabled, writeTrace } from '../../trace';
 import { AccessibilityHelper } from '../../utils/AccessibilityHelper';
-import { isTraceEnabled, setViewFunction, writeTrace } from '../../utils/helpers';
+import { setViewFunction } from '../../utils/helpers';
 import * as common from './view-common';
 
 function getNativeView(view: View): android.view.View {

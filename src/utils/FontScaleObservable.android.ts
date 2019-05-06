@@ -1,6 +1,6 @@
 import * as nsApp from 'tns-core-modules/application';
 import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
-import { isTraceEnabled, writeFontScaleTrace } from './helpers';
+import { isTraceEnabled, writeFontScaleTrace } from '../trace';
 
 function getClosestValidFontScale(fontScale: number) {
   return FontScaleObservable.VALID_FONT_SCALES.sort((a, b) => Math.abs(fontScale - a) - Math.abs(fontScale - b)).shift();

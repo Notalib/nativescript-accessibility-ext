@@ -1,6 +1,6 @@
 import * as nsApp from 'tns-core-modules/application';
 import * as utils from 'tns-core-modules/utils/utils';
-import { isTraceEnabled, writeTrace } from './helpers';
+import { isTraceEnabled, writeTrace } from '../trace';
 
 export * from 'tns-core-modules/utils/utils';
 

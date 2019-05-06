@@ -1,8 +1,8 @@
 /// <reference path="./page-ext.d.ts" />
 
 import { Page, PageEventData } from 'tns-core-modules/ui/page';
+import { isTraceEnabled, writeTrace } from '../../trace';
 import '../../utils/global-events';
-import { isTraceEnabled, writeTrace } from '../../utils/helpers';
 
 Page.on(Page.navigatedToEvent, (args: PageEventData) => {
   const cls = `Announce page change`;

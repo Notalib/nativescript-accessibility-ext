@@ -29,7 +29,8 @@ import { TextField } from 'tns-core-modules/ui/text-field/text-field';
 import { TextView } from 'tns-core-modules/ui/text-view/text-view';
 import { TimePicker } from 'tns-core-modules/ui/time-picker/time-picker';
 import { WebView } from 'tns-core-modules/ui/web-view/web-view';
-import { isTraceEnabled, wrapViewFunction, writeGlobalEventsTrace } from '../utils/helpers';
+import { isTraceEnabled, writeGlobalEventsTrace } from '../trace';
+import { wrapViewFunction } from './helpers';
 
 export function setupGlobalEventsOnViewType(View: any) {
   const viewName = View.name;

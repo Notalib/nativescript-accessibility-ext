@@ -1,4 +1,4 @@
-import { isTraceEnabled, writeErrorTrace, writeTrace } from './helpers';
+import { isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 
 export * from 'tns-core-modules/utils/utils';
 

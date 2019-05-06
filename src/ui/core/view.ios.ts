@@ -1,6 +1,7 @@
 import * as nsApp from 'tns-core-modules/application';
 import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/core/view';
-import { inputArrayToBitMask, isTraceEnabled, notifyAccessibilityFocusState, setViewFunction, writeTrace } from '../../utils/helpers';
+import { isTraceEnabled, writeTrace } from '../../trace';
+import { inputArrayToBitMask, notifyAccessibilityFocusState, setViewFunction } from '../../utils/helpers';
 import * as common from './view-common';
 
 function getNativeView(view: View): UIView {

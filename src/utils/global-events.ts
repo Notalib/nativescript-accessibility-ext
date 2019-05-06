@@ -69,6 +69,9 @@ export function setupGlobalEventsOnViewType(View: any) {
   };
 }
 
+// Add the global events to the View-class before adding it to the sub-classes.
+setupGlobalEventsOnViewType(View);
+
 for (const viewClass of [
   AbsoluteLayout,
   ActionBar,
@@ -97,7 +100,6 @@ for (const viewClass of [
   TextField,
   TextView,
   TimePicker,
-  View,
   WebView,
   WrapLayout,
 ]) {

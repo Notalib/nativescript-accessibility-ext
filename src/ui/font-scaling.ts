@@ -3,9 +3,9 @@
 import { EventData, Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
 import { isAndroid, isIOS } from 'tns-core-modules/platform';
 import { View } from 'tns-core-modules/ui/core/view';
-import '../utils/global-events';
 import { FontScaleObservable } from '../utils/FontScaleObservable';
-import { writeTrace } from '../utils/helpers';
+import '../utils/global-events';
+import { writeFontScaleTrace } from '../utils/helpers';
 
 const fontScaleCssClasses = FontScaleObservable.VALID_FONT_SCALES.map(fontScaleToCssClass);
 const viewRefMap = new Set<WeakRef<View>>();
@@ -18,7 +18,7 @@ const cls = `FontScaling`;
 function setFontScaleClass(view: View, fontScale: number) {
   const clsSetClass = `${cls}.setFontScaleClass(${view}, ${fontScale})`;
   if (!view) {
-    writeTrace(`${clsSetClass}: view is undefined`);
+    writeFontScaleTrace(`${clsSetClass}: view is undefined`);
     return;
   }
 
@@ -27,7 +27,7 @@ function setFontScaleClass(view: View, fontScale: number) {
   const newCssClass = fontScaleToCssClass(fontScale);
   if (!view.cssClasses.has(newCssClass)) {
     view.cssClasses.add(newCssClass);
-    writeTrace(`${clsSetClass}: '${newCssClass}' added`);
+    writeFontScaleTrace(`${clsSetClass}: '${newCssClass}' added`);
   }
 
   for (const cssClass of fontScaleCssClasses) {
@@ -37,13 +37,13 @@ function setFontScaleClass(view: View, fontScale: number) {
 
     if (view.cssClasses.has(cssClass)) {
       view.cssClasses.delete(cssClass);
-      writeTrace(`${clsSetClass}: '${cssClass}' remove`);
+      writeFontScaleTrace(`${clsSetClass}: '${cssClass}' remove`);
     }
   }
 
   const newClassNames = [...view.cssClasses].join(' ');
   if (oldClassNames !== newClassNames) {
-    writeTrace(`${clsSetClass}: change from '${oldClassNames}' to '${newClassNames}'`);
+    writeFontScaleTrace(`${clsSetClass}: change from '${oldClassNames}' to '${newClassNames}'`);
     view.className = newClassNames;
   }
 }
@@ -55,7 +55,7 @@ fontScaleObservable.on(Observable.propertyChangeEvent, (args: PropertyChangeData
     return;
   }
 
-  writeTrace(`${cls}: ${FontScaleObservable.FONT_SCALE} changed to ${args.value}`);
+  writeFontScaleTrace(`${cls}: ${FontScaleObservable.FONT_SCALE} changed to ${args.value}`);
   for (const viewRef of viewRefMap) {
     const view = viewRef.get();
     if (!view) {
@@ -77,12 +77,13 @@ View.on(View.loadedEvent, function loadedEventCb({ object: view }: EventData) {
 
   for (const viewRef of viewRefMap) {
     const otherView = viewRef.get();
-    if (!view) {
+    if (!otherView) {
       viewRefMap.delete(viewRef);
       continue;
     }
 
     if (otherView === view) {
+      // Already in list.
       return;
     }
   }
@@ -103,7 +104,7 @@ View.on(View.unloadedEvent, function unloadedEventCb({ object: view }: EventData
 
   for (const viewRef of viewRefMap) {
     const otherView = viewRef.get();
-    if (!view) {
+    if (!otherView) {
       viewRefMap.delete(viewRef);
       continue;
     }

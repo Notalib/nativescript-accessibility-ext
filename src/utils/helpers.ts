@@ -91,13 +91,24 @@ export function addBooleanPropertyToView<ViewClass extends View>(
   return addPropertyToView(viewClass, name, defaultValue, booleanConverter);
 }
 
+export function isTraceEnabled() {
+  return trace.isEnabled();
+}
 /**
  * Write to NativeScript's trace.
  */
-export function writeTrace(message: string, type = trace.messageType.info) {
-  if (trace.isEnabled()) {
-    trace.write(message, 'A11Y', type);
+export function writeTrace(message: string, type = trace.messageType.info, category = 'A11Y') {
+  if (isTraceEnabled()) {
+    trace.write(message, category, type);
   }
+}
+
+export function writeFontScaleTrace(message: string, type = trace.messageType.info) {
+  writeTrace(message, type, 'A11Y-FontScale');
+}
+
+export function writeGlobalEventsTrace(message: string, type = trace.messageType.info) {
+  writeTrace(message, type, 'A11Y-GlobalEvents');
 }
 
 export function writeErrorTrace(message) {
@@ -123,14 +134,16 @@ export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean
     return;
   }
 
-  writeTrace(
-    `notifyAccessibilityFocusState: ${JSON.stringify({
-      name: 'notifyAccessibilityFocusState',
-      receivedFocus,
-      lostFocus,
-      view: String(view),
-    })}`,
-  );
+  if (isTraceEnabled()) {
+    writeTrace(
+      `notifyAccessibilityFocusState: ${JSON.stringify({
+        name: 'notifyAccessibilityFocusState',
+        receivedFocus,
+        lostFocus,
+        view: String(view),
+      })}`,
+    );
+  }
 
   view.notify({
     eventName: View.accessibilityFocusChangedEvent,

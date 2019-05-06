@@ -29,23 +29,42 @@ import { TextField } from 'tns-core-modules/ui/text-field/text-field';
 import { TextView } from 'tns-core-modules/ui/text-view/text-view';
 import { TimePicker } from 'tns-core-modules/ui/time-picker/time-picker';
 import { WebView } from 'tns-core-modules/ui/web-view/web-view';
-import { wrapViewFunction } from '../utils/helpers';
+import { isTraceEnabled, wrapViewFunction, writeGlobalEventsTrace } from '../utils/helpers';
 
 export function setupGlobalEventsOnViewType(View: any) {
+  const viewName = View.name;
+
+  if (isTraceEnabled()) {
+    writeGlobalEventsTrace(`Adding to: ${viewName}`);
+  }
+
   const observable = new Observable();
   wrapViewFunction(View, 'notify', function customNotify(arg: EventData) {
+    if (isTraceEnabled()) {
+      writeGlobalEventsTrace(`Notify "${arg.eventName}" to all "${viewName}"`);
+    }
+
     observable.notify(arg);
   });
 
   View.on = View.addEventListener = function customAddEventListener(eventNames: string, callback: (data: EventData) => void, thisArg?: any) {
+    if (isTraceEnabled()) {
+      writeGlobalEventsTrace(`On: "${eventNames}" this:${thisArg} to "${viewName}"`);
+    }
     observable.on(eventNames, callback, thisArg);
   };
 
   View.once = function customAddOnceEventListener(eventNames: string, callback: (data: EventData) => void, thisArg?: any) {
+    if (isTraceEnabled()) {
+      writeGlobalEventsTrace(`Once: "${eventNames}" this:${thisArg} to "${viewName}"`);
+    }
     observable.once(eventNames, callback, thisArg);
   };
 
   View.off = View.removeEventListener = function customRemoveEventListener(eventNames: string, callback?: any, thisArg?: any) {
+    if (isTraceEnabled()) {
+      writeGlobalEventsTrace(`Remove: "${eventNames}" this:${thisArg} from "${viewName}"`);
+    }
     observable.off(eventNames, callback, thisArg);
   };
 }

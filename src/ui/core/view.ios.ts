@@ -1,6 +1,6 @@
 import * as nsApp from 'tns-core-modules/application';
 import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/core/view';
-import { inputArrayToBitMask, notifyAccessibilityFocusState, setViewFunction, writeTrace } from '../../utils/helpers';
+import { inputArrayToBitMask, isTraceEnabled, notifyAccessibilityFocusState, setViewFunction, writeTrace } from '../../utils/helpers';
 import * as common from './view-common';
 
 function getNativeView(view: View): UIView {
@@ -14,7 +14,9 @@ View.prototype[common.accessibleProperty.getDefault] = function accessibleGetDef
   }
 
   const isAccessible = !!view.isAccessibilityElement;
-  writeTrace(`View<${this}.ios>.accessible - default = ${isAccessible}`);
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.ios>.accessible - default = ${isAccessible}`);
+  }
   return isAccessible;
 };
 
@@ -33,17 +35,23 @@ const accessibilityHadFocusSymbol = Symbol.for('ios:accessibilityHadFocusSymbol'
 function setupAccessibilityFocusEvents(tnsView: View, isAccessible: boolean) {
   const cls = `setupAccessibilityFocusEvents(${tnsView}, ${isAccessible})`;
   if (typeof UIAccessibilityElementFocusedNotification === 'undefined') {
-    writeTrace(`${cls}: not supported by this iOS version`);
+    if (isTraceEnabled()) {
+      writeTrace(`${cls}: not supported by this iOS version`);
+    }
     return;
   }
 
   if (tnsView[accessibilityFocusObserverSymbol]) {
     if (isAccessible) {
-      writeTrace(`${cls}: Already configured no need to do so again`);
+      if (isTraceEnabled()) {
+        writeTrace(`${cls}: Already configured no need to do so again`);
+      }
       return;
     }
 
-    writeTrace(`${cls}: view no longer accessible, remove listener`);
+    if (isTraceEnabled()) {
+      writeTrace(`${cls}: view no longer accessible, remove listener`);
+    }
     nsApp.ios.removeNotificationObserver(tnsView[accessibilityFocusObserverSymbol], UIAccessibilityElementFocusedNotification);
 
     delete tnsView[accessibilityFocusObserverSymbol];
@@ -78,7 +86,9 @@ function setupAccessibilityFocusEvents(tnsView: View, isAccessible: boolean) {
       return;
     }
 
-    writeTrace(`${cls}, view: ${localTnsView}, receivedFocus: ${receivedFocus}, lostFocus: ${lostFocus}`);
+    if (isTraceEnabled()) {
+      writeTrace(`${cls}, view: ${localTnsView}, receivedFocus: ${receivedFocus}, lostFocus: ${lostFocus}`);
+    }
 
     notifyAccessibilityFocusState(localTnsView, receivedFocus, lostFocus);
 
@@ -103,7 +113,10 @@ View.prototype[common.accessibleProperty.setNative] = function accessibleSetNati
   }
 
   view.isAccessibilityElement = !!isAccessible;
-  writeTrace(`View<${this}.ios>.accessible = ${view.isAccessibilityElement}`);
+
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.ios>.accessible = ${view.isAccessibilityElement}`);
+  }
 
   setupAccessibilityFocusEvents(this, isAccessible);
 };
@@ -192,7 +205,9 @@ View.prototype[common.accessibilityTraitsProperty.getDefault] = function accessi
   }
 
   const accessibilityTraits = getAccessibilityTraitsFromBitmask(view.accessibilityTraits);
-  writeTrace(`View<${this}.ios>.accessibilityTraits - default -> '${view.accessibilityTraits}' = '${accessibilityTraits.join(',')}'`);
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.ios>.accessibilityTraits - default -> '${view.accessibilityTraits}' = '${accessibilityTraits.join(',')}'`);
+  }
   return accessibilityTraits;
 };
 
@@ -210,7 +225,10 @@ View.prototype[common.accessibilityTraitsProperty.setNative] = function accessib
   view.accessibilityTraits = inputArrayToBitMask(value, traits);
 
   const newAccessibilityTraits = getAccessibilityTraitsFromBitmask(view.accessibilityTraits);
-  writeTrace(`View<${this}.ios>.accessibilityTraits -> got ${value} -> result: '${view.accessibilityTraits}' = '${newAccessibilityTraits}'`);
+
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.ios>.accessibilityTraits -> got ${value} -> result: '${view.accessibilityTraits}' = '${newAccessibilityTraits}'`);
+  }
 };
 
 View.prototype[common.accessibilityValueProperty.getDefault] = function accessibilityValueGetDefault(this: View) {
@@ -220,7 +238,9 @@ View.prototype[common.accessibilityValueProperty.getDefault] = function accessib
   }
 
   const value = view.accessibilityValue;
-  writeTrace(`View<${this}.ios>.accessibilityValue - default - ${value}`);
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.ios>.accessibilityValue - default - ${value}`);
+  }
   return value;
 };
 
@@ -231,10 +251,14 @@ View.prototype[common.accessibilityValueProperty.setNative] = function accessibi
   }
 
   if (value) {
-    writeTrace(`View<${this}.ios>.accessibilityValue - ${value}`);
+    if (isTraceEnabled()) {
+      writeTrace(`View<${this}.ios>.accessibilityValue - ${value}`);
+    }
     view.accessibilityValue = `${value}`;
   } else {
-    writeTrace(`View<${this}.ios>.accessibilityValue - ${JSON.stringify(value)} is falsy, set to null to remove value`);
+    if (isTraceEnabled()) {
+      writeTrace(`View<${this}.ios>.accessibilityValue - ${JSON.stringify(value)} is falsy, set to null to remove value`);
+    }
     view.accessibilityValue = null;
   }
 };
@@ -246,7 +270,9 @@ View.prototype[common.accessibilityElementsHidden.getDefault] = function accessi
   }
 
   const isHidden = !!view.accessibilityElementsHidden;
-  writeTrace(`View<${this}.ios>.accessibilityElementsHidden - default - ${isHidden}`);
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.ios>.accessibilityElementsHidden - default - ${isHidden}`);
+  }
   return isHidden;
 };
 
@@ -261,7 +287,9 @@ View.prototype[common.accessibilityElementsHidden.setNative] = function accessib
   }
 
   view.accessibilityElementsHidden = !!isHidden;
-  writeTrace(`View<${this}.ios>.accessibilityElementsHidden - ${!!isHidden}`);
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.ios>.accessibilityElementsHidden - ${!!isHidden}`);
+  }
 };
 
 setViewFunction(View, common.iosFunctions.postAccessibilityNotification, function postAccessibilityNotification(
@@ -271,7 +299,9 @@ setViewFunction(View, common.iosFunctions.postAccessibilityNotification, functio
 ) {
   const cls = `View<${this}.ios>.postAccessibilityNotification("${notificationType}", "${msg}")`;
   if (!notificationType) {
-    writeTrace(`${cls} - falsy notificationType`);
+    if (isTraceEnabled()) {
+      writeTrace(`${cls} - falsy notificationType`);
+    }
     return;
   }
 
@@ -295,23 +325,31 @@ setViewFunction(View, common.iosFunctions.postAccessibilityNotification, functio
       break;
     }
     default: {
-      writeTrace(`${cls} - unknown notificationType`);
+      if (isTraceEnabled()) {
+        writeTrace(`${cls} - unknown notificationType`);
+      }
       return;
     }
   }
 
-  writeTrace(`${cls} - send ${notification} with ${args || null}`);
+  if (isTraceEnabled()) {
+    writeTrace(`${cls} - send ${notification} with ${args || null}`);
+  }
   UIAccessibilityPostNotification(notification, args || null);
 });
 
 setViewFunction(View, common.commonFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
   const cls = `View<${this}.ios>.accessibilityAnnouncement("${msg}")`;
   if (!msg) {
-    writeTrace(`${cls} - no msg, sending view.accessibilityLabel = ${this.accessibilityLabel} instead`);
+    if (isTraceEnabled()) {
+      writeTrace(`${cls} - no msg, sending view.accessibilityLabel = ${this.accessibilityLabel} instead`);
+    }
     msg = this.accessibilityLabel;
   }
 
-  writeTrace(`${cls} - sending ${msg}`);
+  if (isTraceEnabled()) {
+    writeTrace(`${cls} - sending ${msg}`);
+  }
   this.postAccessibilityNotification('announcement', msg);
 });
 
@@ -322,7 +360,9 @@ View.prototype[common.accessibilityLabelProperty.getDefault] = function accessib
   }
 
   const label = view.accessibilityLabel;
-  writeTrace(`View<${this}.ios>.accessibilityLabel - default = ${label}`);
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.ios>.accessibilityLabel - default = ${label}`);
+  }
   return label;
 };
 
@@ -334,10 +374,14 @@ View.prototype[common.accessibilityLabelProperty.setNative] = function accessibi
 
   const cls = `View<${this}.ios>.accessibilityLabel = ${label}`;
   if (label) {
-    writeTrace(`${cls}`);
+    if (isTraceEnabled()) {
+      writeTrace(`${cls}`);
+    }
     view.accessibilityLabel = `${label}`;
   } else {
-    writeTrace(`${cls} - falsy value setting null`);
+    if (isTraceEnabled()) {
+      writeTrace(`${cls} - falsy value setting null`);
+    }
     view.accessibilityLabel = null;
   }
 };
@@ -349,7 +393,9 @@ View.prototype[common.accessibilityIdentifierProperty.getDefault] = function acc
   }
 
   const identifier = view.accessibilityIdentifier;
-  writeTrace(`View<${this}.ios>.accessibilityIdentifier - default = ${identifier}`);
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.ios>.accessibilityIdentifier - default = ${identifier}`);
+  }
   return identifier;
 };
 
@@ -361,10 +407,14 @@ View.prototype[common.accessibilityIdentifierProperty.setNative] = function acce
   const cls = `View<${this}.ios>.accessibilityIdentifier = ${identifier}`;
 
   if (identifier) {
-    writeTrace(`${cls}`);
+    if (isTraceEnabled()) {
+      writeTrace(`${cls}`);
+    }
     view.accessibilityIdentifier = `${identifier}`;
   } else {
-    writeTrace(`${cls} - falsy value setting null`);
+    if (isTraceEnabled()) {
+      writeTrace(`${cls} - falsy value setting null`);
+    }
     view.accessibilityIdentifier = null;
   }
 };
@@ -376,7 +426,9 @@ View.prototype[common.accessibilityLanguageProperty.getDefault] = function acces
   }
 
   const lang = view.accessibilityLanguage;
-  writeTrace(`View<${this}.ios>.accessibilityLanguage - default - ${lang}`);
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.ios>.accessibilityLanguage - default - ${lang}`);
+  }
   return lang;
 };
 

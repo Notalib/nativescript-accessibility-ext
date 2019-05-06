@@ -1,9 +1,14 @@
+import * as trace from 'tns-core-modules/trace';
 import { EventData, View as TNSView } from 'tns-core-modules/ui/core/view';
 import { GestureTypes } from 'tns-core-modules/ui/gestures/gestures';
 import { ListView } from 'tns-core-modules/ui/list-view/list-view';
 import * as utils from 'tns-core-modules/utils/utils';
-import { notifyAccessibilityFocusState, writeTrace } from './helpers';
+import { isTraceEnabled, notifyAccessibilityFocusState, writeErrorTrace, writeTrace } from './helpers';
 import { isAccessibilityServiceEnabled } from './utils';
+
+function writeHelperTrace(message: string, type = trace.messageType.info) {
+  writeTrace(message, type, 'A11Y-AndroidHelper');
+}
 
 const AccessibilityEvent = android.view.accessibility.AccessibilityEvent;
 type AccessibilityEvent = android.view.accessibility.AccessibilityEvent;
@@ -66,10 +71,9 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
 
       lastFocusedView = new WeakRef(owner);
 
-      const androidView = owner.android as AndroidView;
       notifyAccessibilityFocusState(owner, true, false);
 
-      console.log(`${owner} - ${androidView.isAccessibilityFocused()} - start`);
+      const tree = [] as string[];
 
       for (let node = owner; node; node = node.parent as TNSView) {
         node.notify({
@@ -77,12 +81,12 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
           object: owner,
         });
 
-        if (node.typeName === 'ListView') {
-          break;
-        }
+        tree.push(`${node}[${node.className}]`);
       }
 
-      console.log(`${owner} - ${androidView.isAccessibilityFocused()} - end`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`Focus-tree: ${tree.reverse().join(' => ')}`);
+      }
 
       return;
     }
@@ -289,13 +293,20 @@ export class AccessibilityHelper {
   }
 
   public static updateAccessibilityComponentType(tnsView: TNSView, androidView: AndroidView, componentType: string) {
-    writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView} componentType:${componentType}`);
+    if (isTraceEnabled()) {
+      writeHelperTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView} componentType:${componentType}`);
+    }
 
     ensureDelegates();
 
     if (componentType && androidView[lastComponentTypeSymbol] === componentType) {
-      writeTrace(`updateAccessibilityComponentType - ${tnsView} - componentType not changed`);
-      return;
+      if (isTraceEnabled()) {
+        writeHelperTrace(`updateAccessibilityComponentType - ${tnsView} - componentType not changed`);
+      }
+
+      if (ViewCompat.hasAccessibilityDelegate(androidView)) {
+        return;
+      }
     }
 
     ViewCompat.setAccessibilityDelegate(androidView, new TNSAccessibilityDelegateCompat(tnsView));
@@ -303,7 +314,9 @@ export class AccessibilityHelper {
   }
 
   public static removeAccessibilityComponentType(androidView: AndroidView) {
-    writeTrace(`removeAccessibilityComponentType from ${androidView}`);
+    if (isTraceEnabled()) {
+      writeHelperTrace(`removeAccessibilityComponentType from ${androidView}`);
+    }
 
     ViewCompat.setAccessibilityDelegate(androidView, null);
   }
@@ -311,18 +324,24 @@ export class AccessibilityHelper {
   public static sendAccessibilityEvent(androidView: AndroidView, eventName: string, text?: string) {
     const cls = `AccessibilityHelper.sendAccessibilityEvent(${androidView}, ${eventName}, ${text})`;
     if (!eventName) {
-      writeTrace(`${cls}: no eventName provided`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls}: no eventName provided`);
+      }
       return;
     }
 
     if (!isAccessibilityServiceEnabled()) {
-      writeTrace(`${cls} - TalkBack not enabled`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - TalkBack not enabled`);
+      }
       return;
     }
 
     const a11yService = getAccessibilityManager(androidView);
     if (!a11yService.isEnabled()) {
-      writeTrace(`${cls} - a11yService not enabled`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - a11yService not enabled`);
+      }
       return;
     }
 
@@ -330,7 +349,9 @@ export class AccessibilityHelper {
 
     eventName = eventName.toLowerCase();
     if (!accessibilityEventMap.has(eventName)) {
-      writeTrace(`${cls} - unknown event`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - unknown event`);
+      }
       return;
     }
     const eventInt = accessibilityEventMap.get(eventName);
@@ -342,10 +363,14 @@ export class AccessibilityHelper {
 
     if (!text) {
       text = androidView.getContentDescription();
-      writeTrace(`${cls} - text not provided use androidView.getContentDescription()`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - text not provided use androidView.getContentDescription()`);
+      }
     }
 
-    writeTrace(`${cls}: send event with text: '${JSON.stringify(text)}'`);
+    if (isTraceEnabled()) {
+      writeHelperTrace(`${cls}: send event with text: '${JSON.stringify(text)}'`);
+    }
 
     if (text) {
       a11yEvent.getText().add(text);
@@ -360,19 +385,25 @@ export class AccessibilityHelper {
     let contentDescriptionBuilder: string[] = [];
     let haveValue = false;
     if (tnsView.accessibilityLabel) {
-      writeTrace(`${cls} - have accessibilityLabel`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - have accessibilityLabel`);
+      }
       haveValue = true;
       contentDescriptionBuilder.push(`${tnsView.accessibilityLabel}. `);
     }
 
     if (tnsView.accessibilityValue) {
-      writeTrace(`${cls} - have accessibilityValue`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - have accessibilityValue`);
+      }
       haveValue = true;
       contentDescriptionBuilder.push(`${tnsView.accessibilityValue}. `);
     }
 
     if (tnsView.accessibilityHint) {
-      writeTrace(`${cls} - have accessibilityHint`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - have accessibilityHint`);
+      }
       haveValue = true;
       contentDescriptionBuilder.push(`${tnsView.accessibilityHint}. `);
     }
@@ -384,14 +415,20 @@ export class AccessibilityHelper {
 
     if (contentDescription !== androidView.getContentDescription()) {
       if (haveValue) {
-        writeTrace(`${cls} - set to "${contentDescription}"`);
+        if (isTraceEnabled()) {
+          writeHelperTrace(`${cls} - set to "${contentDescription}"`);
+        }
         androidView.setContentDescription(contentDescription);
       } else {
-        writeTrace(`${cls} - remove value`);
+        if (isTraceEnabled()) {
+          writeHelperTrace(`${cls} - remove value`);
+        }
         androidView.setContentDescription(null);
       }
     } else {
-      writeTrace(`${cls} - no change`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - no change`);
+      }
     }
 
     return contentDescription;
@@ -406,16 +443,24 @@ export class AccessibilityHelper {
 function ensureListViewItemIsOnScreen(listView: ListView, index: number, event: EventData) {
   const view = event.object as TNSView;
 
-  console.log(`${listView} - ${index} - ${view} - ${suspendAccessibilityEvents}`);
+  if (isTraceEnabled()) {
+    writeHelperTrace(`ItemOnScreen${listView}: index=${index} view=${view}`);
+  }
   if (suspendAccessibilityEvents) {
+    if (isTraceEnabled()) {
+      writeHelperTrace(`ItemOnScreen${listView}: index=${index} suspended`);
+    }
     return;
   }
 
   try {
     suspendAccessibilityEvents = true;
     const androidListView = listView.android as android.widget.ListView;
-    if (!listView.android) {
+    if (!androidListView) {
       // This really shouldn't happen, but just in case.
+      if (isTraceEnabled()) {
+        writeHelperTrace(`ItemOnScreen${listView}: index=${index} no native list-view?`);
+      }
       return;
     }
 
@@ -439,12 +484,9 @@ function ensureListViewItemIsOnScreen(listView: ListView, index: number, event: 
 
     if (viewPos.y >= minOffset && viewPosDelta.y2 <= maxOffset) {
       // The view is on screen, no need to scroll anything.
-      console.log('on-screen', {
-        ...viewSize,
-        ...viewPos,
-        ...viewPosDelta,
-        index,
-      });
+      if (isTraceEnabled()) {
+        writeHelperTrace(`ItemOnScreen${listView}: index=${index} is on screen ${viewPos.y} >= ${minOffset} && ${viewPosDelta.y2} <= ${maxOffset}`);
+      }
 
       return;
     }
@@ -459,28 +501,21 @@ function ensureListViewItemIsOnScreen(listView: ListView, index: number, event: 
     // 1st calculate at which offset the view should end up at.
     const wantedScrollOffset = viewPos.y < 0 ? offsetPadding : listViewSize.height - viewSize.height - offsetPadding;
 
-    // 2nd calcucate the difference between the current y-offset and the wanted offset.
+    // 2nd calculate the difference between the current y-offset and the wanted offset.
     const scrollByDIP = viewPos.y - wantedScrollOffset;
 
     // 3nd convert to real device pixels.
     const scrollByDP = utils.layout.toDevicePixels(scrollByDIP);
 
-    console.log({
-      ...viewSize,
-      ...viewPos,
-      ...viewPosDelta,
-      wantedScrollOffset,
-      scrollByDIP,
-      scrollByDP,
-      listViewSize,
-      index,
-    });
+    if (isTraceEnabled()) {
+      writeHelperTrace(`ItemOnScreen${listView}: index=${index} is not on screen, scroll by: ${scrollByDIP}`);
+    }
 
     // Finally scroll this ListView.
     // Note: We get a better result from ListViewCompat.scrollListBy than from ListView.scrollListBy.
     android.support.v4.widget.ListViewCompat.scrollListBy(androidListView, scrollByDP);
   } catch (err) {
-    console.error(err);
+    writeErrorTrace(err);
   } finally {
     suspendAccessibilityEvents = false;
   }
@@ -503,7 +538,9 @@ ListView.on(ListView.itemLoadingEvent, (args: any) => {
   const index = args.index as number;
   const tnsView = args.view as TNSView;
 
-  console.log(`${ListView.itemLoadingEvent} - ${listView} - ${index} - ${tnsView} - ${suspendAccessibilityEvents}`);
+  if (isTraceEnabled()) {
+    writeHelperTrace(`ItemLoading${listView}: index=${index} view=${tnsView}`);
+  }
 
   if (!tnsView) {
     return;
@@ -517,14 +554,25 @@ ListView.on(ListView.itemLoadingEvent, (args: any) => {
     p.off(TNSView.loadedEvent, listViewItemLoaded);
 
     if (!p.isLoaded) {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`ItemLoading${listView}: index=${index} view is not loaded`);
+      }
       p.on(TNSView.loadedEvent, listViewItemLoaded);
       continue;
     }
 
-    if (!p.android) {
+    const androidView = p.android as AndroidView;
+    if (!androidView) {
       continue;
     }
 
-    ViewCompat.setAccessibilityDelegate(p.android, new TNSAccessibilityDelegateCompat(tnsView));
+    if (ViewCompat.hasAccessibilityDelegate(androidView)) {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`ItemLoading${listView}: index=${index} view already has a delegate`);
+      }
+      continue;
+    }
+
+    ViewCompat.setAccessibilityDelegate(androidView, new TNSAccessibilityDelegateCompat(tnsView));
   }
 });

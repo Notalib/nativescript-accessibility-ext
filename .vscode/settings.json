@@ -38,6 +38,8 @@
     "Focusable",
     "Freiling",
     "Morten",
+    "Newable",
+    "Recycler",
     "Sjøgren",
     "armeabi",
     "assistive",
@@ -45,11 +47,6 @@
     "ddfreiling",
     "devkit",
     "devtool",
-    "Recycler",
-    "Sjøgren",
-    "assistive",
-    "bootstrapper",
-    "ddfreiling",
     "downlevel",
     "fontscale",
     "fontscales",
@@ -70,15 +67,10 @@
     "quotemark",
     "radiobutton",
     "sasswatch",
+    "selectable",
     "toplevel",
     "tscwatch",
     "uglifyjs",
-    "xcode",
-    "prettierrc",
-    "radiobutton",
-    "sasswatch",
-    "selectable",
-    "toplevel",
-    "tscwatch"
+    "xcode"
   ]
 }

@@ -1,13 +1,16 @@
+/// <reference path="../ui/core/view.d.ts" />
+
 import { EventData, Observable } from 'tns-core-modules/data/observable/observable';
 import { ActionBar } from 'tns-core-modules/ui/action-bar/action-bar';
 import { ActivityIndicator } from 'tns-core-modules/ui/activity-indicator/activity-indicator';
 import { Button } from 'tns-core-modules/ui/button/button';
 import { View } from 'tns-core-modules/ui/core/view/view';
 import { DatePicker } from 'tns-core-modules/ui/date-picker/date-picker';
-import { EditableTextBase } from 'tns-core-modules/ui/editable-text-base/editable-text-base';
-import { Frame } from 'tns-core-modules/ui/frame/frame';
+import { EditableTextBase, TextBase } from 'tns-core-modules/ui/editable-text-base/editable-text-base';
+import { ContainerView, ContentView, CustomLayoutView, Frame } from 'tns-core-modules/ui/frame/frame';
 import { HtmlView } from 'tns-core-modules/ui/html-view/html-view';
 import { Image } from 'tns-core-modules/ui/image/image';
+import { Label } from 'tns-core-modules/ui/label';
 import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout/absolute-layout';
 import { DockLayout } from 'tns-core-modules/ui/layouts/dock-layout/dock-layout';
 import { FlexboxLayout } from 'tns-core-modules/ui/layouts/flexbox-layout/flexbox-layout';
@@ -17,6 +20,7 @@ import { WrapLayout } from 'tns-core-modules/ui/layouts/wrap-layout/wrap-layout'
 import { ListPicker } from 'tns-core-modules/ui/list-picker/list-picker';
 import { ListView } from 'tns-core-modules/ui/list-view/list-view';
 import { Page } from 'tns-core-modules/ui/page/page';
+import { Placeholder } from 'tns-core-modules/ui/placeholder/placeholder';
 import { Progress } from 'tns-core-modules/ui/progress/progress';
 import { Repeater } from 'tns-core-modules/ui/repeater/repeater';
 import { ScrollView } from 'tns-core-modules/ui/scroll-view/scroll-view';
@@ -31,6 +35,7 @@ import { TimePicker } from 'tns-core-modules/ui/time-picker/time-picker';
 import { WebView } from 'tns-core-modules/ui/web-view/web-view';
 import { isTraceEnabled, writeGlobalEventsTrace } from '../trace';
 import { wrapViewFunction } from './helpers';
+import { LayoutBase } from 'tns-core-modules/ui/layouts/layout-base';
 
 export function setupGlobalEventsOnViewType(View: any) {
   const viewName = View.name;
@@ -72,12 +77,17 @@ export function setupGlobalEventsOnViewType(View: any) {
 
 // Add the global events to the View-class before adding it to the sub-classes.
 setupGlobalEventsOnViewType(View);
+setupGlobalEventsOnViewType(TextBase);
+setupGlobalEventsOnViewType(ContentView);
+setupGlobalEventsOnViewType(ContainerView);
+setupGlobalEventsOnViewType(LayoutBase);
 
-for (const viewClass of [
+for (const viewClass of <{ new (): View }[]>[
   AbsoluteLayout,
   ActionBar,
   ActivityIndicator,
   Button,
+  CustomLayoutView,
   DatePicker,
   DockLayout,
   EditableTextBase,
@@ -86,9 +96,11 @@ for (const viewClass of [
   GridLayout,
   HtmlView,
   Image,
+  Label,
   ListPicker,
   ListView,
   Page,
+  Placeholder,
   Progress,
   Repeater,
   ScrollView,

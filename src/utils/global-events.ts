@@ -7,7 +7,7 @@ import { Button } from 'tns-core-modules/ui/button/button';
 import { View } from 'tns-core-modules/ui/core/view/view';
 import { DatePicker } from 'tns-core-modules/ui/date-picker/date-picker';
 import { EditableTextBase, TextBase } from 'tns-core-modules/ui/editable-text-base/editable-text-base';
-import { ContainerView, ContentView, CustomLayoutView, Frame } from 'tns-core-modules/ui/frame/frame';
+import { ContainerView, CustomLayoutView, Frame } from 'tns-core-modules/ui/frame/frame';
 import { HtmlView } from 'tns-core-modules/ui/html-view/html-view';
 import { Image } from 'tns-core-modules/ui/image/image';
 import { Label } from 'tns-core-modules/ui/label';
@@ -78,7 +78,6 @@ export function setupGlobalEventsOnViewType(View: any) {
 // Add the global events to the View-class before adding it to the sub-classes.
 setupGlobalEventsOnViewType(View);
 setupGlobalEventsOnViewType(TextBase);
-setupGlobalEventsOnViewType(ContentView);
 setupGlobalEventsOnViewType(ContainerView);
 setupGlobalEventsOnViewType(LayoutBase);
 

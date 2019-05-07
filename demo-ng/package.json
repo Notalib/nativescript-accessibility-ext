@@ -1,11 +1,8 @@
 {
-  "private": true,
   "name": "a11y-demo-ng",
-  "version": "0.0.0",
   "description": "NativeScript Application",
   "license": "SEE LICENSE IN <your-license-filename>",
-  "readme": "NativeScript Application",
-  "repository": "<fill-your-repository-here>",
+  "version": "0.0.0",
   "nativescript": {
     "id": "dk.nota.a11ydemong",
     "tns-ios": {
@@ -19,29 +16,29 @@
     "postinstall": "./patches/apply-patches.sh"
   },
   "dependencies": {
-    "@angular/animations": "~7.2.10",
-    "@angular/common": "~7.2.10",
-    "@angular/compiler": "~7.2.10",
-    "@angular/core": "~7.2.10",
-    "@angular/forms": "~7.2.10",
-    "@angular/http": "~7.2.10",
-    "@angular/platform-browser": "~7.2.10",
-    "@angular/platform-browser-dynamic": "~7.2.10",
-    "@angular/router": "~7.2.10",
+    "@angular/animations": "~7.2.14",
+    "@angular/common": "~7.2.14",
+    "@angular/compiler": "~7.2.14",
+    "@angular/core": "~7.2.14",
+    "@angular/forms": "~7.2.14",
+    "@angular/http": "~7.2.14",
+    "@angular/platform-browser": "~7.2.14",
+    "@angular/platform-browser-dynamic": "~7.2.14",
+    "@angular/router": "~7.2.14",
     "@nota/nativescript-accessibility-ext": "file:../src",
     "nativescript-angular": "~7.2.3",
     "nativescript-theme-core": "~1.0.4",
     "reflect-metadata": "~0.1.13",
     "rxjs": "~6.4.0",
     "tns-core-modules": "~5.3.1",
-    "zone.js": "^0.8.27"
+    "zone.js": "^0.8.29"
   },
   "devDependencies": {
     "@angular/compiler-cli": "~7.2.10",
     "@ngtools/webpack": "~7.2.0",
-    "nativescript-dev-sass": "^1.7.0",
-    "nativescript-dev-typescript": "^0.9.0",
-    "nativescript-dev-webpack": "^0.21.2",
+    "nativescript-dev-sass": "~1.7.0",
+    "nativescript-dev-typescript": "~0.9.0",
+    "nativescript-dev-webpack": "~0.21.2",
     "typescript": "~3.1.6"
   }
 }

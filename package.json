@@ -3,7 +3,6 @@
   "name": "@nota/nativescript-accessibility-ext",
   "version": "5.3.0-alpha.1",
   "description": "Add support for 'VoiceOver' and 'TalkBack' in NativeScript",
-  "main": "index.js",
   "scripts": {
     "postinstall": "npm run install:demo",
     "demo:android": "npm run install:demo && cd demo && tns debug android --bundle --syncAllFiles",

@@ -1,8 +1,15 @@
-import { View as TNSView } from 'tns-core-modules/ui/core/view';
+import * as trace from 'tns-core-modules/trace';
+import { EventData, View as TNSView } from 'tns-core-modules/ui/core/view';
 import { GestureTypes } from 'tns-core-modules/ui/gestures/gestures';
-import { writeTrace } from '../trace';
+import { ListView } from 'tns-core-modules/ui/list-view/list-view';
+import * as utils from 'tns-core-modules/utils/utils';
+import { categories, isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 import { notifyAccessibilityFocusState } from './helpers';
 import { isAccessibilityServiceEnabled } from './utils';
+
+function writeHelperTrace(message: string, type = trace.messageType.info) {
+  writeTrace(message, type, categories.AndroidHelper);
+}
 
 const AccessibilityEvent = android.view.accessibility.AccessibilityEvent;
 type AccessibilityEvent = android.view.accessibility.AccessibilityEvent;
@@ -14,6 +21,8 @@ const AccessibilityNodeInfoCompat = android.support.v4.view.accessibility.Access
 type AccessibilityNodeInfoCompat = android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
 const AndroidView = android.view.View;
 type AndroidView = android.view.View;
+const AndroidViewGroup = android.view.ViewGroup;
+type AndroidViewGroup = android.view.ViewGroup;
 const ViewCompat = android.support.v4.view.ViewCompat;
 type ViewCompat = android.support.v4.view.ViewCompat;
 
@@ -21,6 +30,8 @@ function getAccessibilityManager(view: AndroidView): AccessibilityManager {
   return view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
 }
 
+let suspendAccessibilityEvents = false;
+const a11yScrollOnFocus = 'a11y-scroll-on-focus';
 let lastFocusedView: WeakRef<TNSView>;
 function accessibilityEventHelper(owner: TNSView, eventType: number) {
   if (!isAccessibilityServiceEnabled()) {
@@ -60,7 +71,24 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
       }
 
       lastFocusedView = new WeakRef(owner);
+
       notifyAccessibilityFocusState(owner, true, false);
+
+      const tree = [] as string[];
+
+      for (let node = owner; node; node = node.parent as TNSView) {
+        node.notify({
+          eventName: a11yScrollOnFocus,
+          object: owner,
+        });
+
+        tree.push(`${node}[${node.className || ''}]`);
+      }
+
+      if (isTraceEnabled()) {
+        writeHelperTrace(`Focus-tree: ${tree.reverse().join(' => ')}`);
+      }
+
       return;
     }
     case AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED: {
@@ -118,10 +146,18 @@ function ensureDelegates() {
       }
     }
 
-    public sendAccessibilityEvent(host: android.view.ViewGroup, eventType: number) {
+    public sendAccessibilityEvent(host: AndroidViewGroup, eventType: number) {
       super.sendAccessibilityEvent(host, eventType);
 
+      if (suspendAccessibilityEvents) {
+        return;
+      }
+
       accessibilityEventHelper(this.owner.get(), eventType);
+    }
+
+    public onRequestSendAccessibilityEvent(host: AndroidViewGroup, view: AndroidView, event: AccessibilityEvent) {
+      return super.onRequestSendAccessibilityEvent(host, view, event);
     }
   }
 
@@ -258,13 +294,20 @@ export class AccessibilityHelper {
   }
 
   public static updateAccessibilityComponentType(tnsView: TNSView, androidView: AndroidView, componentType: string) {
-    writeTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView} componentType:${componentType}`);
+    if (isTraceEnabled()) {
+      writeHelperTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView} componentType:${componentType}`);
+    }
 
     ensureDelegates();
 
     if (componentType && androidView[lastComponentTypeSymbol] === componentType) {
-      writeTrace(`updateAccessibilityComponentType - ${tnsView} - componentType not changed`);
-      return;
+      if (isTraceEnabled()) {
+        writeHelperTrace(`updateAccessibilityComponentType - ${tnsView} - componentType not changed`);
+      }
+
+      if (ViewCompat.hasAccessibilityDelegate(androidView)) {
+        return;
+      }
     }
 
     ViewCompat.setAccessibilityDelegate(androidView, new TNSAccessibilityDelegateCompat(tnsView));
@@ -272,7 +315,9 @@ export class AccessibilityHelper {
   }
 
   public static removeAccessibilityComponentType(androidView: AndroidView) {
-    writeTrace(`removeAccessibilityComponentType from ${androidView}`);
+    if (isTraceEnabled()) {
+      writeHelperTrace(`removeAccessibilityComponentType from ${androidView}`);
+    }
 
     ViewCompat.setAccessibilityDelegate(androidView, null);
   }
@@ -280,18 +325,24 @@ export class AccessibilityHelper {
   public static sendAccessibilityEvent(androidView: AndroidView, eventName: string, text?: string) {
     const cls = `AccessibilityHelper.sendAccessibilityEvent(${androidView}, ${eventName}, ${text})`;
     if (!eventName) {
-      writeTrace(`${cls}: no eventName provided`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls}: no eventName provided`);
+      }
       return;
     }
 
     if (!isAccessibilityServiceEnabled()) {
-      writeTrace(`${cls} - TalkBack not enabled`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - TalkBack not enabled`);
+      }
       return;
     }
 
     const a11yService = getAccessibilityManager(androidView);
     if (!a11yService.isEnabled()) {
-      writeTrace(`${cls} - a11yService not enabled`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - a11yService not enabled`);
+      }
       return;
     }
 
@@ -299,7 +350,9 @@ export class AccessibilityHelper {
 
     eventName = eventName.toLowerCase();
     if (!accessibilityEventMap.has(eventName)) {
-      writeTrace(`${cls} - unknown event`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - unknown event`);
+      }
       return;
     }
     const eventInt = accessibilityEventMap.get(eventName);
@@ -311,10 +364,14 @@ export class AccessibilityHelper {
 
     if (!text) {
       text = androidView.getContentDescription();
-      writeTrace(`${cls} - text not provided use androidView.getContentDescription()`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - text not provided use androidView.getContentDescription()`);
+      }
     }
 
-    writeTrace(`${cls}: send event with text: '${JSON.stringify(text)}'`);
+    if (isTraceEnabled()) {
+      writeHelperTrace(`${cls}: send event with text: '${JSON.stringify(text)}'`);
+    }
 
     if (text) {
       a11yEvent.getText().add(text);
@@ -329,19 +386,25 @@ export class AccessibilityHelper {
     let contentDescriptionBuilder: string[] = [];
     let haveValue = false;
     if (tnsView.accessibilityLabel) {
-      writeTrace(`${cls} - have accessibilityLabel`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - have accessibilityLabel`);
+      }
       haveValue = true;
       contentDescriptionBuilder.push(`${tnsView.accessibilityLabel}. `);
     }
 
     if (tnsView.accessibilityValue) {
-      writeTrace(`${cls} - have accessibilityValue`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - have accessibilityValue`);
+      }
       haveValue = true;
       contentDescriptionBuilder.push(`${tnsView.accessibilityValue}. `);
     }
 
     if (tnsView.accessibilityHint) {
-      writeTrace(`${cls} - have accessibilityHint`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - have accessibilityHint`);
+      }
       haveValue = true;
       contentDescriptionBuilder.push(`${tnsView.accessibilityHint}. `);
     }
@@ -353,16 +416,164 @@ export class AccessibilityHelper {
 
     if (contentDescription !== androidView.getContentDescription()) {
       if (haveValue) {
-        writeTrace(`${cls} - set to "${contentDescription}"`);
+        if (isTraceEnabled()) {
+          writeHelperTrace(`${cls} - set to "${contentDescription}"`);
+        }
         androidView.setContentDescription(contentDescription);
       } else {
-        writeTrace(`${cls} - remove value`);
+        if (isTraceEnabled()) {
+          writeHelperTrace(`${cls} - remove value`);
+        }
         androidView.setContentDescription(null);
       }
     } else {
-      writeTrace(`${cls} - no change`);
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - no change`);
+      }
     }
 
     return contentDescription;
   }
 }
+
+/**
+ * When the user navigates to a ListView item, we need to keep it on screen.
+ * Otherwise we risk buggy behavior, where the ListView jumps to the top or selects a < half
+ * visible element.
+ */
+function ensureListViewItemIsOnScreen(listView: ListView, index: number, event: EventData) {
+  const view = event.object as TNSView;
+
+  if (isTraceEnabled()) {
+    writeHelperTrace(`ItemOnScreen${listView}: index=${index} view=${view}`);
+  }
+  if (suspendAccessibilityEvents) {
+    if (isTraceEnabled()) {
+      writeHelperTrace(`ItemOnScreen${listView}: index=${index} suspended`);
+    }
+    return;
+  }
+
+  try {
+    suspendAccessibilityEvents = true;
+    const androidListView = listView.android as android.widget.ListView;
+    if (!androidListView) {
+      // This really shouldn't happen, but just in case.
+      if (isTraceEnabled()) {
+        writeHelperTrace(`ItemOnScreen${listView}: index=${index} no native list-view?`);
+      }
+      return;
+    }
+
+    const viewSize = view.getActualSize();
+    const viewPos = view.getLocationRelativeTo(listView);
+    const listViewSize = listView.getActualSize();
+
+    const viewPosDelta = {
+      x2: viewSize.width + viewPos.x,
+      y2: viewSize.height + viewPos.y,
+    };
+
+    // To make sure the prev/next element exists add a small padding
+    const offsetPadding = 10;
+
+    // Minimum y-offset for the view to be on screen.
+    const minOffset = offsetPadding;
+
+    // Maximum y-offset for the view to be on screen
+    const maxOffset = listViewSize.height - offsetPadding;
+
+    if (viewPos.y >= minOffset && viewPosDelta.y2 <= maxOffset) {
+      // The view is on screen, no need to scroll anything.
+      if (isTraceEnabled()) {
+        writeHelperTrace(`ItemOnScreen${listView}: index=${index} is on screen ${viewPos.y} >= ${minOffset} && ${viewPosDelta.y2} <= ${maxOffset}`);
+      }
+
+      return;
+    }
+
+    /**
+     * The ListView needs to be scrolled.
+     *
+     * ListView can only be scrolled relative to the current position,
+     * so we need to calculate the relative scrollBy value.
+     */
+
+    // 1st calculate at which offset the view should end up at.
+    const wantedScrollOffset = viewPos.y < 0 ? offsetPadding : listViewSize.height - viewSize.height - offsetPadding;
+
+    // 2nd calculate the difference between the current y-offset and the wanted offset.
+    const scrollByDIP = viewPos.y - wantedScrollOffset;
+
+    // 3nd convert to real device pixels.
+    const scrollByDP = utils.layout.toDevicePixels(scrollByDIP);
+
+    if (isTraceEnabled()) {
+      writeHelperTrace(`ItemOnScreen${listView}: index=${index} is not on screen, scroll by: ${scrollByDIP}`);
+    }
+
+    // Finally scroll this ListView.
+    // Note: We get a better result from ListViewCompat.scrollListBy than from ListView.scrollListBy.
+    android.support.v4.widget.ListViewCompat.scrollListBy(androidListView, scrollByDP);
+  } catch (err) {
+    writeErrorTrace(err);
+  } finally {
+    suspendAccessibilityEvents = false;
+  }
+}
+
+/**
+ * Set the ListView item's AccessibilityDelegate on load. this is needed to scroll into view.
+ */
+function listViewItemLoaded(event: EventData) {
+  const tnsView = event.object as TNSView;
+  if (!tnsView.android) {
+    return;
+  }
+
+  ViewCompat.setAccessibilityDelegate(tnsView.android, new TNSAccessibilityDelegateCompat(tnsView));
+}
+
+ListView.on(ListView.itemLoadingEvent, (args: any) => {
+  const listView = args.object as ListView;
+  const index = args.index as number;
+  const tnsView = args.view as TNSView;
+
+  if (isTraceEnabled()) {
+    writeHelperTrace(`ItemLoading${listView}: index=${index} view=${tnsView}`);
+  }
+
+  if (!tnsView) {
+    return;
+  }
+
+  tnsView.off(a11yScrollOnFocus);
+
+  tnsView.on(a11yScrollOnFocus, ensureListViewItemIsOnScreen.bind(null, listView, index));
+
+  for (let p = tnsView; p && p !== listView; p = p.parent as TNSView) {
+    p.off(TNSView.loadedEvent, listViewItemLoaded);
+
+    if (!p.isLoaded) {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`ItemLoading${listView}: index=${index} view is not loaded`);
+      }
+      p.on(TNSView.loadedEvent, listViewItemLoaded);
+      continue;
+    }
+
+    const androidView = p.android as AndroidView;
+    if (!androidView) {
+      continue;
+    }
+
+    if (ViewCompat.hasAccessibilityDelegate(androidView)) {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`ItemLoading${listView}: index=${index} view already has a delegate`);
+      }
+      continue;
+    }
+
+    ViewCompat.setAccessibilityDelegate(androidView, new TNSAccessibilityDelegateCompat(tnsView));
+  }
+});

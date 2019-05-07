@@ -7,8 +7,6 @@ declare module 'tns-core-modules/ui/page' {
   }
 
   interface Page {
-    fontScaleObservable?: FontScaleObservable | void;
-
     /**
      * Disable announce page on `navigatedTo`
      */

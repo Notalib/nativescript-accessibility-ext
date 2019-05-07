@@ -2,8 +2,8 @@
   $font-size: 15;
   $factor: map-get($params, factor);
 
-  Page.a11y-fontscale-#{$scale} {
-    .btn {
+  .btn {
+    &.a11y-fontscale-#{$scale} {
       font-size: $font-size * $factor;
     }
   }

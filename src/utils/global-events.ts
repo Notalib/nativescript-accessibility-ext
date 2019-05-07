@@ -15,6 +15,7 @@ import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout/abso
 import { DockLayout } from 'tns-core-modules/ui/layouts/dock-layout/dock-layout';
 import { FlexboxLayout } from 'tns-core-modules/ui/layouts/flexbox-layout/flexbox-layout';
 import { GridLayout } from 'tns-core-modules/ui/layouts/grid-layout/grid-layout';
+import { LayoutBase } from 'tns-core-modules/ui/layouts/layout-base';
 import { StackLayout } from 'tns-core-modules/ui/layouts/stack-layout/stack-layout';
 import { WrapLayout } from 'tns-core-modules/ui/layouts/wrap-layout/wrap-layout';
 import { ListPicker } from 'tns-core-modules/ui/list-picker/list-picker';
@@ -35,7 +36,6 @@ import { TimePicker } from 'tns-core-modules/ui/time-picker/time-picker';
 import { WebView } from 'tns-core-modules/ui/web-view/web-view';
 import { isTraceEnabled, writeGlobalEventsTrace } from '../trace';
 import { wrapViewFunction } from './helpers';
-import { LayoutBase } from 'tns-core-modules/ui/layouts/layout-base';
 
 export function setupGlobalEventsOnViewType(View: any) {
   const viewName = View.name;

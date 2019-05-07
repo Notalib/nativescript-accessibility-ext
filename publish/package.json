@@ -7,5 +7,8 @@
     "json": "^9.0.6",
     "ncp": "^2.0.0",
     "rimraf": "^2.5.0"
+  },
+  "dependencies": {
+    "tns-platform-declarations": "file:../node_modules/tns-platform-declarations"
   }
 }

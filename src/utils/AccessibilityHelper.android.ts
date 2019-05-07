@@ -35,10 +35,17 @@ const a11yScrollOnFocus = 'a11y-scroll-on-focus';
 let lastFocusedView: WeakRef<TNSView>;
 function accessibilityEventHelper(owner: TNSView, eventType: number) {
   if (!isAccessibilityServiceEnabled()) {
+    if (isTraceEnabled()) {
+      writeHelperTrace(`EventHelper: Service not active`);
+    }
     return;
   }
 
   if (!owner) {
+    if (isTraceEnabled()) {
+      writeHelperTrace(`EventHelper: Service not active`);
+    }
+
     return;
   }
 

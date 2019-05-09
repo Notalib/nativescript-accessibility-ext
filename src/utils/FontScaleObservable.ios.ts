@@ -23,12 +23,13 @@ function fontScaleChanged(fontScale: number) {
   internalObservable.set(FontScaleObservable.FONT_SCALE, fontScale);
 }
 
-function ensureObservable() {
-  if (internalObservable) {
+function setupConfigListener() {
+  nsApp.off(nsApp.launchEvent, setupConfigListener);
+
+  if (!nsApp.hasLaunched()) {
+    nsApp.on(nsApp.launchEvent, setupConfigListener);
     return;
   }
-
-  internalObservable = new Observable();
 
   const sizeMap = new Map<string, number>([
     [UIContentSizeCategoryExtraSmall, 0.5],
@@ -55,8 +56,6 @@ function ensureObservable() {
     }
   }
 
-  contentSizeUpdated(nsApp.ios.nativeApp.preferredContentSizeCategory);
-
   const fontSizeObserver = nsApp.ios.addNotificationObserver(UIContentSizeCategoryDidChangeNotification, (args) => {
     const fontSize = args.userInfo.valueForKey(UIContentSizeCategoryNewValueKey);
     contentSizeUpdated(fontSize);
@@ -64,7 +63,27 @@ function ensureObservable() {
 
   nsApp.on(nsApp.exitEvent, () => {
     nsApp.ios.removeNotificationObserver(fontSizeObserver, UIContentSizeCategoryDidChangeNotification);
+    internalObservable = null;
   });
+
+  function useIOSFontScale() {
+    if (nsApp.ios.nativeApp) {
+      fontScaleChanged(Number(nsApp.ios.nativeApp.preferredContentSizeCategory));
+    }
+  }
+
+  nsApp.on(nsApp.resumeEvent, useIOSFontScale);
+
+  useIOSFontScale();
+}
+
+function ensureObservable() {
+  if (internalObservable) {
+    return;
+  }
+
+  internalObservable = new Observable();
+  setupConfigListener();
 }
 
 export class FontScaleObservable extends Observable {

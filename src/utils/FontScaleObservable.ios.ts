@@ -1,6 +1,6 @@
 import * as nsApp from 'tns-core-modules/application';
 import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
-import { isTraceEnabled, writeFontScaleTrace } from '../trace';
+import { isTraceEnabled, writeErrorTrace, writeFontScaleTrace } from '../trace';
 
 function getClosestValidFontScale(fontScale: number) {
   return FontScaleObservable.VALID_FONT_SCALES.sort((a, b) => Math.abs(fontScale - a) - Math.abs(fontScale - b)).shift();
@@ -23,28 +23,36 @@ function fontScaleChanged(fontScale: number) {
   internalObservable.set(FontScaleObservable.FONT_SCALE, fontScale);
 }
 
-function setupConfigListener() {
-  nsApp.off(nsApp.launchEvent, setupConfigListener);
+const sizeMap = new Map<string, number>([
+  [UIContentSizeCategoryExtraSmall, 0.5],
+  [UIContentSizeCategorySmall, 0.7],
+  [UIContentSizeCategoryMedium, 0.85],
+  [UIContentSizeCategoryLarge, 1],
+  [UIContentSizeCategoryExtraLarge, 1.15],
+  [UIContentSizeCategoryExtraExtraLarge, 1.3],
+  [UIContentSizeCategoryExtraExtraExtraLarge, 1.5],
+  [UIContentSizeCategoryAccessibilityMedium, 2],
+  [UIContentSizeCategoryAccessibilityLarge, 2.5],
+  [UIContentSizeCategoryAccessibilityExtraLarge, 3],
+  [UIContentSizeCategoryAccessibilityExtraExtraLarge, 3.5],
+  [UIContentSizeCategoryAccessibilityExtraExtraExtraLarge, 4],
+]);
 
-  if (!nsApp.hasLaunched()) {
-    nsApp.on(nsApp.launchEvent, setupConfigListener);
+function setupConfigListener(attempt = 0) {
+  if (!nsApp.ios.nativeApp) {
+    if (attempt > 10) {
+      if (isTraceEnabled()) {
+        writeErrorTrace(`App didn't become active couldn't enable font scaling`);
+      }
+
+      fontScaleChanged(1);
+    } else {
+      // Couldn't get launchEvent to trigger.
+      setTimeout(() => setupConfigListener(attempt + 1), 10);
+    }
+
     return;
   }
-
-  const sizeMap = new Map<string, number>([
-    [UIContentSizeCategoryExtraSmall, 0.5],
-    [UIContentSizeCategorySmall, 0.7],
-    [UIContentSizeCategoryMedium, 0.85],
-    [UIContentSizeCategoryLarge, 1],
-    [UIContentSizeCategoryExtraLarge, 1.15],
-    [UIContentSizeCategoryExtraExtraLarge, 1.3],
-    [UIContentSizeCategoryExtraExtraExtraLarge, 1.5],
-    [UIContentSizeCategoryAccessibilityMedium, 2],
-    [UIContentSizeCategoryAccessibilityLarge, 2.5],
-    [UIContentSizeCategoryAccessibilityExtraLarge, 3],
-    [UIContentSizeCategoryAccessibilityExtraExtraLarge, 3.5],
-    [UIContentSizeCategoryAccessibilityExtraExtraExtraLarge, 4],
-  ]);
 
   function contentSizeUpdated(fontSize: string) {
     if (sizeMap.has(fontSize)) {
@@ -68,7 +76,9 @@ function setupConfigListener() {
 
   function useIOSFontScale() {
     if (nsApp.ios.nativeApp) {
-      fontScaleChanged(Number(nsApp.ios.nativeApp.preferredContentSizeCategory));
+      contentSizeUpdated(nsApp.ios.nativeApp.preferredContentSizeCategory);
+    } else {
+      fontScaleChanged(1);
     }
   }
 

@@ -7,6 +7,10 @@ import { writeFontScaleTrace } from '../trace';
 import { FontScaleObservable } from '../utils/FontScaleObservable';
 import '../utils/global-events';
 
+function fontScaleToCssClass(fontScale: number) {
+  return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;
+}
+
 const fontScaleCssClasses = FontScaleObservable.VALID_FONT_SCALES.map(fontScaleToCssClass);
 
 /**
@@ -15,12 +19,12 @@ const fontScaleCssClasses = FontScaleObservable.VALID_FONT_SCALES.map(fontScaleT
  **/
 const loadedViewRefs = new Set<WeakRef<View>>();
 
-function fontScaleToCssClass(fontScale: number) {
-  return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;
-}
-
 const cls = `FontScaling`;
 function setFontScaleClass(view: View, fontScale: number) {
+  if (!fontScale || isNaN(fontScale)) {
+    fontScale = 1;
+  }
+
   const clsSetClass = `${cls}.setFontScaleClass(${view}, ${fontScale})`;
   if (!view) {
     writeFontScaleTrace(`${clsSetClass}: view is undefined`);

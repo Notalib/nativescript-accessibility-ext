@@ -43,7 +43,6 @@ export function wrapViewFunction(viewClass: any, fnName: string, func: Function)
   const origFNName = getOriginalWrappedFnName(viewClass, fnName);
 
   viewClass[origFNName] = (viewClass[origFNName] || viewClass.prototype[fnName]) as Function;
-  console.log('wrapViewFunction', viewName, origFNName, viewClass[origFNName], viewClass[origFNName] === viewClass.prototype[fnName]);
 
   viewClass.prototype[fnName] = function(...args: any[]) {
     let origFN = viewClass[origFNName];

@@ -8,8 +8,11 @@ import {
   booleanConverter,
   View,
 } from 'tns-core-modules/ui/core/view';
-import { isTraceEnabled, writeTrace } from '../trace';
+import { isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 
+/**
+ * Dummy function that does nothing.
+ */
 export function noop() {
   // ignore
 }
@@ -18,20 +21,57 @@ export interface ViewType<T extends View> {
   new (): T;
 }
 
+/**
+ * Add a new function to a View-class
+ */
 export function setViewFunction(viewClass: any, fnName: string, fn?: Function) {
   viewClass.prototype[fnName] = fn || noop;
 }
 
-export function wrapViewFunction(viewClass: any, fnName: string, fn: Function) {
-  const origFN = viewClass.prototype[fnName] as Function;
+function getOriginalWrappedFnName(viewClass: any, fnName: string) {
+  const viewName = viewClass.name;
+  return `___a11y_${viewName}_${fnName}`;
+}
+
+/**
+ * Wrap a function on a View-class.
+ * The original function will be called before the func.
+ */
+export function wrapViewFunction(viewClass: any, fnName: string, func: Function) {
+  const viewName = viewClass.name;
+
+  const origFNName = getOriginalWrappedFnName(viewClass, fnName);
+
+  viewClass[origFNName] = (viewClass[origFNName] || viewClass.prototype[fnName]) as Function;
+  console.log('wrapViewFunction', viewName, origFNName, viewClass[origFNName], viewClass[origFNName] === viewClass.prototype[fnName]);
 
   viewClass.prototype[fnName] = function(...args: any[]) {
+    let origFN = viewClass[origFNName];
+    if (!origFN) {
+      writeErrorTrace(`wrapViewFunction(${viewName}) don't have an original function for ${fnName}`);
+
+      origFN = noop;
+    }
+
     const res = origFN.call(this, ...args);
 
-    fn.call(this, ...args);
+    func.call(this, ...args);
 
     return res;
   };
+}
+
+/**
+ * Unwrap a function on a View-class wrapped by wrapViewFunction.
+ */
+export function unwrapViewFunction(viewClass: any, fnName: string) {
+  const origFNName = getOriginalWrappedFnName(viewClass, fnName);
+  if (!viewClass[origFNName]) {
+    return;
+  }
+
+  viewClass.prototype[fnName] = viewClass[origFNName];
+  delete viewClass[origFNName];
 }
 
 export function enforceArray(val: string | string[]): string[] {

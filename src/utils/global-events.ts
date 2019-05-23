@@ -35,51 +35,70 @@ import { TextView } from 'tns-core-modules/ui/text-view/text-view';
 import { TimePicker } from 'tns-core-modules/ui/time-picker/time-picker';
 import { WebView } from 'tns-core-modules/ui/web-view/web-view';
 import { isTraceEnabled, writeGlobalEventsTrace } from '../trace';
-import { wrapViewFunction } from './helpers';
+import { unwrapViewFunction, wrapViewFunction } from './helpers';
 
-export function setupGlobalEventsOnViewType(View: any) {
-  const viewName = View.name;
+export function setupGlobalEventsOnViewClass(ViewClass: any) {
+  const viewName = ViewClass.name;
+  const obsKeyName = `__a11y_globalEvent_${viewName}_observable`;
 
-  if (isTraceEnabled()) {
-    writeGlobalEventsTrace(`Adding to: ${viewName}`);
+  if (ViewClass[obsKeyName]) {
+    if (isTraceEnabled()) {
+      writeGlobalEventsTrace(`"${viewName}" already overridden`);
+    }
+
+    return;
   }
 
-  const observable = new Observable();
-  wrapViewFunction(View, 'notify', function customNotify(arg: EventData) {
-    if (isTraceEnabled()) {
-      writeGlobalEventsTrace(`Notify "${arg.eventName}" to all "${viewName}"`);
+  if (isTraceEnabled()) {
+    writeGlobalEventsTrace(`Adding to "${viewName}"`);
+  }
+
+  ViewClass[obsKeyName] = new Observable();
+
+  unwrapViewFunction(ViewClass, 'notify');
+
+  wrapViewFunction(ViewClass, 'notify', function customNotify(arg: EventData) {
+    if (!ViewClass[obsKeyName].hasListeners(arg.eventName)) {
+      return;
     }
 
-    observable.notify(arg);
+    if (isTraceEnabled()) {
+      writeGlobalEventsTrace(`Notify "${arg.eventName}" to all "${viewName}" from ${arg.object}`);
+    }
+
+    ViewClass[obsKeyName].notify(arg);
   });
 
-  View.on = View.addEventListener = function customAddEventListener(eventNames: string, callback: (data: EventData) => void, thisArg?: any) {
+  ViewClass.on = ViewClass.addEventListener = function customAddEventListener(eventNames: string, callback: (data: EventData) => void, thisArg?: any) {
     if (isTraceEnabled()) {
-      writeGlobalEventsTrace(`On: "${eventNames}" this:${thisArg} to "${viewName}"`);
+      writeGlobalEventsTrace(`On: "${eventNames}" thisArg:${thisArg} to "${viewName}"`);
     }
-    observable.on(eventNames, callback, thisArg);
+
+    ViewClass[obsKeyName].on(eventNames, callback, thisArg);
   };
 
-  View.once = function customAddOnceEventListener(eventNames: string, callback: (data: EventData) => void, thisArg?: any) {
+  ViewClass.once = function customAddOnceEventListener(eventNames: string, callback: (data: EventData) => void, thisArg?: any) {
     if (isTraceEnabled()) {
-      writeGlobalEventsTrace(`Once: "${eventNames}" this:${thisArg} to "${viewName}"`);
+      writeGlobalEventsTrace(`Once: "${eventNames}" thisArg:${thisArg} to "${viewName}"`);
     }
-    observable.once(eventNames, callback, thisArg);
+
+    ViewClass[obsKeyName].once(eventNames, callback, thisArg);
   };
 
-  View.off = View.removeEventListener = function customRemoveEventListener(eventNames: string, callback?: any, thisArg?: any) {
+  ViewClass.off = ViewClass.removeEventListener = function customRemoveEventListener(eventNames: string, callback?: any, thisArg?: any) {
     if (isTraceEnabled()) {
       writeGlobalEventsTrace(`Remove: "${eventNames}" this:${thisArg} from "${viewName}"`);
     }
-    observable.off(eventNames, callback, thisArg);
+
+    ViewClass[obsKeyName].off(eventNames, callback, thisArg);
   };
 }
 
 // Add the global events to the View-class before adding it to the sub-classes.
-setupGlobalEventsOnViewType(View);
-setupGlobalEventsOnViewType(TextBase);
-setupGlobalEventsOnViewType(ContainerView);
-setupGlobalEventsOnViewType(LayoutBase);
+setupGlobalEventsOnViewClass(View);
+setupGlobalEventsOnViewClass(TextBase);
+setupGlobalEventsOnViewClass(ContainerView);
+setupGlobalEventsOnViewClass(LayoutBase);
 
 for (const viewClass of <{ new (): View }[]>[
   AbsoluteLayout,
@@ -115,5 +134,5 @@ for (const viewClass of <{ new (): View }[]>[
   WebView,
   WrapLayout,
 ]) {
-  setupGlobalEventsOnViewType(viewClass);
+  setupGlobalEventsOnViewClass(viewClass);
 }

@@ -17,19 +17,19 @@
     }
   },
   "scripts": {
-    "format": "prettier --write --config $(git rev-parse --show-toplevel)/.prettierrc.json '**/*.ts' '../demo/app/**/*.ts' '../demo/app/**/*.ts'",
-    "format:check": "prettier-check --config $(git rev-parse --show-toplevel)/.prettierrc.json '**/*.ts' '../demo/app/**/*.ts' '../demo/app/**/*.ts'",
-    "scss": "node-sass --recursive --output css scss",
-    "tsc": "tsc -skipLibCheck",
-    "build": "npm ci && npm-run-all lint tsc scss",
-    "tslint": "tslint '**/*.ts' '../demo/app/**/*.ts' '../demo/app/**/*.ts' --config $(git rev-parse --show-toplevel)/tslint.json --exclude \"**/node_modules/**\"",
-    "tslint:fix": "npm run tslint -- --fix",
-    "lint": "npm-run-all tslint format:check",
+    "build": "npm ci && npm-run-all lint build:tsc build:scss",
+    "build:scss": "node-sass --recursive --source-map true --source-map-contents --output css scss",
+    "build:tsc": "tsc -skipLibCheck",
+    "ci.build": "npm ci && npm-run-all build:tsc build:scss",
+    "ci.lint": "npm i && npm run lint",
     "clean": "npm-run-all clean.demo clean.src",
     "clean.demo": "git clean -d -x -f $(git rev-parse --show-toplevel)/demo",
     "clean.src": "git clean -d -x -f $(git rev-parse --show-toplevel)/src",
-    "ci.build": "npm ci && npm-run-all tsc scss",
-    "ci.lint": "npm i && npm run lint"
+    "format": "prettier --write --config $(git rev-parse --show-toplevel)/.prettierrc.json '**/*.ts' '../demo/app/**/*.ts' '../demo/app/**/*.ts'",
+    "format:check": "prettier-check --config $(git rev-parse --show-toplevel)/.prettierrc.json '**/*.ts' '../demo/app/**/*.ts' '../demo/app/**/*.ts'",
+    "lint": "npm-run-all tslint format:check",
+    "tslint": "tslint '**/*.ts' '../demo/app/**/*.ts' '../demo/app/**/*.ts' --config $(git rev-parse --show-toplevel)/tslint.json --exclude \"**/node_modules/**\"",
+    "tslint:fix": "npm run tslint -- --fix"
   },
   "repository": {
     "type": "git",

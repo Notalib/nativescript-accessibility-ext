@@ -1,7 +1,7 @@
 /// <reference path="./core/view.d.ts" />
 
 import { EventData, Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
-import { isAndroid, isIOS } from 'tns-core-modules/platform';
+import { isAndroid } from 'tns-core-modules/platform';
 import { View } from 'tns-core-modules/ui/core/view';
 import { writeFontScaleTrace } from '../trace';
 import { FontScaleObservable } from '../utils/FontScaleObservable';
@@ -11,13 +11,15 @@ function fontScaleToCssClass(fontScale: number) {
   return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;
 }
 
-const fontScaleCssClasses = FontScaleObservable.VALID_FONT_SCALES.map(fontScaleToCssClass);
+const fontScaleCssClasses = new Set(FontScaleObservable.VALID_FONT_SCALES.map(fontScaleToCssClass));
 
 /**
  * Keep a list of WeakRefs to loaded views.
  * These are needed when the fontScale value changes.
  **/
 const loadedViewRefs = new Set<WeakRef<View>>();
+
+const platformClass = isAndroid ? 'android' : 'ios';
 
 const cls = `FontScaling`;
 function setFontScaleClass(view: View, fontScale: number) {
@@ -31,28 +33,17 @@ function setFontScaleClass(view: View, fontScale: number) {
     return;
   }
 
-  const oldClassNames = view.className || '';
+  const oldViewCssClasses = (view.className || '').split(' ');
 
   const newCssClass = fontScaleToCssClass(fontScale);
-  if (!view.cssClasses.has(newCssClass)) {
-    view.cssClasses.add(newCssClass);
-    writeFontScaleTrace(`${clsSetClass}: '${newCssClass}' added`);
-  }
+  const newViewCssClasses = [...oldViewCssClasses].filter((className) => className !== platformClass && fontScaleCssClasses.has(className));
 
-  for (const cssClass of fontScaleCssClasses) {
-    if (cssClass === newCssClass) {
-      continue;
-    }
+  newViewCssClasses.push(platformClass);
+  newViewCssClasses.push(newCssClass);
 
-    if (view.cssClasses.has(cssClass)) {
-      view.cssClasses.delete(cssClass);
-      writeFontScaleTrace(`${clsSetClass}: '${cssClass}' remove`);
-    }
-  }
-
-  const newClassNames = [...view.cssClasses].join(' ');
-  if (oldClassNames !== newClassNames) {
-    writeFontScaleTrace(`${clsSetClass}: change from '${oldClassNames}' to '${newClassNames}'`);
+  const newClassNames = [...newViewCssClasses].join(' ');
+  if (view.className !== newClassNames) {
+    writeFontScaleTrace(`${clsSetClass}: change from '${oldViewCssClasses}' to '${newClassNames}'`);
     view.className = newClassNames;
   }
 }
@@ -78,9 +69,6 @@ fontScaleObservable.on(Observable.propertyChangeEvent, (args: PropertyChangeData
   }
 });
 
-const platformClass = isAndroid ? 'android' : 'ios';
-const removePlatformClass = isIOS ? 'android' : 'ios';
-
 View.on(View.loadedEvent, function loadedEventCb({ object: view }: EventData) {
   if (!(view instanceof View)) {
     return;
@@ -99,11 +87,6 @@ View.on(View.loadedEvent, function loadedEventCb({ object: view }: EventData) {
       return;
     }
   }
-
-  view.cssClasses.add(platformClass);
-  view.cssClasses.delete(removePlatformClass);
-
-  view.className = [...view.cssClasses].join(' ');
 
   const fontScale = fontScaleObservable.get(FontScaleObservable.FONT_SCALE);
   setFontScaleClass(view, fontScale);

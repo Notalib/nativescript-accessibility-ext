@@ -23,6 +23,10 @@ const platformClass = isAndroid ? 'android' : 'ios';
 
 const cls = `FontScaling`;
 function setFontScaleClass(view: View, fontScale: number) {
+  if (!view || !view.isLoaded) {
+    return;
+  }
+
   if (!fontScale || isNaN(fontScale)) {
     fontScale = 1;
   }
@@ -33,17 +37,17 @@ function setFontScaleClass(view: View, fontScale: number) {
     return;
   }
 
-  const oldViewCssClasses = (view.className || '').split(' ');
+  const oldViewCssClasses = (view.className || '').trim().split(' ');
 
   const newCssClass = fontScaleToCssClass(fontScale);
-  const newViewCssClasses = [...oldViewCssClasses].filter((className) => className !== platformClass && fontScaleCssClasses.has(className));
+  const newViewCssClasses = [...oldViewCssClasses].filter((className) => className !== platformClass && !fontScaleCssClasses.has(className));
 
   newViewCssClasses.push(platformClass);
   newViewCssClasses.push(newCssClass);
 
   const newClassNames = [...newViewCssClasses].join(' ');
   if (view.className !== newClassNames) {
-    writeFontScaleTrace(`${clsSetClass}: change from '${oldViewCssClasses}' to '${newClassNames}'`);
+    writeFontScaleTrace(`${clsSetClass}: change from '${oldViewCssClasses.join(' ')}' to '${newClassNames}'`);
     view.className = newClassNames;
   }
 }
@@ -69,7 +73,7 @@ fontScaleObservable.on(Observable.propertyChangeEvent, (args: PropertyChangeData
   }
 });
 
-View.on(View.loadedEvent, function loadedEventCb({ object: view }: EventData) {
+function applyFontScaleOnLoad({ object: view }: EventData) {
   if (!(view instanceof View)) {
     return;
   }
@@ -91,9 +95,19 @@ View.on(View.loadedEvent, function loadedEventCb({ object: view }: EventData) {
   const fontScale = fontScaleObservable.get(FontScaleObservable.FONT_SCALE);
   setFontScaleClass(view, fontScale);
   loadedViewRefs.add(new WeakRef(view));
-});
 
-View.on(View.unloadedEvent, function unloadedEventCb({ object: view }: EventData) {
+  setTimeout(() => setFontScaleClass(view, fontScale), 0);
+}
+
+if (View['applyFontScaleOnLoad']) {
+  // Handle HMR restart
+  View.off(View.loadedEvent, View['applyFontScaleOnLoad']);
+}
+View['applyFontScaleOnLoad'] = applyFontScaleOnLoad;
+
+View.on(View.loadedEvent, applyFontScaleOnLoad);
+
+function unapplyFontScaleOnUnload({ object: view }: EventData) {
   if (!(view instanceof View)) {
     return;
   }
@@ -111,4 +125,12 @@ View.on(View.unloadedEvent, function unloadedEventCb({ object: view }: EventData
       return;
     }
   }
-});
+}
+
+if (View['unapplyFontScaleOnUnload']) {
+  // Handle HMR restart
+  View.off(View.unloadedEvent, View['unapplyFontScaleOnUnload']);
+}
+View['unapplyFontScaleOnUnload'] = applyFontScaleOnLoad;
+
+View.on(View.unloadedEvent, unapplyFontScaleOnUnload);

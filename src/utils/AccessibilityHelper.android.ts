@@ -541,7 +541,7 @@ function listViewItemLoaded(event: EventData) {
   ViewCompat.setAccessibilityDelegate(tnsView.android, new TNSAccessibilityDelegateCompat(tnsView));
 }
 
-ListView.on(ListView.itemLoadingEvent, (args: any) => {
+function setupA11yScrollOnFocus(args: any) {
   const listView = args.object as ListView;
   const index = args.index as number;
   const tnsView = args.view as TNSView;
@@ -583,4 +583,11 @@ ListView.on(ListView.itemLoadingEvent, (args: any) => {
 
     ViewCompat.setAccessibilityDelegate(androidView, new TNSAccessibilityDelegateCompat(tnsView));
   }
-});
+}
+
+if (ListView['setupA11yScrollOnFocus']) {
+  ListView.on(ListView.itemLoadingEvent, ListView['setupA11yScrollOnFocus']);
+}
+ListView['setupA11yScrollOnFocus'] = setupA11yScrollOnFocus;
+
+ListView.on(ListView.itemLoadingEvent, setupA11yScrollOnFocus);

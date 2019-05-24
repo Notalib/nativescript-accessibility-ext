@@ -6,7 +6,7 @@ import { ActivityIndicator } from 'tns-core-modules/ui/activity-indicator/activi
 import { Button } from 'tns-core-modules/ui/button/button';
 import { View } from 'tns-core-modules/ui/core/view/view';
 import { DatePicker } from 'tns-core-modules/ui/date-picker/date-picker';
-import { EditableTextBase, TextBase } from 'tns-core-modules/ui/editable-text-base/editable-text-base';
+import { EditableTextBase } from 'tns-core-modules/ui/editable-text-base/editable-text-base';
 import { ContainerView, CustomLayoutView, Frame } from 'tns-core-modules/ui/frame/frame';
 import { HtmlView } from 'tns-core-modules/ui/html-view/html-view';
 import { Image } from 'tns-core-modules/ui/image/image';
@@ -30,6 +30,7 @@ import { SegmentedBar } from 'tns-core-modules/ui/segmented-bar/segmented-bar';
 import { Slider } from 'tns-core-modules/ui/slider/slider';
 import { Switch } from 'tns-core-modules/ui/switch/switch';
 import { TabView } from 'tns-core-modules/ui/tab-view/tab-view';
+import { TextBase } from 'tns-core-modules/ui/text-base/text-base';
 import { TextField } from 'tns-core-modules/ui/text-field/text-field';
 import { TextView } from 'tns-core-modules/ui/text-view/text-view';
 import { TimePicker } from 'tns-core-modules/ui/time-picker/time-picker';

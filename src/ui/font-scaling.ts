@@ -96,6 +96,8 @@ function applyFontScaleOnLoad({ object: view }: EventData) {
   setFontScaleClass(view, fontScale);
   loadedViewRefs.add(new WeakRef(view));
 
+  // Workaround:
+  //   The nativescript-angular-binding resets the view.className on first load.
   setTimeout(() => setFontScaleClass(view, fontScale), 0);
 }
 

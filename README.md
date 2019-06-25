@@ -250,7 +250,6 @@ View.off(View.loadedEvent, callbackReference);
 #### FontScaleObservable
 
 NativeScript Observable for getting the native fontScale on either platform.
-Note: For this to work properly on Android you need to add fontScale to the `android:configChanges` in your **AndroidManifest.xml**
 
 **Note:**
 Android: Font scale between 0.85 and 1.3 (85% -> 130%)

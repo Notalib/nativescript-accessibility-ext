@@ -1,6 +1,6 @@
 /// <reference path="./core/view.d.ts" />
 
-import { EventData, Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
+import { EventData, Observable } from 'tns-core-modules/data/observable';
 import { isAndroid } from 'tns-core-modules/platform';
 import { View } from 'tns-core-modules/ui/core/view';
 import { writeFontScaleTrace } from '../trace';
@@ -53,7 +53,7 @@ function setFontScaleClass(view: View, fontScale: number) {
 }
 
 const fontScaleObservable = new FontScaleObservable();
-fontScaleObservable.on(Observable.propertyChangeEvent, (args: PropertyChangeData) => {
+fontScaleObservable.on(Observable.propertyChangeEvent, () => {
   const fontScale = fontScaleObservable.fontScale;
   writeFontScaleTrace(`${cls}: ${FontScaleObservable.FONT_SCALE} changed to ${fontScale}`);
   for (const viewRef of loadedViewRefs) {
@@ -90,8 +90,6 @@ function applyFontScaleOnLoad({ object: view }: EventData) {
   const fontScale = fontScaleObservable.get(FontScaleObservable.FONT_SCALE);
   setFontScaleClass(view, fontScale);
   loadedViewRefs.add(new WeakRef(view));
-
-  setFontScaleClass(view, fontScale);
 }
 
 if (View['applyFontScaleOnLoad']) {

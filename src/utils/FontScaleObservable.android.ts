@@ -7,17 +7,12 @@ function getClosestValidFontScale(fontScale: number) {
 }
 
 let internalObservable: Observable;
-function fontScaleChanged(fontScale: number) {
-  const cls = `fontScaleChanged(${fontScale})`;
+function fontScaleChanged(origFontScale: number) {
+  const fontScale = getClosestValidFontScale(origFontScale);
 
+  const cls = `fontScaleChanged(${fontScale}) - was = ${origFontScale}`;
   if (isTraceEnabled()) {
     writeFontScaleTrace(`${cls}`);
-  }
-
-  fontScale = getClosestValidFontScale(fontScale);
-
-  if (isTraceEnabled()) {
-    writeFontScaleTrace(`${cls} - settings closest valid value: ${fontScale}`);
   }
 
   internalObservable.set(FontScaleObservable.FONT_SCALE, fontScale);
@@ -52,7 +47,6 @@ function setupConfigListener() {
   });
 
   context.registerComponentCallbacks(configChangedCallback);
-
   nsApp.on(nsApp.resumeEvent, useAndroidFontScale);
 }
 

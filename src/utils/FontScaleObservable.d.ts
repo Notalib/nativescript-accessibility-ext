@@ -4,4 +4,6 @@ export declare class FontScaleObservable extends Observable {
     public static readonly FONT_SCALE: 'fontScale';
     public static readonly VALID_FONT_SCALES: number[];
     public readonly fontScale: number;
+    public readonly isExtraSmall: boolean;
+    public readonly isExtraLarge: boolean;
 }

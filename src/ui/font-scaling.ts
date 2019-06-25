@@ -1,7 +1,7 @@
 /// <reference path="./core/view.d.ts" />
 
 import { EventData, Observable } from 'tns-core-modules/data/observable';
-import { isAndroid } from 'tns-core-modules/platform';
+import { isAndroid, isIOS } from 'tns-core-modules/platform';
 import { View } from 'tns-core-modules/ui/core/view';
 import { writeFontScaleTrace } from '../trace';
 import { FontScaleObservable } from '../utils/FontScaleObservable';
@@ -21,9 +21,11 @@ const fontScaleCssClasses = new Set(FontScaleObservable.VALID_FONT_SCALES.map(fo
 const loadedViewRefs = new Set<WeakRef<View>>();
 
 const platformClass = isAndroid ? 'android' : 'ios';
+const fontExtraSmallClass = `a11y-fontscale-xs`;
+const fontExtraLargeClass = `a11y-fontscale-xl`;
 
 const cls = `FontScaling`;
-function setFontScaleClass(view: View, fontScale: number) {
+function setFontScaleClass(view: View, fontScale: number, isExtraSmall: boolean, isExtraLarge: boolean) {
   if (!view || !view.isLoaded) {
     return;
   }
@@ -45,6 +47,11 @@ function setFontScaleClass(view: View, fontScale: number) {
     viewSetCssClass(view, cssClass, cssClass === newCssClass);
   }
 
+  if (isIOS) {
+    viewSetCssClass(view, fontExtraSmallClass, isExtraSmall);
+    viewSetCssClass(view, fontExtraLargeClass, isExtraLarge);
+  }
+
   const postViewClassNames = (view.className || '').trim();
 
   if (prevViewClassName !== postViewClassNames) {
@@ -54,7 +61,7 @@ function setFontScaleClass(view: View, fontScale: number) {
 
 const fontScaleObservable = new FontScaleObservable();
 fontScaleObservable.on(Observable.propertyChangeEvent, () => {
-  const fontScale = fontScaleObservable.fontScale;
+  const { fontScale, isExtraSmall, isExtraLarge } = fontScaleObservable;
   writeFontScaleTrace(`${cls}: ${FontScaleObservable.FONT_SCALE} changed to ${fontScale}`);
   for (const viewRef of loadedViewRefs) {
     const view = viewRef.get();
@@ -64,7 +71,7 @@ fontScaleObservable.on(Observable.propertyChangeEvent, () => {
       continue;
     }
 
-    setFontScaleClass(view, fontScale);
+    setFontScaleClass(view, fontScale, isExtraSmall, isExtraLarge);
   }
 });
 
@@ -87,8 +94,8 @@ function applyFontScaleOnLoad({ object: view }: EventData) {
     }
   }
 
-  const fontScale = fontScaleObservable.get(FontScaleObservable.FONT_SCALE);
-  setFontScaleClass(view, fontScale);
+  const { fontScale, isExtraSmall, isExtraLarge } = fontScaleObservable;
+  setFontScaleClass(view, fontScale, isExtraSmall, isExtraLarge);
   loadedViewRefs.add(new WeakRef(view));
 }
 

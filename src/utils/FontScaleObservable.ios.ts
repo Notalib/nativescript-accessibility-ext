@@ -98,11 +98,17 @@ function ensureObservable() {
 
 export class FontScaleObservable extends Observable {
   public static readonly FONT_SCALE = 'fontScale';
+  public static readonly EXTRA_SMALL = 'isExtraSmall';
+  public static readonly EXTRA_LARGE = 'isExtraLarge';
 
   public static get VALID_FONT_SCALES() {
     // iOS supports a wider number of font scales than Android does.
     return [0.5, 0.7, 0.85, 1, 1.15, 1.3, 1.5, 2, 2.5, 3, 3.5, 4];
   }
+
+  public readonly fontScale: number;
+  public readonly isExtraSmall: boolean;
+  public readonly isExtraLarge: boolean;
 
   constructor() {
     super();
@@ -122,6 +128,9 @@ export class FontScaleObservable extends Observable {
     }
 
     internalObservable.on(Observable.propertyChangeEvent, callback);
-    this.set(FontScaleObservable.FONT_SCALE, internalObservable.get(FontScaleObservable.FONT_SCALE));
+    const fontScale = internalObservable.get(FontScaleObservable.FONT_SCALE);
+    this.set(FontScaleObservable.EXTRA_SMALL, fontScale < 0.85);
+    this.set(FontScaleObservable.EXTRA_LARGE, fontScale > 1.5);
+    this.set(FontScaleObservable.FONT_SCALE, fontScale);
   }
 }

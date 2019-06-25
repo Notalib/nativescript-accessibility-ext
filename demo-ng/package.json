@@ -6,39 +6,40 @@
   "nativescript": {
     "id": "dk.nota.a11ydemong",
     "tns-ios": {
-      "version": "5.3.1"
+      "version": "5.4.2"
     },
     "tns-android": {
-      "version": "5.3.1"
+      "version": "5.4.0"
     }
   },
   "scripts": {
     "postinstall": "./patches/apply-patches.sh"
   },
   "dependencies": {
-    "@angular/animations": "~7.2.15",
-    "@angular/common": "~7.2.15",
-    "@angular/compiler": "~7.2.15",
-    "@angular/core": "~7.2.15",
-    "@angular/forms": "~7.2.15",
-    "@angular/http": "~7.2.15",
-    "@angular/platform-browser": "~7.2.15",
-    "@angular/platform-browser-dynamic": "~7.2.15",
-    "@angular/router": "~7.2.15",
+    "@angular/animations": "8.0.0",
+    "@angular/common": "8.0.0",
+    "@angular/compiler": "8.0.0",
+    "@angular/core": "8.0.0",
+    "@angular/forms": "8.0.0",
+    "@angular/http": "8.0.0-beta.10",
+    "@angular/platform-browser": "8.0.0",
+    "@angular/platform-browser-dynamic": "8.0.0",
+    "@angular/router": "8.0.0",
     "@nota/nativescript-accessibility-ext": "file:../src",
-    "nativescript-angular": "~7.2.4",
+    "ajv": "6.9.2",
+    "nativescript-angular": "^8.0.1",
     "nativescript-theme-core": "~1.0.6",
     "reflect-metadata": "~0.1.13",
-    "rxjs": "~6.5.2",
-    "tns-core-modules": "~5.4.1",
-    "zone.js": "^0.8.29"
+    "rxjs": "^6.5.2",
+    "tns-core-modules": "^5.4.3",
+    "zone.js": "^0.9.1"
   },
   "devDependencies": {
-    "@angular/compiler-cli": "~7.2.15",
-    "@ngtools/webpack": "~7.2.0",
-    "nativescript-dev-sass": "~1.7.0",
+    "@angular/compiler-cli": "8.0.0",
+    "@ngtools/webpack": "8.0.0",
+    "nativescript-dev-sass": "^1.7.0",
     "nativescript-dev-typescript": "~0.9.0",
-    "nativescript-dev-webpack": "~0.22.0",
-    "typescript": "~3.1.6"
+    "nativescript-dev-webpack": "^0.24.1",
+    "typescript": "~3.4.5"
   }
 }

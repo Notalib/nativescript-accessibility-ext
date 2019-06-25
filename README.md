@@ -35,10 +35,20 @@ Make an announcement to the screen reader.
 Set the accessibility label on the element, this will be read by the screen reader in-place in any 'text' value the element has.
 Important note:
   NativeScript provides the property automationText, this sets both `accessibilityLabel` AND `accessibilityIdentifier` on iOS which can break automated tests.
-  If you use `accessibilityLabel` from this plugin, don't use `automationText` at the same time.
+  If you use `accessibilityLabel` from this plugin, DO NOT use `automationText` at the same time.
 
-### CSSClasses: Page.a11y-fontscale (iOS, Android)
-If you need to apply different styling when fonts are scaled, these css-classes are available on the Page.
+### CSSClasses: View.ios/android
+A platform css-class is added to each view.
+- ios
+- android
+
+**Note:**
+If you need more platform css-classes, like `.notch`, `.softnav`, `.phone`, `.tablet` etc. we suggest using `nativescript-platform-css`.
+Import `nativescript-platform-css` before importing this plugin, to avoid conflicts.
+
+### CSSClasses: View.a11y-fontscale (iOS, Android)
+If you need to apply different styling when fonts are scaled, these css-classes are available on the View.
+See [FontScale.md](https://raw.githubusercontent.com/Notalib/nativescript-accessibility-ext/master/src/FontScaling.md) for more.
 
 The number indicated pct font scale:
 - a11y-fontscale-50 (iOS only)
@@ -54,7 +64,7 @@ The number indicated pct font scale:
 - a11y-fontscale-350 (iOS only - extra large fonts)
 - a11y-fontscale-400 (iOS only - extra large fonts)
 
-If you want auto scaling on iOS Labels see: Label.accessibilityAdjustsFontSize
+If you want auto scaling on iOS Labels see: `Label.accessibilityAdjustsFontSize`.
 
 ### Attributes and functions for `iOS`-only
 
@@ -198,6 +208,43 @@ If not provided with `announcement` the elements `automationText` value will be 
 * onAccessibilityTap (iOS)
 * onMagicTap (iOS)
 
+### Global events
+Each built-in nativescript View-class is extended with global-events.
+
+**Note:**
+Please note this conflicts with `nativescript-globalevents`-plugin.
+If you for some reason need to load both modules, you need to import `nativescript-globalevents` before `@nota/nativescript-accessibility-ext`.
+
+#### Adding a global-event
+
+This event is added to every view-type.
+```typescript
+View.on(View.loadedEvent, (evt) => {
+  const view = evt.object;
+  // Do stuff.
+})
+```
+
+This event is aded to all `Labels`
+```typescript
+Label.on(View.loadedEvent, (evt) => {
+  const label = evt.object;
+  // Do stuff.
+})
+```
+
+#### Removing a global-event
+
+Remove all global loaded events from the View-class.
+```typescript
+View.off(View.loadedEvent);
+```
+
+Remove a single global loaded event from the View-class.
+```typescript
+View.off(View.loadedEvent, callbackReference);
+```
+
 ### Helpers:
 
 #### FontScaleObservable
@@ -216,7 +263,35 @@ To use the plugin in your nativescript-app, install and import the module:
 npm i --save @nota/nativescript-accessibility-ext
 ```
 
-Import in your `app.ts`/`app.js`, just after you import nativescript modules (`NativeScriptModule` if you run `nativescript-angular`)
+### For NativeScript Core
+Change to your `app.ts`/`app.js`
+
+```typescript
+import * as app from "tns-core-modules/application";
+import '@nota/nativescript-accessibility-ext'; /// <-- Add this line
+
+app.run({ moduleName: "app-root" });
+```
+
+### For nativescript-angular
+Change to your `app.module.ts`
+
+```typescript
+import { NgModule, NO_ERRORS_SCHEMA } from "@angular/core";
+import { NativeScriptModule } from "nativescript-angular/nativescript.module";
+import '@nota/nativescript-accessibility-ext'; /// <-- Add this line
+```
+
+### For NativeScript Vue
+Change to your `app.js`:
+
+```javascript
+import Vue from "nativescript-vue";
+import '@nota/nativescript-accessibility-ext'; /// <-- Add this line
+
+....
+```
+
 
 ```typescript
 import '@nota/nativescript-accessibility-ext';

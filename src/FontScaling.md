@@ -16,27 +16,31 @@ and the UI height is always updated. This causes the UI to jump.
 
 ## Using stylesheets.
 
-**nativescript-theme-core** provides CSS classes for standardized font-sizes.
+`nativescript-theme-core` provides CSS classes for standardized font-sizes.
 `.t-NN, .hN, .body, .body2... etc`
 
-**@nota/nativescript-accessibility-ext** provides extends theses classes, by setting an appropriate CSS-class on the Page.
+`@nota/nativescript-accessibility-ext` provides extends theses classes, by setting an appropriate CSS-class on the Page.
 
 To use it all you need to do is add this to your `app.ios.scss`:
 
 ```scss
-import '@nota/nativescript-accessibility-ext/scss/a11y.ios';
+@import '~nativescript-theme-core/scss/index';
+@import '~nativescript-theme-core/scss/platforms/index.ios';
+@import '@nota/nativescript-accessibility-ext/scss/a11y.ios'; // <-- add this line
 ```
 
 And add this to your `app.android.scss`:
 
 ```scss
-import '@nota/nativescript-accessibility-ext/scss/a11y.android';
+@import '~nativescript-theme-core/scss/index';
+@import '~nativescript-theme-core/scss/platforms/index.android';
+@import '@nota/nativescript-accessibility-ext/scss/a11y.android'; // <-- add this line
 ```
 
 If you need to add your own styles, you can do it like this:
 
 ```scss
-import '@nota/nativescript-accessibility-ext/scss/fontscales';
+@import '@nota/nativescript-accessibility-ext/scss/fontscales';
 
 $my-custom-font-size: 16;
 $my-custom-height: 40;

@@ -46,9 +46,8 @@ A platform css-class is added to each view.
 If you need more platform css-classes, like `.notch`, `.softnav`, `.phone`, `.tablet` etc. we suggest using `nativescript-platform-css`.
 Import `nativescript-platform-css` before importing this plugin, to avoid conflicts.
 
-### CSSClasses: View.a11y-fontscale (iOS, Android)
+### CSSClasses: View.a11y-fontscale-* (iOS, Android)
 If you need to apply different styling when fonts are scaled, these css-classes are available on the View.
-See [FontScale.md](https://raw.githubusercontent.com/Notalib/nativescript-accessibility-ext/master/src/FontScaling.md) for more.
 
 The number indicated pct font scale:
 - a11y-fontscale-50 (iOS only)
@@ -64,7 +63,35 @@ The number indicated pct font scale:
 - a11y-fontscale-350 (iOS only - extra large fonts)
 - a11y-fontscale-400 (iOS only - extra large fonts)
 
-If you want auto scaling on iOS Labels see: `Label.accessibilityAdjustsFontSize`.
+- a11y-fontscale-xs (iOS only for <85%)
+- a11y-fontscale-xl (iOS only for >150%)
+
+**Note:**
+Android auto scales Label by default. But iOS does not.
+
+iOS labels are not scaled by default.
+We recommend using the `nativescript-theme-core` with the extension from this plugin.
+Alternatively you can enable `Label.accessibilityAdjustsFontSize=true` per `Label`.
+
+#### To use the theme extension:
+
+To use it all you need to do is add this to your `app.ios.scss`:
+
+```scss
+@import '~nativescript-theme-core/scss/index';
+@import '~nativescript-theme-core/scss/platforms/index.ios';
+@import '@nota/nativescript-accessibility-ext/scss/a11y.ios'; // <-- add this line
+```
+
+And add this to your `app.android.scss`:
+
+```scss
+@import '~nativescript-theme-core/scss/index';
+@import '~nativescript-theme-core/scss/platforms/index.android';
+@import '@nota/nativescript-accessibility-ext/scss/a11y.android'; // <-- add this line
+```
+
+For more see [FontScale.md](https://raw.githubusercontent.com/Notalib/nativescript-accessibility-ext/master/src/FontScaling.md).
 
 ### Attributes and functions for `iOS`-only
 

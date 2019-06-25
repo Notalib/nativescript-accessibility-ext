@@ -1,39 +1,31 @@
 {
-    "compilerOptions": {
-        "target": "es5",
-        "module": "commonjs",
-        "declaration": true,
-        "removeComments": true,
-        "noLib": false,
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "lib": ["es6", "dom", "es2015.iterable", "es2017.object"],
-        "pretty": true,
-        "allowUnreachableCode": false,
-        "allowUnusedLabels": false,
-        "noEmitHelpers": true,
-        "noUnusedLocals": true,
-        "noEmitOnError": false,
-        "sourceMap": true,
-        "noImplicitAny": false,
-        "noImplicitReturns": true,
-        "noImplicitUseStrict": false,
-        "noFallthroughCasesInSwitch": true,
-        "baseUrl": ".",
-        "skipLibCheck": true,
-        "downlevelIteration": true,
-        "incremental": true
-    },
-    "files": [
-        "index.ts"
-    ],
-    "include": [
-        "ui/**/*.ts",
-        "utils/**/*.ts",
-        "references.d.ts"
-    ],
-    "exclude": [
-        "node_modules"
-    ],
-    "compileOnSave": false
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "noLib": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "lib": ["es6", "dom", "es2015.iterable", "es2017.object"],
+    "pretty": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noEmitHelpers": true,
+    "noUnusedLocals": true,
+    "noEmitOnError": false,
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noImplicitUseStrict": false,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "skipLibCheck": true,
+    "downlevelIteration": true,
+    "incremental": true
+  },
+  "files": ["index.ts"],
+  "include": ["ui/**/*.ts", "utils/**/*.ts", "references.d.ts"],
+  "exclude": ["node_modules"],
+  "compileOnSave": false
 }

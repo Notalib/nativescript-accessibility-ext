@@ -176,3 +176,47 @@ export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean
     } as AccessibilityBlurEventData);
   }
 }
+
+/**
+ * Get the view's ngCssClasses-Map for nativescript-angular.
+ * This needs to be updated if the css-class is to remain enabled
+ * on updates.
+ */
+function getViewNgCssClassesMap(view: any): Map<string, boolean> {
+  if (!view.ngCssClasses) {
+    view.ngCssClasses = new Map<string, boolean>();
+  }
+
+  return view.ngCssClasses;
+}
+
+declare const Zone: any;
+export function viewSetCssClass(view: View, className: string, enable: boolean) {
+  // Zone is globally available on nativescript-angular. If defined assume angular environment.
+  if (typeof Zone !== 'undefined') {
+    const ngCssClasses = getViewNgCssClassesMap(view);
+    if (enable) {
+      ngCssClasses.set(className, true);
+    } else {
+      ngCssClasses.delete(className);
+    }
+  }
+
+  const oldViewCssClasses = `${view.className || ''}`
+    .trim()
+    .split(' ')
+    .map((v) => v.trim())
+    .filter((v) => !!v);
+  if (oldViewCssClasses.some((v) => v === className)) {
+    if (enable) {
+      return;
+    }
+
+    view.className = oldViewCssClasses.filter((v) => v !== className).join(' ');
+    return;
+  } else if (!enable) {
+    return;
+  }
+
+  view.className = [...oldViewCssClasses, className].join(' ');
+}

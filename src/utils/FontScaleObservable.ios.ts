@@ -97,7 +97,8 @@ function ensureObservable() {
 }
 
 export class FontScaleObservable extends Observable {
-  public static FONT_SCALE = 'fontScale';
+  public static readonly FONT_SCALE = 'fontScale';
+
   public static get VALID_FONT_SCALES() {
     // iOS supports a wider number of font scales than Android does.
     return [0.5, 0.7, 0.85, 1, 1.15, 1.3, 1.5, 2, 2.5, 3, 3.5, 4];

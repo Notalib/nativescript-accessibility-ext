@@ -21,7 +21,8 @@
         "noFallthroughCasesInSwitch": true,
         "baseUrl": ".",
         "skipLibCheck": true,
-        "downlevelIteration": true
+        "downlevelIteration": true,
+        "incremental": true
     },
     "files": [
         "index.ts"

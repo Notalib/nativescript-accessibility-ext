@@ -79,9 +79,7 @@ View.prototype[common.importantForAccessibilityProperty.setNative] = function im
       } else {
         if (isTraceEnabled()) {
           writeTrace(
-            `View<${this}.android>.importantForAccessibility - value: ${value}, but sdk is ${
-              android.os.Build.VERSION.SDK_INT
-            } < 19. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO`,
+            `View<${this}.android>.importantForAccessibility - value: ${value}, but sdk is ${android.os.Build.VERSION.SDK_INT} < 19. Sets to android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO`,
           );
         }
         view.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);

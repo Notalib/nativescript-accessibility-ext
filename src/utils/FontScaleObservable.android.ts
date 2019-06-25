@@ -30,26 +30,28 @@ function useAndroidFontScale() {
 function setupConfigListener() {
   nsApp.off(nsApp.launchEvent, setupConfigListener);
 
-  if (!nsApp.android.context) {
+  const context = nsApp.android && (nsApp.android.context as android.content.Context);
+
+  if (!context) {
     nsApp.on(nsApp.launchEvent, setupConfigListener);
     return;
   }
 
   useAndroidFontScale();
 
-  nsApp.android.context.registerComponentCallbacks(
-    new android.content.ComponentCallbacks2({
-      onLowMemory() {
-        // Dummy
-      },
-      onTrimMemory() {
-        // Dummy
-      },
-      onConfigurationChanged(newConfig: android.content.res.Configuration) {
-        fontScaleChanged(Number(newConfig.fontScale));
-      },
-    }),
-  );
+  let configChangedCallback = new android.content.ComponentCallbacks2({
+    onLowMemory() {
+      // Dummy
+    },
+    onTrimMemory() {
+      // Dummy
+    },
+    onConfigurationChanged(newConfig: android.content.res.Configuration) {
+      fontScaleChanged(Number(newConfig.fontScale));
+    },
+  });
+
+  context.registerComponentCallbacks(configChangedCallback);
 
   nsApp.on(nsApp.resumeEvent, useAndroidFontScale);
 }
@@ -60,12 +62,11 @@ function ensureObservable() {
   }
 
   internalObservable = new Observable();
-
   setupConfigListener();
 }
 
 export class FontScaleObservable extends Observable {
-  public static FONT_SCALE = 'fontScale';
+  public static readonly FONT_SCALE = 'fontScale';
   public static get VALID_FONT_SCALES() {
     return [0.85, 1, 1.15, 1.3];
   }

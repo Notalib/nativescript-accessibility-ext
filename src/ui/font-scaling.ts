@@ -6,6 +6,7 @@ import { View } from 'tns-core-modules/ui/core/view';
 import { writeFontScaleTrace } from '../trace';
 import { FontScaleObservable } from '../utils/FontScaleObservable';
 import '../utils/global-events';
+import { viewSetCssClass } from '../utils/helpers';
 
 function fontScaleToCssClass(fontScale: number) {
   return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;
@@ -37,29 +38,23 @@ function setFontScaleClass(view: View, fontScale: number) {
     return;
   }
 
-  const oldViewCssClasses = (view.className || '').trim().split(' ');
-
+  const prevViewClassName = view.className || '';
+  viewSetCssClass(view, platformClass, true);
   const newCssClass = fontScaleToCssClass(fontScale);
-  const newViewCssClasses = [...oldViewCssClasses].filter((className) => className !== platformClass && !fontScaleCssClasses.has(className));
+  for (const cssClass of fontScaleCssClasses) {
+    viewSetCssClass(view, cssClass, cssClass === newCssClass);
+  }
 
-  newViewCssClasses.push(platformClass);
-  newViewCssClasses.push(newCssClass);
+  const postViewClassNames = (view.className || '').trim();
 
-  const newClassNames = [...newViewCssClasses].join(' ');
-  if (view.className !== newClassNames) {
-    writeFontScaleTrace(`${clsSetClass}: change from '${oldViewCssClasses.join(' ')}' to '${newClassNames}'`);
-    view.className = newClassNames;
+  if (prevViewClassName !== postViewClassNames) {
+    writeFontScaleTrace(`${clsSetClass}: change from '${prevViewClassName}' to '${postViewClassNames}'`);
   }
 }
 
 const fontScaleObservable = new FontScaleObservable();
-
 fontScaleObservable.on(Observable.propertyChangeEvent, (args: PropertyChangeData) => {
-  if (args.propertyName !== FontScaleObservable.FONT_SCALE) {
-    return;
-  }
-
-  const fontScale = args.value;
+  const fontScale = fontScaleObservable.fontScale;
   writeFontScaleTrace(`${cls}: ${FontScaleObservable.FONT_SCALE} changed to ${fontScale}`);
   for (const viewRef of loadedViewRefs) {
     const view = viewRef.get();
@@ -96,9 +91,7 @@ function applyFontScaleOnLoad({ object: view }: EventData) {
   setFontScaleClass(view, fontScale);
   loadedViewRefs.add(new WeakRef(view));
 
-  // Workaround:
-  //   The nativescript-angular-binding resets the view.className on first load.
-  setTimeout(() => setFontScaleClass(view, fontScale), 0);
+  setFontScaleClass(view, fontScale);
 }
 
 if (View['applyFontScaleOnLoad']) {
@@ -109,7 +102,7 @@ View['applyFontScaleOnLoad'] = applyFontScaleOnLoad;
 
 View.on(View.loadedEvent, applyFontScaleOnLoad);
 
-function unapplyFontScaleOnUnload({ object: view }: EventData) {
+function tearDownFontScaleOnUnload({ object: view }: EventData) {
   if (!(view instanceof View)) {
     return;
   }
@@ -129,10 +122,10 @@ function unapplyFontScaleOnUnload({ object: view }: EventData) {
   }
 }
 
-if (View['unapplyFontScaleOnUnload']) {
+if (View['tearDownFontScaleOnUnload']) {
   // Handle HMR restart
-  View.off(View.unloadedEvent, View['unapplyFontScaleOnUnload']);
+  View.off(View.unloadedEvent, View['tearDownFontScaleOnUnload']);
 }
-View['unapplyFontScaleOnUnload'] = applyFontScaleOnLoad;
+View['tearDownFontScaleOnUnload'] = applyFontScaleOnLoad;
 
-View.on(View.unloadedEvent, unapplyFontScaleOnUnload);
+View.on(View.unloadedEvent, tearDownFontScaleOnUnload);

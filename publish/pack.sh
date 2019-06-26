@@ -51,6 +51,7 @@ pack() {
     # create package dir
     mkdir "${PACK_DIR}"
 
+    npx json -e "delete this.private" -I -f "${TO_SOURCE_DIR}"/package.json
     npx json -e "delete this.scripts" -I -f "${TO_SOURCE_DIR}"/package.json
     npx json -e "delete this.devDependencies" -I -f "${TO_SOURCE_DIR}"/package.json
 

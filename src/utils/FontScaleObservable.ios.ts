@@ -21,6 +21,8 @@ function fontScaleChanged(fontScale: number) {
   }
 
   internalObservable.set(FontScaleObservable.FONT_SCALE, fontScale);
+  internalObservable.set(FontScaleObservable.EXTRA_SMALL, fontScale < 0.85);
+  internalObservable.set(FontScaleObservable.EXTRA_LARGE, fontScale > 1.5);
 }
 
 const sizeMap = new Map<string, number>([

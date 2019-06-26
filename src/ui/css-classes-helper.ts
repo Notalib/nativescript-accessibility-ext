@@ -7,7 +7,7 @@ import { writeFontScaleTrace } from '../trace';
 import { FontScaleObservable } from '../utils/FontScaleObservable';
 import '../utils/global-events';
 import { viewSetCssClass } from '../utils/helpers';
-import { isAccessibilityServiceEnabled } from '../utils/utils.android';
+import { isAccessibilityServiceEnabled } from '../utils/utils';
 
 function fontScaleToCssClass(fontScale: number) {
   return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;

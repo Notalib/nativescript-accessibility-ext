@@ -1,31 +1,46 @@
 {
+  "compileOnSave": false,
   "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
-    "declaration": true,
-    "removeComments": true,
-    "noLib": false,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "lib": ["es6", "dom", "es2015.iterable", "es2017.object"],
-    "pretty": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
+    "baseUrl": ".",
+    "declaration": true,
+    "downlevelIteration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "incremental": true,
+    "lib": [
+      "es6",
+      "dom",
+      "es2015.iterable",
+      "es2017.object"
+    ],
+    "module": "commonjs",
     "noEmitHelpers": true,
-    "noUnusedLocals": true,
     "noEmitOnError": false,
-    "sourceMap": true,
+    "noFallthroughCasesInSwitch": true,
     "noImplicitAny": false,
     "noImplicitReturns": true,
     "noImplicitUseStrict": false,
-    "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
+    "noLib": false,
+    "noUnusedLocals": true,
+    "pretty": true,
+    "removeComments": true,
     "skipLibCheck": true,
-    "downlevelIteration": true,
-    "incremental": true
+    "target": "es5"
   },
-  "files": ["index.ts"],
-  "include": ["ui/**/*.ts", "utils/**/*.ts", "references.d.ts"],
-  "exclude": ["node_modules"],
-  "compileOnSave": false
+  "exclude": [
+    "node_modules"
+  ],
+  "files": [
+    "index.ts"
+  ],
+  "include": [
+    "ui/**/*.ts",
+    "utils/**/*.ts",
+    "angular/**/*.ts",
+    "references.d.ts"
+  ]
 }

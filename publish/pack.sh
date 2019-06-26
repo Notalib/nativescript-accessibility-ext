@@ -26,12 +26,15 @@ pack() {
 
     # copy src
     echo 'Copying src...'
-    rsync -avP \
+    rsync -aP \
         --delete \
         --delete-excluded \
         --exclude node_modules \
-        --exclude "*.js"\
+        --exclude hooks \
+        --exclude "*.js" \
+        --exclude "*.map" \
         --exclude "*.css" \
+        --exclude "*.metadata.json" \
          "${SOURCE_DIR}/" \
          "${ROOT_DIR}/LICENSE" \
          "${ROOT_DIR}/README.md" \

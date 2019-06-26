@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "declaration": true,
+    "lib": ["es6", "dom", "es2015.iterable", "es2017.object"],
+    "emitDecoratorMetadata": true,
+    "moduleResolution": "node"
+  },
+  "files": ["angular/index.ts"],
+  "angularCompilerOptions": {
+    "skipTemplateCodegen": true
+  }
+}

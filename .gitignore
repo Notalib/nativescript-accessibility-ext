@@ -36,3 +36,4 @@ src/*.d.ts
 *.tgz
 !webpack.config.js
 tsconfig.tsbuildinfo
+**/*.metadata.json

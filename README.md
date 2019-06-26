@@ -66,10 +66,13 @@ The number indicated pct font scale:
 - a11y-fontscale-xs (iOS only for <85%)
 - a11y-fontscale-xl (iOS only for >150%)
 
-**Note:**
-Android auto scales Label by default. But iOS does not.
+- a11y-service-enabled (is VoiceOver/TalkBack enabled)
+- a11y-service-disabled (is VoiceOver/TalkBack disabled)
 
-iOS labels are not scaled by default.
+**Note:**
+Android auto scales `Labels` by default. But iOS does not.
+
+iOS `Labels` are not scaled by default.
 We recommend using the `nativescript-theme-core` with the extension from this plugin.
 Alternatively you can enable `Label.accessibilityAdjustsFontSize=true` per `Label`.
 

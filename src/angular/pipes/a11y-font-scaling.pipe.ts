@@ -1,6 +1,6 @@
 import { Inject, Pipe, PipeTransform } from '@angular/core';
 import { map } from 'rxjs/operators';
-import { A11YFontScalingObservable, a11yFontScalingToken } from '../font-scaling';
+import { A11YFontScalingObservable, a11yFontScalingToken } from '../data/font-scaling';
 
 @Pipe({
   name: 'a11yFontScale',

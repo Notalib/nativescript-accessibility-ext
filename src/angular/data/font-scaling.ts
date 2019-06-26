@@ -1,7 +1,7 @@
 import { InjectionToken } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
-import { FontScaleObservable } from '../utils/FontScaleObservable';
+import { FontScaleObservable } from '../../utils/FontScaleObservable';
 
 export type A11YFontScalingObservable = Observable<number>;
 export const a11yFontScalingToken = new InjectionToken<A11YFontScalingObservable>('A11Y-FONT-SCALING-TOKEN');

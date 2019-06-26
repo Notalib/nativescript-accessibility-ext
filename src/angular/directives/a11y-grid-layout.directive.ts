@@ -2,7 +2,7 @@ import { Directive, ElementRef, Inject, Input, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { GridLayout } from 'tns-core-modules/ui/layouts/grid-layout/grid-layout';
-import { A11YFontScalingObservable, a11yFontScalingToken } from '../font-scaling';
+import { A11YFontScalingObservable, a11yFontScalingToken } from '../data/font-scaling';
 import { BaseService } from '../services/base.service';
 
 @Directive({

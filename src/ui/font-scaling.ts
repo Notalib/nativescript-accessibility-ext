@@ -7,6 +7,7 @@ import { writeFontScaleTrace } from '../trace';
 import { FontScaleObservable } from '../utils/FontScaleObservable';
 import '../utils/global-events';
 import { viewSetCssClass } from '../utils/helpers';
+import { isAccessibilityServiceEnabled } from '../utils/utils.android';
 
 function fontScaleToCssClass(fontScale: number) {
   return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;
@@ -23,9 +24,11 @@ const loadedViewRefs = new Set<WeakRef<View>>();
 const platformClass = isAndroid ? 'android' : 'ios';
 const fontExtraSmallClass = `a11y-fontscale-xs`;
 const fontExtraLargeClass = `a11y-fontscale-xl`;
+const a11yServiceEnabledClass = `a11y-service-enabled`;
+const a11yServiceDisabledClass = `a11y-service-disabled`;
 
 const cls = `FontScaling`;
-function setFontScaleClass(view: View, fontScale: number, isExtraSmall: boolean, isExtraLarge: boolean) {
+function setFontScaleClass(view: View, fontScale: number, isExtraSmall: boolean, isExtraLarge: boolean, a11yServiceEnabled = isAccessibilityServiceEnabled()) {
   if (!view || !view.isLoaded) {
     return;
   }
@@ -42,6 +45,8 @@ function setFontScaleClass(view: View, fontScale: number, isExtraSmall: boolean,
 
   const prevViewClassName = view.className || '';
   viewSetCssClass(view, platformClass, true);
+  viewSetCssClass(view, a11yServiceEnabledClass, a11yServiceEnabled);
+  viewSetCssClass(view, a11yServiceDisabledClass, !a11yServiceEnabled);
   const newCssClass = fontScaleToCssClass(fontScale);
   for (const cssClass of fontScaleCssClasses) {
     viewSetCssClass(view, cssClass, cssClass === newCssClass);

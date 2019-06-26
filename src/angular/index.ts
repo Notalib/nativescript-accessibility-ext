@@ -20,7 +20,7 @@ import { A11YFontScalePipe } from './pipes/a11y-font-scaling.pipe';
   declarations: [A11YGridLayoutDirective, A11YFontScalePipe],
   exports: [A11YGridLayoutDirective, A11YFontScalePipe],
 })
-export class A11YModule {}
+export class NotaAccessibilityExtModule {}
 
 export {
   A11YFontScalePipe,

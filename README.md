@@ -308,8 +308,32 @@ Change to your `app.module.ts`
 ```typescript
 import { NgModule, NO_ERRORS_SCHEMA } from "@angular/core";
 import { NativeScriptModule } from "nativescript-angular/nativescript.module";
-import '@nota/nativescript-accessibility-ext'; /// <-- Add this line
+import { NotaAccessibilityExtModule } '@nota/nativescript-accessibility-ext/angular'; /// <-- Add this line
+
+/// ... stuff
+
+@NgModule({
+    bootstrap: [
+        AppComponent
+    ],
+    imports: [
+        NativeScriptModule,
+        AppRoutingModule,
+        NotaAccessibilityExtModule, /// <-- Add this line
+    ],
+    declarations: [
+        AppComponent,
+        ItemsComponent,
+        ItemDetailComponent
+    ],
+    providers: [],
+    schemas: [
+        NO_ERRORS_SCHEMA
+    ]
+})
+export class AppModule { }
 ```
+For more see [Angular](https://raw.githubusercontent.com/Notalib/nativescript-accessibility-ext/master/src/Angular.md).
 
 ### For NativeScript Vue
 Change to your `app.js`:

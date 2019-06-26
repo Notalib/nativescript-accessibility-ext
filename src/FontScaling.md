@@ -75,7 +75,7 @@ $my-custom-margin: 2;
 
 ```
 
-If you're adding it to an nativescript-angular component, add this to your component.css (notice the `/deep/ prefix`):
+If you're adding it to an nativescript-angular component, add this to your component.css:
 
 ```scss
 import '@nota/nativescript-accessibility-ext/scss/fontscales';

@@ -4,13 +4,7 @@
 -->
 <ScrollView>
   <StackLayout>
-    <StackLayout
-      class="text-center"
-
-      accessible="true"
-      accessibilityLabel="Congratulation accessibility is enabled"
-      accessibilityTraits="header"
-    >
+    <StackLayout class="text-center" accessible="true" accessibilityLabel="Congratulation accessibility is enabled" accessibilityTraits="header">
       <ios>
         <Label class="scaled" text="Enable VoiecOver, if you haven't already"></Label>
       </ios>
@@ -21,7 +15,11 @@
 
     <StackLayout class="feature-group">
       <Label accessibilityAdjustsFontSize="true" accessibilityTraits="header" class="h1 text-center m-2" text="accessible (iOS, Android)"></Label>
-      <Label class="body" textWrap="true" text="If 'true' the element is an accessibility element and all the children will be treated as a single selectable component."></Label>
+      <Label
+        class="body"
+        textWrap="true"
+        text="If 'true' the element is an accessibility element and all the children will be treated as a single selectable component."
+      ></Label>
 
       <StackLayout class="m-y-5">
         <Label class="h2" text="Allowed value:"></Label>
@@ -31,12 +29,7 @@
 
       <Label class="h2" text="Examples:"></Label>
 
-      <StackLayout
-        class="feature-example"
-
-        accessible="true"
-        accessibilityLabel="This is read as a group"
-      >
+      <StackLayout class="feature-example" accessible="true" accessibilityLabel="This is read as a group">
         <Label class="text-left" text='accessible="true"'></Label>
         <Label class="body" text="these elements shouldn't be read, only the box"></Label>
 
@@ -44,7 +37,6 @@
           class="m-2 btn"
           text="tap me"
           accessibilityLabel="Unless of cause child elements that are marked as accessible too, like 'tap me'"
-
           accessible="true"
           accessibilityComponentType="button"
           accessibilityTraits="button"
@@ -55,7 +47,6 @@
           class="m-2 btn"
           text="tap me 2"
           accessibilityLabel="Unless of cause child elements that are marked as accessible too, like 'tap me 2'"
-
           accessible="true"
           accessibilityComponentType="button"
           accessibilityTraits="button"
@@ -79,12 +70,16 @@
     <StackLayout class="feature-group">
       <Label accessibilityTraits="header" class="h1 text-center" textWrap="true" text="accessibilityLabel (iOS, Android)"></Label>
 
-      <Label class="body" textWrap="true" text="
+      <Label
+        class="body"
+        textWrap="true"
+        text="
 Set the accessibility label on the element, this will be read by the screen reader inplace in any 'text' value the element has.
 Important note:
   NativeScript provides the property automationText, this sets both `accessibilityLabel` AND `accessibilityIdentifier` on iOS which can break automated tests.
   If you use `accessibilityLabel` from this plugin, don't use `automationText` at the same time.
-      "></Label>
+      "
+      ></Label>
 
       <StackLayout class="m-y-5">
         <Label class="h2" text="Allowed value:"></Label>
@@ -105,7 +100,7 @@ Important note:
       <StackLayout class="m-y-5">
         <Label class="h2" text="Allowed value (use one or more):"></Label>
 
-        <StackLayout *ngFor="let item of traits; let odd = odd;" [class.c-bg-grey]="odd">
+        <StackLayout *ngFor="let item of traits; let odd = odd" [class.c-bg-grey]="odd">
           <Label [text]="item.key"></Label>
           <Label class="body" [text]="item.label" textWrap="true"></Label>
         </StackLayout>
@@ -113,9 +108,7 @@ Important note:
 
       <Label class="h2" text="Examples:"></Label>
 
-      <StackLayout
-        class="feature-example"
-      >
+      <StackLayout class="feature-example">
         <Label text="Label as button" (tap)="tapped($event)" class="c-bg-grey" accessibilityTraits="button"></Label>
         <Label text="Label as button+link" (tap)="tapped($event)" accessibilityTraits="button,link"></Label>
         <Label text="Label as selected button+link" (tap)="tapped($event)" class="c-bg-grey" accessibilityTraits="selected,button,link"></Label>
@@ -133,11 +126,15 @@ Important note:
 
       <Label class="h2" text="Examples:"></Label>
 
-      <StackLayout
-        class="feature-example"
-      >
+      <StackLayout class="feature-example">
         <Label textWrap="true" [text]="'Slider with accessibilityValue: VoiceOver should read:\n' + (sliderA11YValue | async)"></Label>
-        <Slider [min]="sliderMin" [max]="sliderMax" [value]="sliderValue | async" (valueChange)="sliderValueChange($event)" [accessibilityValue]="sliderA11YValue | async"></Slider>
+        <Slider
+          [min]="sliderMin"
+          [max]="sliderMax"
+          [value]="sliderValue | async"
+          (valueChange)="sliderValueChange($event)"
+          [accessibilityValue]="sliderA11YValue | async"
+        ></Slider>
         <Label text="Slider without accessibilityValue"></Label>
         <Slider [min]="sliderMin" [max]="sliderMax" [value]="sliderValue | async" (valueChange)="sliderValueChange($event)"></Slider>
       </StackLayout>
@@ -167,11 +164,9 @@ Important note:
 
       <Label class="h2" text="Examples:"></Label>
 
-      <StackLayout
-        class="feature-example"
-      >
+      <StackLayout class="feature-example">
         <Label text="Label as button" (tap)="tapped($event)" class="c-bg-grey" accessibilityComponentType="button"></Label>
-        <Label text="Label as checked radio-button"  (tap)="tapped($event)" accessibilityComponentType="radiobutton_checked"></Label>
+        <Label text="Label as checked radio-button" (tap)="tapped($event)" accessibilityComponentType="radiobutton_checked"></Label>
         <Label text="Label as unchecked radio-button" (tap)="tapped($event)" class="c-bg-grey" accessibilityComponentType="radiobutton_unchecked"></Label>
       </StackLayout>
     </StackLayout>
@@ -184,7 +179,6 @@ Important note:
       <GridLayout rows="50, 50" columns="100, 100">
         <StackLayout
           col="0"
-
           accessible="true"
           accessibilityLabel="This now a button"
           accessibilityComponentType="button"
@@ -197,7 +191,6 @@ Important note:
         <StackLayout
           col="1"
           rowSpan="2"
-
           accessible="true"
           accessibilityLabel="This now a button with an icon"
           accessibilityComponentType="button"

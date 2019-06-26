@@ -1,6 +1,6 @@
 {
   "name": "@nota/nativescript-accessibility-ext",
-  "version": "5.4.0",
+  "version": "5.4.0-alpha.1",
   "description": "Add support for 'VoiceOver' and 'TalkBack' in NativeScript",
   "main": "index.js",
   "typings": "index.d.ts",
@@ -25,8 +25,8 @@
     "clean": "npm-run-all clean.demo clean.src",
     "clean.demo": "git clean -d -x -f $(git rev-parse --show-toplevel)/demo",
     "clean.src": "git clean -d -x -f $(git rev-parse --show-toplevel)/src",
-    "format": "prettier --write --config $(git rev-parse --show-toplevel)/.prettierrc.json '**/*.ts' '../demo/app/**/*.ts' '../demo/app/**/*.ts'",
-    "format:check": "prettier-check --config $(git rev-parse --show-toplevel)/.prettierrc.json '**/*.ts' '../demo/app/**/*.ts' '../demo/app/**/*.ts'",
+    "format": "prettier --write --config $(git rev-parse --show-toplevel)/.prettierrc.json '**/*.{ts,html,scss}' '../demo/app/**/*.{ts,html,scss}' '../demo-ng/app/**/*.{ts,html,scss}'",
+    "format:check": "prettier-check --config $(git rev-parse --show-toplevel)/.prettierrc.json '**/*.{ts,html,scss}' '../demo/app/**/*.{ts,html,scss}' '../demo-ng/app/**/*.{ts,html,scss}'",
     "lint": "npm-run-all tslint format:check",
     "ngc": "ngc --project tsconfig.aot.json",
     "tslint": "tslint '**/*.ts' '../demo/app/**/*.ts' '../demo/app/**/*.ts' --config $(git rev-parse --show-toplevel)/tslint.json --exclude \"**/node_modules/**\"",
@@ -88,7 +88,8 @@
     "tns-core-modules": "^5.4.3",
     "tslint": "^5.16.0",
     "tslint-no-circular-imports": "^0.7.0",
-    "typescript": "~3.4.5"
+    "typescript": "~3.4.5",
+    "zone.js": "^0.9.1"
   },
   "peerDependencies": {
     "tns-core-modules": "^5.4.0"

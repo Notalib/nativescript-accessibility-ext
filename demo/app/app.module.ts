@@ -1,4 +1,5 @@
 import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
+import { NotaAccessibilityExtModule } from '@nota/nativescript-accessibility-ext/angular';
 import { NativeScriptModule } from 'nativescript-angular/nativescript.module';
 import * as trace from 'tns-core-modules/trace';
 import { AppRoutingModule } from './app-routing.module';
@@ -16,7 +17,7 @@ trace.enable();
 
 @NgModule({
   declarations: [AppComponent, HomeComponent],
-  imports: [NativeScriptModule, AppRoutingModule],
+  imports: [NativeScriptModule, AppRoutingModule, NotaAccessibilityExtModule],
   bootstrap: [AppComponent],
   schemas: [NO_ERRORS_SCHEMA],
 })

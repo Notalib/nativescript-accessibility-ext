@@ -5,8 +5,8 @@
   "description": "Add support for 'VoiceOver' and 'TalkBack' in NativeScript",
   "scripts": {
     "postinstall": "npm run install:demo",
-    "demo:android": "npm run install:demo && cd demo && tns debug android --bundle --syncAllFiles",
-    "demo:ios": "npm run install:demo && cd demo && tns debug ios --bundle --syncAllFiles",
+    "demo:android": "npm run install:demo && cd demo && tns debug android --bundle",
+    "demo:ios": "npm run install:demo && cd demo && tns debug ios --bundle",
     "install:demo": "npm run build && cd demo && npm i",
     "sass": "cd src && rm -rf css && node-sass --recursive --output css scss",
     "build": "npm-run-all tsc sass",

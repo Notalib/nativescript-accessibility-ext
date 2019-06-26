@@ -10,10 +10,6 @@ import { LoadEventData } from 'tns-core-modules/ui/web-view/web-view';
   styleUrls: ['home.component.scss'],
 })
 export class HomeComponent {
-  public get screenReaderEnabled() {
-    return isAccessibilityServiceEnabled();
-  }
-
   public readonly source = [
     { id: 1, name: 'Ter Stegen', role: 'Goalkeeper' },
     { id: 3, name: 'Piqué', role: 'Defender' },

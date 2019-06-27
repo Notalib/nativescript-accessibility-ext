@@ -6,21 +6,19 @@ import { FontScaleObservable } from '../../utils/FontScaleObservable';
 export class A11yFontScalingObservable extends BehaviorSubject<number> implements OnDestroy {
   private tnsObs = new FontScaleObservable();
 
-  private propertyChangeEvent: () => void;
-
   constructor() {
     super(1);
 
-    this.propertyChangeEvent = () => {
-      this.next(this.tnsObs.get(FontScaleObservable.FONT_SCALE));
-    };
-
-    this.tnsObs.on(FontScaleObservable.propertyChangeEvent, this.propertyChangeEvent);
+    this.tnsObs.on(FontScaleObservable.propertyChangeEvent, this.updateFontScalingValue, this);
+    this.updateFontScalingValue();
   }
 
   public ngOnDestroy() {
-    this.tnsObs.off(FontScaleObservable.propertyChangeEvent, this.propertyChangeEvent);
-    this.propertyChangeEvent = null;
+    this.tnsObs.off(FontScaleObservable.propertyChangeEvent, this.updateFontScalingValue, this);
     this.tnsObs = null;
+  }
+
+  private updateFontScalingValue() {
+    this.next(this.tnsObs.fontScale);
   }
 }

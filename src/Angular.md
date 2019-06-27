@@ -68,7 +68,7 @@ Inject an Observable with the current accessibility font-scale setting.
 ```typescript
 @Component({...})
 export class MyComponent {
-  constructor(@Inject(a11yFontScalingToken) fontScaling$: A11YFontScalingObservable) {}
+  constructor(private fontScaling$: A11yFontScalingObservable) {}
 }
 ```
 
@@ -79,7 +79,7 @@ Is VoiceOver/TalkBack enabled?
 ```typescript
 @Component({...})
 export class MyComponent {
-  constructor(@Inject(a11yIsServiceEnabledToken) isA11yServiceEnabled$: A11YIsServiceEnabledObservable) {}
+  constructor(private isA11yServiceEnabled$: A11yServiceEnabledObservable) {}
 }
 ```
 

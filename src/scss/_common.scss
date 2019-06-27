@@ -1,0 +1,11 @@
+.a11y-service-enabled {
+  &.a11y-service-hidden-enabled {
+    visibility: collapse;
+  }
+}
+
+.a11y-service-disabled {
+  &.a11y-service-hidden-disabled {
+    visibility: collapse;
+  }
+}

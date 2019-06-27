@@ -1,12 +1,13 @@
-import { Inject, Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 import { map } from 'rxjs/operators';
-import { A11YFontScalingObservable, a11yFontScalingToken } from '../data/font-scaling';
+import { A11yFontScalingObservable } from '../data/font-scaling';
 
 @Pipe({
   name: 'a11yFontScale',
 })
 export class A11YFontScalePipe implements PipeTransform {
-  constructor(@Inject(a11yFontScalingToken) private readonly fontScaling$: A11YFontScalingObservable) {}
+  constructor(private readonly fontScaling$: A11yFontScalingObservable) {}
+
   public transform(input: number | string) {
     return this.fontScaling$.pipe(map((factor) => Number(input) * factor));
   }

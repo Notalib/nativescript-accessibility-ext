@@ -1,20 +1,26 @@
-import { InjectionToken } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { Injectable, OnDestroy } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
 
-export type A11YFontScalingObservable = Observable<number>;
-export const a11yFontScalingToken = new InjectionToken<A11YFontScalingObservable>('A11Y-FONT-SCALING-TOKEN');
+@Injectable()
+export class A11yFontScalingObservable extends BehaviorSubject<number> implements OnDestroy {
+  private tnsObs = new FontScaleObservable();
 
-export function a11yFontScalingFactory(): A11YFontScalingObservable {
-  const fontScaling = new BehaviorSubject<number>(1);
+  private propertyChangeEvent: () => void;
 
-  const tnsObs = new FontScaleObservable();
-  tnsObs.on(FontScaleObservable.propertyChangeEvent, () => {
-    fontScaling.next(tnsObs.get(FontScaleObservable.FONT_SCALE));
-  });
+  constructor() {
+    super(1);
 
-  fontScaling.next(tnsObs.get(FontScaleObservable.FONT_SCALE));
+    this.propertyChangeEvent = () => {
+      this.next(this.tnsObs.get(FontScaleObservable.FONT_SCALE));
+    };
 
-  return fontScaling.pipe(distinctUntilChanged());
+    this.tnsObs.on(FontScaleObservable.propertyChangeEvent, this.propertyChangeEvent);
+  }
+
+  public ngOnDestroy() {
+    this.tnsObs.off(FontScaleObservable.propertyChangeEvent, this.propertyChangeEvent);
+    this.propertyChangeEvent = null;
+    this.tnsObs = null;
+  }
 }

@@ -1,16 +1,24 @@
-import { InjectionToken } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { Injectable, OnDestroy } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import * as nsApp from 'tns-core-modules/application';
 import { isAccessibilityServiceEnabled } from '../../utils/utils';
 
-export type A11YIsServiceEnabledObservable = Observable<boolean>;
-export const a11yIsServiceEnabledToken = new InjectionToken<A11YIsServiceEnabledObservable>('A11Y-IS-SERVICE-ENABLED-TOKEN');
+@Injectable()
+export class A11yServiceEnabledObservable extends BehaviorSubject<boolean> implements OnDestroy {
+  private removeEvent: () => void;
 
-export function a11yIsServiceEnabledFactory(): A11YIsServiceEnabledObservable {
-  const fontScaling = new BehaviorSubject<boolean>(isAccessibilityServiceEnabled());
+  constructor() {
+    super(isAccessibilityServiceEnabled());
 
-  nsApp.on(nsApp.resumeEvent, () => fontScaling.next(isAccessibilityServiceEnabled()));
+    this.removeEvent = () => {
+      this.next(isAccessibilityServiceEnabled());
+    };
 
-  return fontScaling.pipe(distinctUntilChanged());
+    nsApp.on(nsApp.resumeEvent, this.removeEvent);
+  }
+
+  public ngOnDestroy() {
+    nsApp.off(nsApp.resumeEvent, this.removeEvent);
+    this.removeEvent = null;
+  }
 }

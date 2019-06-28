@@ -2,7 +2,7 @@ import { Directive, ElementRef, Input, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { GridLayout } from 'tns-core-modules/ui/layouts/grid-layout/grid-layout';
-import { A11yFontScalingObservable } from '../data/font-scaling';
+import { A11yFontScalingObservable } from '../data/a11y-font-scaling';
 import { BaseService } from '../services/base.service';
 
 @Directive({
@@ -27,7 +27,7 @@ export class A11YGridLayoutDirective extends BaseService implements OnInit {
     return this.columns$.value;
   }
 
-  constructor(private el: ElementRef<GridLayout>, private readonly fontScaling$: A11yFontScalingObservable) {
+  constructor(private readonly el: ElementRef<GridLayout>, private readonly fontScaling$: A11yFontScalingObservable) {
     super();
   }
 
@@ -56,7 +56,7 @@ export class A11YGridLayoutDirective extends BaseService implements OnInit {
 
     return str
       .split(',')
-      .map((part) => part.trim().toLowerCase())
+      .map((part) => `${part}`.trim().toLowerCase())
       .filter((part) => !!part)
       .map((part) => {
         switch (part) {

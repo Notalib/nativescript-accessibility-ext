@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import * as nsApp from 'tns-core-modules/application';
 import { isAccessibilityServiceEnabled } from '../../utils/utils';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class A11yServiceEnabledObservable extends BehaviorSubject<boolean> implements OnDestroy {
   private removeEvent: () => void;
 

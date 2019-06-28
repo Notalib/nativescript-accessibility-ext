@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class A11yFontScalingObservable extends BehaviorSubject<number> implements OnDestroy {
   private tnsObs = new FontScaleObservable();
 

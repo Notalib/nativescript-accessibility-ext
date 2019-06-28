@@ -1,21 +1,20 @@
 .form {
-  .input-field {
-    $input-font-size: 12;
-    $input-slide-font-size: 18;
-    @each $scaleName, $params in $a11y-font-scales {
-      $factor: map-get($params, factor);
+  $input-font-size: 12;
+  $input-slide-font-size: 18;
 
-      .label {
-        &.a11y-fontscale-#{$scaleName} {
+  @each $scaleName, $params in $a11y-font-scales {
+    $factor: map-get($params, factor);
+
+    &.a11y-fontscale-#{$scaleName} {
+      .input-field {
+        .label {
           font-size: $input-font-size * $factor;
         }
       }
 
       &.input-sides {
         .label {
-          &.a11y-fontscale-#{$scaleName} {
-            font-size: $input-slide-font-size * $factor;
-          }
+          font-size: $input-slide-font-size * $factor;
         }
       }
     }

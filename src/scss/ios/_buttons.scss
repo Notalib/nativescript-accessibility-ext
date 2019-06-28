@@ -1,5 +1,6 @@
 .btn {
   $btn-font-size: 15;
+
   @each $scaleName, $params in $a11y-font-scales {
     $factor: map-get($params, factor);
 

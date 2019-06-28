@@ -1,18 +1,16 @@
 .list-group {
-  .list-group-item {
-    $group-item-font-size: 16;
-    $text-item-font-size: 14;
-    @each $scaleName, $params in $a11y-font-scales {
-      $factor: map-get($params, factor);
+  $group-item-font-size: 16;
+  $text-item-font-size: 14;
 
-      &.a11y-fontscale-#{$scaleName} {
+  @each $scaleName, $params in $a11y-font-scales {
+    $factor: map-get($params, factor);
+    &.a11y-fontscale-#{$scaleName} {
+      .list-group-item {
         font-size: $group-item-font-size * $factor;
       }
 
       .list-group-item-text {
-        &.a11y-fontscale-#{$scaleName} {
-          font-size: $text-item-font-size * $factor;
-        }
+        font-size: $text-item-font-size * $factor;
       }
     }
   }

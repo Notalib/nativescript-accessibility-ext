@@ -1,20 +1,17 @@
-.logo-wrap {
-  .login-logo {
-    $login-logo-font-size: 30;
-    @each $scaleName, $params in $a11y-font-scales {
-      $factor: map-get($params, factor);
+$login-logo-font-size: 30;
+$go-back-font-size: 14;
+@each $scaleName, $params in $a11y-font-scales {
+  $factor: map-get($params, factor);
 
-      &.a11y-fontscale-#{$scaleName} {
+  .logo-wrap {
+    &.a11y-fontscale-#{$scaleName} {
+      .login-logo {
         font-size: $login-logo-font-size * $factor;
       }
     }
   }
-}
 
-.go-back {
-  $go-back-font-size: 14;
-  @each $scaleName, $params in $a11y-font-scales {
-    $factor: map-get($params, factor);
+  .go-back {
     &.a11y-fontscale-#{$scaleName} {
       font-size: $go-back-font-size * $factor;
     }

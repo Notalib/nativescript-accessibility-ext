@@ -1,10 +1,10 @@
 .action-bar {
-  .action-bar-title {
-    $action-bar-title-font-size: 17;
-    @each $scaleName, $params in $a11y-font-scales {
-      $factor: map-get($params, factor);
+  $action-bar-title-font-size: 17;
+  @each $scaleName, $params in $a11y-font-scales {
+    $factor: map-get($params, factor);
 
-      &.a11y-fontscale-#{$scaleName} {
+    &.a11y-fontscale-#{$scaleName} {
+      .action-bar-title {
         font-size: $action-bar-title-font-size * $factor;
       }
     }

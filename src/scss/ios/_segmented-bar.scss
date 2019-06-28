@@ -2,7 +2,6 @@
   $segmented-bar-font-size: 13;
   @each $scaleName, $params in $a11y-font-scales {
     $factor: map-get($params, factor);
-
     &.a11y-fontscale-#{$scaleName} {
       font-size: $segmented-bar-font-size * $factor;
     }

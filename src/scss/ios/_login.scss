@@ -4,7 +4,7 @@ $go-back-font-size: 14;
   $factor: map-get($params, factor);
 
   .logo-wrap {
-    &.a11y-fontscale-#{$scaleName} {
+    &.ayfs-#{$scaleName} {
       .login-logo {
         font-size: $login-logo-font-size * $factor;
       }
@@ -12,7 +12,7 @@ $go-back-font-size: 14;
   }
 
   .go-back {
-    &.a11y-fontscale-#{$scaleName} {
+    &.ayfs-#{$scaleName} {
       font-size: $go-back-font-size * $factor;
     }
   }

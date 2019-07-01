@@ -5,7 +5,7 @@
   @each $scaleName, $params in $a11y-font-scales {
     $factor: map-get($params, factor);
 
-    &.a11y-fontscale-#{$scaleName} {
+    &.ayfs-#{$scaleName} {
       .input-field {
         .label {
           font-size: $input-font-size * $factor;

@@ -13,7 +13,19 @@ function fontScaleToCssClass(fontScale: number) {
   return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;
 }
 
-const fontScaleCssClasses = new Set(FontScaleObservable.VALID_FONT_SCALES.map(fontScaleToCssClass));
+function fontScaleToShortHandCssClass(fontScale: number) {
+  return `ayfs-${Number(fontScale * 100).toFixed(0)}`;
+}
+
+const fontScaleCssClasses = new Map(
+  FontScaleObservable.VALID_FONT_SCALES.map((fontScale) => [
+    fontScale,
+    {
+      cssClass: fontScaleToCssClass(fontScale),
+      shortHandCssClass: fontScaleToShortHandCssClass(fontScale),
+    },
+  ]),
+);
 
 /**
  * Keep a list of WeakRefs to loaded views.
@@ -28,18 +40,25 @@ const a11yServiceEnabledClass = `a11y-service-enabled`;
 const a11yServiceDisabledClass = `a11y-service-disabled`;
 
 const cls = `FontScaling`;
-function setFontScaleClass(view: View, fontScale: number, isExtraSmall: boolean, isExtraLarge: boolean, a11yServiceEnabled = isAccessibilityServiceEnabled()) {
+
+function setFontScaleClass(
+  view: View,
+  newFontScale: number,
+  isExtraSmall: boolean,
+  isExtraLarge: boolean,
+  a11yServiceEnabled = isAccessibilityServiceEnabled(),
+) {
   if (!view || !view.isLoaded) {
     return;
   }
 
-  if (!fontScale || isNaN(fontScale)) {
-    fontScale = 1;
+  if (!newFontScale || isNaN(newFontScale)) {
+    newFontScale = 1;
   }
 
-  const clsSetClass = `${cls}.setFontScaleClass(${view}, ${fontScale})`;
+  const localCls = `${cls}.setFontScaleClass(${view}, ${newFontScale})`;
   if (!view) {
-    writeFontScaleTrace(`${clsSetClass}: view is undefined`);
+    writeFontScaleTrace(`${localCls}: view is undefined`);
     return;
   }
 
@@ -47,20 +66,19 @@ function setFontScaleClass(view: View, fontScale: number, isExtraSmall: boolean,
   viewSetCssClass(view, platformClass, true);
   viewSetCssClass(view, a11yServiceEnabledClass, a11yServiceEnabled);
   viewSetCssClass(view, a11yServiceDisabledClass, !a11yServiceEnabled);
-  const newCssClass = fontScaleToCssClass(fontScale);
-  for (const cssClass of fontScaleCssClasses) {
-    viewSetCssClass(view, cssClass, cssClass === newCssClass);
+
+  for (const [fontScale, { cssClass, shortHandCssClass }] of fontScaleCssClasses) {
+    viewSetCssClass(view, cssClass, fontScale === newFontScale);
+    viewSetCssClass(view, shortHandCssClass, fontScale === newFontScale);
   }
 
-  if (isIOS) {
-    viewSetCssClass(view, fontExtraSmallClass, isExtraSmall);
-    viewSetCssClass(view, fontExtraLargeClass, isExtraLarge);
-  }
+  viewSetCssClass(view, fontExtraSmallClass, isIOS && isExtraSmall);
+  viewSetCssClass(view, fontExtraLargeClass, isIOS && isExtraLarge);
 
   const postViewClassNames = (view.className || '').trim();
 
   if (prevViewClassName !== postViewClassNames) {
-    writeFontScaleTrace(`${clsSetClass}: change from '${prevViewClassName}' to '${postViewClassNames}'`);
+    writeFontScaleTrace(`${localCls}: change from '${prevViewClassName}' to '${postViewClassNames}'`);
   }
 }
 
@@ -100,7 +118,7 @@ function applyFontScaleOnLoad({ object: view }: EventData) {
   }
 
   const { fontScale, isExtraSmall, isExtraLarge } = fontScaleObservable;
-  setFontScaleClass(view, fontScale, isExtraSmall, isExtraLarge);
+  setFontScaleClass(view, fontScale, !!isExtraSmall, !!isExtraLarge);
   loadedViewRefs.add(new WeakRef(view));
 }
 

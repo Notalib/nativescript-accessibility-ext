@@ -61,13 +61,11 @@ function ensureObservable() {
 
 export class FontScaleObservable extends Observable {
   public static readonly FONT_SCALE = 'fontScale';
-  public static readonly EXTRA_SMALL = 'isExtraSmall';
-  public static readonly EXTRA_LARGE = 'isExtraLarge';
   public static get VALID_FONT_SCALES() {
     return [0.85, 1, 1.15, 1.3];
   }
 
-  public readonly fontScale: number;
+  public readonly fontScale = 1;
   public readonly isExtraSmall = false;
   public readonly isExtraLarge = false;
 
@@ -89,8 +87,6 @@ export class FontScaleObservable extends Observable {
     }
 
     internalObservable.on(Observable.propertyChangeEvent, callback);
-    this.set(FontScaleObservable.EXTRA_SMALL, false);
-    this.set(FontScaleObservable.EXTRA_LARGE, false);
     this.set(FontScaleObservable.FONT_SCALE, internalObservable.get(FontScaleObservable.FONT_SCALE));
   }
 }

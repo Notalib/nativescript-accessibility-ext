@@ -19,6 +19,11 @@ export class A11yFontScalingObservable extends BehaviorSubject<number> implement
   }
 
   private updateFontScalingValue() {
-    this.next(this.tnsObs.fontScale);
+    const fontScale = this.tnsObs.fontScale;
+    if (typeof fontScale === 'number' && !isNaN(fontScale)) {
+      this.next(fontScale);
+    } else {
+      this.next(1);
+    }
   }
 }

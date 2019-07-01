@@ -42,7 +42,7 @@ const sizeMap = new Map<string, number>([
 
 function setupConfigListener(attempt = 0) {
   if (!nsApp.ios.nativeApp) {
-    if (attempt > 10) {
+    if (attempt > 100) {
       if (isTraceEnabled()) {
         writeErrorTrace(`App didn't become active couldn't enable font scaling`);
       }
@@ -50,7 +50,7 @@ function setupConfigListener(attempt = 0) {
       fontScaleChanged(1);
     } else {
       // Couldn't get launchEvent to trigger.
-      setTimeout(() => setupConfigListener(attempt + 1), 10);
+      setTimeout(() => setupConfigListener(attempt + 1), 1);
     }
 
     return;
@@ -108,9 +108,9 @@ export class FontScaleObservable extends Observable {
     return [0.5, 0.7, 0.85, 1, 1.15, 1.3, 1.5, 2, 2.5, 3, 3.5, 4];
   }
 
-  public readonly fontScale: number;
-  public readonly isExtraSmall: boolean;
-  public readonly isExtraLarge: boolean;
+  public readonly fontScale = 1;
+  public readonly isExtraSmall = false;
+  public readonly isExtraLarge = false;
 
   constructor() {
     super();

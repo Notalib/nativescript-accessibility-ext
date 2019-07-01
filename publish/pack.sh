@@ -44,6 +44,7 @@ pack() {
     echo 'Building /src...'
     cd "${TO_SOURCE_DIR}"
     npm ci
+    npm run lint
     npm run build
     cd "${WORKDIR}"
 
@@ -51,9 +52,10 @@ pack() {
     # create package dir
     mkdir "${PACK_DIR}"
 
-    npx json -e "delete this.private" -I -f "${TO_SOURCE_DIR}"/package.json
-    npx json -e "delete this.scripts" -I -f "${TO_SOURCE_DIR}"/package.json
-    npx json -e "delete this.devDependencies" -I -f "${TO_SOURCE_DIR}"/package.json
+    npx json -e "delete this.private" \
+        -e "delete this.scripts" \
+        -e "delete this.devDependencies" \
+        -I -f "${TO_SOURCE_DIR}"/package.json
 
     # create the package
     cd "${PACK_DIR}"

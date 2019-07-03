@@ -4,12 +4,12 @@ import { isTraceEnabled, writeTrace } from '../trace';
 
 export * from 'tns-core-modules/utils/utils';
 
-type AccessibilityManagerCompat = android.support.v4.view.accessibility.AccessibilityManagerCompat;
-const AccessibilityManagerCompat = android.support.v4.view.accessibility.AccessibilityManagerCompat;
-type TouchExplorationStateChangeListener = android.support.v4.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener;
-const TouchExplorationStateChangeListener = android.support.v4.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener;
-type AccessibilityStateChangeListener = android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener;
-const AccessibilityStateChangeListener = android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener;
+type AccessibilityManagerCompat = androidx.core.view.accessibility.AccessibilityManagerCompat;
+const AccessibilityManagerCompat = androidx.core.view.accessibility.AccessibilityManagerCompat;
+type TouchExplorationStateChangeListener = androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener;
+const TouchExplorationStateChangeListener = androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener;
+type AccessibilityStateChangeListener = androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener;
+const AccessibilityStateChangeListener = androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener;
 
 type AccessibilityManager = android.view.accessibility.AccessibilityManager;
 const AccessibilityManager = android.view.accessibility.AccessibilityManager;

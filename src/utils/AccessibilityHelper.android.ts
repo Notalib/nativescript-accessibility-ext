@@ -15,16 +15,16 @@ const AccessibilityEvent = android.view.accessibility.AccessibilityEvent;
 type AccessibilityEvent = android.view.accessibility.AccessibilityEvent;
 const AccessibilityManager = android.view.accessibility.AccessibilityManager;
 type AccessibilityManager = android.view.accessibility.AccessibilityManager;
-const AccessibilityDelegateCompat = android.support.v4.view.AccessibilityDelegateCompat;
-type AccessibilityDelegateCompat = android.support.v4.view.AccessibilityDelegateCompat;
-const AccessibilityNodeInfoCompat = android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
-type AccessibilityNodeInfoCompat = android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
+const AccessibilityDelegateCompat = androidx.core.view.AccessibilityDelegateCompat;
+type AccessibilityDelegateCompat = androidx.core.view.AccessibilityDelegateCompat;
+const AccessibilityNodeInfoCompat = androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+type AccessibilityNodeInfoCompat = androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 const AndroidView = android.view.View;
 type AndroidView = android.view.View;
 const AndroidViewGroup = android.view.ViewGroup;
 type AndroidViewGroup = android.view.ViewGroup;
-const ViewCompat = android.support.v4.view.ViewCompat;
-type ViewCompat = android.support.v4.view.ViewCompat;
+const ViewCompat = androidx.core.view.ViewCompat;
+type ViewCompat = androidx.core.view.ViewCompat;
 
 function getAccessibilityManager(view: AndroidView): AccessibilityManager {
   return view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
@@ -521,7 +521,7 @@ function ensureListViewItemIsOnScreen(listView: ListView, index: number, event: 
 
     // Finally scroll this ListView.
     // Note: We get a better result from ListViewCompat.scrollListBy than from ListView.scrollListBy.
-    android.support.v4.widget.ListViewCompat.scrollListBy(androidListView, scrollByDP);
+    androidx.core.widget.ListViewCompat.scrollListBy(androidListView, scrollByDP);
   } catch (err) {
     writeErrorTrace(err);
   } finally {

@@ -9,7 +9,7 @@ function getAndroidView(view: View): android.view.View {
 }
 
 function getViewCompat() {
-  return android.support.v4.view.ViewCompat;
+  return androidx.core.view.ViewCompat;
 }
 
 View.prototype[common.importantForAccessibilityProperty.getDefault] = function importantForAccessibilityGetDefault(this: View) {

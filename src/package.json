@@ -86,14 +86,11 @@
     "prettier-check": "^2.0.0",
     "rimraf": "^2.6.3",
     "rxjs": "^6.5.2",
-    "tns-core-modules": "^5.4.3",
+    "tns-core-modules": "rc",
     "tslint": "^5.18.0",
     "tslint-no-circular-imports": "^0.7.0",
     "typescript": "~3.4.5",
     "zone.js": "^0.9.1"
-  },
-  "peerDependencies": {
-    "tns-core-modules": "^5.4.0"
   },
   "dependencies": {},
   "bootstrapper": "nativescript-plugin-seed"

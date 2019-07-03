@@ -37,3 +37,4 @@ src/*.d.ts
 !webpack.config.js
 tsconfig.tsbuildinfo
 **/*.metadata.json
+.migration_backup/

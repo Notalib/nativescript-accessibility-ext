@@ -74,6 +74,7 @@
     "toplevel",
     "tscwatch",
     "uglifyjs",
-    "xcode"
+    "xcode",
+    "ydemo"
   ]
 }

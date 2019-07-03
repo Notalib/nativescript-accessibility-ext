@@ -35,6 +35,7 @@ const loadedViewRefs = new Set<WeakRef<View>>();
 
 const platformClass = isAndroid ? 'android' : 'ios';
 const fontExtraSmallClass = `a11y-fontscale-xs`;
+const fontExtraMediumClass = `a11y-fontscale-m`;
 const fontExtraLargeClass = `a11y-fontscale-xl`;
 const a11yServiceEnabledClass = `a11y-service-enabled`;
 const a11yServiceDisabledClass = `a11y-service-disabled`;
@@ -74,6 +75,7 @@ function setFontScaleClass(
 
   viewSetCssClass(view, fontExtraSmallClass, isIOS && isExtraSmall);
   viewSetCssClass(view, fontExtraLargeClass, isIOS && isExtraLarge);
+  viewSetCssClass(view, fontExtraMediumClass, isAndroid || (!isExtraSmall && !isExtraLarge));
 
   const postViewClassNames = (view.className || '').trim();
 

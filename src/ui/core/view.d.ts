@@ -53,7 +53,7 @@ declare module 'tns-core-modules/ui/core/view' {
     sendAccessibilityEvent(eventName: string, text?: string);
 
     // iOS Specific
-    accessibilityTraits?: View.AccessibilityTrait | View.AccessibilityTrait[];
+    accessibilityTraits?: View.AccessibilityTrait | View.AccessibilityTrait[] | string | string[];
     accessibilityElementsHidden?: boolean;
 
     /**

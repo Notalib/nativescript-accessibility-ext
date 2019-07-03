@@ -26,7 +26,7 @@ To use it all you need to do is add this to your `app.ios.scss`:
 ```scss
 @import '~nativescript-theme-core/scss/index';
 @import '~nativescript-theme-core/scss/platforms/index.ios';
-@import '@nota/nativescript-accessibility-ext/scss/a11y.ios'; // <-- add this line
+@import '~@nota/nativescript-accessibility-ext/scss/a11y.ios'; // <-- add this line
 ```
 
 And add this to your `app.android.scss`:
@@ -34,13 +34,13 @@ And add this to your `app.android.scss`:
 ```scss
 @import '~nativescript-theme-core/scss/index';
 @import '~nativescript-theme-core/scss/platforms/index.android';
-@import '@nota/nativescript-accessibility-ext/scss/a11y.android'; // <-- add this line
+@import '~@nota/nativescript-accessibility-ext/scss/a11y.android'; // <-- add this line
 ```
 
 If you need to add your own styles, you can do it like this:
 
 ```scss
-@import '@nota/nativescript-accessibility-ext/scss/fontscales';
+@import '~@nota/nativescript-accessibility-ext/scss/fontscales';
 
 $my-custom-font-size: 16;
 $my-custom-height: 40;
@@ -78,7 +78,7 @@ $my-custom-margin: 2;
 If you're adding it to an nativescript-angular component, add this to your component.css:
 
 ```scss
-import '@nota/nativescript-accessibility-ext/scss/fontscales';
+@import '~@nota/nativescript-accessibility-ext/scss/fontscales';
 
 $my-custom-font-size: 16;
 $my-custom-height: 40;

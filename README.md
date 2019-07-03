@@ -83,7 +83,7 @@ To use it all you need to do is add this to your `app.ios.scss`:
 ```scss
 @import '~nativescript-theme-core/scss/index';
 @import '~nativescript-theme-core/scss/platforms/index.ios';
-@import '@nota/nativescript-accessibility-ext/scss/a11y.ios'; // <-- add this line
+@import '~@nota/nativescript-accessibility-ext/scss/a11y.ios'; // <-- add this line
 ```
 
 And add this to your `app.android.scss`:
@@ -91,7 +91,7 @@ And add this to your `app.android.scss`:
 ```scss
 @import '~nativescript-theme-core/scss/index';
 @import '~nativescript-theme-core/scss/platforms/index.android';
-@import '@nota/nativescript-accessibility-ext/scss/a11y.android'; // <-- add this line
+@import '~@nota/nativescript-accessibility-ext/scss/a11y.android'; // <-- add this line
 ```
 
 For more see [FontScale.md](https://raw.githubusercontent.com/Notalib/nativescript-accessibility-ext/master/src/FontScaling.md).

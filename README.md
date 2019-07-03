@@ -50,24 +50,35 @@ Import `nativescript-platform-css` before importing this plugin, to avoid confli
 If you need to apply different styling when fonts are scaled, these css-classes are available on the View.
 
 The number indicated pct font scale:
-- a11y-fontscale-50 (iOS only)
-- a11y-fontscale-70 (iOS only)
+- a11y-fontscale-50 (iOS only - extra small font size)
+- a11y-fontscale-70 (iOS only - extra small font size)
 - a11y-fontscale-85
 - a11y-fontscale-100
 - a11y-fontscale-115
 - a11y-fontscale-130
 - a11y-fontscale-150 (iOS only)
-- a11y-fontscale-200 (iOS only - extra large fonts)
-- a11y-fontscale-250 (iOS only - extra large fonts)
-- a11y-fontscale-300 (iOS only - extra large fonts)
-- a11y-fontscale-350 (iOS only - extra large fonts)
-- a11y-fontscale-400 (iOS only - extra large fonts)
+- a11y-fontscale-200 (iOS only - extra large font size)
+- a11y-fontscale-250 (iOS only - extra large font size)
+- a11y-fontscale-300 (iOS only - extra large font size)
+- a11y-fontscale-350 (iOS only - extra large font size)
+- a11y-fontscale-400 (iOS only - extra large font size)
 
-- a11y-fontscale-xs (iOS only for <85%)
-- a11y-fontscale-xl (iOS only for >150%)
+- a11y-fontscale-xs (iOS only - for extra small font size e.g < 85%)
+- a11y-fontscale-xs-visible (iOS only - visible only when font size is extra small)
+- a11y-fontscale-xs-hidden (iOS only - hidden when font size is extra small)
+- a11y-fontscale-m (Medium font size >=85% and <=150%)
+- a11y-fontscale-m-visible (visible only when font size is medium)
+- a11y-fontscale-m-hidden (hidden when font size is medium)
+- a11y-fontscale-xl (iOS only - for extra large font size e.g >150%)
+- a11y-fontscale-xl-visible (iOS only - visible only when font size is extra large)
+- a11y-fontscale-xl-hidden (iOS only - hidden when font size is visible large)
 
 - a11y-service-enabled (is VoiceOver/TalkBack enabled)
+- a11y-service-enabled-visible (only visible when the a11y service is enabled)
+- a11y-service-enabled-hidden (hidden when the a11y service is enabled)
 - a11y-service-disabled (is VoiceOver/TalkBack disabled)
+- a11y-service-disabled-visible (only visible when the a11y service is disabled)
+- a11y-service-disabled-hidden (hidden when the a11y service is disabled)
 
 **Note:**
 Android auto scales `Labels` by default. But iOS does not.

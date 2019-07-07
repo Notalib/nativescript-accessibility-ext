@@ -34,6 +34,7 @@
   },
   "cSpell.words": [
     "Bitmask",
+    "Codegen",
     "Flexbox",
     "Focusable",
     "Freiling",
@@ -43,6 +44,7 @@
     "Sjøgren",
     "armeabi",
     "assistive",
+    "ayfs",
     "bootstrapper",
     "ddfreiling",
     "devkit",
@@ -68,9 +70,11 @@
     "radiobutton",
     "sasswatch",
     "selectable",
+    "softnav",
     "toplevel",
     "tscwatch",
     "uglifyjs",
-    "xcode"
+    "xcode",
+    "ydemo"
   ]
 }

@@ -37,11 +37,11 @@ $a11y-font-sizes: (
 @each $font-size, $values in $a11y-font-sizes {
   $scales: map-get($values, scales);
 
-  @each $scale, $params in $scales {
+  @each $scaleName, $params in $scales {
     $factor: map-get($params, factor);
 
     .t-#{$font-size} {
-      &.a11y-fontscale-#{$scale} {
+      &.ayfs-#{$scaleName} {
         font-size: $font-size * $factor;
       }
     }

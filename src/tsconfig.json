@@ -1,38 +1,46 @@
 {
-    "compilerOptions": {
-        "target": "es5",
-        "module": "commonjs",
-        "declaration": true,
-        "removeComments": true,
-        "noLib": false,
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "lib": ["es6", "dom", "es2015.iterable", "es2017.object"],
-        "pretty": true,
-        "allowUnreachableCode": false,
-        "allowUnusedLabels": false,
-        "noEmitHelpers": true,
-        "noUnusedLocals": true,
-        "noEmitOnError": false,
-        "sourceMap": true,
-        "noImplicitAny": false,
-        "noImplicitReturns": true,
-        "noImplicitUseStrict": false,
-        "noFallthroughCasesInSwitch": true,
-        "baseUrl": ".",
-        "skipLibCheck": true,
-        "downlevelIteration": true
-    },
-    "files": [
-        "index.ts"
+  "compileOnSave": false,
+  "compilerOptions": {
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "baseUrl": ".",
+    "declaration": true,
+    "downlevelIteration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "incremental": true,
+    "lib": [
+      "es6",
+      "dom",
+      "es2015.iterable",
+      "es2017.object"
     ],
-    "include": [
-        "ui/**/*.ts",
-        "utils/**/*.ts",
-        "references.d.ts"
-    ],
-    "exclude": [
-        "node_modules"
-    ],
-    "compileOnSave": false
+    "module": "commonjs",
+    "noEmitHelpers": true,
+    "noEmitOnError": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noImplicitUseStrict": false,
+    "noLib": false,
+    "noUnusedLocals": true,
+    "pretty": true,
+    "removeComments": true,
+    "skipLibCheck": true,
+    "target": "es5"
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "files": [
+    "index.ts"
+  ],
+  "include": [
+    "ui/**/*.ts",
+    "utils/**/*.ts",
+    "angular/**/*.ts",
+    "references.d.ts"
+  ]
 }

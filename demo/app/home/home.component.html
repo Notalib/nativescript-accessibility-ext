@@ -3,19 +3,19 @@
 <GridLayout class="p-b-10 p-t-10" rows="auto, *" columns="*">
   <StackLayout row="0">
     <ios>
-      <StackLayout *ngIf="!screenReaderEnabled" class="text-center h1 screen-reader">
+      <StackLayout class="text-center h1 screen-reader a11y-service-enabled-hidden">
         <Label text="You need to enable VoiceOver" textWrap="true"></Label>
       </StackLayout>
-      <StackLayout *ngIf="screenReaderEnabled" class="text-center h1 screen-reader">
+      <StackLayout class="text-center h1 screen-reader a11y-service-enabled-visible">
         <Label text="VoiceOver enabled" textWrap="true"></Label>
       </StackLayout>
     </ios>
 
     <android>
-      <StackLayout *ngIf="!screenReaderEnabled" class="text-center h1 screen-reader">
+      <StackLayout class="text-center h1 screen-reader a11y-service-enabled-hidden">
         <Label text="You need to enable TalkBack" textWrap="true"></Label>
       </StackLayout>
-      <StackLayout *ngIf="screenReaderEnabled" class="text-center h1 screen-reader">
+      <StackLayout class="text-center h1 screen-reader a11y-service-enabled-visible">
         <Label text="TalkBack enabled" textWrap="true"></Label>
       </StackLayout>
     </android>

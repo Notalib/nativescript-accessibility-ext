@@ -542,6 +542,8 @@ function listViewItemLoaded(event: EventData) {
 }
 
 function setupA11yScrollOnFocus(args: any) {
+  ensureDelegates();
+
   const listView = args.object as ListView;
   const index = args.index as number;
   const tnsView = args.view as TNSView;

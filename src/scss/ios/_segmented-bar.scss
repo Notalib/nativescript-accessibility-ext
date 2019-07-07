@@ -1,10 +1,13 @@
-@each $scale, $params in $a11y-font-scales {
-  $font-size: 13;
-  $factor: map-get($params, factor);
+.segmented-bar {
+  $segmented-bar-font-size: 13;
+  $segmented-bar-height: 30;
 
-  .segmented-bar {
-    &.a11y-fontscale-#{$scale} {
-      font-size: $font-size * $factor;
+  height: $segmented-bar-height;
+  @each $scaleName, $params in $a11y-font-scales {
+    $factor: map-get($params, factor);
+    &.ayfs-#{$scaleName} {
+      font-size: $segmented-bar-font-size * $factor;
+      height: $segmented-bar-height * $factor;
     }
   }
 }

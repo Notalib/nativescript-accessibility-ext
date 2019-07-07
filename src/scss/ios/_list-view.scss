@@ -1,16 +1,16 @@
-@each $scale, $params in $a11y-font-scales {
-  $factor: map-get($params, factor);
+.list-group {
+  $group-item-font-size: 16;
+  $text-item-font-size: 14;
 
-  .list-group {
-    .list-group-item {
-      &.a11y-fontscale-#{$scale} {
-        $font-size: 16;
-        font-size: $font-size * $factor;
+  @each $scaleName, $params in $a11y-font-scales {
+    $factor: map-get($params, factor);
+    &.ayfs-#{$scaleName} {
+      .list-group-item {
+        font-size: $group-item-font-size * $factor;
+      }
 
-        .list-group-item-text {
-          $font-size: 14;
-          font-size: $font-size * $factor;
-        }
+      .list-group-item-text {
+        font-size: $text-item-font-size * $factor;
       }
     }
   }

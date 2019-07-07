@@ -21,6 +21,8 @@ function fontScaleChanged(fontScale: number) {
   }
 
   internalObservable.set(FontScaleObservable.FONT_SCALE, fontScale);
+  internalObservable.set(FontScaleObservable.EXTRA_SMALL, fontScale < 0.85);
+  internalObservable.set(FontScaleObservable.EXTRA_LARGE, fontScale > 1.5);
 }
 
 const sizeMap = new Map<string, number>([
@@ -40,7 +42,7 @@ const sizeMap = new Map<string, number>([
 
 function setupConfigListener(attempt = 0) {
   if (!nsApp.ios.nativeApp) {
-    if (attempt > 10) {
+    if (attempt > 100) {
       if (isTraceEnabled()) {
         writeErrorTrace(`App didn't become active couldn't enable font scaling`);
       }
@@ -48,7 +50,7 @@ function setupConfigListener(attempt = 0) {
       fontScaleChanged(1);
     } else {
       // Couldn't get launchEvent to trigger.
-      setTimeout(() => setupConfigListener(attempt + 1), 10);
+      setTimeout(() => setupConfigListener(attempt + 1), 1);
     }
 
     return;
@@ -97,11 +99,18 @@ function ensureObservable() {
 }
 
 export class FontScaleObservable extends Observable {
-  public static FONT_SCALE = 'fontScale';
+  public static readonly FONT_SCALE = 'fontScale';
+  public static readonly EXTRA_SMALL = 'isExtraSmall';
+  public static readonly EXTRA_LARGE = 'isExtraLarge';
+
   public static get VALID_FONT_SCALES() {
     // iOS supports a wider number of font scales than Android does.
     return [0.5, 0.7, 0.85, 1, 1.15, 1.3, 1.5, 2, 2.5, 3, 3.5, 4];
   }
+
+  public readonly fontScale = 1;
+  public readonly isExtraSmall = false;
+  public readonly isExtraLarge = false;
 
   constructor() {
     super();
@@ -121,6 +130,9 @@ export class FontScaleObservable extends Observable {
     }
 
     internalObservable.on(Observable.propertyChangeEvent, callback);
-    this.set(FontScaleObservable.FONT_SCALE, internalObservable.get(FontScaleObservable.FONT_SCALE));
+    const fontScale = internalObservable.get(FontScaleObservable.FONT_SCALE);
+    this.set(FontScaleObservable.EXTRA_SMALL, fontScale < 0.85);
+    this.set(FontScaleObservable.EXTRA_LARGE, fontScale > 1.5);
+    this.set(FontScaleObservable.FONT_SCALE, fontScale);
   }
 }

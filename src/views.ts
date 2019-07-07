@@ -1,4 +1,4 @@
 import './ui/core/view';
-import './ui/font-scaling';
+import './ui/css-classes-helper';
 
 export * from './ui/core/view';

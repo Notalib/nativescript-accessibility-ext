@@ -1,12 +1,13 @@
 {
   "private": true,
   "name": "@nota/nativescript-accessibility-ext",
-  "version": "5.3.1",
+  "version": "5.4.0-alpha.4",
   "description": "Add support for 'VoiceOver' and 'TalkBack' in NativeScript",
   "scripts": {
-    "postinstall": "npm run install:demo",
-    "demo:android": "npm run install:demo && cd demo && tns debug android --bundle --syncAllFiles",
-    "demo:ios": "npm run install:demo && cd demo && tns debug ios --bundle --syncAllFiles",
+    "postinstall": "npm-run-all install:src install:demo",
+    "demo:android": "npm run install:demo && cd demo && tns debug android --bundle",
+    "demo:ios": "npm run install:demo && cd demo && tns debug ios --bundle",
+    "install:src": "cd src && npm i",
     "install:demo": "npm run build && cd demo && npm i",
     "sass": "cd src && rm -rf css && node-sass --recursive --output css scss",
     "build": "npm-run-all tsc sass",
@@ -45,8 +46,8 @@
   "devDependencies": {
     "node-sass": "^4.12.0",
     "npm-run-all": "^4.1.5",
-    "tns-core-modules": "^5.3.1",
-    "tns-platform-declarations": "^5.3.1",
-    "typescript": "~3.1.6"
+    "tns-core-modules": "^5.4.3",
+    "tns-platform-declarations": "^5.4.3",
+    "typescript": "~3.4.5"
   }
 }

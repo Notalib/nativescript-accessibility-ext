@@ -35,26 +35,77 @@ Make an announcement to the screen reader.
 Set the accessibility label on the element, this will be read by the screen reader in-place in any 'text' value the element has.
 Important note:
   NativeScript provides the property automationText, this sets both `accessibilityLabel` AND `accessibilityIdentifier` on iOS which can break automated tests.
-  If you use `accessibilityLabel` from this plugin, don't use `automationText` at the same time.
+  If you use `accessibilityLabel` from this plugin, DO NOT use `automationText` at the same time.
 
-### CSSClasses: Page.a11y-fontscale (iOS, Android)
-If you need to apply different styling when fonts are scaled, these css-classes are available on the Page.
+### CSSClasses: View.ios/android
+A platform css-class is added to each view.
+- ios
+- android
+
+**Note:**
+If you need more platform css-classes, like `.notch`, `.softnav`, `.phone`, `.tablet` etc. we suggest using `nativescript-platform-css`.
+Import `nativescript-platform-css` before importing this plugin, to avoid conflicts.
+
+### CSSClasses: View.a11y-fontscale-* (iOS, Android)
+If you need to apply different styling when fonts are scaled, these css-classes are available on the View.
 
 The number indicated pct font scale:
-- a11y-fontscale-50 (iOS only)
-- a11y-fontscale-70 (iOS only)
+- a11y-fontscale-50 (iOS only - extra small font size)
+- a11y-fontscale-70 (iOS only - extra small font size)
 - a11y-fontscale-85
 - a11y-fontscale-100
 - a11y-fontscale-115
 - a11y-fontscale-130
 - a11y-fontscale-150 (iOS only)
-- a11y-fontscale-200 (iOS only - extra large fonts)
-- a11y-fontscale-250 (iOS only - extra large fonts)
-- a11y-fontscale-300 (iOS only - extra large fonts)
-- a11y-fontscale-350 (iOS only - extra large fonts)
-- a11y-fontscale-400 (iOS only - extra large fonts)
+- a11y-fontscale-200 (iOS only - extra large font size)
+- a11y-fontscale-250 (iOS only - extra large font size)
+- a11y-fontscale-300 (iOS only - extra large font size)
+- a11y-fontscale-350 (iOS only - extra large font size)
+- a11y-fontscale-400 (iOS only - extra large font size)
 
-If you want auto scaling on iOS Labels see: Label.accessibilityAdjustsFontSize
+- a11y-fontscale-xs (iOS only - for extra small font size e.g < 85%)
+- a11y-fontscale-xs-visible (iOS only - visible only when font size is extra small)
+- a11y-fontscale-xs-hidden (iOS only - hidden when font size is extra small)
+- a11y-fontscale-m (Medium font size >=85% and <=150%)
+- a11y-fontscale-m-visible (visible only when font size is medium)
+- a11y-fontscale-m-hidden (hidden when font size is medium)
+- a11y-fontscale-xl (iOS only - for extra large font size e.g >150%)
+- a11y-fontscale-xl-visible (iOS only - visible only when font size is extra large)
+- a11y-fontscale-xl-hidden (iOS only - hidden when font size is visible large)
+
+- a11y-service-enabled (is VoiceOver/TalkBack enabled)
+- a11y-service-enabled-visible (only visible when the a11y service is enabled)
+- a11y-service-enabled-hidden (hidden when the a11y service is enabled)
+- a11y-service-disabled (is VoiceOver/TalkBack disabled)
+- a11y-service-disabled-visible (only visible when the a11y service is disabled)
+- a11y-service-disabled-hidden (hidden when the a11y service is disabled)
+
+**Note:**
+Android auto scales `Labels` by default. But iOS does not.
+
+iOS `Labels` are not scaled by default.
+We recommend using the `nativescript-theme-core` with the extension from this plugin.
+Alternatively you can enable `Label.accessibilityAdjustsFontSize=true` per `Label`.
+
+#### To use the theme extension:
+
+To use it all you need to do is add this to your `app.ios.scss`:
+
+```scss
+@import '~nativescript-theme-core/scss/index';
+@import '~nativescript-theme-core/scss/platforms/index.ios';
+@import '~@nota/nativescript-accessibility-ext/scss/a11y.ios'; // <-- add this line
+```
+
+And add this to your `app.android.scss`:
+
+```scss
+@import '~nativescript-theme-core/scss/index';
+@import '~nativescript-theme-core/scss/platforms/index.android';
+@import '~@nota/nativescript-accessibility-ext/scss/a11y.android'; // <-- add this line
+```
+
+For more see [FontScale.md](https://raw.githubusercontent.com/Notalib/nativescript-accessibility-ext/master/src/FontScaling.md).
 
 ### Attributes and functions for `iOS`-only
 
@@ -198,12 +249,48 @@ If not provided with `announcement` the elements `automationText` value will be 
 * onAccessibilityTap (iOS)
 * onMagicTap (iOS)
 
+### Global events
+Each built-in nativescript View-class is extended with global-events.
+
+**Note:**
+Please note this conflicts with `nativescript-globalevents`-plugin.
+If you for some reason need to load both modules, you need to import `nativescript-globalevents` before `@nota/nativescript-accessibility-ext`.
+
+#### Adding a global-event
+
+This event is added to every view-type.
+```typescript
+View.on(View.loadedEvent, (evt) => {
+  const view = evt.object;
+  // Do stuff.
+})
+```
+
+This event is aded to all `Labels`
+```typescript
+Label.on(View.loadedEvent, (evt) => {
+  const label = evt.object;
+  // Do stuff.
+})
+```
+
+#### Removing a global-event
+
+Remove all global loaded events from the View-class.
+```typescript
+View.off(View.loadedEvent);
+```
+
+Remove a single global loaded event from the View-class.
+```typescript
+View.off(View.loadedEvent, callbackReference);
+```
+
 ### Helpers:
 
 #### FontScaleObservable
 
 NativeScript Observable for getting the native fontScale on either platform.
-Note: For this to work properly on Android you need to add fontScale to the `android:configChanges` in your **AndroidManifest.xml**
 
 **Note:**
 Android: Font scale between 0.85 and 1.3 (85% -> 130%)
@@ -216,7 +303,59 @@ To use the plugin in your nativescript-app, install and import the module:
 npm i --save @nota/nativescript-accessibility-ext
 ```
 
-Import in your `app.ts`/`app.js`, just after you import nativescript modules (`NativeScriptModule` if you run `nativescript-angular`)
+### For NativeScript Core
+Change to your `app.ts`/`app.js`
+
+```typescript
+import * as app from "tns-core-modules/application";
+import '@nota/nativescript-accessibility-ext'; /// <-- Add this line
+
+app.run({ moduleName: "app-root" });
+```
+
+### For nativescript-angular
+Change to your `app.module.ts`
+
+```typescript
+import { NgModule, NO_ERRORS_SCHEMA } from "@angular/core";
+import { NativeScriptModule } from "nativescript-angular/nativescript.module";
+import { NotaAccessibilityExtModule } '@nota/nativescript-accessibility-ext/angular'; /// <-- Add this line
+
+/// ... stuff
+
+@NgModule({
+    bootstrap: [
+        AppComponent
+    ],
+    imports: [
+        NativeScriptModule,
+        AppRoutingModule,
+        NotaAccessibilityExtModule, /// <-- Add this line
+    ],
+    declarations: [
+        AppComponent,
+        ItemsComponent,
+        ItemDetailComponent
+    ],
+    providers: [],
+    schemas: [
+        NO_ERRORS_SCHEMA
+    ]
+})
+export class AppModule { }
+```
+For more see [Angular](https://raw.githubusercontent.com/Notalib/nativescript-accessibility-ext/master/src/Angular.md).
+
+### For NativeScript Vue
+Change to your `app.js`:
+
+```javascript
+import Vue from "nativescript-vue";
+import '@nota/nativescript-accessibility-ext'; /// <-- Add this line
+
+....
+```
+
 
 ```typescript
 import '@nota/nativescript-accessibility-ext';

@@ -37,15 +37,15 @@ $a11y-label-classes: (
   ),
 ) !default;
 
-@each $label-classname, $values in $a11y-label-classes {
+@each $label-class, $values in $a11y-label-classes {
   $scales: map-get($values, scales);
   $a11y-font-size: map-get($values, font-size);
 
-  @each $scale, $params in $scales {
-    $factor: map-get($params, factor);
+  .#{$label-class} {
+    @each $scaleName, $params in $scales {
+      $factor: map-get($params, factor);
 
-    .#{$label-classname} {
-      &.a11y-fontscale-#{$scale} {
+      &.ayfs-#{$scaleName} {
         font-size: $a11y-font-size * $factor;
       }
     }

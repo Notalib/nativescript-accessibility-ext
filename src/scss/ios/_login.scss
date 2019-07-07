@@ -1,19 +1,19 @@
-@each $scale, $params in $a11y-font-scales {
+$login-logo-font-size: 30;
+$go-back-font-size: 14;
+@each $scaleName, $params in $a11y-font-scales {
   $factor: map-get($params, factor);
 
   .logo-wrap {
-    .login-logo {
-      &.a11y-fontscale-#{$scale} {
-        $font-size: 30;
-        font-size: $font-size * $factor;
+    &.ayfs-#{$scaleName} {
+      .login-logo {
+        font-size: $login-logo-font-size * $factor;
       }
     }
   }
 
   .go-back {
-    &.a11y-fontscale-#{$scale} {
-      $font-size: 14;
-      font-size: $font-size * $factor;
+    &.ayfs-#{$scaleName} {
+      font-size: $go-back-font-size * $factor;
     }
   }
 }

@@ -13,19 +13,24 @@
 }
 
 .a11y-fontscale-xs {
-  &.a11y-fontscale-xs-hidden, &.a11y-fontscale-xl-visible {
+  &.a11y-fontscale-xs-hidden,
+  &.a11y-fontscale-xl-visible {
     visibility: collapse;
   }
 }
 
 .a11y-fontscale-m {
-  &.a11y-fontscale-m-hidden, &.a11y-fontscale-xs-visible, &.a11y-fontscale-xl-visible {
+  &.a11y-fontscale-m-hidden,
+  &.a11y-fontscale-xs-visible,
+  &.a11y-fontscale-xl-visible {
     visibility: collapse;
   }
 }
 
 .a11y-fontscale-xl {
-  &.a11y-fontscale-xl-hidden, &.a11y-fontscale-m-visible, &.a11y-fontscale-xs-visible {
+  &.a11y-fontscale-xl-hidden,
+  &.a11y-fontscale-m-visible,
+  &.a11y-fontscale-xs-visible {
     visibility: collapse;
   }
 }

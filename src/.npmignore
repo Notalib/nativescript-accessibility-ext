@@ -5,3 +5,4 @@ tsconfig.json
 .prettierignore
 references.d.ts
 *.tsbuildinfo
+hooks

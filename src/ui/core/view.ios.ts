@@ -1,19 +1,28 @@
 import * as nsApp from 'tns-core-modules/application';
 import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/core/view';
 import { isTraceEnabled, writeTrace } from '../../trace';
-import { addPropertyToView, inputArrayToBitMask, notifyAccessibilityFocusState, setViewFunction } from '../../utils/helpers';
-import * as common from './view-common';
-import { accessibilityElementsHiddenCssProperty, ViewCommon } from './view-common';
+import { addCssPropertyToView, addPropertyToView, inputArrayToBitMask, notifyAccessibilityFocusState, setViewFunction } from '../../utils/helpers';
+import {
+  accessibilityElementsHiddenCssProperty,
+  accessibilityHintProperty,
+  accessibilityIdentifierProperty,
+  accessibilityLabelProperty,
+  accessibilityValueProperty,
+  accessibleCssProperty,
+  commonFunctions,
+  iosFunctions,
+  ViewCommon,
+} from './view-common';
 
 // iOS properties:
 export const accessibilityTraitsProperty = addPropertyToView<View, string | string[] | null>(ViewCommon, 'accessibilityTraits');
-export const accessibilityLanguageProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityLanguage');
+export const accessibilityLanguageProperty = addCssPropertyToView<View, string>(ViewCommon, 'accessibilityLanguage', 'a11y-lang', false);
 
 function getUIView(view: View): UIView {
   return view.ios;
 }
 
-View.prototype[common.accessibleCssProperty.getDefault] = function accessibleGetDefault(this: View) {
+View.prototype[accessibleCssProperty.getDefault] = function accessibleGetDefault(this: View) {
   const uiView = getUIView(this);
   if (!uiView) {
     return false;
@@ -108,14 +117,10 @@ function setupAccessibilityFocusEvents(tnsView: View, isAccessible: boolean) {
   tnsView[accessibilityFocusObserverSymbol] = observer;
 }
 
-View.prototype[common.accessibleCssProperty.setNative] = function accessibleSetNative(this: View, isAccessible: boolean) {
+View.prototype[accessibleCssProperty.setNative] = function accessibleSetNative(this: View, isAccessible: boolean) {
   const uiView = getUIView(this);
   if (!uiView) {
     return;
-  }
-
-  if (typeof isAccessible === 'string') {
-    isAccessible = `${isAccessible}`.toLowerCase() === 'true';
   }
 
   uiView.isAccessibilityElement = !!isAccessible;
@@ -237,7 +242,7 @@ View.prototype[accessibilityTraitsProperty.setNative] = function accessibilityTr
   }
 };
 
-View.prototype[common.accessibilityValueProperty.getDefault] = function accessibilityValueGetDefault(this: View) {
+View.prototype[accessibilityValueProperty.getDefault] = function accessibilityValueGetDefault(this: View) {
   const uiView = getUIView(this);
   if (!uiView) {
     return null;
@@ -250,7 +255,7 @@ View.prototype[common.accessibilityValueProperty.getDefault] = function accessib
   return value;
 };
 
-View.prototype[common.accessibilityValueProperty.setNative] = function accessibilityValueSetNative(this: View, value: string) {
+View.prototype[accessibilityValueProperty.setNative] = function accessibilityValueSetNative(this: View, value: string) {
   const uiView = getUIView(this);
   if (!uiView) {
     return;
@@ -261,12 +266,14 @@ View.prototype[common.accessibilityValueProperty.setNative] = function accessibi
       writeTrace(`View<${this}.ios>.accessibilityValue - ${value}`);
     }
     uiView.accessibilityValue = `${value}`;
-  } else {
-    if (isTraceEnabled()) {
-      writeTrace(`View<${this}.ios>.accessibilityValue - ${JSON.stringify(value)} is falsy, set to null to remove value`);
-    }
-    uiView.accessibilityValue = null;
+    return;
   }
+
+  if (isTraceEnabled()) {
+    writeTrace(`View<${this}.ios>.accessibilityValue - ${JSON.stringify(value)} is falsy, set to null to remove value`);
+  }
+
+  uiView.accessibilityValue = null;
 };
 
 View.prototype[accessibilityElementsHiddenCssProperty.getDefault] = function accessibilityElementsHiddenGetDefault(this: View) {
@@ -279,6 +286,7 @@ View.prototype[accessibilityElementsHiddenCssProperty.getDefault] = function acc
   if (isTraceEnabled()) {
     writeTrace(`View<${this}.ios>.accessibilityElementsHidden - default - ${isHidden}`);
   }
+
   return isHidden;
 };
 
@@ -288,17 +296,13 @@ View.prototype[accessibilityElementsHiddenCssProperty.setNative] = function acce
     return;
   }
 
-  if (typeof isHidden === 'string') {
-    isHidden = `${isHidden}`.toLowerCase() === 'true';
-  }
-
   uiView.accessibilityElementsHidden = !!isHidden;
   if (isTraceEnabled()) {
     writeTrace(`View<${this}.ios>.accessibilityElementsHidden - ${!!isHidden}`);
   }
 };
 
-setViewFunction(View, common.iosFunctions.postAccessibilityNotification, function postAccessibilityNotification(
+setViewFunction(View, iosFunctions.postAccessibilityNotification, function postAccessibilityNotification(
   this: View,
   notificationType: PostAccessibilityNotificationType,
   msg?: string,
@@ -344,7 +348,7 @@ setViewFunction(View, common.iosFunctions.postAccessibilityNotification, functio
   UIAccessibilityPostNotification(notification, args || null);
 });
 
-setViewFunction(View, common.commonFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
+setViewFunction(View, commonFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
   const cls = `View<${this}.ios>.accessibilityAnnouncement("${msg}")`;
   if (!msg) {
     if (isTraceEnabled()) {
@@ -359,7 +363,7 @@ setViewFunction(View, common.commonFunctions.accessibilityAnnouncement, function
   this.postAccessibilityNotification('announcement', msg);
 });
 
-View.prototype[common.accessibilityLabelProperty.getDefault] = function accessibilityLabelGetDefault(this: View) {
+View.prototype[accessibilityLabelProperty.getDefault] = function accessibilityLabelGetDefault(this: View) {
   const uiView = getUIView(this);
   if (!uiView) {
     return null;
@@ -372,7 +376,7 @@ View.prototype[common.accessibilityLabelProperty.getDefault] = function accessib
   return label;
 };
 
-View.prototype[common.accessibilityLabelProperty.setNative] = function accessibilityLabelSetNative(this: View, label: string) {
+View.prototype[accessibilityLabelProperty.setNative] = function accessibilityLabelSetNative(this: View, label: string) {
   const uiView = getUIView(this);
   if (!uiView) {
     return;
@@ -392,7 +396,7 @@ View.prototype[common.accessibilityLabelProperty.setNative] = function accessibi
   }
 };
 
-View.prototype[common.accessibilityIdentifierProperty.getDefault] = function accessibilityIdentifierGetDefault(this: View) {
+View.prototype[accessibilityIdentifierProperty.getDefault] = function accessibilityIdentifierGetDefault(this: View) {
   const uiView = getUIView(this);
   if (!uiView) {
     return null;
@@ -405,7 +409,7 @@ View.prototype[common.accessibilityIdentifierProperty.getDefault] = function acc
   return identifier;
 };
 
-View.prototype[common.accessibilityIdentifierProperty.setNative] = function accessibilityIdentifierSetNative(this: View, identifier: string) {
+View.prototype[accessibilityIdentifierProperty.setNative] = function accessibilityIdentifierSetNative(this: View, identifier: string) {
   const uiView = getUIView(this);
   if (!uiView) {
     return;
@@ -454,7 +458,7 @@ View.prototype[accessibilityLanguageProperty.setNative] = function accessibility
   }
 };
 
-View.prototype[common.accessibilityHintProperty.getDefault] = function accessibilityHintGetDefault() {
+View.prototype[accessibilityHintProperty.getDefault] = function accessibilityHintGetDefault() {
   const uiView = getUIView(this);
   if (!uiView) {
     return null;
@@ -463,7 +467,7 @@ View.prototype[common.accessibilityHintProperty.getDefault] = function accessibi
   return uiView.accessibilityHint;
 };
 
-View.prototype[common.accessibilityHintProperty.setNative] = function accessibilityHintSetNative(value: string) {
+View.prototype[accessibilityHintProperty.setNative] = function accessibilityHintSetNative(value: string) {
   const uiView = getUIView(this);
   if (!uiView) {
     return;
@@ -472,6 +476,6 @@ View.prototype[common.accessibilityHintProperty.setNative] = function accessibil
   uiView.accessibilityHint = value;
 };
 
-setViewFunction(View, common.commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: View) {
+setViewFunction(View, commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: View) {
   this.postAccessibilityNotification('screen');
 });

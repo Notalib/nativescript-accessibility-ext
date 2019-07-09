@@ -31,7 +31,7 @@ export function writeGlobalEventsTrace(message: string, type = trace.messageType
 }
 
 export function writeErrorTrace(message) {
-  writeTrace(message, trace.messageType.error);
+  trace.write(message, categories.A11Y, trace.messageType.error);
 }
 
 export function writeWarnTrace(message) {

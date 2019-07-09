@@ -215,10 +215,6 @@ View.prototype[accessibleCssProperty.setNative] = function accessibleSetNative(t
     return;
   }
 
-  if (typeof isAccessible === 'string') {
-    isAccessible = `${isAccessible}`.toLowerCase() === 'true';
-  }
-
   androidView.setFocusable(!!isAccessible);
 
   if (isTraceEnabled()) {

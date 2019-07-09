@@ -3,7 +3,7 @@
 import { EventData, Observable } from 'tns-core-modules/data/observable';
 import { isAndroid, isIOS } from 'tns-core-modules/platform';
 import { View } from 'tns-core-modules/ui/core/view';
-import { writeFontScaleTrace } from '../trace';
+import { isTraceEnabled, writeFontScaleTrace } from '../trace';
 import { FontScaleObservable } from '../utils/FontScaleObservable';
 import '../utils/global-events';
 import { viewSetCssClass } from '../utils/helpers';
@@ -59,7 +59,9 @@ function setViewHelperCssClasses(
 
   const localCls = `${cls}.setFontScaleClass(${view}, ${newFontScale})`;
   if (!view) {
-    writeFontScaleTrace(`${localCls}: view is undefined`);
+    if (isTraceEnabled()) {
+      writeFontScaleTrace(`${localCls}: view is undefined`);
+    }
     return;
   }
 
@@ -80,14 +82,18 @@ function setViewHelperCssClasses(
   const postViewClassNames = (view.className || '').trim();
 
   if (prevViewClassName !== postViewClassNames) {
-    writeFontScaleTrace(`${localCls}: change from '${prevViewClassName}' to '${postViewClassNames}'`);
+    if (isTraceEnabled()) {
+      writeFontScaleTrace(`${localCls}: change from '${prevViewClassName}' to '${postViewClassNames}'`);
+    }
   }
 }
 
 const fontScaleObservable = new FontScaleObservable();
 fontScaleObservable.on(Observable.propertyChangeEvent, () => {
   const { fontScale, isExtraSmall, isExtraLarge } = fontScaleObservable;
-  writeFontScaleTrace(`${cls}: ${FontScaleObservable.FONT_SCALE} changed to ${fontScale}`);
+  if (isTraceEnabled()) {
+    writeFontScaleTrace(`${cls}: ${FontScaleObservable.FONT_SCALE} changed to ${fontScale}`);
+  }
   const a11yServiceEnabled = isAccessibilityServiceEnabled();
   for (const viewRef of loadedViewRefs) {
     const view = viewRef.get();

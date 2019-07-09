@@ -1,14 +1,19 @@
 import * as nsApp from 'tns-core-modules/application';
 import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/core/view';
 import { isTraceEnabled, writeTrace } from '../../trace';
-import { inputArrayToBitMask, notifyAccessibilityFocusState, setViewFunction } from '../../utils/helpers';
+import { addPropertyToView, inputArrayToBitMask, notifyAccessibilityFocusState, setViewFunction } from '../../utils/helpers';
 import * as common from './view-common';
+import { accessibilityElementsHiddenCssProperty, ViewCommon } from './view-common';
+
+// iOS properties:
+export const accessibilityTraitsProperty = addPropertyToView<View, string | string[] | null>(ViewCommon, 'accessibilityTraits');
+export const accessibilityLanguageProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityLanguage');
 
 function getUIView(view: View): UIView {
   return view.ios;
 }
 
-View.prototype[common.accessibleProperty.getDefault] = function accessibleGetDefault(this: View) {
+View.prototype[common.accessibleCssProperty.getDefault] = function accessibleGetDefault(this: View) {
   const uiView = getUIView(this);
   if (!uiView) {
     return false;
@@ -103,7 +108,7 @@ function setupAccessibilityFocusEvents(tnsView: View, isAccessible: boolean) {
   tnsView[accessibilityFocusObserverSymbol] = observer;
 }
 
-View.prototype[common.accessibleProperty.setNative] = function accessibleSetNative(this: View, isAccessible: boolean) {
+View.prototype[common.accessibleCssProperty.setNative] = function accessibleSetNative(this: View, isAccessible: boolean) {
   const uiView = getUIView(this);
   if (!uiView) {
     return;
@@ -199,7 +204,7 @@ function getAccessibilityTraitsFromBitmask(accessibilityTraits: number) {
   return res;
 }
 
-View.prototype[common.accessibilityTraitsProperty.getDefault] = function accessibilityTraitsGetDefault(this: View) {
+View.prototype[accessibilityTraitsProperty.getDefault] = function accessibilityTraitsGetDefault(this: View) {
   const uiView = getUIView(this);
   if (!uiView) {
     return '';
@@ -212,7 +217,7 @@ View.prototype[common.accessibilityTraitsProperty.getDefault] = function accessi
   return accessibilityTraits;
 };
 
-View.prototype[common.accessibilityTraitsProperty.setNative] = function accessibilityTraitsSetNative(
+View.prototype[accessibilityTraitsProperty.setNative] = function accessibilityTraitsSetNative(
   this: View,
   value: View.AccessibilityTrait | View.AccessibilityTrait[],
 ) {
@@ -264,7 +269,7 @@ View.prototype[common.accessibilityValueProperty.setNative] = function accessibi
   }
 };
 
-View.prototype[common.accessibilityElementsHidden.getDefault] = function accessibilityElementsHiddenGetDefault(this: View) {
+View.prototype[accessibilityElementsHiddenCssProperty.getDefault] = function accessibilityElementsHiddenGetDefault(this: View) {
   const uiView = getUIView(this);
   if (!uiView) {
     return false;
@@ -277,7 +282,7 @@ View.prototype[common.accessibilityElementsHidden.getDefault] = function accessi
   return isHidden;
 };
 
-View.prototype[common.accessibilityElementsHidden.setNative] = function accessibilityElementsHiddenSetNative(this: View, isHidden: boolean) {
+View.prototype[accessibilityElementsHiddenCssProperty.setNative] = function accessibilityElementsHiddenSetNative(this: View, isHidden: boolean) {
   const uiView = getUIView(this);
   if (!uiView) {
     return;
@@ -420,7 +425,7 @@ View.prototype[common.accessibilityIdentifierProperty.setNative] = function acce
   }
 };
 
-View.prototype[common.accessibilityLanguageProperty.getDefault] = function accessibilityLanguageGetDefault(this: View) {
+View.prototype[accessibilityLanguageProperty.getDefault] = function accessibilityLanguageGetDefault(this: View) {
   const uiView = getUIView(this);
   if (!uiView) {
     return null;
@@ -433,7 +438,7 @@ View.prototype[common.accessibilityLanguageProperty.getDefault] = function acces
   return lang;
 };
 
-View.prototype[common.accessibilityLanguageProperty.setNative] = function accessibilityLanguageSetNative(this: View, lang: string) {
+View.prototype[accessibilityLanguageProperty.setNative] = function accessibilityLanguageSetNative(this: View, lang: string) {
   const uiView = getUIView(this);
   if (!uiView) {
     return;

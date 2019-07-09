@@ -1,25 +1,28 @@
 /// <reference path="./view.d.ts" />
 
+import { isIOS } from 'tns-core-modules/platform';
 import { View } from 'tns-core-modules/ui/core/view';
 import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
-import { addBooleanPropertyToView, addPropertyToView, setViewFunction } from '../../utils/helpers';
+import { addBooleanCssPropertyToView, addPropertyToView, setViewFunction } from '../../utils/helpers';
+
+export const accessiblePropertyName = 'accessible';
+export const accessibleCssName = 'a11y';
+export const accessibilityElementsHiddenPropertyName = 'accessibilityElementsHidden';
+export const accessibilityElementsHiddenCssName = 'a11y-hidden';
 
 // Common properties
-export const accessibleProperty = addBooleanPropertyToView<View>(ViewCommon, 'accessible', false);
+export const accessibleCssProperty = addBooleanCssPropertyToView(ViewCommon, accessiblePropertyName, accessibleCssName, false);
 export const accessibilityLabelProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityLabel');
 export const accessibilityIdentifierProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityIdentifier');
 export const accessibilityValueProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityValue');
 export const accessibilityHintProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityHint');
 
-// iOS properties:
-export const accessibilityTraitsProperty = addPropertyToView<View, string | string[] | null>(ViewCommon, 'accessibilityTraits');
-export const accessibilityLanguageProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityLanguage');
-export const accessibilityElementsHidden = addBooleanPropertyToView<View>(ViewCommon, 'accessibilityElementsHidden', false);
-
-// Android properties
-export const importantForAccessibilityProperty = addPropertyToView<View, string>(ViewCommon, 'importantForAccessibility');
-export const accessibilityComponentTypeProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityComponentType');
-export const accessibilityLiveRegionProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityLiveRegion');
+export const accessibilityElementsHiddenCssProperty = addBooleanCssPropertyToView(
+  ViewCommon,
+  accessibilityElementsHiddenPropertyName,
+  accessibilityElementsHiddenCssName,
+  !!isIOS,
+);
 
 export enum AccessibilityTrait {
   /**
@@ -133,3 +136,15 @@ View.accessibilityFocusEvent = 'accessibilityFocus';
 View.accessibilityBlurEvent = 'accessibilityBlur';
 View.accessibilityFocusChangedEvent = 'accessibilityFocusChanged';
 View.AccessibilityTrait = AccessibilityTrait;
+
+Object.defineProperty(View.prototype, 'importantForAccessibility', {
+  configurable: true,
+  get() {
+    return null;
+  },
+  set(value) {
+    console.warn(`${this}.importantForAccessibility = "${value}" is no longer supported. Please use "${accessibilityElementsHiddenPropertyName}"`);
+  },
+});
+
+export { ViewCommon };

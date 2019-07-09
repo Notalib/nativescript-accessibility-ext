@@ -46,15 +46,17 @@ declare module 'tns-core-modules/ui/core/view' {
      */
     accessibilityIdentifier?: string;
 
-    // Android Specific
-    importantForAccessibility?: 'yes' | 'no' | 'auto' | 'no-hide-descendants';
+    /**
+     * Hide the element from the a11y service
+     */
+    accessibilityElementsHidden?: boolean;
+
     accessibilityComponentType?: 'button' | 'radiobutton_checked' | 'radiobutton_unchecked';
     accessibilityLiveRegion?: 'none' | 'polite' | 'assertive';
     sendAccessibilityEvent(eventName: string, text?: string);
 
     // iOS Specific
     accessibilityTraits?: View.AccessibilityTrait | View.AccessibilityTrait[] | string | string[];
-    accessibilityElementsHidden?: boolean;
 
     /**
      * Sets the language in which to speak the element's label and value.

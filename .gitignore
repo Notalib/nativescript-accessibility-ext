@@ -38,3 +38,6 @@ src/*.d.ts
 tsconfig.tsbuildinfo
 **/*.metadata.json
 .migration_backup/
+
+src/ui/core/view.android.d.ts
+src/ui/core/view.ios.d.ts

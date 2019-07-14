@@ -1,11 +1,13 @@
 import { View } from 'tns-core-modules/ui/core/view';
 import { isTraceEnabled, writeTrace } from '../../trace';
-import { AccessibilityHelper } from '../../utils/AccessibilityHelper';
-import { addCssPropertyToView, addPropertyToView, setViewFunction } from '../../utils/helpers';
+import { AccessibilityHelper, getAndroidView, getViewCompat } from '../../utils/AccessibilityHelper';
+import { addCssPropertyToView, setViewFunction } from '../../utils/helpers';
 import {
+  accessibilityComponentTypeCssProperty,
   accessibilityHiddenCssProperty,
   accessibilityHintProperty,
   accessibilityLabelProperty,
+  accessibilityStateCssProperty,
   accessibilityValueProperty,
   accessibleCssProperty,
   androidFunctions,
@@ -13,9 +15,7 @@ import {
   ViewCommon,
 } from './view-common';
 
-// Android properties
-export const accessibilityComponentTypeProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityComponentType');
-export const accessibilityLiveRegionCssProperty = addCssPropertyToView<View, 'none' | 'polite' | 'assertive'>(
+const accessibilityLiveRegionCssProperty = addCssPropertyToView<View, 'none' | 'polite' | 'assertive'>(
   ViewCommon,
   'accessibilityLiveRegion',
   'a11y-live-region',
@@ -37,14 +37,6 @@ export const accessibilityLiveRegionCssProperty = addCssPropertyToView<View, 'no
     return 'none';
   },
 );
-
-function getAndroidView(view: View): android.view.View {
-  return view.nativeView || view.nativeViewProtected;
-}
-
-function getViewCompat() {
-  return androidx.core.view.ViewCompat;
-}
 
 View.prototype[accessibilityHiddenCssProperty.getDefault] = function accessibilityElementsHiddenGetDefault(this: View) {
   const androidView = getAndroidView(this);
@@ -111,20 +103,21 @@ View.prototype[accessibilityHiddenCssProperty.setNative] = function accessibilit
   }
 };
 
-View.prototype[accessibilityComponentTypeProperty.getDefault] = function accessibilityComponentTypeGetDefault(this: View) {
+View.prototype[accessibilityComponentTypeCssProperty.getDefault] = function accessibilityComponentTypeGetDefault(this: View) {
   return null;
 };
 
-View.prototype[accessibilityComponentTypeProperty.setNative] = function accessibilityComponentTypeSetNative(this: View, value: string) {
+View.prototype[accessibilityComponentTypeCssProperty.setNative] = function accessibilityComponentTypeSetNative(this: View, value: string) {
   const androidView = getAndroidView(this);
   if (!androidView) {
     return;
   }
 
-  AccessibilityHelper.updateAccessibilityComponentType(this, androidView, value);
-  if (isTraceEnabled()) {
-    writeTrace(`View<${this}.android>.accessibilityComponentType - value: ${value}.`);
-  }
+  AccessibilityHelper.updateAccessibilityComponentType(this);
+};
+
+View.prototype[accessibilityStateCssProperty.setNative] = function accessibilityStateSetNative(this: View) {
+  AccessibilityHelper.updateAccessibilityComponentType(this);
 };
 
 View.prototype[accessibilityLiveRegionCssProperty.getDefault] = function accessibilityLiveRegionGetDefault(this: View) {
@@ -222,17 +215,15 @@ View.prototype[accessibleCssProperty.setNative] = function accessibleSetNative(t
   }
 
   if (isAccessible) {
-    const accessibilityComponentType = this.accessibilityComponentType || AccessibilityHelper.ACCESSIBLE;
-
     if (isTraceEnabled()) {
-      writeTrace(`View<${this}.android>.accessible = ${isAccessible} -> accessibilityComponentType=${accessibilityComponentType}`);
+      writeTrace(`View<${this}.android>.accessible = ${isAccessible}`);
     }
 
-    AccessibilityHelper.updateAccessibilityComponentType(this, androidView, accessibilityComponentType);
+    AccessibilityHelper.updateAccessibilityComponentType(this);
     return;
   }
 
-  AccessibilityHelper.removeAccessibilityComponentType(androidView);
+  AccessibilityHelper.removeAccessibilityComponentType(this);
 };
 
 setViewFunction(View, androidFunctions.sendAccessibilityEvent, function sendAccessibilityEvent(this: View, eventName: string, msg?: string) {

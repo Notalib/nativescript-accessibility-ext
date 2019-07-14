@@ -11,10 +11,40 @@ export const accessibilityHiddenPropertyName = 'accessibilityHidden';
 export const accessibilityHiddenCssName = 'a11y-hidden';
 export const accessibilityIdPropertyName = 'accessibilityIdentifier';
 export const accessibilityIdCssName = 'a11y-id';
+export const accessibilityComponentTypePropertyName = 'accessibilityComponentType';
+export const accessibilityComponentCssName = 'a11y-type';
+export const accessibilityStatePropertyName = 'accessibilityState';
+export const accessibilityStateCssName = 'a11y-state';
 
 // Common properties
-export const accessibleCssProperty = addBooleanCssPropertyToView(ViewCommon, accessiblePropertyName, accessibleCssName, false);
-export const accessibilityIdCssProperty = addCssPropertyToView<View, string | null>(ViewCommon, accessibilityIdPropertyName, accessibilityIdCssName, false);
+export const accessibleCssProperty = addBooleanCssPropertyToView(ViewCommon, accessiblePropertyName, accessibleCssName);
+export const accessibilityIdCssProperty = addCssPropertyToView<View, string | null>(ViewCommon, accessibilityIdPropertyName, accessibilityIdCssName);
+export const accessibilityComponentTypeCssProperty = addCssPropertyToView<View, string>(
+  ViewCommon,
+  accessibilityComponentTypePropertyName,
+  accessibilityComponentCssName,
+);
+
+export const accessibilityStateCssProperty = addCssPropertyToView<View, string>(
+  ViewCommon,
+  accessibilityStatePropertyName,
+  accessibilityStateCssName,
+  false,
+  undefined,
+  (value): AccessibilityState | null => {
+    if (!value) {
+      return null;
+    }
+
+    for (const [key, v] of Object.entries(AccessibilityState)) {
+      if (key === value || v === `${value}`.toLowerCase()) {
+        return v;
+      }
+    }
+
+    return null;
+  },
+);
 
 export const accessibilityLabelProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityLabel');
 export const accessibilityValueProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityValue');
@@ -110,6 +140,37 @@ export enum AccessibilityTrait {
   Header = 'header',
 }
 
+export enum AccessibilityComponentType {
+  None = 'none',
+  Button = 'button',
+  Link = 'link',
+  Search = 'search',
+  Image = 'image',
+  ImageButton = 'image_button',
+  KeyboardKey = 'keyboard_key',
+  Text = 'text_field',
+  Adjustable = 'adjustable',
+  Summary = 'summery',
+  Header = 'header',
+  Alert = 'alert',
+  Checkbox = 'checkbox',
+  ProgressBar = 'progress_bar',
+  RadioButton = 'radiobutton',
+  SpinButton = 'spin_button',
+  Switch = 'switch',
+  Tab = 'tab',
+  TabList = 'tab_list',
+  Timer = 'timer',
+  ToolBar = 'toolbar',
+}
+
+export enum AccessibilityState {
+  Selected = 'selected',
+  Checked = 'checked',
+  Unchecked = 'unchecked',
+  Disabled = 'disabled',
+}
+
 export const commonFunctions = {
   accessibilityAnnouncement: 'accessibilityAnnouncement',
   accessibilityScreenChanged: 'accessibilityScreenChanged',
@@ -130,18 +191,54 @@ for (const fnName of Object.keys(allFunctions)) {
   setViewFunction(ViewCommon, fnName);
 }
 
-View.accessibilityFocusEvent = 'accessibilityFocus';
-View.accessibilityBlurEvent = 'accessibilityBlur';
-View.accessibilityFocusChangedEvent = 'accessibilityFocusChanged';
-View.AccessibilityTrait = AccessibilityTrait;
-
-Object.defineProperty(View.prototype, 'importantForAccessibility', {
-  configurable: true,
-  get() {
-    return null;
+Object.defineProperties(View, {
+  accessibilityFocusEvent: {
+    configurable: true,
+    get() {
+      return 'accessibilityFocus';
+    },
   },
-  set(value) {
-    console.warn(`${this}.importantForAccessibility = "${value}" is no longer supported. Please use "${accessibilityHiddenPropertyName}"`);
+  accessibilityBlurEvent: {
+    configurable: true,
+    get() {
+      return 'accessibilityBlur';
+    },
+  },
+  accessibilityFocusChangedEvent: {
+    configurable: true,
+    get() {
+      return 'accessibilityFocusChanged';
+    },
+  },
+  AccessibilityTrait: {
+    configurable: true,
+    get() {
+      return AccessibilityTrait;
+    },
+  },
+  AccessibilityComponentType: {
+    configurable: true,
+    get() {
+      return AccessibilityComponentType;
+    },
+  },
+  AccessibilityState: {
+    configurable: true,
+    get() {
+      return AccessibilityState;
+    },
+  },
+});
+
+Object.defineProperties(View.prototype, {
+  importantForAccessibility: {
+    configurable: true,
+    get() {
+      return null;
+    },
+    set(value) {
+      console.warn(`${this}.importantForAccessibility = "${value}" is no longer supported. Please use "${accessibilityHiddenPropertyName}"`);
+    },
   },
 });
 

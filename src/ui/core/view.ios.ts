@@ -1,8 +1,12 @@
+/// <reference path="./view.d.ts" />
+
 import * as nsApp from 'tns-core-modules/application';
 import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/core/view';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import { addCssPropertyToView, addPropertyToView, inputArrayToBitMask, notifyAccessibilityFocusState, setViewFunction } from '../../utils/helpers';
 import {
+  AccessibilityComponentType,
+  accessibilityComponentTypeCssProperty,
   accessibilityHiddenCssProperty,
   accessibilityHintProperty,
   accessibilityIdCssProperty,
@@ -132,13 +136,14 @@ View.prototype[accessibleCssProperty.setNative] = function accessibleSetNative(t
   setupAccessibilityFocusEvents(this, isAccessible);
 };
 
-let traits: Map<string, number>;
+let AccessibilityTraitsMap: Map<string, number>;
+let ComponentTypeMap: Map<string, number>;
 function ensureTraits() {
-  if (traits) {
+  if (AccessibilityTraitsMap) {
     return;
   }
 
-  traits = new Map<string, number>([
+  AccessibilityTraitsMap = new Map<string, number>([
     // The accessibility element has no traits.
     ['none', UIAccessibilityTraitNone],
 
@@ -190,6 +195,20 @@ function ensureTraits() {
     // The accessibility element is a header that divides content into sections, such as the title of a navigation bar.
     ['header', UIAccessibilityTraitHeader],
   ]);
+
+  ComponentTypeMap = new Map<string, number>([
+    [AccessibilityComponentType.Button, UIAccessibilityTraitButton],
+    [AccessibilityComponentType.Link, UIAccessibilityTraitHeader],
+    [AccessibilityComponentType.Header, UIAccessibilityTraitLink],
+    [AccessibilityComponentType.Search, UIAccessibilityTraitSearchField],
+    [AccessibilityComponentType.Image, UIAccessibilityTraitImage],
+    [AccessibilityComponentType.ImageButton, UIAccessibilityTraitImage | UIAccessibilityTraitButton],
+    [AccessibilityComponentType.KeyboardKey, UIAccessibilityTraitKeyboardKey],
+    [AccessibilityComponentType.Text, UIAccessibilityTraitStaticText],
+    [AccessibilityComponentType.Summary, UIAccessibilityTraitSummaryElement],
+    [AccessibilityComponentType.Adjustable, UIAccessibilityTraitAdjustable],
+    [AccessibilityComponentType.Switch, UIAccessibilityTraitButton],
+  ]);
 }
 
 function getAccessibilityTraitsFromBitmask(accessibilityTraits: number) {
@@ -200,7 +219,7 @@ function getAccessibilityTraitsFromBitmask(accessibilityTraits: number) {
 
   ensureTraits();
 
-  for (const [name, trait] of traits) {
+  for (const [name, trait] of AccessibilityTraitsMap) {
     if (accessibilityTraits & trait) {
       res.push(name);
     }
@@ -208,6 +227,30 @@ function getAccessibilityTraitsFromBitmask(accessibilityTraits: number) {
 
   return res;
 }
+
+function updateAccessibilityTraits(view: View) {
+  const uiView = getUIView(view);
+  if (uiView) {
+    return;
+  }
+
+  ensureTraits();
+
+  let a11yTraits = UIAccessibilityTraitNone;
+  if (ComponentTypeMap.has(view.accessibilityComponentType)) {
+    a11yTraits |= ComponentTypeMap.get(view.accessibilityComponentType);
+  }
+
+  if (view.accessibilityTraits) {
+    a11yTraits |= inputArrayToBitMask(view.accessibilityTraits, AccessibilityTraitsMap);
+  }
+
+  uiView.accessibilityTraits = a11yTraits;
+}
+
+View.prototype[accessibilityComponentTypeCssProperty.setNative] = function accessibilityComponentTypeSetNative(this: View) {
+  updateAccessibilityTraits(this);
+};
 
 View.prototype[accessibilityTraitsProperty.getDefault] = function accessibilityTraitsGetDefault(this: View) {
   const uiView = getUIView(this);
@@ -222,24 +265,8 @@ View.prototype[accessibilityTraitsProperty.getDefault] = function accessibilityT
   return accessibilityTraits;
 };
 
-View.prototype[accessibilityTraitsProperty.setNative] = function accessibilityTraitsSetNative(
-  this: View,
-  value: View.AccessibilityTrait | View.AccessibilityTrait[],
-) {
-  const uiView = getUIView(this);
-  if (!uiView) {
-    return;
-  }
-
-  ensureTraits();
-
-  uiView.accessibilityTraits = inputArrayToBitMask(value, traits);
-
-  const newAccessibilityTraits = getAccessibilityTraitsFromBitmask(uiView.accessibilityTraits);
-
-  if (isTraceEnabled()) {
-    writeTrace(`View<${this}.ios>.accessibilityTraits -> got ${value} -> result: '${uiView.accessibilityTraits}' = '${newAccessibilityTraits}'`);
-  }
+View.prototype[accessibilityTraitsProperty.setNative] = function accessibilityTraitsSetNative(this: View) {
+  updateAccessibilityTraits(this);
 };
 
 View.prototype[accessibilityValueProperty.getDefault] = function accessibilityValueGetDefault(this: View) {

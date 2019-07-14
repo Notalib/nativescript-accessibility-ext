@@ -4,11 +4,20 @@ import { GestureTypes } from 'tns-core-modules/ui/gestures/gestures';
 import { ListView } from 'tns-core-modules/ui/list-view/list-view';
 import * as utils from 'tns-core-modules/utils/utils';
 import { categories, isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
+import { AccessibilityComponentType, AccessibilityState } from '../ui/core/view-common';
 import { notifyAccessibilityFocusState } from './helpers';
 import { isAccessibilityServiceEnabled } from './utils';
 
 function writeHelperTrace(message: string, type = trace.messageType.info) {
   writeTrace(message, type, categories.AndroidHelper);
+}
+
+export function getAndroidView(view: TNSView): android.view.View {
+  return view.nativeView || view.nativeViewProtected;
+}
+
+export function getViewCompat() {
+  return androidx.core.view.ViewCompat;
 }
 
 const AccessibilityEvent = android.view.accessibility.AccessibilityEvent;
@@ -110,6 +119,8 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
   }
 }
 
+let ComponentTypeMap: Map<string, string>;
+
 let TNSAccessibilityDelegateCompat: new (owner: TNSView) => AccessibilityDelegateCompat;
 
 function ensureDelegates() {
@@ -117,8 +128,19 @@ function ensureDelegates() {
     return;
   }
 
-  const ButtonClassName = android.widget.Button.class.getName();
-  const RadioButtonClassName = android.widget.RadioButton.class.getName();
+  ComponentTypeMap = new Map<string, string>([
+    [AccessibilityComponentType.Button, android.widget.Button.class.getName()],
+    [AccessibilityComponentType.Search, android.widget.EditText.class.getName()],
+    [AccessibilityComponentType.Image, android.widget.ImageView.class.getName()],
+    [AccessibilityComponentType.ImageButton, android.widget.ImageButton.class.getName()],
+    [AccessibilityComponentType.KeyboardKey, android.inputmethodservice.Keyboard.Key.class.getName()],
+    [AccessibilityComponentType.Text, android.widget.TextView.class.getName()],
+    [AccessibilityComponentType.Adjustable, android.widget.SeekBar.class.getName()],
+    [AccessibilityComponentType.Checkbox, android.widget.CheckBox.class.getName()],
+    [AccessibilityComponentType.RadioButton, android.widget.RadioButton.class.getName()],
+    [AccessibilityComponentType.SpinButton, android.widget.Spinner.class.getName()],
+    [AccessibilityComponentType.Switch, android.widget.Switch.class.getName()],
+  ]);
 
   class TNSAccessibilityDelegateCompatImpl extends AccessibilityDelegateCompat {
     private readonly owner: WeakRef<TNSView>;
@@ -135,17 +157,33 @@ function ensureDelegates() {
       super.onInitializeAccessibilityNodeInfo(host, info);
 
       const owner = this.owner.get();
+      if (!owner) {
+        return;
+      }
 
-      switch (owner.accessibilityComponentType as any) {
-        case AccessibilityHelper.BUTTON: {
-          info.setClassName(ButtonClassName);
+      const className = ComponentTypeMap.get(owner.accessibilityComponentType);
+      if (className) {
+        info.setClassName(className);
+      }
+
+      if (owner.accessibilityState === AccessibilityState.Disabled) {
+        info.setEnabled(false);
+      }
+
+      switch (owner.accessibilityComponentType) {
+        case AccessibilityComponentType.Header: {
+          info.setHeading(true);
           break;
         }
-        case AccessibilityHelper.RADIOBUTTON_CHECKED:
-        case AccessibilityHelper.RADIOBUTTON_UNCHECKED: {
-          info.setClassName(RadioButtonClassName);
-          info.setCheckable(true);
-          info.setChecked(owner.accessibilityComponentType === AccessibilityHelper.RADIOBUTTON_CHECKED);
+        case AccessibilityComponentType.RadioButton:
+        case AccessibilityComponentType.Checkbox: {
+          if (owner.accessibilityState === AccessibilityState.Checked) {
+            info.setChecked(true);
+          } else if (owner.accessibilityState === AccessibilityState.Unchecked) {
+            info.setChecked(false);
+          } else {
+            info.setChecked(false);
+          }
           break;
         }
       }
@@ -295,47 +333,20 @@ function ensureAccessibilityEventMap() {
   ]);
 }
 
-const lastComponentTypeSymbol = Symbol('Android:lastComponentType');
-
 export class AccessibilityHelper {
-  public static get BUTTON() {
-    return 'button';
-  }
-
-  public static get RADIOBUTTON_CHECKED() {
-    return 'radiobutton_checked';
-  }
-
-  public static get RADIOBUTTON_UNCHECKED() {
-    return 'radiobutton_unchecked';
-  }
-
-  public static get ACCESSIBLE() {
-    return 'accessible';
-  }
-
-  public static updateAccessibilityComponentType(tnsView: TNSView, androidView: AndroidView, componentType: string) {
+  public static updateAccessibilityComponentType(tnsView: TNSView) {
+    const androidView: AndroidView = getAndroidView(tnsView);
     if (isTraceEnabled()) {
-      writeHelperTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView} componentType:${componentType}`);
+      writeHelperTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView}`);
     }
 
     ensureDelegates();
 
-    if (componentType && androidView[lastComponentTypeSymbol] === componentType) {
-      if (isTraceEnabled()) {
-        writeHelperTrace(`updateAccessibilityComponentType - ${tnsView} - componentType not changed`);
-      }
-
-      if (ViewCompat.hasAccessibilityDelegate(androidView)) {
-        return;
-      }
-    }
-
     ViewCompat.setAccessibilityDelegate(androidView, new TNSAccessibilityDelegateCompat(tnsView));
-    androidView[lastComponentTypeSymbol] = componentType;
   }
 
-  public static removeAccessibilityComponentType(androidView: AndroidView) {
+  public static removeAccessibilityComponentType(tnsView: TNSView) {
+    const androidView: AndroidView = getAndroidView(tnsView);
     if (isTraceEnabled()) {
       writeHelperTrace(`removeAccessibilityComponentType from ${androidView}`);
     }
@@ -411,7 +422,7 @@ export class AccessibilityHelper {
         writeHelperTrace(`${cls} - have accessibilityLabel`);
       }
       haveValue = true;
-      contentDescriptionBuilder.push(`${tnsView.accessibilityLabel}. `);
+      contentDescriptionBuilder.push(`${tnsView.accessibilityLabel}`);
     }
 
     if (tnsView.accessibilityValue) {
@@ -419,7 +430,14 @@ export class AccessibilityHelper {
         writeHelperTrace(`${cls} - have accessibilityValue`);
       }
       haveValue = true;
-      contentDescriptionBuilder.push(`${tnsView.accessibilityValue}. `);
+      contentDescriptionBuilder.push(`${tnsView.accessibilityValue}`);
+    } else if (tnsView['text']) {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - don't have accessibilityValue but a text value`);
+      }
+
+      haveValue = true;
+      contentDescriptionBuilder.push(`${tnsView['text']}`);
     }
 
     if (tnsView.accessibilityHint) {
@@ -427,33 +445,29 @@ export class AccessibilityHelper {
         writeHelperTrace(`${cls} - have accessibilityHint`);
       }
       haveValue = true;
-      contentDescriptionBuilder.push(`${tnsView.accessibilityHint}. `);
+      contentDescriptionBuilder.push(`${tnsView.accessibilityHint}`);
     }
 
     const contentDescription = contentDescriptionBuilder
-      .join('')
+      .join('. ')
       .trim()
       .replace(/^\.$/, '');
 
-    if (contentDescription !== androidView.getContentDescription()) {
-      if (haveValue) {
-        if (isTraceEnabled()) {
-          writeHelperTrace(`${cls} - set to "${contentDescription}"`);
-        }
-        androidView.setContentDescription(contentDescription);
-      } else {
-        if (isTraceEnabled()) {
-          writeHelperTrace(`${cls} - remove value`);
-        }
-        androidView.setContentDescription(null);
-      }
-    } else {
+    if (contentDescription === androidView.getContentDescription()) {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls} - no change`);
       }
+    } else if (haveValue) {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - set to "${contentDescription}"`);
+      }
+      androidView.setContentDescription(contentDescription);
+    } else {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - remove value`);
+      }
+      androidView.setContentDescription(null);
     }
-
-    return contentDescription;
   }
 }
 

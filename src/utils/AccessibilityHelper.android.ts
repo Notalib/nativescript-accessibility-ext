@@ -135,11 +135,8 @@ function ensureDelegates() {
       super.onInitializeAccessibilityNodeInfo(host, info);
 
       const owner = this.owner.get();
-      if (!owner || !owner.accessibilityComponentType) {
-        return;
-      }
 
-      switch (owner.accessibilityComponentType) {
+      switch (owner.accessibilityComponentType as any) {
         case AccessibilityHelper.BUTTON: {
           info.setClassName(ButtonClassName);
           break;
@@ -149,8 +146,24 @@ function ensureDelegates() {
           info.setClassName(RadioButtonClassName);
           info.setCheckable(true);
           info.setChecked(owner.accessibilityComponentType === AccessibilityHelper.RADIOBUTTON_CHECKED);
+          break;
         }
       }
+    }
+
+    public onInitializeAccessibilityEvent(view: AndroidView, event: AccessibilityEvent) {
+      // for debugger
+      super.onInitializeAccessibilityEvent(view, event);
+    }
+
+    public onPopulateAccessibilityEvent(view: AndroidView, event: AccessibilityEvent) {
+      // for debugger
+      super.onPopulateAccessibilityEvent(view, event);
+    }
+
+    public dispatchPopulateAccessibilityEvent(view: AndroidView, event: AccessibilityEvent) {
+      // for debugger
+      return super.dispatchPopulateAccessibilityEvent(view, event);
     }
 
     public sendAccessibilityEvent(host: AndroidViewGroup, eventType: number) {
@@ -164,6 +177,7 @@ function ensureDelegates() {
     }
 
     public onRequestSendAccessibilityEvent(host: AndroidViewGroup, view: AndroidView, event: AccessibilityEvent) {
+      // for debugger
       return super.onRequestSendAccessibilityEvent(host, view, event);
     }
   }

@@ -3,7 +3,7 @@ import { isTraceEnabled, writeTrace } from '../../trace';
 import { AccessibilityHelper } from '../../utils/AccessibilityHelper';
 import { addCssPropertyToView, addPropertyToView, setViewFunction } from '../../utils/helpers';
 import {
-  accessibilityElementsHiddenCssProperty,
+  accessibilityHiddenCssProperty,
   accessibilityHintProperty,
   accessibilityLabelProperty,
   accessibilityValueProperty,
@@ -46,7 +46,7 @@ function getViewCompat() {
   return androidx.core.view.ViewCompat;
 }
 
-View.prototype[accessibilityElementsHiddenCssProperty.getDefault] = function accessibilityElementsHiddenGetDefault(this: View) {
+View.prototype[accessibilityHiddenCssProperty.getDefault] = function accessibilityElementsHiddenGetDefault(this: View) {
   const androidView = getAndroidView(this);
   if (!androidView) {
     if (isTraceEnabled()) {
@@ -93,7 +93,7 @@ View.prototype[accessibilityElementsHiddenCssProperty.getDefault] = function acc
   return false;
 };
 
-View.prototype[accessibilityElementsHiddenCssProperty.setNative] = function accessibilityElementsHiddenSetNative(this: View, isHidden: boolean) {
+View.prototype[accessibilityHiddenCssProperty.setNative] = function accessibilityElementsHiddenSetNative(this: View, isHidden: boolean) {
   const androidView = getAndroidView(this);
   if (!androidView) {
     return;

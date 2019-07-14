@@ -136,7 +136,7 @@ export function addCssPropertyToView<ViewClass extends View, T>(
   viewClass: ViewType<ViewClass>,
   name: string,
   cssName: string,
-  inherited: boolean,
+  inherited = false,
   defaultValue?: T,
   valueConverter?: (value: string) => T,
 ): CssProperty<Style, T> {
@@ -176,7 +176,7 @@ export function addBooleanCssPropertyToView<ViewClass extends View>(
   viewClass: ViewType<ViewClass>,
   name: string,
   cssName: string,
-  inherited: boolean,
+  inherited = false,
   defaultValue?: boolean,
 ) {
   return addCssPropertyToView(viewClass, name, cssName, inherited, defaultValue, booleanConverter);

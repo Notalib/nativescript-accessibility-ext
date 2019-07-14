@@ -3,26 +3,24 @@
 import { isIOS } from 'tns-core-modules/platform';
 import { View } from 'tns-core-modules/ui/core/view';
 import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
-import { addBooleanCssPropertyToView, addPropertyToView, setViewFunction } from '../../utils/helpers';
+import { addBooleanCssPropertyToView, addCssPropertyToView, addPropertyToView, setViewFunction } from '../../utils/helpers';
 
 export const accessiblePropertyName = 'accessible';
 export const accessibleCssName = 'a11y';
-export const accessibilityElementsHiddenPropertyName = 'accessibilityElementsHidden';
-export const accessibilityElementsHiddenCssName = 'a11y-hidden';
+export const accessibilityHiddenPropertyName = 'accessibilityHidden';
+export const accessibilityHiddenCssName = 'a11y-hidden';
+export const accessibilityIdPropertyName = 'accessibilityIdentifier';
+export const accessibilityIdCssName = 'a11y-id';
 
 // Common properties
 export const accessibleCssProperty = addBooleanCssPropertyToView(ViewCommon, accessiblePropertyName, accessibleCssName, false);
+export const accessibilityIdCssProperty = addCssPropertyToView<View, string | null>(ViewCommon, accessibilityIdPropertyName, accessibilityIdCssName, false);
+
 export const accessibilityLabelProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityLabel');
-export const accessibilityIdentifierProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityIdentifier');
 export const accessibilityValueProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityValue');
 export const accessibilityHintProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityHint');
 
-export const accessibilityElementsHiddenCssProperty = addBooleanCssPropertyToView(
-  ViewCommon,
-  accessibilityElementsHiddenPropertyName,
-  accessibilityElementsHiddenCssName,
-  !!isIOS,
-);
+export const accessibilityHiddenCssProperty = addBooleanCssPropertyToView(ViewCommon, accessibilityHiddenPropertyName, accessibilityHiddenCssName, !!isIOS);
 
 export enum AccessibilityTrait {
   /**
@@ -143,7 +141,7 @@ Object.defineProperty(View.prototype, 'importantForAccessibility', {
     return null;
   },
   set(value) {
-    console.warn(`${this}.importantForAccessibility = "${value}" is no longer supported. Please use "${accessibilityElementsHiddenPropertyName}"`);
+    console.warn(`${this}.importantForAccessibility = "${value}" is no longer supported. Please use "${accessibilityHiddenPropertyName}"`);
   },
 });
 

@@ -3,9 +3,9 @@ import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/cor
 import { isTraceEnabled, writeTrace } from '../../trace';
 import { addCssPropertyToView, addPropertyToView, inputArrayToBitMask, notifyAccessibilityFocusState, setViewFunction } from '../../utils/helpers';
 import {
-  accessibilityElementsHiddenCssProperty,
+  accessibilityHiddenCssProperty,
   accessibilityHintProperty,
-  accessibilityIdentifierProperty,
+  accessibilityIdCssProperty,
   accessibilityLabelProperty,
   accessibilityValueProperty,
   accessibleCssProperty,
@@ -276,7 +276,7 @@ View.prototype[accessibilityValueProperty.setNative] = function accessibilityVal
   uiView.accessibilityValue = null;
 };
 
-View.prototype[accessibilityElementsHiddenCssProperty.getDefault] = function accessibilityElementsHiddenGetDefault(this: View) {
+View.prototype[accessibilityHiddenCssProperty.getDefault] = function accessibilityElementsHiddenGetDefault(this: View) {
   const uiView = getUIView(this);
   if (!uiView) {
     return false;
@@ -290,7 +290,7 @@ View.prototype[accessibilityElementsHiddenCssProperty.getDefault] = function acc
   return isHidden;
 };
 
-View.prototype[accessibilityElementsHiddenCssProperty.setNative] = function accessibilityElementsHiddenSetNative(this: View, isHidden: boolean) {
+View.prototype[accessibilityHiddenCssProperty.setNative] = function accessibilityElementsHiddenSetNative(this: View, isHidden: boolean) {
   const uiView = getUIView(this);
   if (!uiView) {
     return;
@@ -396,7 +396,7 @@ View.prototype[accessibilityLabelProperty.setNative] = function accessibilityLab
   }
 };
 
-View.prototype[accessibilityIdentifierProperty.getDefault] = function accessibilityIdentifierGetDefault(this: View) {
+View.prototype[accessibilityIdCssProperty.getDefault] = function accessibilityIdentifierGetDefault(this: View) {
   const uiView = getUIView(this);
   if (!uiView) {
     return null;
@@ -409,7 +409,7 @@ View.prototype[accessibilityIdentifierProperty.getDefault] = function accessibil
   return identifier;
 };
 
-View.prototype[accessibilityIdentifierProperty.setNative] = function accessibilityIdentifierSetNative(this: View, identifier: string) {
+View.prototype[accessibilityIdCssProperty.setNative] = function accessibilityIdentifierSetNative(this: View, identifier: string) {
   const uiView = getUIView(this);
   if (!uiView) {
     return;

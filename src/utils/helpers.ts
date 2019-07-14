@@ -158,9 +158,7 @@ export function addCssPropertyToView<ViewClass extends View, T>(
     });
   }
 
-  property.register(Style);
-
-  Object.defineProperty(viewClass, name, {
+  Object.defineProperty(viewClass.prototype, name, {
     set(this: ViewClass, value: T) {
       this.style[name] = value;
     },
@@ -168,6 +166,8 @@ export function addCssPropertyToView<ViewClass extends View, T>(
       return this.style[name];
     },
   });
+
+  property.register(Style);
 
   return property;
 }

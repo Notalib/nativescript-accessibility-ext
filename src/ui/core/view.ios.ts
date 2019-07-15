@@ -1,10 +1,9 @@
 /// <reference path="./view.d.ts" />
 
-import * as nsApp from 'tns-core-modules/application';
 import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/core/view';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import { AccessibilityHelper, getUIView } from '../../utils/AccessibilityHelper';
-import { addCssPropertyToView, addPropertyToView, notifyAccessibilityFocusState, setViewFunction } from '../../utils/helpers';
+import { addCssPropertyToView, addPropertyToView, setViewFunction } from '../../utils/helpers';
 import {
   accessibilityHiddenCssProperty,
   accessibilityHintProperty,
@@ -23,101 +22,6 @@ import {
 export const accessibilityTraitsProperty = addPropertyToView<View, string | string[] | null>(ViewCommon, 'accessibilityTraits');
 export const accessibilityLanguageProperty = addCssPropertyToView<View, string>(ViewCommon, 'accessibilityLanguage', 'a11y-lang', false);
 
-View.prototype[accessibleCssProperty.getDefault] = function accessibleGetDefault(this: View) {
-  const uiView = getUIView(this);
-  if (!uiView) {
-    return false;
-  }
-
-  const isAccessible = !!uiView.isAccessibilityElement;
-  if (isTraceEnabled()) {
-    writeTrace(`View<${this}.ios>.accessible - default = ${isAccessible}`);
-  }
-  return isAccessible;
-};
-
-const accessibilityFocusObserverSymbol = Symbol.for('ios:accessibilityFocusObserver');
-const accessibilityHadFocusSymbol = Symbol.for('ios:accessibilityHadFocusSymbol');
-
-/**
- * Wrapper for setting up accessibility focus events for iOS9+
- * NOTE: This isn't supported on iOS8
- *
- * If the UIView changes from accessible = true to accessible = false, event will be removed
- *
- * @param {View} tnsView        NativeScript View
- * @param {boolean} isAccessible  is element marked as accessible
- */
-function setupAccessibilityFocusEvents(tnsView: View, isAccessible: boolean) {
-  const cls = `setupAccessibilityFocusEvents(${tnsView}, ${isAccessible})`;
-  if (typeof UIAccessibilityElementFocusedNotification === 'undefined') {
-    if (isTraceEnabled()) {
-      writeTrace(`${cls}: not supported by this iOS version`);
-    }
-    return;
-  }
-
-  if (tnsView[accessibilityFocusObserverSymbol]) {
-    if (isAccessible) {
-      if (isTraceEnabled()) {
-        writeTrace(`${cls}: Already configured no need to do so again`);
-      }
-      return;
-    }
-
-    if (isTraceEnabled()) {
-      writeTrace(`${cls}: view no longer accessible, remove listener`);
-    }
-    nsApp.ios.removeNotificationObserver(tnsView[accessibilityFocusObserverSymbol], UIAccessibilityElementFocusedNotification);
-
-    delete tnsView[accessibilityFocusObserverSymbol];
-    return;
-  }
-
-  if (!isAccessible) {
-    return;
-  }
-
-  const selfTnsView = new WeakRef<View>(tnsView);
-
-  let observer = nsApp.ios.addNotificationObserver(UIAccessibilityElementFocusedNotification, (args: NSNotification) => {
-    const localTnsView = selfTnsView.get();
-    if (!localTnsView || !localTnsView.ios) {
-      nsApp.ios.removeNotificationObserver(observer, UIAccessibilityElementFocusedNotification);
-      observer = null;
-      if (localTnsView) {
-        delete localTnsView[accessibilityFocusObserverSymbol];
-      }
-      return;
-    }
-
-    const localView = localTnsView.ios as UIView;
-
-    const object = args.userInfo.objectForKey(UIAccessibilityFocusedElementKey) as UIView;
-
-    const receivedFocus = object === localView;
-    const lostFocus = localView[accessibilityHadFocusSymbol] && !receivedFocus;
-
-    if (!receivedFocus && !lostFocus) {
-      return;
-    }
-
-    if (isTraceEnabled()) {
-      writeTrace(`${cls}, view: ${localTnsView}, receivedFocus: ${receivedFocus}, lostFocus: ${lostFocus}`);
-    }
-
-    notifyAccessibilityFocusState(localTnsView, receivedFocus, lostFocus);
-
-    if (receivedFocus) {
-      localView[accessibilityHadFocusSymbol] = true;
-    } else if (lostFocus) {
-      localView[accessibilityHadFocusSymbol] = false;
-    }
-  });
-
-  tnsView[accessibilityFocusObserverSymbol] = observer;
-}
-
 View.prototype[accessibleCssProperty.setNative] = function accessibleSetNative(this: View, isAccessible: boolean) {
   const uiView = getUIView(this);
   if (!uiView) {
@@ -130,7 +34,7 @@ View.prototype[accessibleCssProperty.setNative] = function accessibleSetNative(t
     writeTrace(`View<${this}.ios>.accessible = ${uiView.isAccessibilityElement}`);
   }
 
-  setupAccessibilityFocusEvents(this, isAccessible);
+  AccessibilityHelper.updateAccessibilityProperties(this);
 };
 
 View.prototype[accessibilityRoleCssProperty.setNative] = function accessibilityComponentTypeSetNative(this: View) {

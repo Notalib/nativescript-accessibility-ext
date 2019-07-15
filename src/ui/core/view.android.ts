@@ -1,22 +1,48 @@
 import { View } from 'tns-core-modules/ui/core/view';
 import { isTraceEnabled, writeTrace } from '../../trace';
-import { AccessibilityHelper } from '../../utils/AccessibilityHelper';
-import { setViewFunction } from '../../utils/helpers';
-import * as common from './view-common';
+import { AccessibilityHelper, getAndroidView, getViewCompat } from '../../utils/AccessibilityHelper';
+import { addCssPropertyToView, setViewFunction } from '../../utils/helpers';
+import {
+  accessibilityComponentTypeCssProperty,
+  accessibilityHiddenCssProperty,
+  accessibilityHintProperty,
+  accessibilityLabelProperty,
+  accessibilityStateCssProperty,
+  accessibilityValueProperty,
+  accessibleCssProperty,
+  androidFunctions,
+  commonFunctions,
+  ViewCommon,
+} from './view-common';
 
-function getAndroidView(view: View): android.view.View {
-  return view.nativeView || view.nativeViewProtected;
-}
+const accessibilityLiveRegionCssProperty = addCssPropertyToView<View, 'none' | 'polite' | 'assertive'>(
+  ViewCommon,
+  'accessibilityLiveRegion',
+  'a11y-live-region',
+  false,
+  'none',
+  (value: string): 'none' | 'polite' | 'assertive' => {
+    switch (`${value}`.toLowerCase()) {
+      case 'none': {
+        return 'none';
+      }
+      case 'polite': {
+        return 'polite';
+      }
+      case 'assertive': {
+        return 'assertive';
+      }
+    }
 
-function getViewCompat() {
-  return androidx.core.view.ViewCompat;
-}
+    return 'none';
+  },
+);
 
-View.prototype[common.importantForAccessibilityProperty.getDefault] = function importantForAccessibilityGetDefault(this: View) {
+View.prototype[accessibilityHiddenCssProperty.getDefault] = function accessibilityElementsHiddenGetDefault(this: View) {
   const androidView = getAndroidView(this);
   if (!androidView) {
     if (isTraceEnabled()) {
-      writeTrace(`View<${this}.android>.importantForAccessibility - default = nativeView is missing`);
+      writeTrace(`View<${this}.android>.accessibilityElementsHidden - default = nativeView is missing`);
     }
     return 'auto';
   }
@@ -25,41 +51,41 @@ View.prototype[common.importantForAccessibilityProperty.getDefault] = function i
 
   const value = viewCompat.getImportantForAccessibility(androidView);
   if (!value) {
-    return 'auto';
+    return false;
   }
 
   if (value === viewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {
     if (isTraceEnabled()) {
-      writeTrace(`View<${this}.android>.importantForAccessibility - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS`);
+      writeTrace(`View<${this}.android>.accessibilityElementsHidden - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS => true`);
     }
-    return 'no-hide-descendants';
+    return true;
   }
 
   if (value === viewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES) {
     if (isTraceEnabled()) {
-      writeTrace(`View<${this}.android>.importantForAccessibility - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES`);
+      writeTrace(`View<${this}.android>.accessibilityElementsHidden - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES => false`);
     }
-    return 'yes';
+    return false;
   }
 
   if (value === viewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO) {
     if (isTraceEnabled()) {
-      writeTrace(`View<${this}.android>.importantForAccessibility - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO`);
+      writeTrace(`View<${this}.android>.accessibilityElementsHidden - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO => true`);
     }
-    return 'no';
+    return true;
   }
 
   if (value === viewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
     if (isTraceEnabled()) {
-      writeTrace(`View<${this}.android>.importantForAccessibility - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO`);
+      writeTrace(`View<${this}.android>.accessibilityElementsHidden - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO => false`);
     }
-    return 'auto';
+    return false;
   }
 
-  return 'auto';
+  return false;
 };
 
-View.prototype[common.importantForAccessibilityProperty.setNative] = function importantForAccessibilitySetNative(this: View, value: string) {
+View.prototype[accessibilityHiddenCssProperty.setNative] = function accessibilityElementsHiddenSetNative(this: View, isHidden: boolean) {
   const androidView = getAndroidView(this);
   if (!androidView) {
     return;
@@ -67,62 +93,34 @@ View.prototype[common.importantForAccessibilityProperty.setNative] = function im
 
   const viewCompat = getViewCompat();
 
-  if (!value) {
-    viewCompat.setImportantForAccessibility(androidView, viewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
-    if (isTraceEnabled()) {
-      writeTrace(`View<${this}.android>.importantForAccessibility - value: ${value} is falsy setting to 'auto'`);
-    }
-    return;
-  }
-
-  switch (value.toLowerCase()) {
-    case 'no-hide-descendants': {
-      viewCompat.setImportantForAccessibility(androidView, viewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
-      if (isTraceEnabled()) {
-        writeTrace(`View<${this}.android>.importantForAccessibility - value: ${value}. Sets to IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS`);
-      }
-      break;
-    }
-    case 'yes': {
-      viewCompat.setImportantForAccessibility(androidView, viewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
-      if (isTraceEnabled()) {
-        writeTrace(`View<${this}.android>.importantForAccessibility - value: ${value}. Sets to IMPORTANT_FOR_ACCESSIBILITY_YES`);
-      }
-      break;
-    }
-    case 'no': {
-      viewCompat.setImportantForAccessibility(androidView, viewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
-      if (isTraceEnabled()) {
-        writeTrace(`View<${this}.android>.importantForAccessibility - value: ${value}. Sets to IMPORTANT_FOR_ACCESSIBILITY_NO`);
-      }
-      break;
-    }
-    default: {
-      viewCompat.setImportantForAccessibility(androidView, viewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
-      if (isTraceEnabled()) {
-        writeTrace(`View<${this}.android>.importantForAccessibility - value: ${value}. Sets to IMPORTANT_FOR_ACCESSIBILITY_AUTO`);
-      }
-    }
+  console.log({ isHidden });
+  if (isHidden) {
+    writeTrace(`View<${this}.android>.accessibilityElementsHidden - hide element`);
+    viewCompat.setImportantForAccessibility(androidView, viewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+  } else {
+    writeTrace(`View<${this}.android>.accessibilityElementsHidden - show element`);
+    viewCompat.setImportantForAccessibility(androidView, viewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
   }
 };
 
-View.prototype[common.accessibilityComponentTypeProperty.getDefault] = function accessibilityComponentTypeGetDefault(this: View) {
+View.prototype[accessibilityComponentTypeCssProperty.getDefault] = function accessibilityComponentTypeGetDefault(this: View) {
   return null;
 };
 
-View.prototype[common.accessibilityComponentTypeProperty.setNative] = function accessibilityComponentTypeSetNative(this: View, value: string) {
+View.prototype[accessibilityComponentTypeCssProperty.setNative] = function accessibilityComponentTypeSetNative(this: View, value: string) {
   const androidView = getAndroidView(this);
   if (!androidView) {
     return;
   }
 
-  AccessibilityHelper.updateAccessibilityComponentType(this, androidView, value);
-  if (isTraceEnabled()) {
-    writeTrace(`View<${this}.android>.accessibilityComponentType - value: ${value}.`);
-  }
+  AccessibilityHelper.updateAccessibilityComponentType(this);
 };
 
-View.prototype[common.accessibilityLiveRegionProperty.getDefault] = function accessibilityLiveRegionGetDefault(this: View) {
+View.prototype[accessibilityStateCssProperty.setNative] = function accessibilityStateSetNative(this: View) {
+  AccessibilityHelper.updateAccessibilityComponentType(this);
+};
+
+View.prototype[accessibilityLiveRegionCssProperty.getDefault] = function accessibilityLiveRegionGetDefault(this: View) {
   const androidView = getAndroidView(this);
   if (!androidView) {
     return null;
@@ -155,7 +153,7 @@ View.prototype[common.accessibilityLiveRegionProperty.getDefault] = function acc
   return null;
 };
 
-View.prototype[common.accessibilityLiveRegionProperty.setNative] = function accessibilityLiveRegionSetNative(this: View, value: string) {
+View.prototype[accessibilityLiveRegionCssProperty.setNative] = function accessibilityLiveRegionSetNative(this: View, value: string) {
   const androidView = getAndroidView(this);
   if (!androidView) {
     return;
@@ -187,7 +185,7 @@ View.prototype[common.accessibilityLiveRegionProperty.setNative] = function acce
   }
 };
 
-View.prototype[common.accessibleProperty.getDefault] = function accessibleGetDefault(this: View) {
+View.prototype[accessibleCssProperty.getDefault] = function accessibleGetDefault(this: View) {
   const androidView = getAndroidView(this);
   if (!androidView) {
     if (isTraceEnabled()) {
@@ -204,14 +202,10 @@ View.prototype[common.accessibleProperty.getDefault] = function accessibleGetDef
   return isAccessible;
 };
 
-View.prototype[common.accessibleProperty.setNative] = function accessibleSetNative(this: View, isAccessible: boolean) {
+View.prototype[accessibleCssProperty.setNative] = function accessibleSetNative(this: View, isAccessible: boolean) {
   const androidView = getAndroidView(this);
   if (!androidView) {
     return;
-  }
-
-  if (typeof isAccessible === 'string') {
-    isAccessible = `${isAccessible}`.toLowerCase() === 'true';
   }
 
   androidView.setFocusable(!!isAccessible);
@@ -221,20 +215,18 @@ View.prototype[common.accessibleProperty.setNative] = function accessibleSetNati
   }
 
   if (isAccessible) {
-    const accessibilityComponentType = this.accessibilityComponentType || AccessibilityHelper.ACCESSIBLE;
-
     if (isTraceEnabled()) {
-      writeTrace(`View<${this}.android>.accessible = ${isAccessible} -> accessibilityComponentType=${accessibilityComponentType}`);
+      writeTrace(`View<${this}.android>.accessible = ${isAccessible}`);
     }
 
-    AccessibilityHelper.updateAccessibilityComponentType(this, androidView, accessibilityComponentType);
+    AccessibilityHelper.updateAccessibilityComponentType(this);
     return;
   }
 
-  AccessibilityHelper.removeAccessibilityComponentType(androidView);
+  AccessibilityHelper.removeAccessibilityComponentType(this);
 };
 
-setViewFunction(View, common.androidFunctions.sendAccessibilityEvent, function sendAccessibilityEvent(this: View, eventName: string, msg?: string) {
+setViewFunction(View, androidFunctions.sendAccessibilityEvent, function sendAccessibilityEvent(this: View, eventName: string, msg?: string) {
   const cls = `View<${this}.android>.sendAccessibilityEvent(${eventName} -> ${msg})`;
 
   let androidView = getAndroidView(this);
@@ -268,7 +260,7 @@ setViewFunction(View, common.androidFunctions.sendAccessibilityEvent, function s
   });
 });
 
-setViewFunction(View, common.commonFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
+setViewFunction(View, commonFunctions.accessibilityAnnouncement, function accessibilityAnnouncement(this: View, msg?: string) {
   const cls = `View<${this}.android>.accessibilityAnnouncement(${JSON.stringify(msg)})`;
 
   if (isTraceEnabled()) {
@@ -286,7 +278,7 @@ setViewFunction(View, common.commonFunctions.accessibilityAnnouncement, function
   this.sendAccessibilityEvent('announcement', msg);
 });
 
-View.prototype[common.accessibilityLabelProperty.setNative] = function accessibilityLabelSetNative(this: View, label: string) {
+View.prototype[accessibilityLabelProperty.setNative] = function accessibilityLabelSetNative(this: View, label: string) {
   const androidView = getAndroidView(this);
   if (!androidView) {
     return;
@@ -298,7 +290,7 @@ View.prototype[common.accessibilityLabelProperty.setNative] = function accessibi
   }
 };
 
-View.prototype[common.accessibilityValueProperty.setNative] = function accessibilityLabelSetNative(this: View, value: string) {
+View.prototype[accessibilityValueProperty.setNative] = function accessibilityLabelSetNative(this: View, value: string) {
   const androidView = getAndroidView(this);
   if (!androidView) {
     return;
@@ -310,7 +302,7 @@ View.prototype[common.accessibilityValueProperty.setNative] = function accessibi
   }
 };
 
-View.prototype[common.accessibilityHintProperty.setNative] = function accessibilityLabelSetNative(this: View, hint: string) {
+View.prototype[accessibilityHintProperty.setNative] = function accessibilityLabelSetNative(this: View, hint: string) {
   const androidView = getAndroidView(this);
   if (!androidView) {
     return;
@@ -322,6 +314,6 @@ View.prototype[common.accessibilityHintProperty.setNative] = function accessibil
   }
 };
 
-setViewFunction(View, common.commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: View) {
+setViewFunction(View, commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: View) {
   this.sendAccessibilityEvent('window_state_changed');
 });

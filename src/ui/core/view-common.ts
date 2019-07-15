@@ -1,25 +1,56 @@
 /// <reference path="./view.d.ts" />
 
+import { isIOS } from 'tns-core-modules/platform';
 import { View } from 'tns-core-modules/ui/core/view';
 import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
-import { addBooleanPropertyToView, addPropertyToView, setViewFunction } from '../../utils/helpers';
+import { addBooleanCssPropertyToView, addCssPropertyToView, addPropertyToView, setViewFunction } from '../../utils/helpers';
+
+export const accessiblePropertyName = 'accessible';
+export const accessibleCssName = 'a11y';
+export const accessibilityHiddenPropertyName = 'accessibilityHidden';
+export const accessibilityHiddenCssName = 'a11y-hidden';
+export const accessibilityIdPropertyName = 'accessibilityIdentifier';
+export const accessibilityIdCssName = 'a11y-id';
+export const accessibilityComponentTypePropertyName = 'accessibilityComponentType';
+export const accessibilityComponentCssName = 'a11y-type';
+export const accessibilityStatePropertyName = 'accessibilityState';
+export const accessibilityStateCssName = 'a11y-state';
 
 // Common properties
-export const accessibleProperty = addBooleanPropertyToView<View>(ViewCommon, 'accessible', false);
+export const accessibleCssProperty = addBooleanCssPropertyToView(ViewCommon, accessiblePropertyName, accessibleCssName);
+export const accessibilityIdCssProperty = addCssPropertyToView<View, string | null>(ViewCommon, accessibilityIdPropertyName, accessibilityIdCssName);
+export const accessibilityComponentTypeCssProperty = addCssPropertyToView<View, string>(
+  ViewCommon,
+  accessibilityComponentTypePropertyName,
+  accessibilityComponentCssName,
+);
+
+export const accessibilityStateCssProperty = addCssPropertyToView<View, string>(
+  ViewCommon,
+  accessibilityStatePropertyName,
+  accessibilityStateCssName,
+  false,
+  undefined,
+  (value): AccessibilityState | null => {
+    if (!value) {
+      return null;
+    }
+
+    for (const [key, v] of Object.entries(AccessibilityState)) {
+      if (key === value || v === `${value}`.toLowerCase()) {
+        return v;
+      }
+    }
+
+    return null;
+  },
+);
+
 export const accessibilityLabelProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityLabel');
-export const accessibilityIdentifierProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityIdentifier');
 export const accessibilityValueProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityValue');
 export const accessibilityHintProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityHint');
 
-// iOS properties:
-export const accessibilityTraitsProperty = addPropertyToView<View, string | string[] | null>(ViewCommon, 'accessibilityTraits');
-export const accessibilityLanguageProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityLanguage');
-export const accessibilityElementsHidden = addBooleanPropertyToView<View>(ViewCommon, 'accessibilityElementsHidden', false);
-
-// Android properties
-export const importantForAccessibilityProperty = addPropertyToView<View, string>(ViewCommon, 'importantForAccessibility');
-export const accessibilityComponentTypeProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityComponentType');
-export const accessibilityLiveRegionProperty = addPropertyToView<View, string>(ViewCommon, 'accessibilityLiveRegion');
+export const accessibilityHiddenCssProperty = addBooleanCssPropertyToView(ViewCommon, accessibilityHiddenPropertyName, accessibilityHiddenCssName, !!isIOS);
 
 export enum AccessibilityTrait {
   /**
@@ -109,6 +140,37 @@ export enum AccessibilityTrait {
   Header = 'header',
 }
 
+export enum AccessibilityComponentType {
+  None = 'none',
+  Button = 'button',
+  Link = 'link',
+  Search = 'search',
+  Image = 'image',
+  ImageButton = 'image_button',
+  KeyboardKey = 'keyboard_key',
+  Text = 'text_field',
+  Adjustable = 'adjustable',
+  Summary = 'summery',
+  Header = 'header',
+  Alert = 'alert',
+  Checkbox = 'checkbox',
+  ProgressBar = 'progress_bar',
+  RadioButton = 'radiobutton',
+  SpinButton = 'spin_button',
+  Switch = 'switch',
+  Tab = 'tab',
+  TabList = 'tab_list',
+  Timer = 'timer',
+  ToolBar = 'toolbar',
+}
+
+export enum AccessibilityState {
+  Selected = 'selected',
+  Checked = 'checked',
+  Unchecked = 'unchecked',
+  Disabled = 'disabled',
+}
+
 export const commonFunctions = {
   accessibilityAnnouncement: 'accessibilityAnnouncement',
   accessibilityScreenChanged: 'accessibilityScreenChanged',
@@ -129,7 +191,55 @@ for (const fnName of Object.keys(allFunctions)) {
   setViewFunction(ViewCommon, fnName);
 }
 
-View.accessibilityFocusEvent = 'accessibilityFocus';
-View.accessibilityBlurEvent = 'accessibilityBlur';
-View.accessibilityFocusChangedEvent = 'accessibilityFocusChanged';
-View.AccessibilityTrait = AccessibilityTrait;
+Object.defineProperties(View, {
+  accessibilityFocusEvent: {
+    configurable: true,
+    get() {
+      return 'accessibilityFocus';
+    },
+  },
+  accessibilityBlurEvent: {
+    configurable: true,
+    get() {
+      return 'accessibilityBlur';
+    },
+  },
+  accessibilityFocusChangedEvent: {
+    configurable: true,
+    get() {
+      return 'accessibilityFocusChanged';
+    },
+  },
+  AccessibilityTrait: {
+    configurable: true,
+    get() {
+      return AccessibilityTrait;
+    },
+  },
+  AccessibilityComponentType: {
+    configurable: true,
+    get() {
+      return AccessibilityComponentType;
+    },
+  },
+  AccessibilityState: {
+    configurable: true,
+    get() {
+      return AccessibilityState;
+    },
+  },
+});
+
+Object.defineProperties(View.prototype, {
+  importantForAccessibility: {
+    configurable: true,
+    get() {
+      return null;
+    },
+    set(value) {
+      console.warn(`${this}.importantForAccessibility = "${value}" is no longer supported. Please use "${accessibilityHiddenPropertyName}"`);
+    },
+  },
+});
+
+export { ViewCommon };

@@ -1,8 +1,8 @@
-// @ts-ignore
 import { EventData } from 'tns-core-modules/data/observable';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
+import { AccessibilityComponentType as _AccessibilityComponentType, AccessibilityTrait as _AccessibilityTrait, AccessibilityState as _AccessibilityState } from './view-common';
 
-// @ts-ignore
+
 declare module 'tns-core-modules/ui/core/view' {
   // @ts-ignore
   type PostAccessibilityNotificationType = 'announcement' | 'screen' | 'layout';
@@ -46,15 +46,19 @@ declare module 'tns-core-modules/ui/core/view' {
      */
     accessibilityIdentifier?: string;
 
-    // Android Specific
-    importantForAccessibility?: 'yes' | 'no' | 'auto' | 'no-hide-descendants';
-    accessibilityComponentType?: 'button' | 'radiobutton_checked' | 'radiobutton_unchecked';
+    /**
+     * Hide the element from the a11y service
+     */
+    accessibilityHidden?: boolean;
+
+    accessibilityComponentType?: _AccessibilityComponentType | string;
+    accessibilityState?: _AccessibilityState | string;
+
     accessibilityLiveRegion?: 'none' | 'polite' | 'assertive';
     sendAccessibilityEvent(eventName: string, text?: string);
 
     // iOS Specific
-    accessibilityTraits?: View.AccessibilityTrait | View.AccessibilityTrait[] | string | string[];
-    accessibilityElementsHidden?: boolean;
+    accessibilityTraits?: _AccessibilityTrait | _AccessibilityTrait[] | string | string[];
 
     /**
      * Sets the language in which to speak the element's label and value.
@@ -94,94 +98,9 @@ declare module 'tns-core-modules/ui/core/view' {
     function addEventListener(eventNames: string, callback: (data: EventData) => void, thisArg?: any);
     function removeEventListener(eventNames: string, callback?: any, thisArg?: any);
 
-    // @ts-ignore
-    enum AccessibilityTrait {
-      /**
-       * The accessibility element has no traits.
-       */
-      None = 'none',
-
-      /**
-       * The accessibility element should be treated as a button.
-       */
-      Button = 'button',
-
-      /**
-       * The accessibility element should be treated as a link.
-       */
-      Link = 'link',
-
-      /**
-       * The accessibility element should be treated as a search field.
-       */
-      SearchField = 'search',
-
-      /**
-       * The accessibility element should be treated as an image.
-       */
-      Image = 'image',
-
-      /**
-       * The accessibility element is currently selected.
-       */
-      Selected = 'selected',
-
-      /**
-       * The accessibility element plays its own sound when activated.
-       */
-      PlaysSound = 'plays',
-
-      /**
-       * The accessibility element behaves as a keyboard key.
-       */
-      KeyboardKey = 'key',
-
-      /**
-       * The accessibility element should be treated as static text that cannot change.
-       */
-      StaticText = 'text',
-
-      /**
-       * The accessibility element provides summary information when the application starts.
-       */
-      SummaryElement = 'summary',
-
-      /**
-       * The accessibility element is not enabled and does not respond to user interaction.
-       */
-      NotEnabled = 'disabled',
-
-      /**
-       * The accessibility element frequently updates its label or value.
-       */
-      UpdatesFrequently = 'frequentUpdates',
-
-      /**
-       * The accessibility element starts a media session when it is activated.
-       */
-      StartsMediaSession = 'startsMedia',
-
-      /**
-       * The accessibility element allows continuous adjustment through a range of values.
-       */
-      Adjustable = 'adjustable',
-
-      /**
-       * The accessibility element allows direct touch interaction for VoiceOver users.
-       */
-      AllowsDirectInteraction = 'allowsDirectInteraction',
-
-      /**
-       * The accessibility element should cause an automatic page turn when VoiceOver finishes reading the text within it.
-       * Note: Requires custom view with accessibilityScroll(...)
-       */
-      CausesPageTurn = 'pageTurn',
-
-      /**
-       * The accessibility element is a header that divides content into sections, such as the title of a navigation bar.
-       */
-      Header = 'header',
-    }
+    const AccessibilityTrait: typeof _AccessibilityTrait;
+    const AccessibilityState: typeof _AccessibilityState;
+    const AccessibilityComponentType: typeof _AccessibilityComponentType;
   }
 
   interface AccessibilityFocusEventData extends EventData {

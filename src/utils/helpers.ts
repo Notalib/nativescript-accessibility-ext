@@ -1,6 +1,6 @@
 /// <reference path="../ui/core/view.d.ts" />
 
-import { Property } from 'tns-core-modules/ui/core/properties';
+import { CssProperty, InheritedCssProperty, Property, Style } from 'tns-core-modules/ui/core/properties';
 import {
   AccessibilityBlurEventData,
   AccessibilityFocusChangedEventData,
@@ -130,6 +130,56 @@ export function addBooleanPropertyToView<ViewClass extends View>(
   defaultValue?: boolean,
 ): Property<ViewClass, boolean> {
   return addPropertyToView(viewClass, name, defaultValue, booleanConverter);
+}
+
+export function addCssPropertyToView<ViewClass extends View, T>(
+  viewClass: ViewType<ViewClass>,
+  name: string,
+  cssName: string,
+  inherited = false,
+  defaultValue?: T,
+  valueConverter?: (value: string) => T,
+): CssProperty<Style, T> {
+  let property: CssProperty<Style, T> | InheritedCssProperty<Style, T>;
+
+  if (inherited) {
+    property = new InheritedCssProperty({
+      name,
+      cssName,
+      defaultValue,
+      valueConverter,
+    });
+  } else {
+    property = new CssProperty({
+      name,
+      cssName,
+      defaultValue,
+      valueConverter,
+    });
+  }
+
+  Object.defineProperty(viewClass.prototype, name, {
+    set(this: ViewClass, value: T) {
+      this.style[name] = value;
+    },
+    get(this: ViewClass) {
+      return this.style[name];
+    },
+  });
+
+  property.register(Style);
+
+  return property;
+}
+
+export function addBooleanCssPropertyToView<ViewClass extends View>(
+  viewClass: ViewType<ViewClass>,
+  name: string,
+  cssName: string,
+  inherited = false,
+  defaultValue?: boolean,
+) {
+  return addCssPropertyToView(viewClass, name, cssName, inherited, defaultValue, booleanConverter);
 }
 
 /**

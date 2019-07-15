@@ -4,14 +4,14 @@ import { Label } from 'tns-core-modules/ui/label';
 import { Font } from 'tns-core-modules/ui/styling/font';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
-import * as common from './label-common';
+import { accessibilityAdjustsFontSizeCssProperty } from './label-common';
 
 function getNativeView(view: View): UILabel {
   return view.ios;
 }
 
 const fontScalePropSymbol = Symbol.for('ios:fontScalePropSymbol');
-Label.prototype[common.accessibilityAdjustsFontSizeProperty.setNative] = function accessibilityAdjustsFontSizeSetNative(this: Label, value: boolean) {
+Label.prototype[accessibilityAdjustsFontSizeCssProperty.setNative] = function accessibilityAdjustsFontSizeSetNative(this: Label, value: boolean) {
   const cls = `Label<${this}.ios>.accessibilityAdjustsFontSize`;
   if (this[fontScalePropSymbol]) {
     if (value) {

@@ -86,7 +86,7 @@
     "prettier-check": "^2.0.0",
     "rimraf": "^2.6.3",
     "rxjs": "^6.5.2",
-    "tns-core-modules": "rc",
+    "tns-core-modules": "~6.0.0",
     "tslint": "^5.18.0",
     "tslint-no-circular-imports": "^0.7.0",
     "typescript": "~3.4.5",

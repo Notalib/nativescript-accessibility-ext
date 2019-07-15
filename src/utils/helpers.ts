@@ -136,7 +136,7 @@ export function addCssPropertyToView<ViewClass extends View, T>(
   viewClass: ViewType<ViewClass>,
   name: string,
   cssName: string,
-  inherited: boolean,
+  inherited = false,
   defaultValue?: T,
   valueConverter?: (value: string) => T,
 ): CssProperty<Style, T> {
@@ -158,9 +158,7 @@ export function addCssPropertyToView<ViewClass extends View, T>(
     });
   }
 
-  property.register(Style);
-
-  Object.defineProperty(viewClass, name, {
+  Object.defineProperty(viewClass.prototype, name, {
     set(this: ViewClass, value: T) {
       this.style[name] = value;
     },
@@ -169,6 +167,8 @@ export function addCssPropertyToView<ViewClass extends View, T>(
     },
   });
 
+  property.register(Style);
+
   return property;
 }
 
@@ -176,7 +176,7 @@ export function addBooleanCssPropertyToView<ViewClass extends View>(
   viewClass: ViewType<ViewClass>,
   name: string,
   cssName: string,
-  inherited: boolean,
+  inherited = false,
   defaultValue?: boolean,
 ) {
   return addCssPropertyToView(viewClass, name, cssName, inherited, defaultValue, booleanConverter);

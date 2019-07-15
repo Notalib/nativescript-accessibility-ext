@@ -4,11 +4,24 @@ import { GestureTypes } from 'tns-core-modules/ui/gestures/gestures';
 import { ListView } from 'tns-core-modules/ui/list-view/list-view';
 import * as utils from 'tns-core-modules/utils/utils';
 import { categories, isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
+import { AccessibilityRole, AccessibilityState } from '../ui/core/view-common';
 import { notifyAccessibilityFocusState } from './helpers';
 import { isAccessibilityServiceEnabled } from './utils';
 
 function writeHelperTrace(message: string, type = trace.messageType.info) {
   writeTrace(message, type, categories.AndroidHelper);
+}
+
+export function getAndroidView<T extends android.view.View>(tnsView: TNSView): T {
+  return tnsView.nativeView || tnsView.nativeViewProtected;
+}
+
+export function getViewCompat() {
+  return androidx.core.view.ViewCompat;
+}
+
+export function getUIView(tnsView: TNSView): UIView {
+  throw new Error(`getUIView(${tnsView}) - should never be called on Android`);
 }
 
 const AccessibilityEvent = android.view.accessibility.AccessibilityEvent;
@@ -23,8 +36,6 @@ const AndroidView = android.view.View;
 type AndroidView = android.view.View;
 const AndroidViewGroup = android.view.ViewGroup;
 type AndroidViewGroup = android.view.ViewGroup;
-const ViewCompat = androidx.core.view.ViewCompat;
-type ViewCompat = androidx.core.view.ViewCompat;
 
 function getAccessibilityManager(view: AndroidView): AccessibilityManager {
   return view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
@@ -111,14 +122,26 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
 }
 
 let TNSAccessibilityDelegateCompat: new (owner: TNSView) => AccessibilityDelegateCompat;
+let RoleTypeMap: Map<string, string>;
 
 function ensureDelegates() {
   if (TNSAccessibilityDelegateCompat) {
     return;
   }
 
-  const ButtonClassName = android.widget.Button.class.getName();
-  const RadioButtonClassName = android.widget.RadioButton.class.getName();
+  RoleTypeMap = new Map<AccessibilityRole, string>([
+    [AccessibilityRole.Button, android.widget.Button.class.getName()],
+    [AccessibilityRole.Search, android.widget.EditText.class.getName()],
+    [AccessibilityRole.Image, android.widget.ImageView.class.getName()],
+    [AccessibilityRole.ImageButton, android.widget.ImageButton.class.getName()],
+    [AccessibilityRole.KeyboardKey, android.inputmethodservice.Keyboard.Key.class.getName()],
+    [AccessibilityRole.StaticText, android.widget.TextView.class.getName()],
+    [AccessibilityRole.Adjustable, android.widget.SeekBar.class.getName()],
+    [AccessibilityRole.Checkbox, android.widget.CheckBox.class.getName()],
+    [AccessibilityRole.RadioButton, android.widget.RadioButton.class.getName()],
+    [AccessibilityRole.SpinButton, android.widget.Spinner.class.getName()],
+    [AccessibilityRole.Switch, android.widget.Switch.class.getName()],
+  ]);
 
   class TNSAccessibilityDelegateCompatImpl extends AccessibilityDelegateCompat {
     private readonly owner: WeakRef<TNSView>;
@@ -135,22 +158,45 @@ function ensureDelegates() {
       super.onInitializeAccessibilityNodeInfo(host, info);
 
       const owner = this.owner.get();
-      if (!owner || !owner.accessibilityComponentType) {
+      if (!owner) {
         return;
       }
 
-      switch (owner.accessibilityComponentType) {
-        case AccessibilityHelper.BUTTON: {
-          info.setClassName(ButtonClassName);
+      const className = RoleTypeMap.get(owner.accessibilityRole);
+      if (className) {
+        info.setClassName(className);
+      }
+
+      if (owner.accessibilityState === AccessibilityState.Disabled) {
+        info.setEnabled(false);
+      }
+
+      switch (owner.accessibilityRole) {
+        case AccessibilityRole.Header: {
+          info.setHeading(true);
           break;
         }
-        case AccessibilityHelper.RADIOBUTTON_CHECKED:
-        case AccessibilityHelper.RADIOBUTTON_UNCHECKED: {
-          info.setClassName(RadioButtonClassName);
-          info.setCheckable(true);
-          info.setChecked(owner.accessibilityComponentType === AccessibilityHelper.RADIOBUTTON_CHECKED);
+        case AccessibilityRole.RadioButton:
+        case AccessibilityRole.Checkbox: {
+          info.setChecked(owner.accessibilityState === AccessibilityState.Checked);
+          break;
         }
       }
+    }
+
+    public onInitializeAccessibilityEvent(view: AndroidView, event: AccessibilityEvent) {
+      // for debugger
+      super.onInitializeAccessibilityEvent(view, event);
+    }
+
+    public onPopulateAccessibilityEvent(view: AndroidView, event: AccessibilityEvent) {
+      // for debugger
+      super.onPopulateAccessibilityEvent(view, event);
+    }
+
+    public dispatchPopulateAccessibilityEvent(view: AndroidView, event: AccessibilityEvent) {
+      // for debugger
+      return super.dispatchPopulateAccessibilityEvent(view, event);
     }
 
     public sendAccessibilityEvent(host: AndroidViewGroup, eventType: number) {
@@ -164,6 +210,7 @@ function ensureDelegates() {
     }
 
     public onRequestSendAccessibilityEvent(host: AndroidViewGroup, view: AndroidView, event: AccessibilityEvent) {
+      // for debugger
       return super.onRequestSendAccessibilityEvent(host, view, event);
     }
   }
@@ -281,52 +328,21 @@ function ensureAccessibilityEventMap() {
   ]);
 }
 
-const lastComponentTypeSymbol = Symbol('Android:lastComponentType');
-
 export class AccessibilityHelper {
-  public static get BUTTON() {
-    return 'button';
-  }
-
-  public static get RADIOBUTTON_CHECKED() {
-    return 'radiobutton_checked';
-  }
-
-  public static get RADIOBUTTON_UNCHECKED() {
-    return 'radiobutton_unchecked';
-  }
-
-  public static get ACCESSIBLE() {
-    return 'accessible';
-  }
-
-  public static updateAccessibilityComponentType(tnsView: TNSView, androidView: AndroidView, componentType: string) {
+  public static updateAccessibilityProperties(tnsView: TNSView) {
+    const androidView: AndroidView = getAndroidView(tnsView);
     if (isTraceEnabled()) {
-      writeHelperTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView} componentType:${componentType}`);
+      writeHelperTrace(`updateAccessibilityProperties: tnsView:${tnsView}, androidView:${androidView}`);
     }
 
     ensureDelegates();
 
-    if (componentType && androidView[lastComponentTypeSymbol] === componentType) {
-      if (isTraceEnabled()) {
-        writeHelperTrace(`updateAccessibilityComponentType - ${tnsView} - componentType not changed`);
-      }
-
-      if (ViewCompat.hasAccessibilityDelegate(androidView)) {
-        return;
-      }
+    let delegate: AccessibilityDelegateCompat = null;
+    if (tnsView.accessible) {
+      delegate = new TNSAccessibilityDelegateCompat(tnsView);
     }
 
-    ViewCompat.setAccessibilityDelegate(androidView, new TNSAccessibilityDelegateCompat(tnsView));
-    androidView[lastComponentTypeSymbol] = componentType;
-  }
-
-  public static removeAccessibilityComponentType(androidView: AndroidView) {
-    if (isTraceEnabled()) {
-      writeHelperTrace(`removeAccessibilityComponentType from ${androidView}`);
-    }
-
-    ViewCompat.setAccessibilityDelegate(androidView, null);
+    getViewCompat().setAccessibilityDelegate(androidView, delegate);
   }
 
   public static sendAccessibilityEvent(androidView: AndroidView, eventName: string, text?: string) {
@@ -387,8 +403,17 @@ export class AccessibilityHelper {
     a11yService.sendAccessibilityEvent(a11yEvent);
   }
 
-  public static updateContentDescription(tnsView: TNSView, androidView: AndroidView) {
+  public static updateContentDescription(tnsView: TNSView) {
+    const androidView: AndroidView = getAndroidView(tnsView);
+
     const cls = `AccessibilityHelper.updateContentDescription(${tnsView}, ${androidView}`;
+
+    if (!androidView) {
+      if (isTraceEnabled()) {
+        writeErrorTrace(`${cls} - no native element`);
+      }
+      return;
+    }
 
     let contentDescriptionBuilder: string[] = [];
     let haveValue = false;
@@ -397,7 +422,7 @@ export class AccessibilityHelper {
         writeHelperTrace(`${cls} - have accessibilityLabel`);
       }
       haveValue = true;
-      contentDescriptionBuilder.push(`${tnsView.accessibilityLabel}. `);
+      contentDescriptionBuilder.push(`${tnsView.accessibilityLabel}`);
     }
 
     if (tnsView.accessibilityValue) {
@@ -405,7 +430,14 @@ export class AccessibilityHelper {
         writeHelperTrace(`${cls} - have accessibilityValue`);
       }
       haveValue = true;
-      contentDescriptionBuilder.push(`${tnsView.accessibilityValue}. `);
+      contentDescriptionBuilder.push(`${tnsView.accessibilityValue}`);
+    } else if (tnsView['text']) {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - don't have accessibilityValue but a text value`);
+      }
+
+      haveValue = true;
+      contentDescriptionBuilder.push(`${tnsView['text']}`);
     }
 
     if (tnsView.accessibilityHint) {
@@ -413,33 +445,29 @@ export class AccessibilityHelper {
         writeHelperTrace(`${cls} - have accessibilityHint`);
       }
       haveValue = true;
-      contentDescriptionBuilder.push(`${tnsView.accessibilityHint}. `);
+      contentDescriptionBuilder.push(`${tnsView.accessibilityHint}`);
     }
 
     const contentDescription = contentDescriptionBuilder
-      .join('')
+      .join('. ')
       .trim()
       .replace(/^\.$/, '');
 
-    if (contentDescription !== androidView.getContentDescription()) {
-      if (haveValue) {
-        if (isTraceEnabled()) {
-          writeHelperTrace(`${cls} - set to "${contentDescription}"`);
-        }
-        androidView.setContentDescription(contentDescription);
-      } else {
-        if (isTraceEnabled()) {
-          writeHelperTrace(`${cls} - remove value`);
-        }
-        androidView.setContentDescription(null);
-      }
-    } else {
+    if (contentDescription === androidView.getContentDescription()) {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls} - no change`);
       }
+    } else if (haveValue) {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - set to "${contentDescription}"`);
+      }
+      androidView.setContentDescription(contentDescription);
+    } else {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - remove value`);
+      }
+      androidView.setContentDescription(null);
     }
-
-    return contentDescription;
   }
 }
 
@@ -538,7 +566,7 @@ function listViewItemLoaded(event: EventData) {
     return;
   }
 
-  ViewCompat.setAccessibilityDelegate(tnsView.android, new TNSAccessibilityDelegateCompat(tnsView));
+  getViewCompat().setAccessibilityDelegate(tnsView.android, new TNSAccessibilityDelegateCompat(tnsView));
 }
 
 function setupA11yScrollOnFocus(args: any) {
@@ -567,6 +595,7 @@ function setupA11yScrollOnFocus(args: any) {
       if (isTraceEnabled()) {
         writeHelperTrace(`ItemLoading${listView}: index=${index} view is not loaded`);
       }
+
       p.on(TNSView.loadedEvent, listViewItemLoaded);
       continue;
     }
@@ -576,14 +605,14 @@ function setupA11yScrollOnFocus(args: any) {
       continue;
     }
 
-    if (ViewCompat.hasAccessibilityDelegate(androidView)) {
+    if (getViewCompat().hasAccessibilityDelegate(androidView)) {
       if (isTraceEnabled()) {
         writeHelperTrace(`ItemLoading${listView}: index=${index} view already has a delegate`);
       }
       continue;
     }
 
-    ViewCompat.setAccessibilityDelegate(androidView, new TNSAccessibilityDelegateCompat(tnsView));
+    getViewCompat().setAccessibilityDelegate(androidView, new TNSAccessibilityDelegateCompat(tnsView));
   }
 }
 

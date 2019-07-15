@@ -7,10 +7,10 @@
   "nativescript": {
     "id": "dk.nota.a11ydemo",
     "tns-ios": {
-      "version": "6.0.0-rc-2019-06-28-105002-01"
+      "version": "6.0.0"
     },
     "tns-android": {
-      "version": "6.0.0-rc-2019-06-27-172817-03"
+      "version": "6.0.0"
     }
   },
   "dependencies": {
@@ -28,7 +28,7 @@
     "nativescript-theme-core": "~1.0.6",
     "reflect-metadata": "~0.1.13",
     "rxjs": "^6.5.2",
-    "tns-core-modules": "6.0.0-rc-2019-06-28-175837-02",
+    "tns-core-modules": "6.0.1",
     "zone.js": "^0.9.1"
   },
   "devDependencies": {
@@ -36,9 +36,10 @@
     "@angular/compiler-cli": "8.0.0",
     "@nativescript/schematics": "~0.6.0",
     "@ngtools/webpack": "8.0.0",
-    "nativescript-dev-webpack": "1.0.0-rc-2019-07-02-161545-02",
-    "typescript": "3.4.1",
-    "webpack-bundle-analyzer": "~3.0.4",
-    "node-sass": "4.12.0"
+    "nativescript": "^6.0.0-2019-07-15-122841-13639",
+    "nativescript-dev-webpack": "1.0.0",
+    "node-sass": "4.12.0",
+    "typescript": "^3.4.5",
+    "webpack-bundle-analyzer": "~3.0.4"
   }
 }

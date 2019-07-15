@@ -1,42 +1,19 @@
 import { View } from 'tns-core-modules/ui/core/view';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import { AccessibilityHelper, getAndroidView, getViewCompat } from '../../utils/AccessibilityHelper';
-import { addCssPropertyToView, setViewFunction } from '../../utils/helpers';
+import { setViewFunction } from '../../utils/helpers';
 import {
-  accessibilityComponentTypeCssProperty,
   accessibilityHiddenCssProperty,
   accessibilityHintProperty,
   accessibilityLabelProperty,
+  accessibilityLiveRegionCssProperty,
+  accessibilityRoleCssProperty,
   accessibilityStateCssProperty,
   accessibilityValueProperty,
   accessibleCssProperty,
   androidFunctions,
   commonFunctions,
-  ViewCommon,
 } from './view-common';
-
-const accessibilityLiveRegionCssProperty = addCssPropertyToView<View, 'none' | 'polite' | 'assertive'>(
-  ViewCommon,
-  'accessibilityLiveRegion',
-  'a11y-live-region',
-  false,
-  'none',
-  (value: string): 'none' | 'polite' | 'assertive' => {
-    switch (`${value}`.toLowerCase()) {
-      case 'none': {
-        return 'none';
-      }
-      case 'polite': {
-        return 'polite';
-      }
-      case 'assertive': {
-        return 'assertive';
-      }
-    }
-
-    return 'none';
-  },
-);
 
 View.prototype[accessibilityHiddenCssProperty.getDefault] = function accessibilityElementsHiddenGetDefault(this: View) {
   const androidView = getAndroidView(this);
@@ -103,21 +80,21 @@ View.prototype[accessibilityHiddenCssProperty.setNative] = function accessibilit
   }
 };
 
-View.prototype[accessibilityComponentTypeCssProperty.getDefault] = function accessibilityComponentTypeGetDefault(this: View) {
+View.prototype[accessibilityRoleCssProperty.getDefault] = function accessibilityComponentTypeGetDefault(this: View) {
   return null;
 };
 
-View.prototype[accessibilityComponentTypeCssProperty.setNative] = function accessibilityComponentTypeSetNative(this: View, value: string) {
+View.prototype[accessibilityRoleCssProperty.setNative] = function accessibilityComponentTypeSetNative(this: View, value: string) {
   const androidView = getAndroidView(this);
   if (!androidView) {
     return;
   }
 
-  AccessibilityHelper.updateAccessibilityComponentType(this);
+  AccessibilityHelper.updateAccessibilityProperties(this);
 };
 
 View.prototype[accessibilityStateCssProperty.setNative] = function accessibilityStateSetNative(this: View) {
-  AccessibilityHelper.updateAccessibilityComponentType(this);
+  AccessibilityHelper.updateAccessibilityProperties(this);
 };
 
 View.prototype[accessibilityLiveRegionCssProperty.getDefault] = function accessibilityLiveRegionGetDefault(this: View) {
@@ -214,16 +191,7 @@ View.prototype[accessibleCssProperty.setNative] = function accessibleSetNative(t
     writeTrace(`View<${this}.android>.accessible = ${isAccessible}`);
   }
 
-  if (isAccessible) {
-    if (isTraceEnabled()) {
-      writeTrace(`View<${this}.android>.accessible = ${isAccessible}`);
-    }
-
-    AccessibilityHelper.updateAccessibilityComponentType(this);
-    return;
-  }
-
-  AccessibilityHelper.removeAccessibilityComponentType(this);
+  AccessibilityHelper.updateAccessibilityProperties(this);
 };
 
 setViewFunction(View, androidFunctions.sendAccessibilityEvent, function sendAccessibilityEvent(this: View, eventName: string, msg?: string) {
@@ -279,36 +247,21 @@ setViewFunction(View, commonFunctions.accessibilityAnnouncement, function access
 });
 
 View.prototype[accessibilityLabelProperty.setNative] = function accessibilityLabelSetNative(this: View, label: string) {
-  const androidView = getAndroidView(this);
-  if (!androidView) {
-    return;
-  }
-
-  const newValue = AccessibilityHelper.updateContentDescription(this, androidView);
+  const newValue = AccessibilityHelper.updateContentDescription(this);
   if (isTraceEnabled()) {
     writeTrace(`View<${this}.android>.accessibilityLabel = "${label}" - contentDesc = "${newValue}"`);
   }
 };
 
 View.prototype[accessibilityValueProperty.setNative] = function accessibilityLabelSetNative(this: View, value: string) {
-  const androidView = getAndroidView(this);
-  if (!androidView) {
-    return;
-  }
-
-  const newValue = AccessibilityHelper.updateContentDescription(this, androidView);
+  const newValue = AccessibilityHelper.updateContentDescription(this);
   if (isTraceEnabled()) {
     writeTrace(`View<${this}.android>.accessibilityValue = "${value}" - contentDesc = "${newValue}"`);
   }
 };
 
 View.prototype[accessibilityHintProperty.setNative] = function accessibilityLabelSetNative(this: View, hint: string) {
-  const androidView = getAndroidView(this);
-  if (!androidView) {
-    return;
-  }
-
-  const newValue = AccessibilityHelper.updateContentDescription(this, androidView);
+  const newValue = AccessibilityHelper.updateContentDescription(this);
   if (isTraceEnabled()) {
     writeTrace(`View<${this}.android>.accessibilityHint = "${hint}" - contentDesc = "${newValue}"`);
   }

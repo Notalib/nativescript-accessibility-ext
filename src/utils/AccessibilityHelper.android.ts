@@ -4,7 +4,7 @@ import { GestureTypes } from 'tns-core-modules/ui/gestures/gestures';
 import { ListView } from 'tns-core-modules/ui/list-view/list-view';
 import * as utils from 'tns-core-modules/utils/utils';
 import { categories, isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
-import { AccessibilityComponentType, AccessibilityState } from '../ui/core/view-common';
+import { AccessibilityRole, AccessibilityState } from '../ui/core/view-common';
 import { notifyAccessibilityFocusState } from './helpers';
 import { isAccessibilityServiceEnabled } from './utils';
 
@@ -12,12 +12,16 @@ function writeHelperTrace(message: string, type = trace.messageType.info) {
   writeTrace(message, type, categories.AndroidHelper);
 }
 
-export function getAndroidView(view: TNSView): android.view.View {
-  return view.nativeView || view.nativeViewProtected;
+export function getAndroidView<T extends android.view.View>(tnsView: TNSView): T {
+  return tnsView.nativeView || tnsView.nativeViewProtected;
 }
 
 export function getViewCompat() {
   return androidx.core.view.ViewCompat;
+}
+
+export function getUIView(tnsView: TNSView): UIView {
+  throw new Error(`getUIView(${tnsView}) - should never be called on Android`);
 }
 
 const AccessibilityEvent = android.view.accessibility.AccessibilityEvent;
@@ -32,8 +36,6 @@ const AndroidView = android.view.View;
 type AndroidView = android.view.View;
 const AndroidViewGroup = android.view.ViewGroup;
 type AndroidViewGroup = android.view.ViewGroup;
-const ViewCompat = androidx.core.view.ViewCompat;
-type ViewCompat = androidx.core.view.ViewCompat;
 
 function getAccessibilityManager(view: AndroidView): AccessibilityManager {
   return view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
@@ -119,27 +121,26 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
   }
 }
 
-let ComponentTypeMap: Map<string, string>;
-
 let TNSAccessibilityDelegateCompat: new (owner: TNSView) => AccessibilityDelegateCompat;
+let RoleTypeMap: Map<string, string>;
 
 function ensureDelegates() {
   if (TNSAccessibilityDelegateCompat) {
     return;
   }
 
-  ComponentTypeMap = new Map<string, string>([
-    [AccessibilityComponentType.Button, android.widget.Button.class.getName()],
-    [AccessibilityComponentType.Search, android.widget.EditText.class.getName()],
-    [AccessibilityComponentType.Image, android.widget.ImageView.class.getName()],
-    [AccessibilityComponentType.ImageButton, android.widget.ImageButton.class.getName()],
-    [AccessibilityComponentType.KeyboardKey, android.inputmethodservice.Keyboard.Key.class.getName()],
-    [AccessibilityComponentType.Text, android.widget.TextView.class.getName()],
-    [AccessibilityComponentType.Adjustable, android.widget.SeekBar.class.getName()],
-    [AccessibilityComponentType.Checkbox, android.widget.CheckBox.class.getName()],
-    [AccessibilityComponentType.RadioButton, android.widget.RadioButton.class.getName()],
-    [AccessibilityComponentType.SpinButton, android.widget.Spinner.class.getName()],
-    [AccessibilityComponentType.Switch, android.widget.Switch.class.getName()],
+  RoleTypeMap = new Map<AccessibilityRole, string>([
+    [AccessibilityRole.Button, android.widget.Button.class.getName()],
+    [AccessibilityRole.Search, android.widget.EditText.class.getName()],
+    [AccessibilityRole.Image, android.widget.ImageView.class.getName()],
+    [AccessibilityRole.ImageButton, android.widget.ImageButton.class.getName()],
+    [AccessibilityRole.KeyboardKey, android.inputmethodservice.Keyboard.Key.class.getName()],
+    [AccessibilityRole.StaticText, android.widget.TextView.class.getName()],
+    [AccessibilityRole.Adjustable, android.widget.SeekBar.class.getName()],
+    [AccessibilityRole.Checkbox, android.widget.CheckBox.class.getName()],
+    [AccessibilityRole.RadioButton, android.widget.RadioButton.class.getName()],
+    [AccessibilityRole.SpinButton, android.widget.Spinner.class.getName()],
+    [AccessibilityRole.Switch, android.widget.Switch.class.getName()],
   ]);
 
   class TNSAccessibilityDelegateCompatImpl extends AccessibilityDelegateCompat {
@@ -161,7 +162,7 @@ function ensureDelegates() {
         return;
       }
 
-      const className = ComponentTypeMap.get(owner.accessibilityComponentType);
+      const className = RoleTypeMap.get(owner.accessibilityRole);
       if (className) {
         info.setClassName(className);
       }
@@ -170,20 +171,14 @@ function ensureDelegates() {
         info.setEnabled(false);
       }
 
-      switch (owner.accessibilityComponentType) {
-        case AccessibilityComponentType.Header: {
+      switch (owner.accessibilityRole) {
+        case AccessibilityRole.Header: {
           info.setHeading(true);
           break;
         }
-        case AccessibilityComponentType.RadioButton:
-        case AccessibilityComponentType.Checkbox: {
-          if (owner.accessibilityState === AccessibilityState.Checked) {
-            info.setChecked(true);
-          } else if (owner.accessibilityState === AccessibilityState.Unchecked) {
-            info.setChecked(false);
-          } else {
-            info.setChecked(false);
-          }
+        case AccessibilityRole.RadioButton:
+        case AccessibilityRole.Checkbox: {
+          info.setChecked(owner.accessibilityState === AccessibilityState.Checked);
           break;
         }
       }
@@ -334,24 +329,20 @@ function ensureAccessibilityEventMap() {
 }
 
 export class AccessibilityHelper {
-  public static updateAccessibilityComponentType(tnsView: TNSView) {
+  public static updateAccessibilityProperties(tnsView: TNSView) {
     const androidView: AndroidView = getAndroidView(tnsView);
     if (isTraceEnabled()) {
-      writeHelperTrace(`updateAccessibilityComponentType: tnsView:${tnsView}, androidView:${androidView}`);
+      writeHelperTrace(`updateAccessibilityProperties: tnsView:${tnsView}, androidView:${androidView}`);
     }
 
     ensureDelegates();
 
-    ViewCompat.setAccessibilityDelegate(androidView, new TNSAccessibilityDelegateCompat(tnsView));
-  }
-
-  public static removeAccessibilityComponentType(tnsView: TNSView) {
-    const androidView: AndroidView = getAndroidView(tnsView);
-    if (isTraceEnabled()) {
-      writeHelperTrace(`removeAccessibilityComponentType from ${androidView}`);
+    let delegate: AccessibilityDelegateCompat = null;
+    if (tnsView.accessible) {
+      delegate = new TNSAccessibilityDelegateCompat(tnsView);
     }
 
-    ViewCompat.setAccessibilityDelegate(androidView, null);
+    getViewCompat().setAccessibilityDelegate(androidView, delegate);
   }
 
   public static sendAccessibilityEvent(androidView: AndroidView, eventName: string, text?: string) {
@@ -412,8 +403,17 @@ export class AccessibilityHelper {
     a11yService.sendAccessibilityEvent(a11yEvent);
   }
 
-  public static updateContentDescription(tnsView: TNSView, androidView: AndroidView) {
+  public static updateContentDescription(tnsView: TNSView) {
+    const androidView: AndroidView = getAndroidView(tnsView);
+
     const cls = `AccessibilityHelper.updateContentDescription(${tnsView}, ${androidView}`;
+
+    if (!androidView) {
+      if (isTraceEnabled()) {
+        writeErrorTrace(`${cls} - no native element`);
+      }
+      return;
+    }
 
     let contentDescriptionBuilder: string[] = [];
     let haveValue = false;
@@ -566,7 +566,7 @@ function listViewItemLoaded(event: EventData) {
     return;
   }
 
-  ViewCompat.setAccessibilityDelegate(tnsView.android, new TNSAccessibilityDelegateCompat(tnsView));
+  getViewCompat().setAccessibilityDelegate(tnsView.android, new TNSAccessibilityDelegateCompat(tnsView));
 }
 
 function setupA11yScrollOnFocus(args: any) {
@@ -595,6 +595,7 @@ function setupA11yScrollOnFocus(args: any) {
       if (isTraceEnabled()) {
         writeHelperTrace(`ItemLoading${listView}: index=${index} view is not loaded`);
       }
+
       p.on(TNSView.loadedEvent, listViewItemLoaded);
       continue;
     }
@@ -604,14 +605,14 @@ function setupA11yScrollOnFocus(args: any) {
       continue;
     }
 
-    if (ViewCompat.hasAccessibilityDelegate(androidView)) {
+    if (getViewCompat().hasAccessibilityDelegate(androidView)) {
       if (isTraceEnabled()) {
         writeHelperTrace(`ItemLoading${listView}: index=${index} view already has a delegate`);
       }
       continue;
     }
 
-    ViewCompat.setAccessibilityDelegate(androidView, new TNSAccessibilityDelegateCompat(tnsView));
+    getViewCompat().setAccessibilityDelegate(androidView, new TNSAccessibilityDelegateCompat(tnsView));
   }
 }
 

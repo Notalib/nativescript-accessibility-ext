@@ -1,6 +1,6 @@
 import { EventData } from 'tns-core-modules/data/observable';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
-import { AccessibilityComponentType as _AccessibilityComponentType, AccessibilityTrait as _AccessibilityTrait, AccessibilityState as _AccessibilityState } from './view-common';
+import { AccessibilityLiveRegion as _AccessibilityLiveRegion, AccessibilityRole as _AccessibilityComponentType, AccessibilityState as _AccessibilityState, AccessibilityTrait as _AccessibilityTrait } from './view-common';
 
 
 declare module 'tns-core-modules/ui/core/view' {
@@ -51,10 +51,10 @@ declare module 'tns-core-modules/ui/core/view' {
      */
     accessibilityHidden?: boolean;
 
-    accessibilityComponentType?: _AccessibilityComponentType | string;
+    accessibilityRole?: _AccessibilityComponentType | string;
     accessibilityState?: _AccessibilityState | string;
 
-    accessibilityLiveRegion?: 'none' | 'polite' | 'assertive';
+    accessibilityLiveRegion?: _AccessibilityLiveRegion | string;
     sendAccessibilityEvent(eventName: string, text?: string);
 
     // iOS Specific

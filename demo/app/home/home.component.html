@@ -16,7 +16,7 @@
         <Label text="You need to enable TalkBack" textWrap="true"></Label>
       </StackLayout>
       <StackLayout class="text-center h1 screen-reader a11y-service-enabled-visible">
-        <Label text="TalkBack enabled" textWrap="true"></Label>
+        <Label text="TalkBack enabled" textWrap="true" accessibilityRole="image_button"></Label>
       </StackLayout>
     </android>
   </StackLayout>
@@ -29,7 +29,7 @@
         (accessibilityFocus)="onAccessibilityFocus($event, index)"
         class="list-group-item"
         accessible="true"
-        accessibilityComponentType="button"
+        accessibilityRole="button"
       >
         <Label [text]="item.name"></Label>
       </StackLayout>

@@ -10,21 +10,15 @@ export const accessibleCssName = 'a11y';
 export const accessibilityHiddenPropertyName = 'accessibilityHidden';
 export const accessibilityHiddenCssName = 'a11y-hidden';
 export const accessibilityIdPropertyName = 'accessibilityIdentifier';
-export const accessibilityIdCssName = 'a11y-id';
-export const accessibilityComponentTypePropertyName = 'accessibilityComponentType';
-export const accessibilityComponentCssName = 'a11y-type';
+export const accessibilityRolePropertyName = 'accessibilityRole';
+export const accessibilityRoleCssName = 'a11y-role';
 export const accessibilityStatePropertyName = 'accessibilityState';
 export const accessibilityStateCssName = 'a11y-state';
 
 // Common properties
 export const accessibleCssProperty = addBooleanCssPropertyToView(ViewCommon, accessiblePropertyName, accessibleCssName);
-export const accessibilityIdCssProperty = addCssPropertyToView<View, string | null>(ViewCommon, accessibilityIdPropertyName, accessibilityIdCssName);
-export const accessibilityComponentTypeCssProperty = addCssPropertyToView<View, string>(
-  ViewCommon,
-  accessibilityComponentTypePropertyName,
-  accessibilityComponentCssName,
-);
-
+export const accessibilityIdProperty = addPropertyToView<View, string | null>(ViewCommon, accessibilityIdPropertyName);
+export const accessibilityRoleCssProperty = addCssPropertyToView<View, string>(ViewCommon, accessibilityRolePropertyName, accessibilityRoleCssName);
 export const accessibilityStateCssProperty = addCssPropertyToView<View, string>(
   ViewCommon,
   accessibilityStatePropertyName,
@@ -49,108 +43,173 @@ export const accessibilityStateCssProperty = addCssPropertyToView<View, string>(
 export const accessibilityLabelProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityLabel');
 export const accessibilityValueProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityValue');
 export const accessibilityHintProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityHint');
-
 export const accessibilityHiddenCssProperty = addBooleanCssPropertyToView(ViewCommon, accessibilityHiddenPropertyName, accessibilityHiddenCssName, !!isIOS);
+
+export const accessibilityLiveRegionCssProperty = addCssPropertyToView<View, 'none' | 'polite' | 'assertive'>(
+  ViewCommon,
+  'accessibilityLiveRegion',
+  'a11y-live-region',
+  false,
+  'none',
+  (value: string): 'none' | 'polite' | 'assertive' => {
+    switch (`${value}`.toLowerCase()) {
+      case 'none': {
+        return 'none';
+      }
+      case 'polite': {
+        return 'polite';
+      }
+      case 'assertive': {
+        return 'assertive';
+      }
+    }
+
+    return 'none';
+  },
+);
 
 export enum AccessibilityTrait {
   /**
-   * The accessibility element has no traits.
+   * The element has no traits.
    */
   None = 'none',
 
   /**
-   * The accessibility element should be treated as a button.
+   * The element should be treated as a button.
    */
   Button = 'button',
 
   /**
-   * The accessibility element should be treated as a link.
+   * The element should be treated as a link.
    */
   Link = 'link',
 
   /**
-   * The accessibility element should be treated as a search field.
+   * The element should be treated as a search field.
    */
   SearchField = 'search',
 
   /**
-   * The accessibility element should be treated as an image.
+   * The element should be treated as an image.
    */
   Image = 'image',
 
   /**
-   * The accessibility element is currently selected.
+   * The element is currently selected.
    */
   Selected = 'selected',
 
   /**
-   * The accessibility element plays its own sound when activated.
+   * The element plays its own sound when activated.
    */
   PlaysSound = 'plays',
 
   /**
-   * The accessibility element behaves as a keyboard key.
+   * The element behaves as a keyboard key.
    */
   KeyboardKey = 'key',
 
   /**
-   * The accessibility element should be treated as static text that cannot change.
+   * The element should be treated as static text that cannot change.
    */
   StaticText = 'text',
 
   /**
-   * The accessibility element provides summary information when the application starts.
+   * The element provides summary information when the application starts.
    */
   SummaryElement = 'summary',
 
   /**
-   * The accessibility element is not enabled and does not respond to user interaction.
+   * The element is not enabled and does not respond to user interaction.
    */
   NotEnabled = 'disabled',
 
   /**
-   * The accessibility element frequently updates its label or value.
+   * The element frequently updates its label or value.
    */
   UpdatesFrequently = 'frequentUpdates',
 
   /**
-   * The accessibility element starts a media session when it is activated.
+   * The element starts a media session when it is activated.
    */
   StartsMediaSession = 'startsMedia',
 
   /**
-   * The accessibility element allows continuous adjustment through a range of values.
+   * The element allows continuous adjustment through a range of values.
    */
   Adjustable = 'adjustable',
 
   /**
-   * The accessibility element allows direct touch interaction for VoiceOver users.
+   * The element allows direct touch interaction for VoiceOver users.
    */
   AllowsDirectInteraction = 'allowsDirectInteraction',
 
   /**
-   * The accessibility element should cause an automatic page turn when VoiceOver finishes reading the text within it.
+   * The element should cause an automatic page turn when VoiceOver finishes reading the text within it.
    * Note: Requires custom view with accessibilityScroll(...)
    */
   CausesPageTurn = 'pageTurn',
 
   /**
-   * The accessibility element is a header that divides content into sections, such as the title of a navigation bar.
+   * The element is a header that divides content into sections, such as the title of a navigation bar.
    */
   Header = 'header',
 }
 
-export enum AccessibilityComponentType {
+export enum AccessibilityRole {
+  /**
+   * The element has no traits.
+   */
   None = 'none',
+
+  /**
+   * The element should be treated as a button.
+   */
   Button = 'button',
+
+  /**
+   * The element should be treated as a link.
+   */
   Link = 'link',
+
+  /**
+   * The element should be treated as a search field.
+   */
   Search = 'search',
+
+  /**
+   * The element should be treated as an image.
+   */
   Image = 'image',
+
+  /**
+   * The element should be treated as a image button.
+   */
   ImageButton = 'image_button',
+
+  /**
+   * The element behaves as a keyboard key.
+   */
   KeyboardKey = 'keyboard_key',
-  Text = 'text_field',
+
+  /**
+   * The element should be treated as static text that cannot change.
+   */
+  StaticText = 'text_field',
+
+  /**
+   * The element allows continuous adjustment through a range of values.
+   */
   Adjustable = 'adjustable',
+
+  /**
+   * The element provides summary information when the application starts.
+   */
   Summary = 'summery',
+
+  /**
+   * The element is a header that divides content into sections, such as the title of a navigation bar.
+   */
   Header = 'header',
   Alert = 'alert',
   Checkbox = 'checkbox',
@@ -171,10 +230,17 @@ export enum AccessibilityState {
   Disabled = 'disabled',
 }
 
+export enum AccessibilityLiveRegion {
+  None = 'none',
+  Polite = 'polite',
+  Assertive = 'assertive',
+}
+
 export const commonFunctions = {
   accessibilityAnnouncement: 'accessibilityAnnouncement',
   accessibilityScreenChanged: 'accessibilityScreenChanged',
 };
+
 export const iosFunctions = {
   postAccessibilityNotification: 'postAccessibilityNotification',
 };
@@ -219,7 +285,7 @@ Object.defineProperties(View, {
   AccessibilityComponentType: {
     configurable: true,
     get() {
-      return AccessibilityComponentType;
+      return AccessibilityRole;
     },
   },
   AccessibilityState: {
@@ -237,7 +303,17 @@ Object.defineProperties(View.prototype, {
       return null;
     },
     set(value) {
-      console.warn(`${this}.importantForAccessibility = "${value}" is no longer supported. Please use "${accessibilityHiddenPropertyName}"`);
+      console.warn(`DEPRECATED: ${this}.importantForAccessibility = "${value}" is no longer supported. Please use "${accessibilityHiddenPropertyName}"`);
+    },
+  },
+  accessibilityComponentType: {
+    configurable: true,
+    get(this: View) {
+      return this[accessibilityRolePropertyName];
+    },
+    set(this: View, value) {
+      console.warn(`DEPRECATED: ${this}.accessibilityComponentType = "${value}" is no longer supported. Please use "${accessibilityRolePropertyName}"`);
+      this[accessibilityRolePropertyName] = value;
     },
   },
 });

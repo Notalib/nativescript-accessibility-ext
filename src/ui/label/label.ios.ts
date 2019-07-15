@@ -6,13 +6,15 @@ import { isTraceEnabled, writeTrace } from '../../trace';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
 import { accessibilityAdjustsFontSizeCssProperty } from './label-common';
 
-function getNativeView(view: View): UILabel {
+function getUIView(view: View): UILabel {
   return view.ios;
 }
 
 const fontScalePropSymbol = Symbol.for('ios:fontScalePropSymbol');
 Label.prototype[accessibilityAdjustsFontSizeCssProperty.setNative] = function accessibilityAdjustsFontSizeSetNative(this: Label, value: boolean) {
   const cls = `Label<${this}.ios>.accessibilityAdjustsFontSize`;
+  console.warn(`DEPRECATED: ${cls} is no longer supported. Please use the nativescript-theme-core extensions`);
+
   if (this[fontScalePropSymbol]) {
     if (value) {
       if (isTraceEnabled()) {
@@ -69,7 +71,7 @@ Label.prototype[accessibilityAdjustsFontSizeCssProperty.setNative] = function ac
 
       const newFont = new Font(oldFont.fontFamily, newFontSize, oldFont.fontStyle, oldFont.fontWeight);
 
-      const uiLabel = getNativeView(this);
+      const uiLabel = getUIView(this);
       uiLabel.font = newFont.getUIFont(oldUIFont);
 
       setTimeout(() => localTnsLabel.requestLayout(), 1);

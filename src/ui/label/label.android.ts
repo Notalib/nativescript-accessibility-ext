@@ -1,1 +1,1 @@
-export const dummy = null;
+import './label-common';

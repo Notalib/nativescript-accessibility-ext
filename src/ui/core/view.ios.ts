@@ -3,14 +3,15 @@
 import * as nsApp from 'tns-core-modules/application';
 import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/core/view';
 import { isTraceEnabled, writeTrace } from '../../trace';
-import { addCssPropertyToView, addPropertyToView, inputArrayToBitMask, notifyAccessibilityFocusState, setViewFunction } from '../../utils/helpers';
+import { AccessibilityHelper, getUIView } from '../../utils/AccessibilityHelper';
+import { addCssPropertyToView, addPropertyToView, notifyAccessibilityFocusState, setViewFunction } from '../../utils/helpers';
 import {
-  AccessibilityComponentType,
-  accessibilityComponentTypeCssProperty,
   accessibilityHiddenCssProperty,
   accessibilityHintProperty,
-  accessibilityIdCssProperty,
+  accessibilityIdProperty,
   accessibilityLabelProperty,
+  accessibilityLiveRegionCssProperty,
+  accessibilityRoleCssProperty,
   accessibilityValueProperty,
   accessibleCssProperty,
   commonFunctions,
@@ -21,10 +22,6 @@ import {
 // iOS properties:
 export const accessibilityTraitsProperty = addPropertyToView<View, string | string[] | null>(ViewCommon, 'accessibilityTraits');
 export const accessibilityLanguageProperty = addCssPropertyToView<View, string>(ViewCommon, 'accessibilityLanguage', 'a11y-lang', false);
-
-function getUIView(view: View): UIView {
-  return view.ios;
-}
 
 View.prototype[accessibleCssProperty.getDefault] = function accessibleGetDefault(this: View) {
   const uiView = getUIView(this);
@@ -136,137 +133,12 @@ View.prototype[accessibleCssProperty.setNative] = function accessibleSetNative(t
   setupAccessibilityFocusEvents(this, isAccessible);
 };
 
-let AccessibilityTraitsMap: Map<string, number>;
-let ComponentTypeMap: Map<string, number>;
-function ensureTraits() {
-  if (AccessibilityTraitsMap) {
-    return;
-  }
-
-  AccessibilityTraitsMap = new Map<string, number>([
-    // The accessibility element has no traits.
-    ['none', UIAccessibilityTraitNone],
-
-    // The accessibility element should be treated as a button.
-    ['button', UIAccessibilityTraitButton],
-
-    // The accessibility element should be treated as a link.
-    ['link', UIAccessibilityTraitLink],
-
-    // The accessibility element should be treated as a search field.
-    ['search', UIAccessibilityTraitSearchField],
-
-    // The accessibility element should be treated as an image.
-    ['image', UIAccessibilityTraitImage],
-
-    // The accessibility element is currently selected.
-    ['selected', UIAccessibilityTraitSelected],
-
-    // The accessibility element plays its own sound when activated.
-    ['plays', UIAccessibilityTraitPlaysSound],
-
-    // The accessibility element behaves as a keyboard key.
-    ['key', UIAccessibilityTraitKeyboardKey],
-
-    // The accessibility element should be treated as static text that cannot change.
-    ['text', UIAccessibilityTraitStaticText],
-
-    // The accessibility element provides summary information when the application starts.
-    ['summary', UIAccessibilityTraitSummaryElement],
-
-    // The accessibility element is not enabled and does not respond to user interaction.
-    ['disabled', UIAccessibilityTraitNotEnabled],
-
-    // The accessibility element frequently updates its label or value.
-    ['frequentUpdates', UIAccessibilityTraitUpdatesFrequently],
-
-    // The accessibility element starts a media session when it is activated.
-    ['startsMedia', UIAccessibilityTraitStartsMediaSession],
-
-    // The accessibility element allows continuous adjustment through a range of values.
-    ['adjustable', UIAccessibilityTraitAdjustable],
-
-    // The accessibility element allows direct touch interaction for VoiceOver users.
-    ['allowsDirectInteraction', UIAccessibilityTraitAllowsDirectInteraction],
-
-    // The accessibility element should cause an automatic page turn when VoiceOver finishes reading the text within it.
-    ['pageTurn', UIAccessibilityTraitCausesPageTurn],
-
-    // The accessibility element is a header that divides content into sections, such as the title of a navigation bar.
-    ['header', UIAccessibilityTraitHeader],
-  ]);
-
-  ComponentTypeMap = new Map<string, number>([
-    [AccessibilityComponentType.Button, UIAccessibilityTraitButton],
-    [AccessibilityComponentType.Link, UIAccessibilityTraitHeader],
-    [AccessibilityComponentType.Header, UIAccessibilityTraitLink],
-    [AccessibilityComponentType.Search, UIAccessibilityTraitSearchField],
-    [AccessibilityComponentType.Image, UIAccessibilityTraitImage],
-    [AccessibilityComponentType.ImageButton, UIAccessibilityTraitImage | UIAccessibilityTraitButton],
-    [AccessibilityComponentType.KeyboardKey, UIAccessibilityTraitKeyboardKey],
-    [AccessibilityComponentType.Text, UIAccessibilityTraitStaticText],
-    [AccessibilityComponentType.Summary, UIAccessibilityTraitSummaryElement],
-    [AccessibilityComponentType.Adjustable, UIAccessibilityTraitAdjustable],
-    [AccessibilityComponentType.Switch, UIAccessibilityTraitButton],
-  ]);
-}
-
-function getAccessibilityTraitsFromBitmask(accessibilityTraits: number) {
-  const res: string[] = [];
-  if (!accessibilityTraits) {
-    return res;
-  }
-
-  ensureTraits();
-
-  for (const [name, trait] of AccessibilityTraitsMap) {
-    if (accessibilityTraits & trait) {
-      res.push(name);
-    }
-  }
-
-  return res;
-}
-
-function updateAccessibilityTraits(view: View) {
-  const uiView = getUIView(view);
-  if (uiView) {
-    return;
-  }
-
-  ensureTraits();
-
-  let a11yTraits = UIAccessibilityTraitNone;
-  if (ComponentTypeMap.has(view.accessibilityComponentType)) {
-    a11yTraits |= ComponentTypeMap.get(view.accessibilityComponentType);
-  }
-
-  if (view.accessibilityTraits) {
-    a11yTraits |= inputArrayToBitMask(view.accessibilityTraits, AccessibilityTraitsMap);
-  }
-
-  uiView.accessibilityTraits = a11yTraits;
-}
-
-View.prototype[accessibilityComponentTypeCssProperty.setNative] = function accessibilityComponentTypeSetNative(this: View) {
-  updateAccessibilityTraits(this);
-};
-
-View.prototype[accessibilityTraitsProperty.getDefault] = function accessibilityTraitsGetDefault(this: View) {
-  const uiView = getUIView(this);
-  if (!uiView) {
-    return '';
-  }
-
-  const accessibilityTraits = getAccessibilityTraitsFromBitmask(uiView.accessibilityTraits);
-  if (isTraceEnabled()) {
-    writeTrace(`View<${this}.ios>.accessibilityTraits - default -> '${uiView.accessibilityTraits}' = '${accessibilityTraits.join(',')}'`);
-  }
-  return accessibilityTraits;
+View.prototype[accessibilityRoleCssProperty.setNative] = function accessibilityComponentTypeSetNative(this: View) {
+  AccessibilityHelper.updateAccessibilityProperties(this);
 };
 
 View.prototype[accessibilityTraitsProperty.setNative] = function accessibilityTraitsSetNative(this: View) {
-  updateAccessibilityTraits(this);
+  AccessibilityHelper.updateAccessibilityProperties(this);
 };
 
 View.prototype[accessibilityValueProperty.getDefault] = function accessibilityValueGetDefault(this: View) {
@@ -329,6 +201,10 @@ View.prototype[accessibilityHiddenCssProperty.setNative] = function accessibilit
   }
 };
 
+View.prototype[accessibilityLiveRegionCssProperty.setNative] = function accessibilityLiveRegionSetNative(this: View) {
+  AccessibilityHelper.updateAccessibilityProperties(this);
+};
+
 setViewFunction(View, iosFunctions.postAccessibilityNotification, function postAccessibilityNotification(
   this: View,
   notificationType: PostAccessibilityNotificationType,
@@ -372,6 +248,7 @@ setViewFunction(View, iosFunctions.postAccessibilityNotification, function postA
   if (isTraceEnabled()) {
     writeTrace(`${cls} - send ${notification} with ${args || null}`);
   }
+
   UIAccessibilityPostNotification(notification, args || null);
 });
 
@@ -423,7 +300,7 @@ View.prototype[accessibilityLabelProperty.setNative] = function accessibilityLab
   }
 };
 
-View.prototype[accessibilityIdCssProperty.getDefault] = function accessibilityIdentifierGetDefault(this: View) {
+View.prototype[accessibilityIdProperty.getDefault] = function accessibilityIdentifierGetDefault(this: View) {
   const uiView = getUIView(this);
   if (!uiView) {
     return null;
@@ -436,7 +313,7 @@ View.prototype[accessibilityIdCssProperty.getDefault] = function accessibilityId
   return identifier;
 };
 
-View.prototype[accessibilityIdCssProperty.setNative] = function accessibilityIdentifierSetNative(this: View, identifier: string) {
+View.prototype[accessibilityIdProperty.setNative] = function accessibilityIdentifierSetNative(this: View, identifier: string) {
   const uiView = getUIView(this);
   if (!uiView) {
     return;

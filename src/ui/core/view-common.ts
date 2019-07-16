@@ -3,70 +3,7 @@
 import { isIOS } from 'tns-core-modules/platform';
 import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/core/view';
 import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
-import { addBooleanCssPropertyToView, addCssPropertyToView, addPropertyToView, setViewFunction } from '../../utils/helpers';
-
-export const accessiblePropertyName = 'accessible';
-export const accessibleCssName = 'a11y-enabled';
-export const accessibilityHiddenPropertyName = 'accessibilityHidden';
-export const accessibilityHiddenCssName = 'a11y-hidden';
-export const accessibilityIdPropertyName = 'accessibilityIdentifier';
-export const accessibilityRolePropertyName = 'accessibilityRole';
-export const accessibilityRoleCssName = 'a11y-role';
-export const accessibilityStatePropertyName = 'accessibilityState';
-export const accessibilityStateCssName = 'a11y-state';
-
-// Common properties
-export const accessibleCssProperty = addBooleanCssPropertyToView(ViewCommon, accessiblePropertyName, accessibleCssName);
-export const accessibilityIdProperty = addPropertyToView<View, string | null>(ViewCommon, accessibilityIdPropertyName);
-export const accessibilityRoleCssProperty = addCssPropertyToView<View, string>(ViewCommon, accessibilityRolePropertyName, accessibilityRoleCssName);
-export const accessibilityStateCssProperty = addCssPropertyToView<View, string>(
-  ViewCommon,
-  accessibilityStatePropertyName,
-  accessibilityStateCssName,
-  false,
-  undefined,
-  (value): AccessibilityState | null => {
-    if (!value) {
-      return null;
-    }
-
-    for (const [key, v] of Object.entries(AccessibilityState)) {
-      if (key === value || v === `${value}`.toLowerCase()) {
-        return v;
-      }
-    }
-
-    return null;
-  },
-);
-
-export const accessibilityLabelProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityLabel');
-export const accessibilityValueProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityValue');
-export const accessibilityHintProperty = addPropertyToView<View, string | null>(ViewCommon, 'accessibilityHint');
-export const accessibilityHiddenCssProperty = addBooleanCssPropertyToView(ViewCommon, accessibilityHiddenPropertyName, accessibilityHiddenCssName, !!isIOS);
-
-export const accessibilityLiveRegionCssProperty = addCssPropertyToView<View, 'none' | 'polite' | 'assertive'>(
-  ViewCommon,
-  'accessibilityLiveRegion',
-  'a11y-live-region',
-  false,
-  'none',
-  (value: string): 'none' | 'polite' | 'assertive' => {
-    switch (`${value}`.toLowerCase()) {
-      case 'none': {
-        return 'none';
-      }
-      case 'polite': {
-        return 'polite';
-      }
-      case 'assertive': {
-        return 'assertive';
-      }
-    }
-
-    return 'none';
-  },
-);
+import { addBooleanCssPropertyToView, addCssPropertyToView, addPropertyToView, setViewFunction, makePropertyEnumConverter } from '../../utils/helpers';
 
 export enum AccessibilityTrait {
   /**
@@ -211,16 +148,11 @@ export enum AccessibilityRole {
    * The element is a header that divides content into sections, such as the title of a navigation bar.
    */
   Header = 'header',
-  Alert = 'alert',
   Checkbox = 'checkbox',
   ProgressBar = 'progress_bar',
   RadioButton = 'radiobutton',
   SpinButton = 'spin_button',
   Switch = 'switch',
-  Tab = 'tab',
-  TabList = 'tab_list',
-  Timer = 'timer',
-  ToolBar = 'toolbar',
 }
 
 export enum AccessibilityState {
@@ -268,6 +200,75 @@ setViewFunction(ViewCommon, 'sendAccessibilityEvent', function(eventName: string
 
   this[androidFunctions.androidSendAccessibilityEvent](eventName, text);
 });
+
+export const accessiblePropertyName = 'accessible';
+export const accessibleCssName = 'a11y-enabled';
+export const accessibilityHiddenPropertyName = 'accessibilityHidden';
+export const accessibilityHiddenCssName = 'a11y-hidden';
+export const accessibilityIdPropertyName = 'accessibilityIdentifier';
+export const accessibilityRolePropertyName = 'accessibilityRole';
+export const accessibilityRoleCssName = 'a11y-role';
+export const accessibilityStatePropertyName = 'accessibilityState';
+export const accessibilityStateCssName = 'a11y-state';
+export const accessibilityLabelPropertyName = 'accessibilityLabel';
+export const accessibilityValuePropertyName = 'accessibilityValue';
+export const accessibilityHintPropertyName = 'accessibilityHint';
+export const accessibilityLiveRegionPropertyName = 'accessibilityLiveRegion';
+export const accessibilityLiveRegionCssName = 'a11y-live-region';
+export const accessibilityTraitsPropertyName = 'accessibilityTraits';
+export const accessibilityLanguagePropertyName = 'accessibilityLanguage';
+export const accessibilityLanguageCssName = 'a11y-lang';
+
+// Common properties
+export const accessibleCssProperty = addBooleanCssPropertyToView(ViewCommon, accessiblePropertyName, accessibleCssName);
+export const accessibilityIdProperty = addPropertyToView<View, string | null>(ViewCommon, accessibilityIdPropertyName);
+export const accessibilityRoleCssProperty = addCssPropertyToView<View, string>(
+  ViewCommon,
+  accessibilityRolePropertyName,
+  accessibilityRoleCssName,
+  false,
+  undefined,
+  makePropertyEnumConverter<AccessibilityRole>(AccessibilityRole),
+);
+export const accessibilityStateCssProperty = addCssPropertyToView<View, string>(
+  ViewCommon,
+  accessibilityStatePropertyName,
+  accessibilityStateCssName,
+  false,
+  undefined,
+  makePropertyEnumConverter<AccessibilityState>(AccessibilityState),
+);
+
+export const accessibilityLabelProperty = addPropertyToView<View, string | null>(ViewCommon, accessibilityLabelPropertyName);
+export const accessibilityValueProperty = addPropertyToView<View, string | null>(ViewCommon, accessibilityValuePropertyName);
+export const accessibilityHintProperty = addPropertyToView<View, string | null>(ViewCommon, accessibilityHintPropertyName);
+export const accessibilityHiddenCssProperty = addBooleanCssPropertyToView(ViewCommon, accessibilityHiddenPropertyName, accessibilityHiddenCssName, !!isIOS);
+export const accessibilityLiveRegionCssProperty = addCssPropertyToView<View, 'none' | 'polite' | 'assertive'>(
+  ViewCommon,
+  accessibilityLiveRegionPropertyName,
+  accessibilityLiveRegionCssName,
+  false,
+  'none',
+  (value: string): 'none' | 'polite' | 'assertive' => {
+    switch (`${value}`.toLowerCase()) {
+      case 'none': {
+        return 'none';
+      }
+      case 'polite': {
+        return 'polite';
+      }
+      case 'assertive': {
+        return 'assertive';
+      }
+    }
+
+    return 'none';
+  },
+);
+
+// iOS properties:
+export const accessibilityTraitsProperty = addPropertyToView<View, string | string[] | null>(ViewCommon, accessibilityTraitsPropertyName);
+export const accessibilityLanguageProperty = addCssPropertyToView<View, string>(ViewCommon, accessibilityLanguagePropertyName, accessibilityLanguageCssName);
 
 Object.defineProperties(View, {
   accessibilityFocusEvent: {

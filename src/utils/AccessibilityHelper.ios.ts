@@ -202,11 +202,11 @@ export class AccessibilityHelper {
     uiView.accessibilityTraits = a11yTraits;
   }
 
-  public static sendAccessibilityEvent(androidView: android.view.View, eventName: string, text?: string) {
+  public static sendAccessibilityEvent(androidView: android.view.View, eventName: string, text?: string): void {
     throw new Error('AccessibilityHelper.sendAccessibilityEvent() - Should never be called on iOS');
   }
 
-  public static updateContentDescription(tnsView: TNSView) {
+  public static updateContentDescription(tnsView: TNSView): string {
     throw new Error('AccessibilityHelper.updateContentDescription() . Should never be called on iOS');
   }
 }

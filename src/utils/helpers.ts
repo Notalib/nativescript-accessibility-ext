@@ -17,6 +17,22 @@ export function noop() {
   // ignore
 }
 
+export function makePropertyEnumConverter<T>(enumValues: any) {
+  return (value: string): T | null => {
+    if (!value) {
+      return null;
+    }
+
+    for (const [key, v] of Object.entries<T>(enumValues)) {
+      if (key === value || `${v}` === `${value}`.toLowerCase()) {
+        return v;
+      }
+    }
+
+    return null;
+  };
+}
+
 export interface ViewType<T extends View> {
   new (): T;
 }

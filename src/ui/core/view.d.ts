@@ -1,6 +1,6 @@
 import { EventData } from 'tns-core-modules/data/observable';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
-import { AccessibilityLiveRegion as _AccessibilityLiveRegion, AccessibilityRole as _AccessibilityComponentType, AccessibilityState as _AccessibilityState, AccessibilityTrait as _AccessibilityTrait } from './view-common';
+import { AccessibilityLiveRegion as _AccessibilityLiveRegion, AccessibilityRole as _AccessibilityRole, AccessibilityState as _AccessibilityState, AccessibilityTrait as _AccessibilityTrait } from './view-common';
 
 
 declare module 'tns-core-modules/ui/core/view' {
@@ -51,7 +51,7 @@ declare module 'tns-core-modules/ui/core/view' {
      */
     accessibilityHidden?: boolean;
 
-    accessibilityRole?: _AccessibilityComponentType | string;
+    accessibilityRole?: _AccessibilityRole | string;
     accessibilityState?: _AccessibilityState | string;
 
     accessibilityLiveRegion?: _AccessibilityLiveRegion | string;
@@ -100,7 +100,7 @@ declare module 'tns-core-modules/ui/core/view' {
 
     const AccessibilityTrait: typeof _AccessibilityTrait;
     const AccessibilityState: typeof _AccessibilityState;
-    const AccessibilityComponentType: typeof _AccessibilityComponentType;
+    const AccessibilityComponentType: typeof _AccessibilityRole;
   }
 
   interface AccessibilityFocusEventData extends EventData {

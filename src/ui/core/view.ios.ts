@@ -3,24 +3,22 @@
 import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/core/view';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import { AccessibilityHelper, getUIView } from '../../utils/AccessibilityHelper';
-import { addCssPropertyToView, addPropertyToView, setViewFunction } from '../../utils/helpers';
+import { setViewFunction } from '../../utils/helpers';
 import {
   accessibilityHiddenCssProperty,
   accessibilityHintProperty,
   accessibilityIdProperty,
   accessibilityLabelProperty,
+  accessibilityLanguageProperty,
   accessibilityLiveRegionCssProperty,
   accessibilityRoleCssProperty,
+  accessibilityStateCssProperty,
+  accessibilityTraitsProperty,
   accessibilityValueProperty,
   accessibleCssProperty,
   commonFunctions,
   iosFunctions,
-  ViewCommon,
 } from './view-common';
-
-// iOS properties:
-export const accessibilityTraitsProperty = addPropertyToView<View, string | string[] | null>(ViewCommon, 'accessibilityTraits');
-export const accessibilityLanguageProperty = addCssPropertyToView<View, string>(ViewCommon, 'accessibilityLanguage', 'a11y-lang');
 
 View.prototype[accessibleCssProperty.setNative] = function accessibleSetNative(this: View, isAccessible: boolean) {
   const uiView = getUIView(this);
@@ -112,6 +110,10 @@ View.prototype[accessibilityLiveRegionCssProperty.setNative] = function accessib
   AccessibilityHelper.updateAccessibilityProperties(this);
 };
 
+View.prototype[accessibilityStateCssProperty.setNative] = function accessibilityStateSetNative(this: View) {
+  AccessibilityHelper.updateAccessibilityProperties(this);
+};
+
 setViewFunction(View, iosFunctions.iosPostAccessibilityNotification, function postAccessibilityNotification(
   this: View,
   notificationType: PostAccessibilityNotificationType,
@@ -171,6 +173,7 @@ setViewFunction(View, commonFunctions.accessibilityAnnouncement, function access
   if (isTraceEnabled()) {
     writeTrace(`${cls} - sending ${msg}`);
   }
+
   this.iosPostAccessibilityNotification('announcement', msg);
 });
 
@@ -207,19 +210,6 @@ View.prototype[accessibilityLabelProperty.setNative] = function accessibilityLab
   }
 };
 
-View.prototype[accessibilityIdProperty.getDefault] = function accessibilityIdentifierGetDefault(this: View) {
-  const uiView = getUIView(this);
-  if (!uiView) {
-    return null;
-  }
-
-  const identifier = uiView.accessibilityIdentifier;
-  if (isTraceEnabled()) {
-    writeTrace(`View<${this}.ios>.accessibilityIdentifier - default = ${identifier}`);
-  }
-  return identifier;
-};
-
 View.prototype[accessibilityIdProperty.setNative] = function accessibilityIdentifierSetNative(this: View, identifier: string) {
   const uiView = getUIView(this);
   if (!uiView) {
@@ -240,19 +230,6 @@ View.prototype[accessibilityIdProperty.setNative] = function accessibilityIdenti
   }
 };
 
-View.prototype[accessibilityLanguageProperty.getDefault] = function accessibilityLanguageGetDefault(this: View) {
-  const uiView = getUIView(this);
-  if (!uiView) {
-    return null;
-  }
-
-  const lang = uiView.accessibilityLanguage;
-  if (isTraceEnabled()) {
-    writeTrace(`View<${this}.ios>.accessibilityLanguage - default - ${lang}`);
-  }
-  return lang;
-};
-
 View.prototype[accessibilityLanguageProperty.setNative] = function accessibilityLanguageSetNative(this: View, lang: string) {
   const uiView = getUIView(this);
   if (!uiView) {
@@ -267,15 +244,6 @@ View.prototype[accessibilityLanguageProperty.setNative] = function accessibility
     writeTrace(`${cls} - falsy value setting null`);
     uiView.accessibilityLanguage = null;
   }
-};
-
-View.prototype[accessibilityHintProperty.getDefault] = function accessibilityHintGetDefault() {
-  const uiView = getUIView(this);
-  if (!uiView) {
-    return null;
-  }
-
-  return uiView.accessibilityHint;
 };
 
 View.prototype[accessibilityHintProperty.setNative] = function accessibilityHintSetNative(value: string) {

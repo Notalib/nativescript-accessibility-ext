@@ -36,9 +36,8 @@
     "@angular/compiler-cli": "8.0.0",
     "@nativescript/schematics": "~0.6.0",
     "@ngtools/webpack": "8.0.0",
-    "nativescript": "^6.0.0-2019-07-15-150533-13643",
     "nativescript-dev-webpack": "1.0.0",
     "node-sass": "4.12.0",
-    "typescript": "^3.4.5"
+    "typescript": "~3.4.5"
   }
 }

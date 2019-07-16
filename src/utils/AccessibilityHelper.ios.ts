@@ -1,6 +1,6 @@
 import * as nsApp from 'tns-core-modules/application';
 import { View as TNSView } from 'tns-core-modules/ui/core/view';
-import { isTraceEnabled, writeTrace } from 'trace';
+import { isTraceEnabled, writeTrace } from '../trace';
 import { AccessibilityLiveRegion, AccessibilityRole, AccessibilityState, AccessibilityTrait } from '../ui/core/view-common';
 import { inputArrayToBitMask, notifyAccessibilityFocusState } from './helpers';
 
@@ -8,7 +8,7 @@ export function getAndroidView<T extends android.view.View>(tnsView: TNSView): T
   throw new Error(`getAndroidView(${tnsView}) - should never be called on iOS`);
 }
 
-export function getViewCompat() {
+export function getViewCompat(): typeof androidx.core.view.ViewCompat {
   throw new Error(`getViewCompat() - should never be called on iOS`);
 }
 
@@ -202,11 +202,11 @@ export class AccessibilityHelper {
     uiView.accessibilityTraits = a11yTraits;
   }
 
-  public static sendAccessibilityEvent() {
+  public static sendAccessibilityEvent(androidView: android.view.View, eventName: string, text?: string) {
     throw new Error('AccessibilityHelper.sendAccessibilityEvent() - Should never be called on iOS');
   }
 
-  public static updateContentDescription() {
+  public static updateContentDescription(tnsView: TNSView) {
     throw new Error('AccessibilityHelper.updateContentDescription() . Should never be called on iOS');
   }
 }

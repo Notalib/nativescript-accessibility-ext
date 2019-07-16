@@ -1,7 +1,7 @@
 /// <reference path="./view.d.ts" />
 
 import { isIOS } from 'tns-core-modules/platform';
-import { View, PostAccessibilityNotificationType } from 'tns-core-modules/ui/core/view';
+import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/core/view';
 import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
 import { addBooleanCssPropertyToView, addCssPropertyToView, addPropertyToView, setViewFunction } from '../../utils/helpers';
 
@@ -314,8 +314,22 @@ Object.defineProperties(View.prototype, {
     get() {
       return null;
     },
-    set(value) {
+    set(this: View, value) {
       console.warn(`DEPRECATED: ${this}.importantForAccessibility = "${value}" is no longer supported. Please use "${accessibilityHiddenPropertyName}"`);
+      if (value && value !== 'yes') {
+        this[accessibilityHiddenPropertyName] = true;
+      }
+    },
+  },
+  accessibilityElementsHidden: {
+    configurable: true,
+    get() {
+      return null;
+    },
+    set(this: View, value) {
+      console.warn(`DEPRECATED: ${this}.accessibilityElementsHidden = "${value}" is no longer supported. Please use "${accessibilityHiddenPropertyName}"`);
+
+      this[accessibilityHiddenPropertyName] = !!value;
     },
   },
   accessibilityComponentType: {
@@ -325,7 +339,16 @@ Object.defineProperties(View.prototype, {
     },
     set(this: View, value) {
       console.warn(`DEPRECATED: ${this}.accessibilityComponentType = "${value}" is no longer supported. Please use "${accessibilityRolePropertyName}"`);
-      this[accessibilityRolePropertyName] = value;
+
+      if (value === 'radiobutton_checked') {
+        this[accessibilityRolePropertyName] = AccessibilityRole.RadioButton;
+        this[accessibilityStatePropertyName] = AccessibilityState.Checked;
+      } else if (value === 'radiobutton_unchecked') {
+        this[accessibilityRolePropertyName] = AccessibilityRole.RadioButton;
+        this[accessibilityStatePropertyName] = AccessibilityState.Unchecked;
+      } else {
+        this[accessibilityRolePropertyName] = value;
+      }
     },
   },
 });

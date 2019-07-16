@@ -107,10 +107,10 @@ When components dynamically change, we want TalkBack to alert the end user.
 #### Function: View.accessibilityAnnouncement(msg?: string) (iOS, Android)
 Make an announcement to the screen reader.
 
-| msg               | Description                                                                          |
-| ----------------- | ------------------------------------------------------------------------------------ |
-| announcement text | The text that will be read by the screen reader                                      |
-| null              | The elements automationText of the element will be read by the screen reader instead |
+| msg               | Description                                                        |
+| ----------------- | ------------------------------------------------------------------ |
+| announcement text | The text that will be read by the screen reader                    |
+| null              | The label of the element will be read by the screen reader instead |
 
 ### CSSClasses: View.ios/android
 A platform css-class is added to each view.

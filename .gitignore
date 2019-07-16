@@ -41,3 +41,4 @@ tsconfig.tsbuildinfo
 
 src/ui/core/view.android.d.ts
 src/ui/core/view.ios.d.ts
+publish/package-lock.json

@@ -23,15 +23,15 @@
                 "./node_modules/*"
             ],
             "~/*": [
-                "app/*"
+                "src/*"
             ]
         }
     },
     "files": [
-        "./app/main.ts"
+        "./src/main.ts"
     ],
     "include": [
-        "./app/**/*.ts",
+        "./src/**/*.ts",
         "../src/**/*.ts"
     ],
     "exclude": [

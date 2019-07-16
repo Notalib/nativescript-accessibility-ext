@@ -194,7 +194,7 @@ View.prototype[accessibleCssProperty.setNative] = function accessibleSetNative(t
   AccessibilityHelper.updateAccessibilityProperties(this);
 };
 
-setViewFunction(View, androidFunctions.sendAccessibilityEvent, function sendAccessibilityEvent(this: View, eventName: string, msg?: string) {
+setViewFunction(View, androidFunctions.androidSendAccessibilityEvent, function sendAccessibilityEvent(this: View, eventName: string, msg?: string) {
   const cls = `View<${this}.android>.sendAccessibilityEvent(${eventName} -> ${msg})`;
 
   let androidView = getAndroidView(this);
@@ -243,7 +243,7 @@ setViewFunction(View, commonFunctions.accessibilityAnnouncement, function access
     }
   }
 
-  this.sendAccessibilityEvent('announcement', msg);
+  this.androidSendAccessibilityEvent('announcement', msg);
 });
 
 View.prototype[accessibilityLabelProperty.setNative] = function accessibilityLabelSetNative(this: View, label: string) {
@@ -268,5 +268,5 @@ View.prototype[accessibilityHintProperty.setNative] = function accessibilityLabe
 };
 
 setViewFunction(View, commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: View) {
-  this.sendAccessibilityEvent('window_state_changed');
+  this.androidSendAccessibilityEvent('window_state_changed');
 });

@@ -55,7 +55,7 @@ declare module 'tns-core-modules/ui/core/view' {
     accessibilityState?: _AccessibilityState | string;
 
     accessibilityLiveRegion?: _AccessibilityLiveRegion | string;
-    sendAccessibilityEvent(eventName: string, text?: string);
+    androidSendAccessibilityEvent(eventName: string, text?: string);
 
     // iOS Specific
     accessibilityTraits?: _AccessibilityTrait | _AccessibilityTrait[] | string | string[];
@@ -72,7 +72,7 @@ declare module 'tns-core-modules/ui/core/view' {
      * type = 'layout' used when the layout of a screen changes.
      * type = 'screen' large change made to the screen.
      */
-    postAccessibilityNotification(type: PostAccessibilityNotificationType, args?: string);
+    iosPostAccessibilityNotification(type: PostAccessibilityNotificationType, args?: string);
   }
 
   // Adding static properties

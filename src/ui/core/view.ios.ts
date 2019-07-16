@@ -20,7 +20,7 @@ import {
 
 // iOS properties:
 export const accessibilityTraitsProperty = addPropertyToView<View, string | string[] | null>(ViewCommon, 'accessibilityTraits');
-export const accessibilityLanguageProperty = addCssPropertyToView<View, string>(ViewCommon, 'accessibilityLanguage', 'a11y-lang', false);
+export const accessibilityLanguageProperty = addCssPropertyToView<View, string>(ViewCommon, 'accessibilityLanguage', 'a11y-lang');
 
 View.prototype[accessibleCssProperty.setNative] = function accessibleSetNative(this: View, isAccessible: boolean) {
   const uiView = getUIView(this);
@@ -68,6 +68,7 @@ View.prototype[accessibilityValueProperty.setNative] = function accessibilityVal
     if (isTraceEnabled()) {
       writeTrace(`View<${this}.ios>.accessibilityValue - ${value}`);
     }
+
     uiView.accessibilityValue = `${value}`;
     return;
   }
@@ -103,13 +104,15 @@ View.prototype[accessibilityHiddenCssProperty.setNative] = function accessibilit
   if (isTraceEnabled()) {
     writeTrace(`View<${this}.ios>.accessibilityElementsHidden - ${!!isHidden}`);
   }
+
+  AccessibilityHelper.updateAccessibilityProperties(this);
 };
 
 View.prototype[accessibilityLiveRegionCssProperty.setNative] = function accessibilityLiveRegionSetNative(this: View) {
   AccessibilityHelper.updateAccessibilityProperties(this);
 };
 
-setViewFunction(View, iosFunctions.postAccessibilityNotification, function postAccessibilityNotification(
+setViewFunction(View, iosFunctions.iosPostAccessibilityNotification, function postAccessibilityNotification(
   this: View,
   notificationType: PostAccessibilityNotificationType,
   msg?: string,
@@ -168,7 +171,7 @@ setViewFunction(View, commonFunctions.accessibilityAnnouncement, function access
   if (isTraceEnabled()) {
     writeTrace(`${cls} - sending ${msg}`);
   }
-  this.postAccessibilityNotification('announcement', msg);
+  this.iosPostAccessibilityNotification('announcement', msg);
 });
 
 View.prototype[accessibilityLabelProperty.getDefault] = function accessibilityLabelGetDefault(this: View) {
@@ -285,5 +288,5 @@ View.prototype[accessibilityHintProperty.setNative] = function accessibilityHint
 };
 
 setViewFunction(View, commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: View) {
-  this.postAccessibilityNotification('screen');
+  this.iosPostAccessibilityNotification('screen');
 });

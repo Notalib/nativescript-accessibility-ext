@@ -150,7 +150,7 @@ export class AccessibilityHelper {
 
     setupAccessibilityFocusEvents(tnsView);
 
-    if (!tnsView.accessible) {
+    if (!tnsView.accessible || tnsView.accessibilityHidden) {
       uiView.accessibilityTraits = UIAccessibilityTraitNone;
       return;
     }

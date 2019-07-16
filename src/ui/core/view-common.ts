@@ -1,12 +1,12 @@
 /// <reference path="./view.d.ts" />
 
 import { isIOS } from 'tns-core-modules/platform';
-import { View } from 'tns-core-modules/ui/core/view';
+import { View, PostAccessibilityNotificationType } from 'tns-core-modules/ui/core/view';
 import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
 import { addBooleanCssPropertyToView, addCssPropertyToView, addPropertyToView, setViewFunction } from '../../utils/helpers';
 
 export const accessiblePropertyName = 'accessible';
-export const accessibleCssName = 'a11y';
+export const accessibleCssName = 'a11y-enabled';
 export const accessibilityHiddenPropertyName = 'accessibilityHidden';
 export const accessibilityHiddenCssName = 'a11y-hidden';
 export const accessibilityIdPropertyName = 'accessibilityIdentifier';
@@ -242,10 +242,10 @@ export const commonFunctions = {
 };
 
 export const iosFunctions = {
-  postAccessibilityNotification: 'postAccessibilityNotification',
+  iosPostAccessibilityNotification: 'iosPostAccessibilityNotification',
 };
 export const androidFunctions = {
-  sendAccessibilityEvent: 'sendAccessibilityEvent',
+  androidSendAccessibilityEvent: 'androidSendAccessibilityEvent',
 };
 export const allFunctions = {
   ...commonFunctions,
@@ -256,6 +256,18 @@ export const allFunctions = {
 for (const fnName of Object.keys(allFunctions)) {
   setViewFunction(ViewCommon, fnName);
 }
+
+setViewFunction(ViewCommon, 'postAccessibilityNotification', function(notificationType: PostAccessibilityNotificationType, msg?: string) {
+  console.warn(`DEPRECATED: ${this}.postAccessibilityNotification  is no longer supported. Please use "${iosFunctions.iosPostAccessibilityNotification}"`);
+
+  this[iosFunctions.iosPostAccessibilityNotification](notificationType, msg);
+});
+
+setViewFunction(ViewCommon, 'sendAccessibilityEvent', function(eventName: string, text?: string) {
+  console.warn(`DEPRECATED: ${this}.sendAccessibilityEvent  is no longer supported. Please use "${androidFunctions.androidSendAccessibilityEvent}"`);
+
+  this[androidFunctions.androidSendAccessibilityEvent](eventName, text);
+});
 
 Object.defineProperties(View, {
   accessibilityFocusEvent: {

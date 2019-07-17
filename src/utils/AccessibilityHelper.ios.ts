@@ -17,7 +17,7 @@ export function getUIView<T extends UIView>(view: TNSView): T {
 }
 
 let AccessibilityTraitsMap: Map<string, number>;
-let RoleTypeMap: Map<string, number>;
+let RoleTypeMap: Map<AccessibilityRole, number>;
 function ensureTraits() {
   if (AccessibilityTraitsMap) {
     return;
@@ -55,6 +55,7 @@ function ensureTraits() {
     [AccessibilityRole.Adjustable, UIAccessibilityTraitAdjustable],
     [AccessibilityRole.Checkbox, UIAccessibilityTraitButton],
     [AccessibilityRole.Switch, UIAccessibilityTraitButton],
+    [AccessibilityRole.RadioButton, UIAccessibilityTraitButton],
   ]);
 }
 const accessibilityFocusObserverSymbol = Symbol.for('ios:accessibilityFocusObserver');
@@ -113,7 +114,7 @@ function setupAccessibilityFocusEvents(tnsView: TNSView) {
       return;
     }
 
-    const localView = getUIView(localTnsView.ios);
+    const localView = getUIView(localTnsView);
 
     const object = args.userInfo.objectForKey(UIAccessibilityFocusedElementKey) as UIView;
 
@@ -144,11 +145,16 @@ export class AccessibilityHelper {
   public static updateAccessibilityProperties(tnsView: TNSView) {
     const uiView = getUIView(tnsView);
     if (!uiView) {
+      console.error(`${tnsView} - no uiView`);
       return;
     }
+
     ensureTraits();
 
     setupAccessibilityFocusEvents(tnsView);
+
+    const accessibilityRole = tnsView.accessibilityRole as AccessibilityRole;
+    const accessibilityState = tnsView.accessibilityState as AccessibilityState;
 
     if (!tnsView.accessible || tnsView.accessibilityHidden) {
       uiView.accessibilityTraits = UIAccessibilityTraitNone;
@@ -156,23 +162,24 @@ export class AccessibilityHelper {
     }
 
     let a11yTraits = UIAccessibilityTraitNone;
-    if (RoleTypeMap.has(tnsView.accessibilityRole)) {
-      a11yTraits |= RoleTypeMap.get(tnsView.accessibilityRole);
+    if (RoleTypeMap.has(accessibilityRole)) {
+      a11yTraits |= RoleTypeMap.get(accessibilityRole);
     }
 
-    switch (tnsView.accessibilityRole) {
+    switch (accessibilityRole) {
       case AccessibilityRole.Checkbox:
+      case AccessibilityRole.RadioButton:
       case AccessibilityRole.Switch: {
-        if (tnsView.accessibilityState === AccessibilityState.Checked) {
+        if (accessibilityState === AccessibilityState.Checked) {
           a11yTraits |= AccessibilityTraitsMap.get(AccessibilityTrait.Selected);
         }
         break;
       }
       default: {
-        if (tnsView.accessibilityState === AccessibilityState.Selected) {
+        if (accessibilityState === AccessibilityState.Selected) {
           a11yTraits |= AccessibilityTraitsMap.get(AccessibilityTrait.Selected);
         }
-        if (tnsView.accessibilityState === AccessibilityState.Disabled) {
+        if (accessibilityState === AccessibilityState.Disabled) {
           a11yTraits |= AccessibilityTraitsMap.get(AccessibilityTrait.NotEnabled);
         }
         break;
@@ -188,9 +195,7 @@ export class AccessibilityHelper {
         break;
       }
       default: {
-        if (a11yTraits & UpdatesFrequentlyTrait) {
-          a11yTraits ^= UpdatesFrequentlyTrait;
-        }
+        a11yTraits &= ~UpdatesFrequentlyTrait;
         break;
       }
     }

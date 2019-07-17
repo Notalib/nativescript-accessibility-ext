@@ -14,10 +14,10 @@ class NotaUISlider extends UISlider {
     const owner = this.owner.get();
     if (!owner) {
       this.value += 10;
-      return;
+    } else {
+      this.value = owner._handlerAccessibilityIncrementEvent();
     }
 
-    this.value = owner._handlerAccessibilityIncrementEvent();
     this.sendActionsForControlEvents(UIControlEvents.ValueChanged);
   }
 
@@ -25,10 +25,9 @@ class NotaUISlider extends UISlider {
     const owner = this.owner.get();
     if (!owner) {
       this.value += 10;
-      return;
+    } else {
+      this.value = owner._handlerAccessibilityDecrementEvent();
     }
-
-    this.value = owner._handlerAccessibilityDecrementEvent();
 
     this.sendActionsForControlEvents(UIControlEvents.ValueChanged);
   }

@@ -7,7 +7,7 @@
         <Label text="You need to enable VoiceOver" textWrap="true"></Label>
       </StackLayout>
       <StackLayout class="text-center h1 screen-reader a11y-service-enabled-visible">
-        <Label text="VoiceOver enabled" textWrap="true"  accessible="true" accessibilityRole="radiobutton" accessibilityState="checked"></Label>
+        <Label text="VoiceOver enabled" textWrap="true" class="screen-reader-enabled"></Label>
       </StackLayout>
     </ios>
 
@@ -16,7 +16,7 @@
         <Label text="You need to enable TalkBack" textWrap="true"></Label>
       </StackLayout>
       <StackLayout class="text-center h1 screen-reader a11y-service-enabled-visible">
-        <Label text="TalkBack enabled" textWrap="true" accessible="true" accessibilityRole="radiobutton" accessibilityState="checked"></Label>
+        <Label text="TalkBack enabled" textWrap="true" class="screen-reader-enabled"></Label>
       </StackLayout>
     </android>
   </StackLayout>
@@ -25,11 +25,9 @@
       <StackLayout
         [class.odd]="odd"
         [class.even]="even"
-        accessible="true"
-        (accessibilityFocus)="onAccessibilityFocus($event, index)"
         class="list-group-item"
-        accessible="true"
-        accessibilityRole="button"
+        [accessibilityLabel]="item.name"
+        (accessibilityFocus)="onAccessibilityFocus($event, index)"
       >
         <Label [text]="item.name"></Label>
       </StackLayout>

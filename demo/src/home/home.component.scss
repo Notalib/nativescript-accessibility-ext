@@ -6,4 +6,24 @@
   border-color: black;
   border-radius: 10;
   padding: 10;
+  color: #cecece;
+  background: black;
+
+  .screen-reader-enabled {
+    a11y-enabled: true;
+    a11y-role: button;
+  }
+}
+
+.list-group {
+  .list-group-item {
+    orientation: horizontal;
+    a11y-enabled: true;
+    a11y-role: button;
+
+    &.odd {
+      a11y-role: switch;
+      a11y-state: checked;
+    }
+  }
 }

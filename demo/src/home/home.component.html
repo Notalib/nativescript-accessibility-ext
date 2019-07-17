@@ -19,8 +19,9 @@
         <Label text="TalkBack enabled" textWrap="true" class="screen-reader-enabled"></Label>
       </StackLayout>
     </android>
+    <slider minValue="0" maxValue="100" value="50"></slider>
   </StackLayout>
-  <ListView row="1" [items]="source" (loaded)="onLoaded($event)" (itemLoading)="onItemLoading($event)" (itemTap)="onItemTap($event)" class="list-group">
+  <ListView row="1" [items]="source" class="list-group">
     <ng-template let-item="item" let-index="index" let-odd="odd" let-even="even">
       <StackLayout
         [class.odd]="odd"

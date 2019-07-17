@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { isAccessibilityServiceEnabled } from '@nota/nativescript-accessibility-ext/utils/utils';
 import { AccessibilityFocusEventData } from 'tns-core-modules/ui/page';
 import { LoadEventData } from 'tns-core-modules/ui/web-view/web-view';
 

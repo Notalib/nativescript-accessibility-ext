@@ -421,7 +421,7 @@ export class AccessibilityHelper {
   }
 
   public static updateContentDescription(tnsView: TNSView) {
-    const androidView: AndroidView = getAndroidView(tnsView);
+    const androidView = getAndroidView(tnsView);
 
     const cls = `AccessibilityHelper.updateContentDescription(${tnsView}, ${androidView}`;
 
@@ -439,6 +439,7 @@ export class AccessibilityHelper {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls} - have accessibilityLabel`);
       }
+
       haveValue = true;
       contentDescriptionBuilder.push(`${tnsView.accessibilityLabel}`);
     }
@@ -447,6 +448,7 @@ export class AccessibilityHelper {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls} - have accessibilityValue`);
       }
+
       haveValue = true;
       contentDescriptionBuilder.push(`${tnsView.accessibilityValue}`);
     } else if (tnsView['text']) {
@@ -487,7 +489,7 @@ export class AccessibilityHelper {
       androidView.setContentDescription(null);
     }
 
-    return androidView.getContentDescription();
+    return contentDescription;
   }
 }
 
@@ -637,7 +639,7 @@ function setupA11yScrollOnFocus(args: any) {
 }
 
 if (ListView['setupA11yScrollOnFocus']) {
-  ListView.on(ListView.itemLoadingEvent, ListView['setupA11yScrollOnFocus']);
+  ListView.off(ListView.itemLoadingEvent, ListView['setupA11yScrollOnFocus']);
 }
 ListView['setupA11yScrollOnFocus'] = setupA11yScrollOnFocus;
 

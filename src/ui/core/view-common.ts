@@ -3,7 +3,7 @@
 import { isIOS } from 'tns-core-modules/platform';
 import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/core/view';
 import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
-import { addBooleanCssPropertyToView, addCssPropertyToView, addPropertyToView, setViewFunction, makePropertyEnumConverter } from '../../utils/helpers';
+import { addBooleanCssPropertyToView, addCssPropertyToView, addPropertyToView, makePropertyEnumConverter, setViewFunction } from '../../utils/helpers';
 
 export enum AccessibilityTrait {
   /**

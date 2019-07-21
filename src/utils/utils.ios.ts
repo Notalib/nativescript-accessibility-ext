@@ -13,5 +13,6 @@ export function isAccessibilityServiceEnabled(): boolean {
   if (isTraceEnabled()) {
     writeTrace(`${cls}: isEnabled:${isEnabled}`);
   }
+
   return isEnabled;
 }

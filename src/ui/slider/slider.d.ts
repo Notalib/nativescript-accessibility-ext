@@ -3,7 +3,7 @@ import { EventData } from 'tns-core-modules/ui/page';
 
 declare module 'tns-core-modules/ui/slider' {
     interface Slider {
-        accessibilitySteps: number;
+        accessibilityStep: number;
         _handlerAccessibilityIncrementEvent(): number;
         _handlerAccessibilityDecrementEvent(): number;
     }

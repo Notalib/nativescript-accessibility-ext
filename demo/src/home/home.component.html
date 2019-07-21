@@ -1,4 +1,4 @@
-<ActionBar title="{N} accessibility" accessibilityLabel="{N} accessibility" class="action-bar"></ActionBar>
+<ActionBar title="{N} accessibility demo" accessibilityLabel="{N} accessibility demo" class="action-bar"></ActionBar>
 
 <GridLayout class="p-b-10 p-t-10" rows="auto, *" columns="*">
   <StackLayout row="0">
@@ -19,7 +19,7 @@
         <Label text="TalkBack enabled" textWrap="true" class="screen-reader-enabled"></Label>
       </StackLayout>
     </android>
-    <slider minValue="0" maxValue="100" value="50"></slider>
+    <slider minValue="0" maxValue="100" value="50" accessible="true" accessibilityStep="5" (accessibilityFocus)="onAccessibilityFocus($event)"></slider>
   </StackLayout>
   <ListView row="1" [items]="source" class="list-group">
     <ng-template let-item="item" let-index="index" let-odd="odd" let-even="even">
@@ -29,6 +29,7 @@
         class="list-group-item"
         [accessibilityLabel]="item.name"
         (accessibilityFocus)="onAccessibilityFocus($event, index)"
+        (tap)="itemTap(item)"
       >
         <Label [text]="item.name"></Label>
       </StackLayout>

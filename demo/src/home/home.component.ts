@@ -1,7 +1,13 @@
 import { Component } from '@angular/core';
 import { AccessibilityFocusEventData } from 'tns-core-modules/ui/page';
 import { LoadEventData } from 'tns-core-modules/ui/web-view/web-view';
+import { alert } from 'tns-core-modules/ui/dialogs';
 
+export interface ListItem {
+  id: number;
+  name: string;
+  role: string;
+}
 @Component({
   moduleId: module.id,
   selector: 'nota-home',
@@ -9,7 +15,7 @@ import { LoadEventData } from 'tns-core-modules/ui/web-view/web-view';
   styleUrls: ['home.component.scss'],
 })
 export class HomeComponent {
-  public readonly source = [
+  public readonly source: ListItem[] = [
     { id: 1, name: 'Ter Stegen', role: 'Goalkeeper' },
     { id: 3, name: 'Piqué', role: 'Defender' },
     { id: 4, name: 'I. Rakitic', role: 'Midfielder' },
@@ -58,11 +64,19 @@ export class HomeComponent {
     }
   }
 
-  public onAccessibilityFocus(event: AccessibilityFocusEventData, index: number) {
+  public onAccessibilityFocus(event: AccessibilityFocusEventData, index?: number) {
     const cls = `onAccessibilityFocus: index=${index}`;
 
     for (const [key, value] of Object.entries(event)) {
       console.log(`${cls} ${key}=${value}`);
     }
+  }
+
+  public itemTap(item: ListItem) {
+    alert({
+      title: item.name,
+      message: item.role,
+      okButtonText: 'Ok',
+    });
   }
 }

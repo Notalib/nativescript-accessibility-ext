@@ -1,12 +1,13 @@
 /// <reference path="./slider.d.ts" />
 
 import { AccessibilityDecrementEventData, AccessibilityIncrementEventData, Slider } from 'tns-core-modules/ui/slider';
+import { AccessibilityRole } from '../../ui/core/view-common';
 import { addCssPropertyToView, setViewFunction } from '../../utils/helpers';
 
 Slider.accessibilityDecrementEvent = 'accessibilityDecrement';
 Slider.accessibilityIncrementEvent = 'accessibilityIncrement';
 
-const accessibilityStepsPropertyName = 'accessibilitySteps';
+const accessibilityStepsPropertyName = 'accessibilityStep';
 const accessibilityStepsCssName = 'a11y-steps';
 
 export const accessibilityStepsCssProperty = addCssPropertyToView(
@@ -22,7 +23,7 @@ setViewFunction(Slider, '_handlerAccessibilityIncrementEvent', function _handler
   const args: AccessibilityIncrementEventData = {
     object: this,
     eventName: Slider.accessibilityIncrementEvent,
-    value: this.value + (this.accessibilitySteps || 10),
+    value: this.value + (this.accessibilityStep || 10),
   };
 
   this.notify(args);
@@ -34,7 +35,7 @@ setViewFunction(Slider, '_handlerAccessibilityDecrementEvent', function _handler
   const args: AccessibilityDecrementEventData = {
     object: this,
     eventName: Slider.accessibilityIncrementEvent,
-    value: this.value - (this.accessibilitySteps || 10),
+    value: this.value - (this.accessibilityStep || 10),
   };
 
   this.notify(args);
@@ -43,3 +44,10 @@ setViewFunction(Slider, '_handlerAccessibilityDecrementEvent', function _handler
 });
 
 export { Slider };
+
+Slider.on(Slider.loadedEvent, (evt) => {
+  const slider = evt.object as Slider;
+  if (!slider.accessibilityRole) {
+    slider.accessibilityRole = AccessibilityRole.Adjustable;
+  }
+});

@@ -54,7 +54,7 @@ Should only be provided if the result isn't obvious from the label.
 Set the elements unique accessibilityIdentifier.
 Important note:
 NativeScript provides the property automationText, this sets both `accessibilityLabel` AND `accessibilityIdentifier` on iOS which can break automated tests.
-If you use `accessibilityIdentifier` from this plugin, **DO NOT** use `automationText` at the same time.
+If you use this plugin, **DO NOT** use `automationText` at the same time.
 
 #### Attribute: View.accessibilityHidden (iOS, Android)
 
@@ -112,7 +112,9 @@ When components dynamically change, we want TalkBack to alert the end user.
 | polite    | Accessibility services should announce changes to this view.                                         |
 | assertive | Accessibility services should interrupt ongoing speech to immediately announce changes to this view. |
 
-**Note for iOS:** `polite` and `assertive` is treated as `accessibilityTraits.frequentUpdates`
+**Note for iOS:**
+
+`polite` and `assertive` is treated as `accessibilityTraits.frequentUpdates`
 
 **CSS-property:** `a11y-live-region` = value
 
@@ -125,15 +127,21 @@ Make an announcement to the screen reader.
 | announcement text | The text that will be read by the screen reader                    |
 | null              | The label of the element will be read by the screen reader instead |
 
-### CSSClasses: View.ios/android
+### CSSClasses: View.ns-ios/ns-android
 
 A platform css-class is added to each view.
 
+- ns-ios
+- ns-android
+
+**DEPRECATED:**
 - ios
 - android
 
 **Note:**
+
 If you need more platform css-classes, like `.notch`, `.softnav`, `.phone`, `.tablet` etc. we suggest using `nativescript-platform-css`.
+
 Import `nativescript-platform-css` before importing this plugin, to avoid conflicts.
 
 ### CSSClasses: View.a11y-fontscale-\* (iOS, Android)
@@ -173,10 +181,10 @@ The number indicated pct font scale:
 - a11y-service-disabled-hidden (hidden when the a11y service is disabled)
 
 **Note:**
-Android auto scales `Labels` by default. But iOS does not.
 
-iOS `Labels` are not scaled by default.
-We recommend using the `nativescript-theme-core` with the extension from this plugin.
+Android auto scales font `Label` out of the box. But iOS does not.
+
+To enabled for `iOS` please use `nativescript-theme-core` with our extensions from this plugin.
 
 #### To use the theme extension:
 
@@ -226,13 +234,6 @@ Set one or more traits that best fits the element. Comma or space separated list
 | allowsDirectInteraction | Used when an element allows direct touch interaction for VoiceOver users (for example, a view representing a piano keyboard).                                                                                                               |
 | pageTurn                | Informs VoiceOver that it should scroll to the next page when it finishes reading the contents of the element.                                                                                                                              |
 
-## Attribute: Label.accessibilityAdjustsFontSize (iOS) DEPRECATED - use the theme instead.
-
-Scales the font on a Label on iOS according to the settings in Settings -> General -> Accessibility -> Larger text
-On Android this is handled automatically, on iOS you have to specify it yourself.
-Note: It's similar to UILabel.adjustsFontForContentSizeCategory but affects all fonts not just the preferredFonts.
-Note: Font Scale between 50% and 400%. 200% -> 400% are extra large accessibility font scaling
-
 #### Function: View.iosPostAccessibilityNotification(notificationType: string, arg?: string | null) (iOS)
 
 Post an accessibility notification to iOS.
@@ -252,6 +253,19 @@ el.iosPostAccessibilityNotification(notificationType, arg);
 | text | notificationType = 'announcement': Announcement text to be read                                                                                                        |
 | null | notificationType = 'layout': do nothing. notificationType = 'screen': auto selects, the first accessible element within this element will be given accessibility focus |
 
+#### Attribute: Label.accessibilityAdjustsFontSize (iOS) DEPRECATED - use the theme instead.
+
+Scales the font on a Label on iOS according to the settings in Settings -> General -> Accessibility -> Larger text
+On Android this is handled automatically, on iOS you have to specify it yourself.
+Note: It's similar to UILabel.adjustsFontForContentSizeCategory but affects all fonts not just the preferredFonts.
+Note: Font Scale between 50% and 400%. 200% -> 400% are extra large accessibility font scaling
+
+### Attribute: Slider.accessibilityStep (iOS)
+
+Change the increment/decrement step size for the swipe `up` / `down` gesture.
+
+Default step size is **10**
+
 ### Attributes and functions for `Android`-only
 
 #### Function: View.androidSendAccessibilityEvent(eventName: string, msg?: text) (Android)
@@ -259,7 +273,7 @@ el.iosPostAccessibilityNotification(notificationType, arg);
 Trigger an accessibility event on Android
 
 ```typescript
-el.sendAccessibilityEvent(eventName, msg);
+el.androidSendAccessibilityEvent(eventName, msg);
 ```
 
 | eventName                                   | Description                                                                                                                 |

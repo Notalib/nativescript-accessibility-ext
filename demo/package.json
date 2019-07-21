@@ -7,7 +7,7 @@
   "nativescript": {
     "id": "dk.nota.a11ydemo",
     "tns-ios": {
-      "version": "6.0.0"
+      "version": "6.0.1"
     },
     "tns-android": {
       "version": "6.0.0"
@@ -36,7 +36,7 @@
     "@angular/compiler-cli": "8.0.0",
     "@nativescript/schematics": "~0.6.0",
     "@ngtools/webpack": "8.0.0",
-    "nativescript-dev-webpack": "1.0.0",
+    "nativescript-dev-webpack": "1.0.1",
     "node-sass": "4.12.0",
     "typescript": "~3.4.5"
   }

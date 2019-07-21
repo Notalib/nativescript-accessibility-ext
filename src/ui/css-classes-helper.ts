@@ -33,7 +33,7 @@ const fontScaleCssClasses = new Map(
  **/
 const loadedViewRefs = new Set<WeakRef<View>>();
 
-const platformClass = isAndroid ? 'android' : 'ios';
+const platformClass = isAndroid ? 'ns-android' : 'ns-ios';
 const fontExtraSmallClass = `a11y-fontscale-xs`;
 const fontExtraMediumClass = `a11y-fontscale-m`;
 const fontExtraLargeClass = `a11y-fontscale-xl`;
@@ -67,6 +67,7 @@ function setViewHelperCssClasses(
 
   const prevViewClassName = view.className || '';
   viewSetCssClass(view, platformClass, true);
+  viewSetCssClass(view, platformClass.replace(/^ns-/, ''), true);
   viewSetCssClass(view, a11yServiceEnabledClass, a11yServiceEnabled);
   viewSetCssClass(view, a11yServiceDisabledClass, !a11yServiceEnabled);
 

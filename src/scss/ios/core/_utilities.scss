@@ -5,8 +5,10 @@ NTIcon,
   @each $scaleName, $params in $a11y-font-scales {
     $factor: map-get($params, factor);
 
-    &.ayfs-#{$scaleName} {
-      font-size: $nt-icon-font-size * $factor;
+    @if $factor != 1 {
+      &.ayfs-#{$scaleName} {
+        font-size: $nt-icon-font-size * $factor;
+      }
     }
   }
 }

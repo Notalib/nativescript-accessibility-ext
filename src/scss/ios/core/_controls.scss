@@ -7,16 +7,18 @@ NTActionBar,
   @each $scaleName, $params in $a11y-font-scales {
     $factor: map-get($params, factor);
 
-    &.ayfs-#{$scaleName} {
-      .action-bar-title {
-        font-size: $action-bar-font-size * $factor;
-      }
+    @if $factor != 1 {
+      &.ayfs-#{$scaleName} {
+        .action-bar-title {
+          font-size: $action-bar-font-size * $factor;
+        }
 
-      NTIcon,
-      label,
-      button,
-      .nt-action-bar__item {
-        font-size: $action-bar-item-font-size * $factor;
+        NTIcon,
+        label,
+        button,
+        .nt-action-bar__item {
+          font-size: $action-bar-item-font-size * $factor;
+        }
       }
     }
   }
@@ -27,8 +29,10 @@ button,
   @each $scaleName, $params in $a11y-font-scales {
     $factor: map-get($params, factor);
 
-    &.ayfs-#{$scaleName} {
-      font-size: $btn-font-size * $factor;
+    @if $factor != 1 {
+      &.ayfs-#{$scaleName} {
+        font-size: $btn-font-size * $factor;
+      }
     }
   }
 }
@@ -39,8 +43,10 @@ label,
   @each $scaleName, $params in $a11y-font-scales {
     $factor: map-get($params, factor);
 
-    &.ayfs-#{$scaleName} {
-      font-size: $label-font-size * $factor;
+    @if $factor != 1 {
+      &.ayfs-#{$scaleName} {
+        font-size: $label-font-size * $factor;
+      }
     }
   }
 }
@@ -54,9 +60,11 @@ SegmentedBar,
   @each $scaleName, $params in $a11y-font-scales {
     $factor: map-get($params, factor);
 
-    &.ayfs-#{$scaleName} {
-      font-size: $segmented-bar-font-size * $factor;
-      height: $segmented-bar-height * $factor;
+    @if $factor != 1 {
+      &.ayfs-#{$scaleName} {
+        font-size: $segmented-bar-font-size * $factor;
+        height: $segmented-bar-height * $factor;
+      }
     }
   }
 }
@@ -70,16 +78,16 @@ RadListView,
   @each $scaleName, $params in $a11y-font-scales {
     $factor: map-get($params, factor);
 
-    > * {
+    @if $factor != 1 {
       &.ayfs-#{$scaleName} {
-        font-size: $list-view-item-font-size * $factor;
-      }
-    }
+        > * {
+          font-size: $list-view-item-font-size * $factor;
+        }
 
-    NTIcon,
-    .nt-icon {
-      &.ayfs-#{$scaleName} {
-        font-size: $list-view-nt-icon-font-size * $factor;
+        NTIcon,
+        .nt-icon {
+          font-size: $list-view-nt-icon-font-size * $factor;
+        }
       }
     }
   }
@@ -93,18 +101,20 @@ RadSideDrawer,
   @each $scaleName, $params in $a11y-font-scales {
     $factor: map-get($params, factor);
 
-    .nt-drawer__header {
+    @if $factor != 1 {
       &.ayfs-#{$scaleName} {
-        label {
-          font-size: $rad-draw-header-inner-font-size * $factor;
-        }
+        .nt-drawer__header {
+          label {
+            font-size: $rad-draw-header-inner-font-size * $factor;
+          }
 
-        > label {
-          font-size: $rad-draw-header-font-size * $factor;
-        }
+          > label {
+            font-size: $rad-draw-header-font-size * $factor;
+          }
 
-        &-brand {
-          font-size: $rad-draw-brand-font-size * $factor;
+          &-brand {
+            font-size: $rad-draw-brand-font-size * $factor;
+          }
         }
       }
     }
@@ -117,9 +127,11 @@ form,
 
   @each $scaleName, $params in $a11y-font-scales {
     $factor: map-get($params, factor);
-    .nt-form__title {
+    @if $factor != 1 {
       &.ayfs-#{$scaleName} {
-        font-size: $form-title-font-size * $factor;
+        .nt-form__title {
+          font-size: $form-title-font-size * $factor;
+        }
       }
     }
   }
@@ -136,8 +148,10 @@ DataFormEditorCore {
   @each $scaleName, $params in $a11y-font-scales {
     $factor: map-get($params, factor);
 
-    &.ayfs-#{$scaleName} {
-      font-size: $form-field-font-size * $factor;
+    @if $factor != 1 {
+      &.ayfs-#{$scaleName} {
+        font-size: $form-field-font-size * $factor;
+      }
     }
   }
 }
@@ -149,16 +163,19 @@ NTInput,
 
   @each $scaleName, $params in $a11y-font-scales {
     $factor: map-get($params, factor);
-    > label {
-      &.ayfs-#{$scaleName} {
-        font-size: $form-input-font-size * $factor;
-      }
-    }
 
-    & > NTIcon,
-    & > .nt-icon {
-      &.ayfs-#{$scaleName} {
-        font-size: $form-input-icon-font-size * $factor;
+    @if $factor != 1 {
+      > label {
+        &.ayfs-#{$scaleName} {
+          font-size: $form-input-font-size * $factor;
+        }
+      }
+
+      & > NTIcon,
+      & > .nt-icon {
+        &.ayfs-#{$scaleName} {
+          font-size: $form-input-icon-font-size * $factor;
+        }
       }
     }
   }

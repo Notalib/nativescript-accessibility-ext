@@ -45,8 +45,10 @@ $a11y-label-classes: (
     @each $scaleName, $params in $scales {
       $factor: map-get($params, factor);
 
-      &.ayfs-#{$scaleName} {
-        font-size: $a11y-font-size * $factor;
+      @if $factor != 1 {
+        &.ayfs-#{$scaleName} {
+          font-size: $a11y-font-size * $factor;
+        }
       }
     }
   }

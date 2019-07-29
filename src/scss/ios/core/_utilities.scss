@@ -1,11 +1,12 @@
-.btn {
-  $btn-font-size: 15;
+NTIcon,
+.nt-icon {
+  $nt-icon-font-size: 16;
 
   @each $scaleName, $params in $a11y-font-scales {
     $factor: map-get($params, factor);
 
     &.ayfs-#{$scaleName} {
-      font-size: $btn-font-size * $factor;
+      font-size: $nt-icon-font-size * $factor;
     }
   }
 }

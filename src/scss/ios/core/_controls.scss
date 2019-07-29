@@ -1,0 +1,165 @@
+ActionBar,
+NTActionBar,
+.nt-action-bar {
+  $action-bar-font-size: 17;
+  $action-bar-item-font-size: 15;
+
+  @each $scaleName, $params in $a11y-font-scales {
+    $factor: map-get($params, factor);
+
+    &.ayfs-#{$scaleName} {
+      .action-bar-title {
+        font-size: $action-bar-font-size * $factor;
+      }
+
+      NTIcon,
+      label,
+      button,
+      .nt-action-bar__item {
+        font-size: $action-bar-item-font-size * $factor;
+      }
+    }
+  }
+}
+
+button,
+.nt-button {
+  @each $scaleName, $params in $a11y-font-scales {
+    $factor: map-get($params, factor);
+
+    &.ayfs-#{$scaleName} {
+      font-size: $btn-font-size * $factor;
+    }
+  }
+}
+
+label,
+.nt-label {
+  $label-font-size: 14;
+  @each $scaleName, $params in $a11y-font-scales {
+    $factor: map-get($params, factor);
+
+    &.ayfs-#{$scaleName} {
+      font-size: $label-font-size * $factor;
+    }
+  }
+}
+
+SegmentedBar,
+.nt-segmented-bar {
+  $segmented-bar-font-size: 13;
+  $segmented-bar-height: 30;
+
+  height: $segmented-bar-height;
+  @each $scaleName, $params in $a11y-font-scales {
+    $factor: map-get($params, factor);
+
+    &.ayfs-#{$scaleName} {
+      font-size: $segmented-bar-font-size * $factor;
+      height: $segmented-bar-height * $factor;
+    }
+  }
+}
+
+ListView,
+RadListView,
+.nt-list-view {
+  $list-view-item-font-size: 16;
+  $list-view-nt-icon-font-size: 20;
+
+  @each $scaleName, $params in $a11y-font-scales {
+    $factor: map-get($params, factor);
+
+    > * {
+      &.ayfs-#{$scaleName} {
+        font-size: $list-view-item-font-size * $factor;
+      }
+    }
+
+    NTIcon,
+    .nt-icon {
+      &.ayfs-#{$scaleName} {
+        font-size: $list-view-nt-icon-font-size * $factor;
+      }
+    }
+  }
+}
+
+RadSideDrawer,
+.nt-drawer {
+  $rad-draw-header-inner-font-size: 16;
+  $rad-draw-header-font-size: 40;
+  $rad-draw-brand-font-size: 15;
+  @each $scaleName, $params in $a11y-font-scales {
+    $factor: map-get($params, factor);
+
+    .nt-drawer__header {
+      &.ayfs-#{$scaleName} {
+        label {
+          font-size: $rad-draw-header-inner-font-size * $factor;
+        }
+
+        > label {
+          font-size: $rad-draw-header-font-size * $factor;
+        }
+
+        &-brand {
+          font-size: $rad-draw-brand-font-size * $factor;
+        }
+      }
+    }
+  }
+}
+
+form,
+.nt-form {
+  $form-title-font-size: 18;
+
+  @each $scaleName, $params in $a11y-font-scales {
+    $factor: map-get($params, factor);
+    .nt-form__title {
+      &.ayfs-#{$scaleName} {
+        font-size: $form-title-font-size * $factor;
+      }
+    }
+  }
+}
+
+TextView,
+TextField,
+PickerField,
+DatePickerField,
+TimePickerField,
+DateTimePickerFields,
+DataFormEditorCore {
+  $form-field-font-size: 15;
+  @each $scaleName, $params in $a11y-font-scales {
+    $factor: map-get($params, factor);
+
+    &.ayfs-#{$scaleName} {
+      font-size: $form-field-font-size * $factor;
+    }
+  }
+}
+
+NTInput,
+.nt-input {
+  $form-input-font-size: 16;
+  $form-input-icon-font-size: 24;
+
+  @each $scaleName, $params in $a11y-font-scales {
+    $factor: map-get($params, factor);
+    > label {
+      &.ayfs-#{$scaleName} {
+        font-size: $form-input-font-size * $factor;
+      }
+    }
+
+    & > NTIcon,
+    & > .nt-icon {
+      &.ayfs-#{$scaleName} {
+        font-size: $form-input-icon-font-size * $factor;
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+@import 'text';
+
+@each $scaleName, $params in $a11y-font-scales {
+  $factor: map-get($params, factor);
+
+  .ns-root {
+    $ns-root-font-size: 14;
+    &.ayfs-#{$scaleName} {
+      font-size: $ns-root-font-size * $factor;
+    }
+  }
+  .ns-ios {
+    $ns-ios-font-size: 15;
+    &.ayfs-#{$scaleName} {
+      font-size: $ns-ios-font-size * $factor;
+    }
+  }
+}

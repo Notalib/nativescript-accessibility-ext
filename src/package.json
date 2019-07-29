@@ -19,7 +19,7 @@
   },
   "scripts": {
     "build": "npm-run-all ngc build:tsc build:scss",
-    "build:scss": "rimraf css && mkdir css && dart-sass --load-path node_modules --source-map scss/a11y-helpers.scss:css/a11y-helpers.css scss/a11y.android.scss:css/a11y.android.css scss/a11y.ios.scss:css/a11y.ios.css css",
+    "build:scss": "rimraf css && mkdir css && dart-sass --style compressed --load-path node_modules --source-map scss/a11y-helpers.scss:css/a11y-helpers.css scss/a11y.android.scss:css/a11y.android.css scss/a11y.ios.scss:css/a11y.ios.css css",
     "build:tsc": "tsc -skipLibCheck",
     "ci.build": "npm ci && npm-run-all build:tsc build:scss",
     "ci.lint": "npm ci && npm run lint",

@@ -3,6 +3,8 @@ import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable
 import { isTraceEnabled, writeErrorTrace, writeFontScaleTrace } from '../trace';
 
 function getClosestValidFontScale(fontScale: number) {
+  fontScale = Number(fontScale) || 1;
+
   return FontScaleObservable.VALID_FONT_SCALES.sort((a, b) => Math.abs(fontScale - a) - Math.abs(fontScale - b)).shift();
 }
 
@@ -21,8 +23,8 @@ function fontScaleChanged(fontScale: number) {
   }
 
   internalObservable.set(FontScaleObservable.FONT_SCALE, fontScale);
-  internalObservable.set(FontScaleObservable.EXTRA_SMALL, fontScale < 0.85);
-  internalObservable.set(FontScaleObservable.EXTRA_LARGE, fontScale > 1.5);
+  internalObservable.set(FontScaleObservable.IS_EXTRA_SMALL, fontScale < 0.85);
+  internalObservable.set(FontScaleObservable.IS_EXTRA_LARGE, fontScale > 1.5);
 }
 
 const sizeMap = new Map<string, number>([
@@ -48,21 +50,32 @@ function setupConfigListener(attempt = 0) {
       }
 
       fontScaleChanged(1);
-    } else {
-      // Couldn't get launchEvent to trigger.
-      setTimeout(() => setupConfigListener(attempt + 1), 1);
+      return;
     }
 
+    // Couldn't get launchEvent to trigger.
+    setTimeout(() => setupConfigListener(attempt + 1), 1);
     return;
   }
 
   function contentSizeUpdated(fontSize: string) {
     if (sizeMap.has(fontSize)) {
       fontScaleChanged(sizeMap.get(fontSize));
+      return;
+    }
+
+    if (isTraceEnabled()) {
+      writeFontScaleTrace(`fontSize: ${fontSize} is unknown`);
+    }
+
+    fontScaleChanged(1);
+  }
+
+  function useIOSFontScale() {
+    if (nsApp.ios.nativeApp) {
+      contentSizeUpdated(nsApp.ios.nativeApp.preferredContentSizeCategory);
     } else {
-      if (isTraceEnabled()) {
-        writeFontScaleTrace(`fontSize: ${fontSize} is unknown`);
-      }
+      fontScaleChanged(1);
     }
   }
 
@@ -74,15 +87,9 @@ function setupConfigListener(attempt = 0) {
   nsApp.on(nsApp.exitEvent, () => {
     nsApp.ios.removeNotificationObserver(fontSizeObserver, UIContentSizeCategoryDidChangeNotification);
     internalObservable = null;
-  });
 
-  function useIOSFontScale() {
-    if (nsApp.ios.nativeApp) {
-      contentSizeUpdated(nsApp.ios.nativeApp.preferredContentSizeCategory);
-    } else {
-      fontScaleChanged(1);
-    }
-  }
+    nsApp.off(nsApp.resumeEvent, useIOSFontScale);
+  });
 
   nsApp.on(nsApp.resumeEvent, useIOSFontScale);
 
@@ -100,8 +107,8 @@ function ensureObservable() {
 
 export class FontScaleObservable extends Observable {
   public static readonly FONT_SCALE = 'fontScale';
-  public static readonly EXTRA_SMALL = 'isExtraSmall';
-  public static readonly EXTRA_LARGE = 'isExtraLarge';
+  public static readonly IS_EXTRA_SMALL = 'isExtraSmall';
+  public static readonly IS_EXTRA_LARGE = 'isExtraSmall';
 
   public static get VALID_FONT_SCALES() {
     // iOS supports a wider number of font scales than Android does.
@@ -118,7 +125,6 @@ export class FontScaleObservable extends Observable {
     ensureObservable();
 
     const selfRef = new WeakRef(this);
-
     function callback(args: PropertyChangeData) {
       const self = selfRef.get();
       if (self) {
@@ -130,9 +136,10 @@ export class FontScaleObservable extends Observable {
     }
 
     internalObservable.on(Observable.propertyChangeEvent, callback);
+
     const fontScale = internalObservable.get(FontScaleObservable.FONT_SCALE);
-    this.set(FontScaleObservable.EXTRA_SMALL, fontScale < 0.85);
-    this.set(FontScaleObservable.EXTRA_LARGE, fontScale > 1.5);
+    this.set(FontScaleObservable.IS_EXTRA_SMALL, fontScale < 0.85);
+    this.set(FontScaleObservable.IS_EXTRA_LARGE, fontScale > 1.5);
     this.set(FontScaleObservable.FONT_SCALE, fontScale);
   }
 }

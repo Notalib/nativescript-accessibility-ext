@@ -1,51 +1,19 @@
 $a11y-font-sizes: (
-  10: (
-    scales: $a11y-font-scales,
-  ),
-  12: (
-    scales: $a11y-font-scales,
-  ),
-  14: (
-    scales: $a11y-font-scales,
-  ),
-  15: (
-    scales: $a11y-font-scales,
-  ),
-  16: (
-    scales: $a11y-font-scales,
-  ),
-  17: (
-    scales: $a11y-font-scales,
-  ),
-  18: (
-    scales: $a11y-font-scales,
-  ),
-  19: (
-    scales: $a11y-font-scales,
-  ),
-  20: (
-    scales: $a11y-font-scales,
-  ),
-  25: (
-    scales: $a11y-font-scales,
-  ),
-  30: (
-    scales: $a11y-font-scales,
-  ),
+  10,
+  12,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  25,
+  30,
 ) !default;
 
-@each $font-size, $values in $a11y-font-sizes {
-  $scales: map-get($values, scales);
-
-  @each $scaleName, $params in $scales {
-    $factor: map-get($params, factor);
-
-    @if $factor != 1 {
-      .t-#{$font-size} {
-        &.ayfs-#{$scaleName} {
-          font-size: $font-size * $factor;
-        }
-      }
-    }
+@each $a11y-font-size in $a11y-font-sizes {
+  .t-#{$a11y-font-size} {
+    font-size: calc(#{$a11y-font-size} * var(--a11y-fontscale-factor, 1));
   }
 }

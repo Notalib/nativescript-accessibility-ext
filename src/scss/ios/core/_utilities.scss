@@ -1,14 +1,4 @@
 NTIcon,
 .nt-icon {
-  $nt-icon-font-size: 16;
-
-  @each $scaleName, $params in $a11y-font-scales {
-    $factor: map-get($params, factor);
-
-    @if $factor != 1 {
-      &.ayfs-#{$scaleName} {
-        font-size: $nt-icon-font-size * $factor;
-      }
-    }
-  }
+  font-size: calc(16 * var(--a11y-fontscale-factor, 1));
 }

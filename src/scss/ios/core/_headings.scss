@@ -32,6 +32,8 @@ $a11y-label-classes: (
   $a11y-font-size: map-get($values, font-size);
 
   .#{$label-class} {
+    a11y-enabled: true;
+    a11y-role: header;
     font-size: calc(#{$a11y-font-size} * var(--a11y-fontscale-factor, 1));
   }
 }

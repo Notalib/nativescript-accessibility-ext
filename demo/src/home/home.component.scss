@@ -1,13 +1,10 @@
 @import '~nativescript-theme-core/scss/variables';
 
 .screen-reader {
-  color: $grey-dark;
   border-width: 1;
-  border-color: black;
   border-radius: 10;
   padding: 10;
-  color: #cecece;
-  background: black;
+  margin: 0 10;
 
   .screen-reader-enabled {
     a11y-enabled: true;
@@ -15,8 +12,8 @@
   }
 }
 
-.list-group {
-  .list-group-item {
+ListView {
+  .list-view-item {
     orientation: horizontal;
     a11y-enabled: true;
     a11y-role: button;

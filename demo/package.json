@@ -10,7 +10,7 @@
       "version": "6.0.1"
     },
     "tns-android": {
-      "version": "6.0.0"
+      "version": "6.1.0-2019-08-21-135519-04"
     }
   },
   "dependencies": {
@@ -24,7 +24,7 @@
     "@angular/router": "8.2.0",
     "@nota/nativescript-accessibility-ext": "file:../src",
     "nativescript-angular": "^8.2.0",
-    "nativescript-theme-core": "~2.0.5",
+    "nativescript-theme-core": "~2.0.6",
     "reflect-metadata": "~0.1.13",
     "rxjs": "^6.5.2",
     "tns-core-modules": "next",
@@ -36,7 +36,7 @@
     "@nativescript/schematics": "~0.7.1",
     "@ngtools/webpack": "8.2.0",
     "codelyzer": "^5.1.0",
-    "nativescript-dev-webpack": "^1.1.1",
+    "nativescript-dev-webpack": "next",
     "sass": "^1.22.10",
     "sass-loader": "^7.3.1",
     "tslint": "^5.19.0",

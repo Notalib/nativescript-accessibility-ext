@@ -1,7 +1,6 @@
 /// <reference path="./slider.d.ts" />
 
 import { AccessibilityDecrementEventData, AccessibilityIncrementEventData, Slider } from 'tns-core-modules/ui/slider';
-import { AccessibilityRole } from '../../ui/core/view-common';
 import { addCssPropertyToView, setViewFunction } from '../../utils/helpers';
 
 Slider.accessibilityDecrementEvent = 'accessibilityDecrement';
@@ -10,14 +9,7 @@ Slider.accessibilityIncrementEvent = 'accessibilityIncrement';
 const accessibilityStepsPropertyName = 'accessibilityStep';
 const accessibilityStepsCssName = 'a11y-steps';
 
-export const accessibilityStepsCssProperty = addCssPropertyToView(
-  Slider as any,
-  accessibilityStepsPropertyName,
-  accessibilityStepsCssName,
-  false,
-  10,
-  parseInt,
-);
+export const accessibilityStepsCssProperty = addCssPropertyToView(Slider, accessibilityStepsPropertyName, accessibilityStepsCssName, false, 10, parseInt);
 
 setViewFunction(Slider, '_handlerAccessibilityIncrementEvent', function _handlerAccessibilityIncrementEvent(this: Slider) {
   const args: AccessibilityIncrementEventData = {
@@ -44,10 +36,3 @@ setViewFunction(Slider, '_handlerAccessibilityDecrementEvent', function _handler
 });
 
 export { Slider };
-
-Slider.on(Slider.loadedEvent, (evt) => {
-  const slider = evt.object as Slider;
-  if (!slider.accessibilityRole) {
-    slider.accessibilityRole = AccessibilityRole.Adjustable;
-  }
-});

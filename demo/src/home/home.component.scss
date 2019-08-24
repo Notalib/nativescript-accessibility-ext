@@ -6,8 +6,7 @@
   padding: 10;
   margin: 0 10;
 
-  .screen-reader-enabled {
-    a11y-enabled: true;
+  Label {
     a11y-role: button;
   }
 }

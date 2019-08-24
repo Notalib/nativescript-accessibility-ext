@@ -212,8 +212,8 @@ setViewFunction(View, androidFunctions.androidSendAccessibilityEvent, function s
     writeTrace(`${cls} -> waiting for view to be loaded`);
   }
 
-  this.once(View.loadedEvent, () => {
-    androidView = getAndroidView(this);
+  this.once(View.loadedEvent, (args) => {
+    androidView = getAndroidView(args.object as View);
     if (!androidView) {
       if (isTraceEnabled()) {
         writeTrace(`${cls} -> view not loaded -> ${eventName} -> ${msg}`);

@@ -88,3 +88,8 @@ NTInput,
     font-size: calc(24 * var(--a11y-fontscale-factor, 1));
   }
 }
+
+Slider {
+  a11y-enabled: true;
+  a11y-role: adjustable;
+}

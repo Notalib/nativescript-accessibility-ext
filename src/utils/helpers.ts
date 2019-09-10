@@ -190,33 +190,54 @@ function getViewNgCssClassesMap(view: any): Map<string, boolean> {
   return view.ngCssClasses;
 }
 
+export interface A11YCssClasses {
+  [className: string]: boolean;
+}
+
 declare const Zone: any;
-export function viewSetCssClass(view: View, className: string, enable: boolean) {
+export function viewSetCssClasses(view: View, a11yCssClasses: A11YCssClasses): boolean {
   // Zone is globally available on nativescript-angular. If defined assume angular environment.
   if (typeof Zone !== 'undefined') {
     const ngCssClasses = getViewNgCssClassesMap(view);
-    if (enable) {
-      ngCssClasses.set(className, true);
-    } else {
-      ngCssClasses.delete(className);
+
+    for (const [className, enabled] of Object.entries(a11yCssClasses)) {
+      if (enabled) {
+        ngCssClasses.set(className, true);
+      } else {
+        ngCssClasses.delete(className);
+      }
     }
   }
 
-  const oldViewCssClasses = `${view.className || ''}`
+  let classNames = `${view.className || ''}`
     .trim()
     .split(' ')
     .map((v) => v.trim())
     .filter((v) => !!v);
-  if (oldViewCssClasses.some((v) => v === className)) {
-    if (enable) {
-      return;
+
+  let changed = false;
+  for (const [className, enabled] of Object.entries(a11yCssClasses)) {
+    const idx = classNames.indexOf(className);
+    if (idx !== -1) {
+      if (enabled) {
+        continue;
+      }
+
+      classNames.splice(idx, 1);
+      changed = true;
+      continue;
     }
 
-    view.className = oldViewCssClasses.filter((v) => v !== className).join(' ');
-    return;
-  } else if (!enable) {
-    return;
+    if (enabled) {
+      classNames.push(className);
+      changed = true;
+      continue;
+    }
   }
 
-  view.className = [...oldViewCssClasses, className].join(' ');
+  if (changed) {
+    view.className = classNames.join(' ');
+  }
+
+  return changed;
 }

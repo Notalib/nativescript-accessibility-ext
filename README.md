@@ -127,23 +127,6 @@ Make an announcement to the screen reader.
 | announcement text | The text that will be read by the screen reader                    |
 | null              | The label of the element will be read by the screen reader instead |
 
-### CSSClasses: View.ns-ios/ns-android
-
-A platform css-class is added to each view.
-
-- ns-ios
-- ns-android
-
-**DEPRECATED:**
-- ios
-- android
-
-**Note:**
-
-If you need more platform css-classes, like `.notch`, `.softnav`, `.phone`, `.tablet` etc. we suggest using `nativescript-platform-css`.
-
-Import `nativescript-platform-css` before importing this plugin, to avoid conflicts.
-
 ### CSSClasses: View.a11y-fontscale-\* (iOS, Android)
 
 If you need to apply different styling when fonts are scaled, these css-classes are available on the View.

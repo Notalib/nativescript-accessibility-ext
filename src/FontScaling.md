@@ -61,7 +61,7 @@ $my-custom-margin: 2;
 
       @if $ios {
         &.ios {
-          font-size: $my-custom-font-size: * $factor;
+          font-size: $my-custom-font-size * $factor;
         }
       }
       @if $android {

@@ -1,7 +1,7 @@
 import * as nsApp from 'tns-core-modules/application';
 import { Observable } from 'tns-core-modules/data/observable';
 import { isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
-import { CommonA11YServiceEnabledObservable } from './utils-common';
+import { AccessibilityServiceEnabledPropName, CommonA11YServiceEnabledObservable } from './utils-common';
 
 export * from 'tns-core-modules/utils/utils';
 
@@ -32,34 +32,29 @@ function ensureStateListener() {
 
   sharedA11YObservable = new Observable() as SharedA11YObservable;
 
-  if (typeof UIAccessibilityVoiceOverStatusDidChangeNotification !== 'undefined') {
-    nativeObserver = nsApp.ios.addNotificationObserver(UIAccessibilityVoiceOverStatusDidChangeNotification, () =>
-      sharedA11YObservable.set('accessibilityServiceEnabled', isAccessibilityServiceEnabled()),
-    );
+  sharedA11YObservable.set(AccessibilityServiceEnabledPropName, isAccessibilityServiceEnabled());
 
-    nsApp.on(nsApp.exitEvent, () => {
-      if (nativeObserver) {
-        nsApp.ios.removeNotificationObserver(nativeObserver, UIAccessibilityVoiceOverStatusDidChangeNotification);
-      }
-
-      nativeObserver = null;
-      sharedA11YObservable = null;
-    });
-
-    nsApp.on(nsApp.resumeEvent, () => sharedA11YObservable.set('isAccessibilityServiceEnabled', isAccessibilityServiceEnabled()));
-  } else {
-    sharedA11YObservable.set('accessibilityServiceEnabled', isAccessibilityServiceEnabled());
+  if (typeof UIAccessibilityVoiceOverStatusDidChangeNotification === 'undefined') {
+    return;
   }
+
+  nativeObserver = nsApp.ios.addNotificationObserver(UIAccessibilityVoiceOverStatusDidChangeNotification, () =>
+    sharedA11YObservable.set(AccessibilityServiceEnabledPropName, isAccessibilityServiceEnabled()),
+  );
+
+  nsApp.on(nsApp.exitEvent, () => {
+    if (nativeObserver) {
+      nsApp.ios.removeNotificationObserver(nativeObserver, UIAccessibilityVoiceOverStatusDidChangeNotification);
+    }
+
+    nativeObserver = null;
+    sharedA11YObservable = null;
+  });
+
+  nsApp.on(nsApp.resumeEvent, () => sharedA11YObservable.set('isAccessibilityServiceEnabled', isAccessibilityServiceEnabled()));
 }
 
 export class AccessibilityServiceEnabledObservable extends CommonA11YServiceEnabledObservable {
-  public get accessibilityServiceEnabled() {
-    return sharedA11YObservable && !!sharedA11YObservable.accessibilityServiceEnabled;
-  }
-  public set accessibilityServiceEnabled(v) {
-    // ignore
-  }
-
   constructor() {
     super();
 
@@ -74,11 +69,13 @@ export class AccessibilityServiceEnabledObservable extends CommonA11YServiceEnab
         return;
       }
 
-      const newValue = self.accessibilityServiceEnabled;
+      const newValue = sharedA11YObservable.accessibilityServiceEnabled;
       if (newValue !== lastValue) {
-        self.set('accessibilityServiceEnabled', newValue);
+        self.set(AccessibilityServiceEnabledPropName, newValue);
         lastValue = newValue;
       }
     });
+
+    this.set(AccessibilityServiceEnabledPropName, sharedA11YObservable.accessibilityServiceEnabled);
   }
 }

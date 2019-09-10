@@ -131,9 +131,9 @@ fontScaleObservable.on(Observable.propertyChangeEvent, () => {
 });
 
 const a11yServiceObservable = new AccessibilityServiceEnabledObservable();
-a11yServiceObservable.on(Observable.propertyChangeEvent, () => {
-  setViewA11YServiceClassesHelper(getLoadedViews(), a11yServiceObservable.accessibilityServiceEnabled);
-});
+a11yServiceObservable.on(Observable.propertyChangeEvent, () =>
+  setViewA11YServiceClassesHelper(getLoadedViews(), a11yServiceObservable.accessibilityServiceEnabled),
+);
 
 function applyCssClassesOnLoad({ object: view }: EventData) {
   if (!(view instanceof View)) {

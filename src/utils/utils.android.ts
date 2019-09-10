@@ -2,7 +2,7 @@ import * as nsApp from 'tns-core-modules/application';
 import { Observable } from 'tns-core-modules/data/observable';
 import * as utils from 'tns-core-modules/utils/utils';
 import { isTraceEnabled, writeTrace } from '../trace';
-import { CommonA11YServiceEnabledObservable } from './utils-common';
+import { AccessibilityServiceEnabledPropName, CommonA11YServiceEnabledObservable } from './utils-common';
 
 export * from 'tns-core-modules/utils/utils';
 
@@ -40,6 +40,9 @@ let accessibilityStateChangeListener: AccessibilityStateChangeListener;
 let touchExplorationStateChangeListener: TouchExplorationStateChangeListener;
 let sharedA11YObservable: SharedA11YObservable;
 
+const A11yStateEnabledPropName = 'a11yStateEnabled';
+const TouchExplorationStateEnabledPropName = 'touchExplorationStateEnabled';
+
 function ensureStateListener() {
   if (accessibilityStateChangeListener) {
     return;
@@ -47,21 +50,21 @@ function ensureStateListener() {
 
   const a11yManager = getA11YManager();
   sharedA11YObservable = new Observable() as SharedA11YObservable;
-  Object.defineProperty(sharedA11YObservable, 'accessibilityServiceEnabled', {
-    get() {
-      return this['a11yStateEnabled'] || this['touchExplorationStateEnabled'];
+  Object.defineProperty(sharedA11YObservable, AccessibilityServiceEnabledPropName, {
+    get(this: SharedA11YObservable) {
+      return this[A11yStateEnabledPropName] && this[TouchExplorationStateEnabledPropName];
     },
   });
 
   if (!a11yManager) {
-    sharedA11YObservable.a11yStateEnabled = false;
-    sharedA11YObservable.touchExplorationStateEnabled = false;
+    sharedA11YObservable.set(A11yStateEnabledPropName, false);
+    sharedA11YObservable.set(TouchExplorationStateEnabledPropName, false);
     return;
   }
 
   accessibilityStateChangeListener = new AccessibilityStateChangeListener({
     onAccessibilityStateChanged(enabled) {
-      sharedA11YObservable.set('a11yStateEnabled', !!enabled);
+      sharedA11YObservable.set(A11yStateEnabledPropName, !!enabled);
 
       if (isTraceEnabled()) {
         writeTrace(`AccessibilityStateChangeListener state changed to: ${!!enabled}`);
@@ -71,8 +74,7 @@ function ensureStateListener() {
 
   touchExplorationStateChangeListener = new TouchExplorationStateChangeListener({
     onTouchExplorationStateChanged(enabled) {
-      sharedA11YObservable.set('touchExplorationStateEnabled', !!enabled);
-
+      sharedA11YObservable.set(TouchExplorationStateEnabledPropName, !!enabled);
       if (isTraceEnabled()) {
         writeTrace(`TouchExplorationStateChangeListener state changed to: ${!!enabled}`);
       }
@@ -83,11 +85,11 @@ function ensureStateListener() {
   AccessibilityManagerCompat.addTouchExplorationStateChangeListener(a11yManager, touchExplorationStateChangeListener);
 
   if (AccessibilityManagerCompat.isTouchExplorationEnabled(a11yManager)) {
-    sharedA11YObservable.set('a11yStateEnabled', true);
-    sharedA11YObservable.set('touchExplorationStateEnabled', true);
+    sharedA11YObservable.set(A11yStateEnabledPropName, true);
+    sharedA11YObservable.set(TouchExplorationStateEnabledPropName, true);
   } else {
-    sharedA11YObservable.set('a11yStateEnabled', false);
-    sharedA11YObservable.set('touchExplorationStateEnabled', false);
+    sharedA11YObservable.set(A11yStateEnabledPropName, false);
+    sharedA11YObservable.set(TouchExplorationStateEnabledPropName, false);
   }
 }
 
@@ -117,13 +119,6 @@ nsApp.on(nsApp.exitEvent, () => {
 });
 
 export class AccessibilityServiceEnabledObservable extends CommonA11YServiceEnabledObservable {
-  public get accessibilityServiceEnabled() {
-    return sharedA11YObservable && !!sharedA11YObservable.accessibilityServiceEnabled;
-  }
-  public set accessibilityServiceEnabled(v) {
-    // ignore
-  }
-
   constructor() {
     super();
 
@@ -138,11 +133,13 @@ export class AccessibilityServiceEnabledObservable extends CommonA11YServiceEnab
         return;
       }
 
-      const newValue = self.accessibilityServiceEnabled;
+      const newValue = sharedA11YObservable.accessibilityServiceEnabled;
       if (newValue !== lastValue) {
-        self.set('accessibilityServiceEnabled', newValue);
+        self.set(AccessibilityServiceEnabledPropName, newValue);
         lastValue = newValue;
       }
     });
+
+    this.set(AccessibilityServiceEnabledPropName, sharedA11YObservable.accessibilityServiceEnabled);
   }
 }

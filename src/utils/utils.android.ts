@@ -1,6 +1,8 @@
 import * as nsApp from 'tns-core-modules/application';
+import { Observable } from 'tns-core-modules/data/observable';
 import * as utils from 'tns-core-modules/utils/utils';
 import { isTraceEnabled, writeTrace } from '../trace';
+import { CommonA11YServiceEnabledObservable } from './utils-common';
 
 export * from 'tns-core-modules/utils/utils';
 
@@ -29,26 +31,37 @@ function getA11YManager() {
   return context.getSystemService(android.content.Context.ACCESSIBILITY_SERVICE) as AccessibilityManager;
 }
 
-let a11yStateEnabled: boolean;
-let touchExplorationStateEnabled: boolean;
-
+interface SharedA11YObservable extends Observable {
+  a11yStateEnabled?: boolean;
+  touchExplorationStateEnabled?: boolean;
+  readonly accessibilityServiceEnabled?: boolean;
+}
 let accessibilityStateChangeListener: AccessibilityStateChangeListener;
 let touchExplorationStateChangeListener: TouchExplorationStateChangeListener;
+let sharedA11YObservable: SharedA11YObservable;
+
 function ensureStateListener() {
   if (accessibilityStateChangeListener) {
     return;
   }
 
   const a11yManager = getA11YManager();
+  sharedA11YObservable = new Observable() as SharedA11YObservable;
+  Object.defineProperty(sharedA11YObservable, 'accessibilityServiceEnabled', {
+    get() {
+      return this['a11yStateEnabled'] || this['touchExplorationStateEnabled'];
+    },
+  });
+
   if (!a11yManager) {
-    a11yStateEnabled = false;
-    touchExplorationStateEnabled = false;
+    sharedA11YObservable.a11yStateEnabled = false;
+    sharedA11YObservable.touchExplorationStateEnabled = false;
     return;
   }
 
   accessibilityStateChangeListener = new AccessibilityStateChangeListener({
     onAccessibilityStateChanged(enabled) {
-      a11yStateEnabled = enabled;
+      sharedA11YObservable.set('a11yStateEnabled', !!enabled);
 
       if (isTraceEnabled()) {
         writeTrace(`AccessibilityStateChangeListener state changed to: ${!!enabled}`);
@@ -58,7 +71,7 @@ function ensureStateListener() {
 
   touchExplorationStateChangeListener = new TouchExplorationStateChangeListener({
     onTouchExplorationStateChanged(enabled) {
-      touchExplorationStateEnabled = enabled;
+      sharedA11YObservable.set('touchExplorationStateEnabled', !!enabled);
 
       if (isTraceEnabled()) {
         writeTrace(`TouchExplorationStateChangeListener state changed to: ${!!enabled}`);
@@ -69,13 +82,19 @@ function ensureStateListener() {
   AccessibilityManagerCompat.addAccessibilityStateChangeListener(a11yManager, accessibilityStateChangeListener);
   AccessibilityManagerCompat.addTouchExplorationStateChangeListener(a11yManager, touchExplorationStateChangeListener);
 
-  a11yStateEnabled = touchExplorationStateEnabled = AccessibilityManagerCompat.isTouchExplorationEnabled(a11yManager);
+  if (AccessibilityManagerCompat.isTouchExplorationEnabled(a11yManager)) {
+    sharedA11YObservable.set('a11yStateEnabled', true);
+    sharedA11YObservable.set('touchExplorationStateEnabled', true);
+  } else {
+    sharedA11YObservable.set('a11yStateEnabled', false);
+    sharedA11YObservable.set('touchExplorationStateEnabled', false);
+  }
 }
 
 export function isAccessibilityServiceEnabled(): boolean {
   ensureStateListener();
 
-  return !!a11yStateEnabled && !!touchExplorationStateEnabled;
+  return !!sharedA11YObservable.accessibilityServiceEnabled;
 }
 
 nsApp.on(nsApp.exitEvent, () => {
@@ -92,4 +111,38 @@ nsApp.on(nsApp.exitEvent, () => {
 
   accessibilityStateChangeListener = null;
   touchExplorationStateChangeListener = null;
+  if (sharedA11YObservable) {
+    sharedA11YObservable.removeEventListener(Observable.propertyChangeEvent);
+  }
 });
+
+export class AccessibilityServiceEnabledObservable extends CommonA11YServiceEnabledObservable {
+  public get accessibilityServiceEnabled() {
+    return sharedA11YObservable && !!sharedA11YObservable.accessibilityServiceEnabled;
+  }
+  public set accessibilityServiceEnabled(v) {
+    // ignore
+  }
+
+  constructor() {
+    super();
+
+    ensureStateListener();
+
+    const ref = new WeakRef(this);
+    let lastValue: boolean;
+    sharedA11YObservable.on(Observable.propertyChangeEvent, function callback() {
+      const self = ref && ref.get();
+      if (!self) {
+        sharedA11YObservable.off(Observable.propertyChangeEvent, callback);
+        return;
+      }
+
+      const newValue = self.accessibilityServiceEnabled;
+      if (newValue !== lastValue) {
+        self.set('accessibilityServiceEnabled', newValue);
+        lastValue = newValue;
+      }
+    });
+  }
+}

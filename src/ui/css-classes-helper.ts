@@ -1,6 +1,6 @@
 /// <reference path="./core/view.d.ts" />
 
-import rdc from 'reduce-css-calc';
+import * as rdc from 'reduce-css-calc';
 import * as nsApp from 'tns-core-modules/application/application';
 import { EventData, Observable } from 'tns-core-modules/data/observable';
 import { isAndroid, isIOS } from 'tns-core-modules/platform';

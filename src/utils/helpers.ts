@@ -275,34 +275,27 @@ export function viewSetCssClasses(view: View, a11yCssClasses: A11YCssClasses): b
     }
   }
 
-  let classNames = `${view.className || ''}`
-    .trim()
-    .split(' ')
-    .map((v) => v.trim())
-    .filter((v) => !!v);
-
   let changed = false;
   for (const [className, enabled] of Object.entries(a11yCssClasses)) {
-    const idx = classNames.indexOf(className);
-    if (idx !== -1) {
+    if (view.cssClasses.has(className)) {
       if (enabled) {
         continue;
       }
 
-      classNames.splice(idx, 1);
+      view.cssClasses.delete(className);
       changed = true;
       continue;
     }
 
     if (enabled) {
-      classNames.push(className);
+      view.cssClasses.add(className);
       changed = true;
       continue;
     }
   }
 
   if (changed) {
-    view.className = classNames.join(' ');
+    view.className = [...view.cssClasses].join(' ');
   }
 
   return changed;

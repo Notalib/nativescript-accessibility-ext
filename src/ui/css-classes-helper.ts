@@ -49,7 +49,9 @@ const a11yServiceDisabledClass = `a11y-service-disabled`;
 const cls = `FontScaling`;
 
 function setViewHelperCssClasses(views: View[], newFontScale: number) {
-  const a11yCssClasses = {} as { [className: string]: boolean };
+  const a11yCssClasses = {
+    'ns-a11y': true,
+  } as { [className: string]: boolean };
 
   if (!newFontScale || isNaN(newFontScale)) {
     newFontScale = 1;
@@ -73,11 +75,11 @@ function setViewHelperCssClasses(views: View[], newFontScale: number) {
       continue;
     }
 
-    const oldViewClassNames = view.className || '';
+    const oldViewClassNames = [...view.cssClasses].join(' ');
 
     if (viewSetCssClasses(view, a11yCssClasses)) {
       if (isTraceEnabled()) {
-        const postViewClassNames = (view.className || '').trim();
+        const postViewClassNames = [...view.cssClasses].join(' ');
         writeFontScaleTrace(`${localCls}: change from '${oldViewClassNames}' to '${postViewClassNames}'`);
       }
     }
@@ -90,12 +92,8 @@ function setNgRootFontScale() {
     return;
   }
 
-  let { fontScale, isExtraSmall, isExtraLarge } = fontScaleObservable;
+  let { isExtraSmall, isExtraLarge } = fontScaleObservable;
   const a11yServiceEnabled = a11yServiceObservable.accessibilityServiceEnabled;
-
-  if (!fontScale || isNaN(fontScale)) {
-    fontScale = 1;
-  }
 
   const localCls = `${cls}.setNgRootFontScale() - ${rootView}`;
 
@@ -105,29 +103,20 @@ function setNgRootFontScale() {
     [fontExtraSmallClass]: isIOS && isExtraSmall,
     [fontExtraLargeClass]: isIOS && isExtraLarge,
     [fontExtraMediumClass]: isAndroid || !(isExtraSmall && isExtraLarge),
+    'ns-a11y': true,
   } as { [className: string]: boolean };
 
+  const newFontScale = fontScaleObservable.fontScale || 1;
   for (const [fontScale, { cssClass }] of fontScaleCssClasses) {
-    a11yCssClasses[cssClass] = fontScale === fontScale;
+    a11yCssClasses[cssClass] = fontScale === newFontScale;
   }
 
-  const newFontScale = Number((fontScale || 1).toFixed(2));
-  let cssVarChanged = false;
-  const oldFontScale = Number(rootView.style.getCssVariable('--a11y-fontscale-factor'));
-  if (oldFontScale !== newFontScale) {
-    rootView.style.setUnscopedCssVariable('--a11y-fontscale-factor', `${newFontScale}`);
-    writeFontScaleTrace(`${localCls}: changed css-var from '${oldFontScale}' to '${newFontScale}'`);
-    cssVarChanged = true;
-  }
-
-  const oldViewClassNames = rootView.className || '';
+  const oldViewClassNames = [...rootView.cssClasses].join(' ');
   if (viewSetCssClasses(rootView, a11yCssClasses)) {
     if (isTraceEnabled()) {
-      const postViewClassNames = (rootView.className || '').trim();
-      writeFontScaleTrace(`${localCls}: change from '${oldViewClassNames}' to '${postViewClassNames}'`);
+      const postViewClassNames = [...rootView.cssClasses].join(' ');
+      console.log(`${localCls}: change from '${oldViewClassNames}' to '${postViewClassNames}'`);
     }
-  } else if (cssVarChanged) {
-    rootView._onCssStateChange();
   }
 }
 

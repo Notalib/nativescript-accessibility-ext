@@ -2,9 +2,7 @@ import * as nsApp from 'tns-core-modules/application';
 import { Observable } from 'tns-core-modules/data/observable';
 import * as utils from 'tns-core-modules/utils/utils';
 import { isTraceEnabled, writeTrace } from '../trace';
-import { AccessibilityServiceEnabledPropName, CommonA11YServiceEnabledObservable } from './utils-common';
-
-export * from 'tns-core-modules/utils/utils';
+import { AccessibilityServiceEnabledPropName, CommonA11YServiceEnabledObservable, SharedA11YObservable as CommonSharedA11YObservable } from './utils-common';
 
 type AccessibilityManagerCompat = android.support.v4.view.accessibility.AccessibilityManagerCompat;
 const AccessibilityManagerCompat = android.support.v4.view.accessibility.AccessibilityManagerCompat;
@@ -31,11 +29,11 @@ function getA11YManager() {
   return context.getSystemService(android.content.Context.ACCESSIBILITY_SERVICE) as AccessibilityManager;
 }
 
-interface SharedA11YObservable extends Observable {
+interface SharedA11YObservable extends CommonSharedA11YObservable {
   a11yStateEnabled?: boolean;
   touchExplorationStateEnabled?: boolean;
-  readonly accessibilityServiceEnabled?: boolean;
 }
+
 let accessibilityStateChangeListener: AccessibilityStateChangeListener;
 let touchExplorationStateChangeListener: TouchExplorationStateChangeListener;
 let sharedA11YObservable: SharedA11YObservable;
@@ -45,7 +43,7 @@ const TouchExplorationStateEnabledPropName = 'touchExplorationStateEnabled';
 
 function ensureStateListener() {
   if (accessibilityStateChangeListener) {
-    return;
+    return sharedA11YObservable;
   }
 
   const a11yManager = getA11YManager();
@@ -59,7 +57,7 @@ function ensureStateListener() {
   if (!a11yManager) {
     sharedA11YObservable.set(A11yStateEnabledPropName, false);
     sharedA11YObservable.set(TouchExplorationStateEnabledPropName, false);
-    return;
+    return sharedA11YObservable;
   }
 
   accessibilityStateChangeListener = new AccessibilityStateChangeListener({
@@ -91,15 +89,22 @@ function ensureStateListener() {
     sharedA11YObservable.set(A11yStateEnabledPropName, false);
     sharedA11YObservable.set(TouchExplorationStateEnabledPropName, false);
   }
+
+  return sharedA11YObservable;
 }
 
-export function isAccessibilityServiceEnabled(): boolean {
+export function isAccessibilityServiceEnabled() {
   ensureStateListener();
 
   return !!sharedA11YObservable.accessibilityServiceEnabled;
 }
 
-nsApp.on(nsApp.exitEvent, () => {
+nsApp.on(nsApp.exitEvent, (args: nsApp.ApplicationEventData) => {
+  const activity = args.android as android.app.Activity;
+  if (activity && !activity.isFinishing()) {
+    return;
+  }
+
   const a11yManager = getA11YManager();
   if (a11yManager) {
     if (accessibilityStateChangeListener) {
@@ -115,31 +120,14 @@ nsApp.on(nsApp.exitEvent, () => {
   touchExplorationStateChangeListener = null;
   if (sharedA11YObservable) {
     sharedA11YObservable.removeEventListener(Observable.propertyChangeEvent);
+    sharedA11YObservable = null;
   }
 });
 
 export class AccessibilityServiceEnabledObservable extends CommonA11YServiceEnabledObservable {
   constructor() {
-    super();
-
-    ensureStateListener();
-
-    const ref = new WeakRef(this);
-    let lastValue: boolean;
-    sharedA11YObservable.on(Observable.propertyChangeEvent, function callback() {
-      const self = ref && ref.get();
-      if (!self) {
-        sharedA11YObservable.off(Observable.propertyChangeEvent, callback);
-        return;
-      }
-
-      const newValue = sharedA11YObservable.accessibilityServiceEnabled;
-      if (newValue !== lastValue) {
-        self.set(AccessibilityServiceEnabledPropName, newValue);
-        lastValue = newValue;
-      }
-    });
-
-    this.set(AccessibilityServiceEnabledPropName, sharedA11YObservable.accessibilityServiceEnabled);
+    super(ensureStateListener());
   }
 }
+
+export * from 'tns-core-modules/utils/utils';

@@ -49,6 +49,7 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
     if (isTraceEnabled()) {
       writeHelperTrace(`EventHelper: Service not active`);
     }
+
     return;
   }
 

@@ -1,8 +1,9 @@
+import * as nsApp from 'tns-core-modules/application';
+import { Observable } from 'tns-core-modules/data/observable';
 import { isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
+import { AccessibilityServiceEnabledPropName, CommonA11YServiceEnabledObservable, SharedA11YObservable } from './utils-common';
 
-export * from 'tns-core-modules/utils/utils';
-
-export function isAccessibilityServiceEnabled(): boolean {
+export function isAccessibilityServiceEnabled() {
   const cls = `isAccessibilityServiceEnabled<ios>()`;
   if (typeof UIAccessibilityIsVoiceOverRunning !== 'function') {
     writeErrorTrace(`${cls} - UIAccessibilityIsVoiceOverRunning() - is not a function`);
@@ -16,3 +17,59 @@ export function isAccessibilityServiceEnabled(): boolean {
 
   return isEnabled;
 }
+
+let sharedA11YObservable: SharedA11YObservable;
+let nativeObserver: any;
+
+function ensureStateListener() {
+  if (sharedA11YObservable) {
+    return sharedA11YObservable;
+  }
+
+  sharedA11YObservable = new Observable() as SharedA11YObservable;
+
+  sharedA11YObservable.set(AccessibilityServiceEnabledPropName, isAccessibilityServiceEnabled());
+
+  if (typeof UIAccessibilityVoiceOverStatusDidChangeNotification !== 'undefined') {
+    nativeObserver = nsApp.ios.addNotificationObserver(UIAccessibilityVoiceOverStatusDidChangeNotification, () =>
+      sharedA11YObservable.set(AccessibilityServiceEnabledPropName, isAccessibilityServiceEnabled()),
+    );
+
+    nsApp.on(nsApp.exitEvent, () => {
+      if (nativeObserver) {
+        nsApp.ios.removeNotificationObserver(nativeObserver, UIAccessibilityVoiceOverStatusDidChangeNotification);
+      }
+
+      nativeObserver = null;
+      sharedA11YObservable = null;
+    });
+  } else if (typeof UIAccessibilityVoiceOverStatusChanged !== 'undefined') {
+    nativeObserver = nsApp.ios.addNotificationObserver(UIAccessibilityVoiceOverStatusChanged, () =>
+      sharedA11YObservable.set(AccessibilityServiceEnabledPropName, isAccessibilityServiceEnabled()),
+    );
+
+    nsApp.on(nsApp.exitEvent, () => {
+      if (nativeObserver) {
+        nsApp.ios.removeNotificationObserver(nativeObserver, UIAccessibilityVoiceOverStatusChanged);
+      }
+
+      nativeObserver = null;
+      if (sharedA11YObservable) {
+        sharedA11YObservable.removeEventListener(Observable.propertyChangeEvent);
+        sharedA11YObservable = null;
+      }
+    });
+  }
+
+  nsApp.on(nsApp.resumeEvent, () => sharedA11YObservable.set('isAccessibilityServiceEnabled', isAccessibilityServiceEnabled()));
+
+  return sharedA11YObservable;
+}
+
+export class AccessibilityServiceEnabledObservable extends CommonA11YServiceEnabledObservable {
+  constructor() {
+    super(ensureStateListener());
+  }
+}
+
+export * from 'tns-core-modules/utils/utils';

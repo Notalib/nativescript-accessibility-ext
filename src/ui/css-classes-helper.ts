@@ -8,7 +8,7 @@ import { isTraceEnabled, writeFontScaleTrace } from '../trace';
 import { FontScaleObservable } from '../utils/FontScaleObservable';
 import '../utils/global-events';
 import { viewSetCssClasses } from '../utils/helpers';
-import { isAccessibilityServiceEnabled } from '../utils/utils';
+import { AccessibilityServiceEnabledObservable } from '../utils/utils';
 
 function fontScaleToCssClass(fontScale: number) {
   return `a11y-fontscale-${Number(fontScale * 100).toFixed(0)}`;
@@ -37,10 +37,8 @@ const a11yServiceDisabledClass = `a11y-service-disabled`;
 
 const cls = `FontScaling`;
 
-function setViewHelperCssClasses(views: View[], newFontScale: number, isExtraSmall: boolean, isExtraLarge: boolean, a11yServiceEnabled: boolean) {
+function setViewHelperCssClasses(views: View[], newFontScale: number, isExtraSmall: boolean, isExtraLarge: boolean) {
   const a11yCssClasses = {
-    [a11yServiceEnabledClass]: a11yServiceEnabled,
-    [a11yServiceDisabledClass]: !a11yServiceEnabled,
     [fontExtraSmallClass]: isIOS && isExtraSmall,
     [fontExtraLargeClass]: isIOS && isExtraLarge,
     [fontExtraMediumClass]: isAndroid || !(isExtraSmall && isExtraLarge),
@@ -59,7 +57,7 @@ function setViewHelperCssClasses(views: View[], newFontScale: number, isExtraSma
       continue;
     }
 
-    const localCls = `${cls}.setFontScaleClass(${view}, ${newFontScale})`;
+    const localCls = `${cls}.setViewHelperCssClasses(${view}, ${newFontScale})`;
     if (!view) {
       if (isTraceEnabled()) {
         writeFontScaleTrace(`${localCls}: view is undefined`);
@@ -67,6 +65,26 @@ function setViewHelperCssClasses(views: View[], newFontScale: number, isExtraSma
 
       continue;
     }
+
+    const oldViewClassNames = view.className || '';
+
+    if (viewSetCssClasses(view, a11yCssClasses)) {
+      if (isTraceEnabled()) {
+        const postViewClassNames = (view.className || '').trim();
+        writeFontScaleTrace(`${localCls}: change from '${oldViewClassNames}' to '${postViewClassNames}'`);
+      }
+    }
+  }
+}
+
+function setViewA11YServiceClassesHelper(views: View[], a11yServiceEnabled: boolean) {
+  const a11yCssClasses = {
+    [a11yServiceEnabledClass]: a11yServiceEnabled,
+    [a11yServiceDisabledClass]: !a11yServiceEnabled,
+  };
+
+  for (const view of views) {
+    const localCls = `${cls}.setViewHelperCssClasses(${view}, ${a11yServiceEnabled})`;
 
     const oldViewClassNames = view.className || '';
 
@@ -89,16 +107,7 @@ function setNgRootFontScale(fontScale: number) {
   rootView._onCssStateChange();
 }
 
-const fontScaleObservable = new FontScaleObservable();
-fontScaleObservable.on(Observable.propertyChangeEvent, () => {
-  const { fontScale, isExtraSmall, isExtraLarge } = fontScaleObservable;
-  if (isTraceEnabled()) {
-    writeFontScaleTrace(`${cls}: ${FontScaleObservable.FONT_SCALE} changed to ${fontScale}`);
-  }
-
-  setNgRootFontScale(fontScale);
-
-  const a11yServiceEnabled = isAccessibilityServiceEnabled();
+function getLoadedViews() {
   const views = [] as View[];
   for (const viewRef of loadedViewRefs) {
     const view = viewRef.get();
@@ -111,10 +120,25 @@ fontScaleObservable.on(Observable.propertyChangeEvent, () => {
     views.push(view);
   }
 
-  setViewHelperCssClasses(views, fontScale, isExtraSmall, isExtraLarge, a11yServiceEnabled);
+  return views;
+}
+
+const fontScaleObservable = new FontScaleObservable();
+fontScaleObservable.on(Observable.propertyChangeEvent, () => {
+  const { fontScale, isExtraSmall, isExtraLarge } = fontScaleObservable;
+  if (isTraceEnabled()) {
+    writeFontScaleTrace(`${cls}: ${FontScaleObservable.FONT_SCALE} changed to ${fontScale}`);
+  }
+
+  setViewHelperCssClasses(getLoadedViews(), fontScale, isExtraSmall, isExtraLarge);
 });
 
-function applyFontScaleOnLoad({ object: view }: EventData) {
+const a11yServiceObservable = new AccessibilityServiceEnabledObservable();
+a11yServiceObservable.on(Observable.propertyChangeEvent, () =>
+  setViewA11YServiceClassesHelper(getLoadedViews(), a11yServiceObservable.accessibilityServiceEnabled),
+);
+
+function applyCssClassesOnLoad({ object: view }: EventData) {
   if (!(view instanceof View)) {
     return;
   }
@@ -134,19 +158,20 @@ function applyFontScaleOnLoad({ object: view }: EventData) {
   }
 
   const { fontScale, isExtraSmall, isExtraLarge } = fontScaleObservable;
-  setViewHelperCssClasses([view], fontScale, !!isExtraSmall, !!isExtraLarge, isAccessibilityServiceEnabled());
+  setViewHelperCssClasses([view], fontScale, !!isExtraSmall, !!isExtraLarge);
+  setViewA11YServiceClassesHelper([view], a11yServiceObservable.accessibilityServiceEnabled);
   loadedViewRefs.add(new WeakRef(view));
 }
 
-if (View['applyFontScaleOnLoad']) {
+if (View['applyCssClassesOnLoad']) {
   // Handle HMR restart
-  View.off(View.loadedEvent, View['applyFontScaleOnLoad']);
+  View.off(View.loadedEvent, View['applyCssClassesOnLoad']);
 }
-View['applyFontScaleOnLoad'] = applyFontScaleOnLoad;
+View['applyCssClassesOnLoad'] = applyCssClassesOnLoad;
 
-View.on(View.loadedEvent, applyFontScaleOnLoad);
+View.on(View.loadedEvent, applyCssClassesOnLoad);
 
-function tearDownFontScaleOnUnload({ object: view }: EventData) {
+function tearDownApplyCssClassesOnUnload({ object: view }: EventData) {
   if (!(view instanceof View)) {
     return;
   }
@@ -170,9 +195,7 @@ if (View['tearDownFontScaleOnUnload']) {
   // Handle HMR restart
   View.off(View.unloadedEvent, View['tearDownFontScaleOnUnload']);
 }
-View['tearDownFontScaleOnUnload'] = applyFontScaleOnLoad;
-
-View.on(View.unloadedEvent, tearDownFontScaleOnUnload);
+View['tearDownFontScaleOnUnload'] = applyCssClassesOnLoad;
 
 nsApp.on(nsApp.launchEvent, () => {
   if (fontScaleObservable.fontScale) {
@@ -185,3 +208,4 @@ nsApp.on(nsApp.resumeEvent, () => {
     setNgRootFontScale(fontScaleObservable.fontScale);
   }
 });
+View.on(View.unloadedEvent, tearDownApplyCssClassesOnUnload);

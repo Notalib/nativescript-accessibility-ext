@@ -59,3 +59,74 @@ $a11y-font-scales: (
     ios: true,
   ),
 ) !default;
+
+
+$a11y-font-size: 10 !default;
+$a11y-font-sizes: (
+  t-10: (
+    font-size: $a11y-font-size,
+  ),
+  t-12: (
+    font-size: $a11y-font-size + 2,
+  ),
+  t-14: (
+    font-size: $a11y-font-size + 4,
+  ),
+  t-15: (
+    font-size: $a11y-font-size + 5,
+  ),
+  t-16: (
+    font-size: $a11y-font-size + 6,
+  ),
+  t-17: (
+    font-size: $a11y-font-size + 7,
+  ),
+  t-18: (
+    font-size: $a11y-font-size + 8,
+  ),
+  t-19: (
+    font-size: $a11y-font-size + 9,
+  ),
+  t-20: (
+    font-size: $a11y-font-size + 10,
+  ),
+  t-25: (
+    font-size: $a11y-font-size + 15,
+  ),
+  t-30: (
+    font-size: $a11y-font-size + 20,
+  ),
+  t-36: (
+    font-size: $a11y-font-size + 26,
+  ),
+) !default;
+
+$a11y-label-classes: (
+  h1: (
+    font-size: 32,
+  ),
+  h2: (
+    font-size: 22,
+  ),
+  h3: (
+    font-size: 15,
+  ),
+  h4: (
+    font-size: 12,
+  ),
+  h5: (
+    font-size: 11,
+  ),
+  h6: (
+    font-size: 10,
+  ),
+  body: (
+    font-size: 14,
+  ),
+  body2: (
+    font-size: 17,
+  ),
+  footnote: (
+    font-size: 13,
+  ),
+) !default;

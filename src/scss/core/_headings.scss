@@ -1,0 +1,5 @@
+@each $label-class in map-keys($a11y-label-classes) {
+  .#{$label-class} {
+    font-size: var(--a11y-#{$label-class}-size);
+  }
+}

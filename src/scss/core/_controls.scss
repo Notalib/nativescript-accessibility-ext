@@ -1,0 +1,167 @@
+@if not $compat {
+  button,
+  .nt-button {
+    font-size: var(--a11y-btn-font-size);
+  }
+
+  SegmentedBar,
+  .nt-segmented-bar {
+    font-size: var(--a11y-segmented-bar-font-size);
+    height: var(--a11y-segmented-bar-height);
+  }
+
+  TabView,
+  .nt-tab-view {
+    tab-text-font-size: var(--a11y-font-size);
+  }
+
+  BottomNavigation,
+  .nt-bottom-navigation {
+    font-size: var(--a11y-font-size-2);
+  }
+
+  ListView,
+  RadListView,
+  .nt-list-view {
+    NTIcon,
+    .nt-icon {
+      font-size: var(--a11y-icon-font-size-lg);
+    }
+  }
+
+  RadSideDrawer,
+  .nt-drawer {
+    .sidedrawer-list-item {
+      .sidedrawer-list-item-icon {
+        font-size: var(--a11y-icon-font-size-lg);
+      }
+    }
+
+    .nt-drawer__header {
+      > label {
+        font-size: var(--a11y-drawer-header-font-size);
+      }
+
+      &-brand {
+        font-size: var(--a11y-font-size);
+      }
+    }
+  }
+
+  form,
+  .nt-form {
+    .nt-form__title {
+      font-size: var(--a11y-btn-font-size);
+    }
+  }
+
+  // Form fields
+  TextView,
+  TextField,
+  PickerField,
+  DatePickerField,
+  TimePickerField,
+  DateTimePickerFields,
+  DataFormEditorCore {
+    font-size: var(--a11y-font-size);
+  }
+
+  NTInput,
+  .nt-input {
+    > label {
+      font-size: var(--a11y-font-size);
+    }
+
+    & > NTIcon,
+    & > .nt-icon {
+      font-size: var(--a11y-icon-font-size-lg);
+    }
+  }
+
+  ActionBar,
+  NTActionBar,
+  .nt-action-bar {
+    font-size: var(--a11y-btn-font-size);
+
+    NTIcon,
+    label,
+    button,
+    .nt-action-bar__item {
+      font-size: var(--a11y-font-size);
+    }
+
+    & > label {
+      font-size: var(--a11y-btn-font-size);
+    }
+
+    > label,
+    > GridLayout label {
+      font-size: var(--a11y-btn-font-size);
+    }
+  }
+} @else {
+  .btn {
+    font-size: var(--a11y-btn-font-size);
+  }
+
+  SegmentedBar {
+    font-size: var(--a11y-segmented-bar-font-size);
+    height: var(--a11y-segmented-bar-height);
+  }
+
+  .tab-view {
+    tab-text-font-size: var(--a11y-font-size);
+  }
+
+  .list-group {
+    .list-group-item-text {
+      font-size: var(--a11y-font-size-2);
+    }
+  }
+
+  .side-drawer {
+    .sidedrawer-header {
+      > label {
+        font-size: var(--a11y-drawer-header-font-size);
+      }
+
+      &-brand {
+        font-size: var(--a11y-font-size);
+      }
+    }
+  }
+
+  .form {
+    .nt-form__title {
+      font-size: var(--a11y-btn-font-size);
+    }
+  }
+
+  .input {
+    .nt-form__title {
+      font-size: var(--a11y-font-size);
+    }
+  }
+
+  .input-field {
+    > .label {
+      font-size: var(--a11y-font-size);
+    }
+  }
+
+  .action-bar {
+    font-size: var(--a11y-btn-font-size);
+    .action-item {
+      font-size: var(--a11y-font-size);
+    }
+
+    & > label {
+      font-size: var(--a11y-btn-font-size);
+    }
+
+    > label,
+    > GridLayout label {
+      font-size: var(--a11y-btn-font-size);
+    }
+  }
+}

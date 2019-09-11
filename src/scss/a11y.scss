@@ -1,7 +1,6 @@
+$compat: false !default;
+
 @import 'fontscales';
 @import 'a11y-helpers';
 
-// iOS specific styling
-.ns-ios {
-    @import 'ios/index';
-}
+@import 'core/index';

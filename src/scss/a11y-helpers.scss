@@ -1,4 +1,5 @@
 @import './fontscales';
+@import 'nativescript-theme-core/scss/variables';
 
 .a11y-service-disabled {
   .a11y-service-enabled-visible,
@@ -37,61 +38,62 @@
   }
 }
 
-.ns-root {
+.ns-root,
+.ns-modal {
   --a11y-fontscale-factor: 1;
   --const-segmented-bar-font-size: 15;
   --const-drawer-header-font-size: 40;
 
-  @at-root ns-android {
-    --const-segmented-bar-height: 56;
+  --const-segmented-bar-height: 56;
 
-    --a11y-font-size: var(--const-font-size);
-    --a11y-font-size-2: calc(var(--const-font-size) - 2);
-    --a11y-btn-font-size: var(--const-btn-font-size);
-    --a11y-icon-font-size-lg: var(--const-icon-font-size-lg);
-    --a11y-segmented-bar-font-size: var(--const-segmented-bar-font-size);
-    --a11y-segmented-bar-height: var(--const-segmented-bar-height);
-    --a11y-drawer-header-font-size: var(--const-drawer-header-font-size);
+  --a11y-font-size: var(--const-font-size, #{$font-size});
+  --const-font-size-2: calc(var(--const-font-size, #{$font-size}) - 2);
+  --a11y-font-size-2: var(----const-font-size-2);
+  --a11y-btn-font-size: var(--const-btn-font-size, #{$btn-font-size});
+  --a11y-icon-font-size-lg: var(--const-icon-font-size-lg, #{$font-size + 4});
+  --a11y-segmented-bar-font-size: var(--const-segmented-bar-font-size);
+  --a11y-segmented-bar-height: var(--const-segmented-bar-height);
+  --a11y-drawer-header-font-size: var(--const-drawer-header-font-size);
 
-    @each $text-class, $values in $a11y-font-sizes {
-      $a11y-font-size: map-get($values, font-size);
+  @each $text-class, $values in $a11y-font-sizes {
+    $a11y-font-size: map-get($values, font-size);
 
-      --a11y-#{$text-class}-size: #{$a11y-font-size};
-    }
+    --a11y-#{$text-class}-size: #{$a11y-font-size};
+  }
 
-    @each $label-class, $values in $a11y-label-classes {
-      $a11y-font-size: map-get($values, font-size);
+  @each $label-class, $values in $a11y-label-classes {
+    $a11y-font-size: map-get($values, font-size);
 
-      --a11y-#{$label-class}-size: #{$a11y-font-size};
-    }
+    --a11y-#{$label-class}-size: #{$a11y-font-size};
   }
 
   &.ns-a11y {
     font-size: var(--a11y-font-size);
   }
+}
 
-  @at-root .ns-ios {
-    --const-segmented-bar-height: 30;
+.ns-ios,
+.ns-a11y-modal-ios {
+  --const-segmented-bar-height: 30;
 
-    --a11y-font-size: calc(var(--const-font-size) * var(--a11y-fontscale-factor));
-    --a11y-font-size-2: calc(calc(var(--const-font-size) - 2) * var(--a11y-fontscale-factor));
-    --a11y-btn-font-size: calc(var(--const-btn-font-size) * var(--a11y-fontscale-factor));
-    --a11y-icon-font-size-lg: calc(var(--const-icon-font-size-lg) * var(--a11y-fontscale-factor));
-    --a11y-segmented-bar-font-size: calc(var(--const-segmented-bar-font-size) * var(--a11y-fontscale-factor));
-    --a11y-segmented-bar-height: calc(var(--const-segmented-bar-height) * var(--a11y-fontscale-factor));
-    --a11y-drawer-header-font-size: calc(var(--const-drawer-header-font-size) * var(--a11y-fontscale-factor));
+  --a11y-font-size: calc(var(--const-font-size, #{$font-size}) * var(--a11y-fontscale-factor));
+  --a11y-font-size-2: calc(var(--const-font-size-2) * var(--a11y-fontscale-factor));
+  --a11y-btn-font-size: calc(var(--const-btn-font-size, #{$btn-font-size}) * var(--a11y-fontscale-factor));
+  --a11y-icon-font-size-lg: calc(var(--const-icon-font-size-lg, #{$font-size + 4}) * var(--a11y-fontscale-factor));
+  --a11y-segmented-bar-font-size: calc(var(--const-segmented-bar-font-size) * var(--a11y-fontscale-factor));
+  --a11y-segmented-bar-height: calc(var(--const-segmented-bar-height) * var(--a11y-fontscale-factor));
+  --a11y-drawer-header-font-size: calc(var(--const-drawer-header-font-size) * var(--a11y-fontscale-factor));
 
-    @each $text-class, $values in $a11y-font-sizes {
-      $a11y-font-size: map-get($values, font-size);
+  @each $text-class, $values in $a11y-font-sizes {
+    $a11y-font-size: map-get($values, font-size);
 
-      --a11y-#{$text-class}-size: calc(#{$a11y-font-size} * var(--a11y-fontscale-factor));
-    }
+    --a11y-#{$text-class}-size: calc(#{$a11y-font-size} * var(--a11y-fontscale-factor));
+  }
 
-    @each $label-class, $values in $a11y-label-classes {
-      $a11y-font-size: map-get($values, font-size);
+  @each $label-class, $values in $a11y-label-classes {
+    $a11y-font-size: map-get($values, font-size);
 
-      --a11y-#{$label-class}-size: calc(#{$a11y-font-size} * var(--a11y-fontscale-factor));
-    }
+    --a11y-#{$label-class}-size: calc(#{$a11y-font-size} * var(--a11y-fontscale-factor));
   }
 }
 
@@ -111,9 +113,9 @@ Slider {
 }
 
 @each $scaleName, $params in $a11y-font-scales {
-  $factor: map-get($params, factor); // scaling factor 0.8, 1.0., 1.3 etc
+  $a11y-fontscale-factor: map-get($params, factor); // scaling factor 0.8, 1.0., 1.3 etc
 
   .a11y-fontscale-#{$scaleName} {
-    --a11y-fontscale-factor: #{$factor};
+    --a11y-fontscale-factor: #{$a11y-fontscale-factor};
   }
 }

@@ -70,7 +70,6 @@ View.prototype[accessibilityHiddenCssProperty.setNative] = function accessibilit
 
   const viewCompat = getViewCompat();
 
-  console.log({ isHidden });
   if (isHidden) {
     writeTrace(`View<${this}.android>.accessibilityElementsHidden - hide element`);
     viewCompat.setImportantForAccessibility(androidView, viewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);

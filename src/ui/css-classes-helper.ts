@@ -2,6 +2,7 @@
 
 import * as rdc from 'reduce-css-calc';
 import * as nsApp from 'tns-core-modules/application/application';
+import { getModalRootViewCssClass } from 'tns-core-modules/css/system-classes';
 import { EventData, Observable } from 'tns-core-modules/data/observable';
 import { isAndroid, isIOS } from 'tns-core-modules/platform';
 import { View } from 'tns-core-modules/ui/core/view';
@@ -86,16 +87,15 @@ function setViewHelperCssClasses(views: View[], newFontScale: number) {
   }
 }
 
-function setNgRootFontScale() {
-  const rootView = nsApp.getRootView();
-  if (!rootView) {
+function setBaseViewFontScale(view: View) {
+  if (!view) {
     return;
   }
 
   let { isExtraSmall, isExtraLarge } = fontScaleObservable;
   const a11yServiceEnabled = a11yServiceObservable.accessibilityServiceEnabled;
 
-  const localCls = `${cls}.setNgRootFontScale() - ${rootView}`;
+  const localCls = `${cls}.setBaseViewFontScale() - ${view}`;
 
   const a11yCssClasses = {
     [a11yServiceEnabledClass]: a11yServiceEnabled,
@@ -103,6 +103,7 @@ function setNgRootFontScale() {
     [fontExtraSmallClass]: isIOS && isExtraSmall,
     [fontExtraLargeClass]: isIOS && isExtraLarge,
     [fontExtraMediumClass]: isAndroid || !(isExtraSmall && isExtraLarge),
+    'ns-a11y-modal-ios': isIOS && view.cssClasses.has(getModalRootViewCssClass()),
     'ns-a11y': true,
   } as { [className: string]: boolean };
 
@@ -111,13 +112,28 @@ function setNgRootFontScale() {
     a11yCssClasses[cssClass] = fontScale === newFontScale;
   }
 
-  const oldViewClassNames = [...rootView.cssClasses].join(' ');
-  if (viewSetCssClasses(rootView, a11yCssClasses)) {
+  const oldViewClassNames = [...view.cssClasses].join(' ');
+  if (viewSetCssClasses(view, a11yCssClasses)) {
     if (isTraceEnabled()) {
-      const postViewClassNames = [...rootView.cssClasses].join(' ');
-      console.log(`${localCls}: change from '${oldViewClassNames}' to '${postViewClassNames}'`);
+      const postViewClassNames = [...view.cssClasses].join(' ');
+      writeFontScaleTrace(`${localCls}: change from '${oldViewClassNames}' to '${postViewClassNames}'`);
     }
   }
+}
+
+function setNsModalFontScale(modalView: View) {
+  if (modalView && modalView.cssClasses.has(getModalRootViewCssClass())) {
+    setBaseViewFontScale(modalView);
+  }
+}
+
+function setNsRootFontScale() {
+  const rootView = nsApp.getRootView();
+  if (!rootView) {
+    return;
+  }
+
+  setBaseViewFontScale(rootView);
 }
 
 function getLoadedViews() {
@@ -147,7 +163,7 @@ fontScaleObservable.on(Observable.propertyChangeEvent, () => {
 });
 
 const a11yServiceObservable = new AccessibilityServiceEnabledObservable();
-a11yServiceObservable.on(Observable.propertyChangeEvent, () => setNgRootFontScale());
+a11yServiceObservable.on(Observable.propertyChangeEvent, () => setNsRootFontScale());
 
 function applyCssClassesOnLoad({ object: view }: EventData) {
   if (!(view instanceof View)) {
@@ -220,7 +236,15 @@ if (nsApp['setNgRootFontScale']) {
   nsApp.off(nsApp.launchEvent, nsApp['setNgRootFontScale']);
   nsApp.off(nsApp.resumeEvent, nsApp['setNgRootFontScale']);
 }
-nsApp['setNgRootFontScale'] = setNgRootFontScale;
+nsApp['setNgRootFontScale'] = setNsRootFontScale;
 
 nsApp.on(nsApp.launchEvent, nsApp['setNgRootFontScale']);
 nsApp.on(nsApp.resumeEvent, nsApp['setNgRootFontScale']);
+
+if (View['ShowingModallyEventFontScale']) {
+  // Handle HMR restart
+  View.off(View.shownModallyEvent, View['ShowingModallyEventFontScale']);
+}
+
+View['ShowingModallyEventFontScale'] = (evt) => setNsModalFontScale(evt.object);
+View.on(View.shownModallyEvent, View['ShowingModallyEventFontScale']);

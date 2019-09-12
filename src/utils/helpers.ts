@@ -295,7 +295,7 @@ export function viewSetCssClasses(view: View, a11yCssClasses: A11YCssClasses): b
   }
 
   if (changed) {
-    view.className = [...view.cssClasses].join(' ');
+    view._onCssStateChange();
   }
 
   return changed;

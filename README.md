@@ -167,24 +167,23 @@ The number indicated pct font scale:
 
 Android auto scales font `Label` out of the box. But iOS does not.
 
-To enabled for `iOS` please use `nativescript-theme-core` with our extensions from this plugin.
+To enabled for `iOS` please use `nativescript-theme-core@^2.0.19` with our extensions from this plugin.
 
 #### To use the theme extension:
 
-To use it all you need to do is add this to your `app.ios.scss`:
+To use it all you need to do is add this to your `app.scss` / `app.css`:
 
 ```scss
-@import '~nativescript-theme-core/scss/index';
-@import '~nativescript-theme-core/scss/platforms/index.ios';
-@import '~@nota/nativescript-accessibility-ext/scss/a11y.ios'; // <-- add this line
+@import '~nativescript-theme-core/core.css';
+@import '~nativescript-theme-core/css/grey.css';
+@import '~@nota/nativescript-accessibility-ext/a11y.css'; // <-- add this line
 ```
 
-And add this to your `app.android.scss`:
-
+For compat mode:
 ```scss
-@import '~nativescript-theme-core/scss/index';
-@import '~nativescript-theme-core/scss/platforms/index.android';
-@import '~@nota/nativescript-accessibility-ext/scss/a11y.android'; // <-- add this line
+@import '~nativescript-theme-core/core.compat.css';
+@import '~nativescript-theme-core/css/grey.compat.css';
+@import '~@nota/nativescript-accessibility-ext/a11y.compat.css'; // <-- add this line
 ```
 
 For more see [FontScale.md](https://raw.githubusercontent.com/Notalib/nativescript-accessibility-ext/master/src/FontScaling.md).

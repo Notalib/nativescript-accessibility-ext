@@ -24,10 +24,10 @@
     "@angular/router": "8.2.0",
     "@nota/nativescript-accessibility-ext": "file:../src",
     "nativescript-angular": "^8.2.0",
-    "nativescript-theme-core": "~2.0.17",
+    "nativescript-theme-core": "~2.0.19",
     "reflect-metadata": "~0.1.13",
     "rxjs": "^6.5.2",
-    "tns-core-modules": "^6.1.0",
+    "tns-core-modules": "^6.1.1",
     "zone.js": "~0.9.0"
   },
   "devDependencies": {

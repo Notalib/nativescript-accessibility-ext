@@ -88,8 +88,6 @@ export class MyComponent {
 ### Font Scaling
 
 ```scss
-import '@nota/nativescript-accessibility-ext/scss/fontscales';
-
 $my-custom-font-size: 16;
 $my-custom-height: 40;
 $my-custom-margin: 2;
@@ -98,27 +96,15 @@ $my-custom-margin: 2;
   margin: $my-custom-margin;
   font-size: $my-custom-font-size;
 
-  @each $scaleName, $params in $a11y-font-scales {
-    $factor: map-get($params, factor); // scaling factor 0.8, 1.0., 1.3 etc
-    $extraSmall: map-get($params, extraSmall); // extra small font size
-    $ios: map-get($params, ios); // available on ios
-    $android: map-get($params, android); // available on android
-    $extraLarge: map-get($params, extraLarge); // extra large font size
+  font-size: $my-custom-font-size;
 
-    &.a11y-fontscale-#{$scaleName} {
-      height: $my-custom-height * $factor;
-      @if $ios {
-        $.ios {
-          font-size: $my-custom-font-size: * $factor;
-        }
-      }
-      @if $android {
-        &.android {
-          margin: $my-custom-margin * $factor;
-        }
-      }
-    }
-    }
+  &[ios] {
+    // only available used on ios.
+    font-size: calc(#{$my-custom-font-size} * var(--a11y-fontscale-factor));
+  }
+
+  &[android] {
+    margin: calc(#{$my-custom-margin} * var(--a11y-fontscale-factor));
   }
 }
 ```

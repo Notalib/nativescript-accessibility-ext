@@ -72,7 +72,7 @@
 }
 
 .ns-ios,
-.ns-a11y-modal-ios {
+.ns-modal[ios] {
   --const-segmented-bar-height: 30;
 
   --a11y-font-size: calc(var(--const-font-size) * var(--a11y-fontscale-factor));

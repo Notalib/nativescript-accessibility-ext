@@ -31,7 +31,7 @@ If you use the theme-classes font-scaling will be enabled on both platforms.
 
 | variable | description |
 | -- | -- |
-| --a11y-fontscale-factor | This is the current scaling factor, defaults to 1 |
+| --a11y-fontscale-factor | Current fontscale factor |
 | --a11y-font-size | Default font-size, scaled version of --const-font-size |
 | --a11y-btn-font-size | Button font-size, scaled version of --const-btn-font-size |
 | --a11y-icon-font-size-lg | Icon font-size, scaled version of --const-icon-font-size-lg |
@@ -42,7 +42,7 @@ If you use the theme-classes font-scaling will be enabled on both platforms.
 | --a11y-segmented-bar-height | SegmentedBar height, scaled version of  --const-segmented-bar-height |
 | --const-drawer-header-font-size | Base SideDrawer header font-size |
 | --a11y-drawer-header-font-size |  SideDrawer header font-size, scaled version of --const-drawer-header-font-size |
-| --a11y-{text-classname}-size | Scaled font-size variable for the text CSS-classes `t-10`...`t-36`, `h1`...`h6`, `body`, `body2` and `footnote`. |
+| --a11y-{text-class-name}-size | Scaled font-size variable for the text CSS-classes `t-10`...`t-36`, `h1`...`h6`, `body`, `body2` and `footnote`. |
 
 ```scss
 .my-class {
@@ -52,9 +52,9 @@ If you use the theme-classes font-scaling will be enabled on both platforms.
 }
 ```
 
-# Using the font-scale classes (deprecated)
+# Using the font-scale classes **(deprecated)**
 
-This is the old way of using font-scaling. It is deprecated and will be removed soon.
+This is the old way of using font-scaling. It is deprecated and will be removed by **v6.2.0**, please use the CSS-variables.
 
 A CSS-class matching the current font-scale setting is added to each view
 - a11y-fontscale-50 (iOS only - extra small font size)
@@ -73,8 +73,6 @@ A CSS-class matching the current font-scale setting is added to each view
 To use these you need to generate
 
 ```scss
-@import '~@nota/nativescript-accessibility-ext/scss/fontscales';
-
 $my-custom-font-size: 16;
 $my-custom-height: 40;
 $my-custom-margin: 2;

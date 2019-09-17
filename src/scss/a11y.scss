@@ -3,4 +3,6 @@ $compat: false !default;
 @import 'fontscales';
 @import 'a11y-helpers';
 
-@import 'core/index';
+.ns-a11y {
+  @import 'core/index';
+}

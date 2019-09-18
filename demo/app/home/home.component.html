@@ -20,9 +20,16 @@
       </StackLayout>
     </android>
   </StackLayout>
-  <ListView row="1" [items]="source" (loaded)="onLoaded($event)" (itemLoading)="onItemLoading($event)" (itemTap)="onItemTap($event)" class="list-group">
+  <ListView row="1" [items]="source" (loaded)="onLoaded($event)" (itemLoading)="onItemLoading($event)" class="list-group">
     <ng-template let-item="item" let-index="index" let-odd="odd" let-even="even">
-      <StackLayout [class.odd]="odd" [class.even]="even" accessible="true" (accessibilityFocus)="onAccessibilityFocus($event, index)" class="list-group-item">
+      <StackLayout
+        [class.odd]="odd"
+        [class.even]="even"
+        accessible="true"
+        (accessibilityFocus)="onAccessibilityFocus($event, index)"
+        class="list-group-item"
+        (tap)="onItemTap(item)"
+      >
         <Label [text]="item.name"></Label>
       </StackLayout>
     </ng-template>

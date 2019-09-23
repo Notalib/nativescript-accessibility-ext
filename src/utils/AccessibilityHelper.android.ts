@@ -5,7 +5,7 @@ import { ListView } from 'tns-core-modules/ui/list-view/list-view';
 import * as utils from 'tns-core-modules/utils/utils';
 import { categories, isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 import { AccessibilityRole, AccessibilityState } from '../ui/core/view-common';
-import { notifyAccessibilityFocusState } from './helpers';
+import { hmrSafeGlobalEvents, notifyAccessibilityFocusState } from './helpers';
 import { isAccessibilityServiceEnabled } from './utils';
 
 function writeHelperTrace(message: string, type = trace.messageType.info) {
@@ -639,9 +639,4 @@ function setupA11yScrollOnFocus(args: any) {
   }
 }
 
-if (ListView['setupA11yScrollOnFocus']) {
-  ListView.off(ListView.itemLoadingEvent, ListView['setupA11yScrollOnFocus']);
-}
-ListView['setupA11yScrollOnFocus'] = setupA11yScrollOnFocus;
-
-ListView.on(ListView.itemLoadingEvent, setupA11yScrollOnFocus);
+hmrSafeGlobalEvents('setupA11yScrollOnFocus', [ListView.itemLoadingEvent], ListView, setupA11yScrollOnFocus);

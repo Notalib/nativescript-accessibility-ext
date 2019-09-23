@@ -3,8 +3,9 @@
 import { Page, PageEventData } from 'tns-core-modules/ui/page';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import '../../utils/global-events';
+import { hmrSafeGlobalEvents } from '../../utils/helpers';
 
-Page.on(Page.navigatedToEvent, (args: PageEventData) => {
+hmrSafeGlobalEvents('PageAnnounce', [Page.navigatedToEvent], Page, (args: PageEventData) => {
   const cls = `Announce page change`;
 
   const page = args.object;

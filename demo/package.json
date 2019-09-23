@@ -24,7 +24,7 @@
     "@angular/router": "~8.2.6",
     "@nota/nativescript-accessibility-ext": "file:../src",
     "nativescript-angular": "~8.2.1",
-    "nativescript-theme-core": "~2.0.20",
+    "nativescript-theme-core": "~2.0.21",
     "reflect-metadata": "~0.1.13",
     "rxjs": "^6.5.3",
     "tns-core-modules": "^6.1.1",

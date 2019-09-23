@@ -248,7 +248,7 @@ export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean
  * This needs to be updated if the css-class is to remain enabled
  * on updates.
  */
-function getViewNgCssClassesMap(view: any): Map<string, boolean> {
+export function getViewNgCssClassesMap(view: any): Map<string, boolean> {
   if (!view.ngCssClasses) {
     view.ngCssClasses = new Map<string, boolean>();
   }
@@ -258,6 +258,23 @@ function getViewNgCssClassesMap(view: any): Map<string, boolean> {
 
 export interface A11YCssClasses {
   [className: string]: boolean;
+}
+
+/**
+ * Adding global events during development is problematic, if HMR is enabled.
+ * This helper solved the problem, by removing the old event before adding the new event
+ */
+export function hmrSafeGlobalEvents(fnName: string, events: string[], viewClass: any, callback: (...args: any[]) => any) {
+  if (fnName in viewClass) {
+    for (const eventName of events) {
+      viewClass.off(eventName, viewClass[fnName]);
+    }
+  }
+
+  viewClass[fnName] = callback;
+  for (const eventName of events) {
+    viewClass.on(eventName, viewClass[fnName]);
+  }
 }
 
 declare const Zone: any;

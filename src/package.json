@@ -80,7 +80,7 @@
     "@angular/router": "~8.2.6",
     "dart-sass": "^1.22.12",
     "nativescript-angular": "~8.2.1",
-    "nativescript-theme-core": "^2.0.20",
+    "nativescript-theme-core": "^2.0.21",
     "npm-run-all": "^4.1.5",
     "prettier": "^1.18.2",
     "prettier-check": "^2.0.0",

@@ -101,13 +101,18 @@ Slider {
   a11y-role: adjustable;
 }
 
+.a11y-enabled {
+  a11y-enabled: true;
+}
+
 .h1,
 .h2,
 .h3,
 .h4,
 .h5,
-.h6 {
-  a11y-enabled: true;
+.h6,
+.a11y-header {
+  @extend .a11y-enabled;
   a11y-role: header;
 }
 
@@ -117,4 +122,67 @@ Slider {
   .a11y-fontscale-#{$scaleName} {
     --a11y-fontscale-factor: #{$a11y-fontscale-factor};
   }
+}
+
+.a11y-hidden {
+  a11y-hidden: true;
+}
+
+.a11y-btn {
+  @extend .a11y-enabled;
+  a11y-role: button;
+}
+
+%a11y-checkable {
+  @extend .a11y-enabled;
+
+  &.a11y-checked {
+    a11y-state: checked;
+  }
+}
+
+.a11y-radiobtn {
+  @extend %a11y-checkable;
+  a11y-role: radiobutton;
+}
+.a11y-checkbox {
+  @extend %a11y-checkable;
+  a11y-role: checkbox;
+}
+.a11y-switch {
+  @extend %a11y-checkable;
+  a11y-role: switch;
+}
+.a11y-disabled {
+  a11y-state: disabled;
+}
+
+.a11y-selected {
+  a11y-state: selected;
+}
+
+.a11y-weblink {
+  @extend .a11y-enabled;
+  a11y-role: link;
+}
+
+.a11y-start-media {
+  @extend .a11y-enabled;
+  a11y-role: button;
+  accessibility-traits: startsMedia;
+}
+
+.a11y-image {
+  @extend .a11y-enabled;
+  a11y-role: image;
+}
+
+.a11y-search-btn {
+  @extend .a11y-enabled;
+  a11y-role: search;
+}
+
+.a11y-updates-often {
+  @extend .a11y-enabled;
+  a11y-live-region: assertive;
 }

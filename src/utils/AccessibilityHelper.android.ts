@@ -1,3 +1,4 @@
+import * as nsApp from 'tns-core-modules/application';
 import * as trace from 'tns-core-modules/trace';
 import { EventData, View as TNSView } from 'tns-core-modules/ui/core/view';
 import { GestureTypes } from 'tns-core-modules/ui/gestures/gestures';
@@ -352,6 +353,8 @@ export class AccessibilityHelper {
 
     ensureDelegates();
 
+    this.updateContentDescription(tnsView);
+
     let delegate: AccessibilityDelegateCompat = null;
     const key = 'TNSAccessibilityDelegateCompat';
     if (tnsView.accessible) {
@@ -454,6 +457,16 @@ export class AccessibilityHelper {
     }
 
     let contentDescriptionBuilder: string[] = [];
+    // Workaround: TalkBack won't read the checked state for fake Switch.
+    if (tnsView.accessibilityRole === AccessibilityRole.Switch) {
+      const androidSwitch = new android.widget.Switch(nsApp.android.context);
+      if (tnsView.accessibilityState === AccessibilityState.Checked) {
+        contentDescriptionBuilder.push(androidSwitch.getTextOn());
+      } else {
+        contentDescriptionBuilder.push(androidSwitch.getTextOff());
+      }
+    }
+
     let haveValue = false;
     if (tnsView.accessibilityLabel) {
       if (isTraceEnabled()) {

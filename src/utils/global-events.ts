@@ -36,7 +36,7 @@ import { TextView } from 'tns-core-modules/ui/text-view/text-view';
 import { TimePicker } from 'tns-core-modules/ui/time-picker/time-picker';
 import { WebView } from 'tns-core-modules/ui/web-view/web-view';
 import { isTraceEnabled, writeGlobalEventsTrace } from '../trace';
-import { unwrapViewFunction, wrapViewFunction } from './helpers';
+import { unwrapFunction, wrapFunction } from './helpers';
 
 export function setupGlobalEventsOnViewClass(ViewClass: any) {
   const viewName = ViewClass.name;
@@ -56,9 +56,9 @@ export function setupGlobalEventsOnViewClass(ViewClass: any) {
 
   ViewClass[obsKeyName] = new Observable();
 
-  unwrapViewFunction(ViewClass, 'notify');
+  unwrapFunction(ViewClass.prototype, 'notify');
 
-  wrapViewFunction(ViewClass, 'notify', function customNotify(arg: EventData) {
+  wrapFunction(ViewClass.prototype, 'notify', function customNotify(arg: EventData) {
     if (!ViewClass[obsKeyName].hasListeners(arg.eventName)) {
       return;
     }

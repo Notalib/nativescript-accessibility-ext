@@ -50,20 +50,18 @@ function getOriginalWrappedFnName(viewClass: any, fnName: string) {
 }
 
 /**
- * Wrap a function on a View-class.
+ * Wrap a function on an object.
  * The original function will be called before the func.
  */
-export function wrapViewFunction(viewClass: any, fnName: string, func: Function) {
-  const viewName = viewClass.name;
+export function wrapFunction(obj: any, fnName: string, func: Function) {
+  const origFNName = getOriginalWrappedFnName(obj, fnName);
 
-  const origFNName = getOriginalWrappedFnName(viewClass, fnName);
+  obj[origFNName] = (obj[origFNName] || obj[fnName]) as Function;
 
-  viewClass[origFNName] = (viewClass[origFNName] || viewClass.prototype[fnName]) as Function;
-
-  viewClass.prototype[fnName] = function(...args: any[]) {
-    let origFN = viewClass[origFNName];
+  obj[fnName] = function(...args: any[]) {
+    let origFN = obj[origFNName];
     if (!origFN) {
-      writeErrorTrace(`wrapViewFunction(${viewName}) don't have an original function for ${fnName}`);
+      writeErrorTrace(`wrapFunction(${obj}) don't have an original function for ${fnName}`);
 
       origFN = noop;
     }
@@ -77,16 +75,16 @@ export function wrapViewFunction(viewClass: any, fnName: string, func: Function)
 }
 
 /**
- * Unwrap a function on a View-class wrapped by wrapViewFunction.
+ * Unwrap a function on a class wrapped by wrapFunction.
  */
-export function unwrapViewFunction(viewClass: any, fnName: string) {
-  const origFNName = getOriginalWrappedFnName(viewClass, fnName);
-  if (!viewClass[origFNName]) {
+export function unwrapFunction(obj: any, fnName: string) {
+  const origFNName = getOriginalWrappedFnName(obj, fnName);
+  if (!obj[origFNName]) {
     return;
   }
 
-  viewClass.prototype[fnName] = viewClass[origFNName];
-  delete viewClass[origFNName];
+  obj[fnName] = obj[origFNName];
+  delete obj[origFNName];
 }
 
 export function enforceArray(val: string | string[]): string[] {
@@ -264,14 +262,14 @@ export interface A11YCssClasses {
  * Adding global events during development is problematic, if HMR is enabled.
  * This helper solved the problem, by removing the old event before adding the new event
  */
-export function hmrSafeGlobalEvents(fnName: string, events: string[], viewClass: any, callback: (...args: any[]) => any) {
+export function hmrSafeGlobalEvents(fnName: string, events: string[], viewClass: any, callback: (...args: any[]) => any, thisArg?: any) {
   if (fnName in viewClass) {
     for (const eventName of events) {
       viewClass.off(eventName, viewClass[fnName]);
     }
   }
 
-  viewClass[fnName] = callback;
+  viewClass[fnName] = thisArg ? callback.bind(thisArg) : callback;
   for (const eventName of events) {
     viewClass.on(eventName, viewClass[fnName]);
   }

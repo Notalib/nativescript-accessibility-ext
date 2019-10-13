@@ -1,3 +1,4 @@
+import * as nsApp from 'tns-core-modules/application';
 import * as trace from 'tns-core-modules/trace';
 import { EventData, View as TNSView } from 'tns-core-modules/ui/core/view';
 import { GestureTypes } from 'tns-core-modules/ui/gestures/gestures';
@@ -350,23 +351,44 @@ function ensureAccessibilityEventMap() {
 export class AccessibilityHelper {
   public static updateAccessibilityProperties(tnsView: TNSView) {
     const androidView: AndroidView = getAndroidView(tnsView);
-    if (isTraceEnabled()) {
-      writeHelperTrace(`updateAccessibilityProperties: tnsView:${tnsView}, androidView:${androidView}`);
-    }
+    const cls = `AccessibilityHelper.updateAccessibilityProperties(${tnsView})`;
 
     ensureDelegates();
 
-    let delegate: AccessibilityDelegateCompat = null;
+    this.updateContentDescription(tnsView);
 
+    let delegate: AccessibilityDelegateCompat = null;
+    const key = 'TNSAccessibilityDelegateCompat';
     if (tnsView.accessible) {
-      delegate = new TNSAccessibilityDelegateCompat(tnsView);
+      if (tnsView[key]) {
+        if (isTraceEnabled()) {
+          writeHelperTrace(`${cls} - already has a delegate`);
+        }
+
+        return;
+      } else {
+        delegate = new TNSAccessibilityDelegateCompat(tnsView);
+        tnsView[key] = delegate;
+
+        if (isTraceEnabled()) {
+          writeHelperTrace(`${cls} - add delegate`);
+        }
+      }
+    } else if (tnsView[key]) {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - removed delegate`);
+      }
+
+      delete tnsView[key];
     }
+
+    tnsView.once(TNSView.unloadedEvent, (evt) => delete evt.object[key]);
 
     getViewCompat().setAccessibilityDelegate(androidView, delegate);
   }
 
   public static sendAccessibilityEvent(androidView: AndroidView, eventName: string, text?: string) {
-    const cls = `AccessibilityHelper.sendAccessibilityEvent(${androidView}, ${eventName}, ${text})`;
+    const cls = `AccessibilityHelper.sendAccessibilityEvent(androidView, ${eventName}, ${text})`;
     if (!eventName) {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls}: no eventName provided`);
@@ -426,7 +448,7 @@ export class AccessibilityHelper {
   public static updateContentDescription(tnsView: TNSView) {
     const androidView = getAndroidView(tnsView);
 
-    const cls = `AccessibilityHelper.updateContentDescription(${tnsView}, ${androidView}`;
+    const cls = `AccessibilityHelper.updateContentDescription(${tnsView})`;
 
     if (!androidView) {
       if (isTraceEnabled()) {
@@ -437,6 +459,16 @@ export class AccessibilityHelper {
     }
 
     let contentDescriptionBuilder: string[] = [];
+    // Workaround: TalkBack won't read the checked state for fake Switch.
+    if (tnsView.accessibilityRole === AccessibilityRole.Switch) {
+      const androidSwitch = new android.widget.Switch(nsApp.android.context);
+      if (tnsView.accessibilityState === AccessibilityState.Checked) {
+        contentDescriptionBuilder.push(androidSwitch.getTextOn());
+      } else {
+        contentDescriptionBuilder.push(androidSwitch.getTextOff());
+      }
+    }
+
     let haveValue = false;
     if (tnsView.accessibilityLabel) {
       if (isTraceEnabled()) {
@@ -501,17 +533,16 @@ export class AccessibilityHelper {
  * Otherwise we risk buggy behavior, where the ListView jumps to the top or selects a < half
  * visible element.
  */
-function ensureListViewItemIsOnScreen(listView: ListView, index: number, event: EventData) {
-  const view = event.object as TNSView;
-
-  if (isTraceEnabled()) {
-    writeHelperTrace(`ItemOnScreen${listView}: index=${index} view=${view}`);
-  }
+function ensureListViewItemIsOnScreen(listView: ListView, view: TNSView) {
   if (suspendAccessibilityEvents) {
     if (isTraceEnabled()) {
-      writeHelperTrace(`ItemOnScreen${listView}: index=${index} suspended`);
+      writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${view}) suspended`);
     }
     return;
+  }
+
+  if (isTraceEnabled()) {
+    writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${view})`);
   }
 
   try {
@@ -520,7 +551,7 @@ function ensureListViewItemIsOnScreen(listView: ListView, index: number, event: 
     if (!androidListView) {
       // This really shouldn't happen, but just in case.
       if (isTraceEnabled()) {
-        writeHelperTrace(`ItemOnScreen${listView}: index=${index} no native list-view?`);
+        writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${view}) no native list-view?`);
       }
       return;
     }
@@ -546,7 +577,9 @@ function ensureListViewItemIsOnScreen(listView: ListView, index: number, event: 
     if (viewPos.y >= minOffset && viewPosDelta.y2 <= maxOffset) {
       // The view is on screen, no need to scroll anything.
       if (isTraceEnabled()) {
-        writeHelperTrace(`ItemOnScreen${listView}: index=${index} is on screen ${viewPos.y} >= ${minOffset} && ${viewPosDelta.y2} <= ${maxOffset}`);
+        writeHelperTrace(
+          `ensureListViewItemIsOnScreen(${listView}, ${view}) view is on screen ${viewPos.y} >= ${minOffset} && ${viewPosDelta.y2} <= ${maxOffset}`,
+        );
       }
 
       return;
@@ -569,7 +602,7 @@ function ensureListViewItemIsOnScreen(listView: ListView, index: number, event: 
     const scrollByDP = utils.layout.toDevicePixels(scrollByDIP);
 
     if (isTraceEnabled()) {
-      writeHelperTrace(`ItemOnScreen${listView}: index=${index} is not on screen, scroll by: ${scrollByDIP}`);
+      writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${view}) view is not on screen, scroll by: ${scrollByDIP}`);
     }
 
     // Finally scroll this ListView.
@@ -586,6 +619,8 @@ function ensureListViewItemIsOnScreen(listView: ListView, index: number, event: 
  * Set the ListView item's AccessibilityDelegate on load. this is needed to scroll into view.
  */
 function listViewItemLoaded(event: EventData) {
+  ensureDelegates();
+
   const tnsView = event.object as TNSView;
   if (!tnsView.android) {
     return;
@@ -598,27 +633,44 @@ function setupA11yScrollOnFocus(args: any) {
   ensureDelegates();
 
   const listView = args.object as ListView;
-  const index = args.index as number;
   const tnsView = args.view as TNSView;
-
-  if (isTraceEnabled()) {
-    writeHelperTrace(`ItemLoading${listView}: index=${index} view=${tnsView}`);
-  }
 
   if (!tnsView) {
     return;
   }
 
+  if (tnsView.hasListeners(a11yScrollOnFocus)) {
+    if (isTraceEnabled()) {
+      writeHelperTrace(`setupA11yScrollOnFocus(): ${listView} view=${tnsView} - item already has ${a11yScrollOnFocus}`);
+    }
+
+    return;
+  }
+
+  if (isTraceEnabled()) {
+    writeHelperTrace(`setupA11yScrollOnFocus(): ${listView} view=${tnsView}`);
+  }
+
   tnsView.off(a11yScrollOnFocus);
 
-  tnsView.on(a11yScrollOnFocus, ensureListViewItemIsOnScreen.bind(null, listView, index));
+  const listViewRef = new WeakRef(listView);
+
+  tnsView.on(a11yScrollOnFocus, (evt) => {
+    const localListView = listViewRef.get();
+    if (!localListView) {
+      evt.object.off(a11yScrollOnFocus);
+      return;
+    }
+
+    ensureListViewItemIsOnScreen(localListView, evt.object as TNSView);
+  });
 
   for (let p = tnsView; p && p !== listView; p = p.parent as TNSView) {
     p.off(TNSView.loadedEvent, listViewItemLoaded);
 
     if (!p.isLoaded) {
       if (isTraceEnabled()) {
-        writeHelperTrace(`ItemLoading${listView}: index=${index} view is not loaded`);
+        writeHelperTrace(`setupA11yScrollOnFocus(): ${listView} p=${p} - view is not loaded`);
       }
 
       p.on(TNSView.loadedEvent, listViewItemLoaded);
@@ -632,8 +684,9 @@ function setupA11yScrollOnFocus(args: any) {
 
     if (getViewCompat().hasAccessibilityDelegate(androidView)) {
       if (isTraceEnabled()) {
-        writeHelperTrace(`ItemLoading${listView}: index=${index} view already has a delegate`);
+        writeHelperTrace(`setupA11yScrollOnFocus(): ${listView} p=${p} - view already has a delegate`);
       }
+
       continue;
     }
 

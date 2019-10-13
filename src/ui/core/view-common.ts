@@ -274,7 +274,7 @@ export const accessibilityMediaSessionCssProperty = addBooleanCssPropertyToView(
   ViewCommon,
   accessibilityMediaSessionPropertyName,
   accessibilityMediaSessionCssName,
-  !!isIOS,
+  false,
 );
 
 Object.defineProperties(View, {

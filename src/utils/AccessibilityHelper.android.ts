@@ -167,16 +167,18 @@ function ensureDelegates() {
 
       const accessibilityRole = owner.accessibilityRole as AccessibilityRole;
 
-      const androidClassName = RoleTypeMap.get(accessibilityRole);
-      if (androidClassName) {
-        info.setClassName(androidClassName);
-        if (isTraceEnabled()) {
-          writeHelperTrace(`${owner}.accessibilityRole = "${accessibilityRole}" is mapped to "${androidClassName}"`);
-        }
-      } else if (accessibilityRole) {
-        if (!ignoreRoleTypesForTrace.has(accessibilityRole as AccessibilityRole)) {
+      if (accessibilityRole) {
+        const androidClassName = RoleTypeMap.get(accessibilityRole);
+        if (androidClassName) {
+          info.setClassName(androidClassName);
           if (isTraceEnabled()) {
-            writeHelperTrace(`${owner}.accessibilityRole = "${accessibilityRole}" is unknown`);
+            writeHelperTrace(`${owner}.accessibilityRole = "${accessibilityRole}" is mapped to "${androidClassName}"`);
+          }
+        } else if (accessibilityRole) {
+          if (!ignoreRoleTypesForTrace.has(accessibilityRole as AccessibilityRole)) {
+            if (isTraceEnabled()) {
+              writeHelperTrace(`${owner}.accessibilityRole = "${accessibilityRole}" is unknown`);
+            }
           }
         }
       }

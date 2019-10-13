@@ -169,7 +169,7 @@ Slider {
 .a11y-start-media {
   @extend .a11y-enabled;
   a11y-role: button;
-  accessibility-traits: startsMedia;
+  a11y-media-session: true;
 }
 
 .a11y-image {

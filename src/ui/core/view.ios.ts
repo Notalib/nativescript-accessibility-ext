@@ -18,6 +18,7 @@ import {
   accessibleCssProperty,
   commonFunctions,
   iosFunctions,
+  accessibilityMediaSessionCssProperty,
 } from './view-common';
 
 View.prototype[accessibleCssProperty.setNative] = function accessibleSetNative(this: View, isAccessible: boolean) {
@@ -253,6 +254,10 @@ View.prototype[accessibilityHintProperty.setNative] = function accessibilityHint
   }
 
   uiView.accessibilityHint = value;
+};
+
+View.prototype[accessibilityMediaSessionCssProperty.setNative] = function accessibilityMediaSessionSetNative(this: View) {
+  AccessibilityHelper.updateAccessibilityProperties(this);
 };
 
 setViewFunction(View, commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: View) {

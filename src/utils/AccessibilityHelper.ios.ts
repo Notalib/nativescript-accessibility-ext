@@ -200,6 +200,10 @@ export class AccessibilityHelper {
       }
     }
 
+    if (tnsView.accessibilityMediaSession) {
+      a11yTraits |= AccessibilityTraitsMap.get(AccessibilityTrait.StartsMediaSession);
+    }
+
     if (tnsView.accessibilityTraits) {
       a11yTraits |= inputArrayToBitMask(tnsView.accessibilityTraits, AccessibilityTraitsMap);
     }

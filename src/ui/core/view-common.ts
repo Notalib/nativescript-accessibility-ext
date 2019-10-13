@@ -190,34 +190,36 @@ for (const fnName of Object.keys(allFunctions)) {
 }
 
 setViewFunction(ViewCommon, 'postAccessibilityNotification', function(notificationType: PostAccessibilityNotificationType, msg?: string) {
-  console.warn(`DEPRECATED: ${this}.postAccessibilityNotification  is no longer supported. Please use "${iosFunctions.iosPostAccessibilityNotification}"`);
+  console.warn(`DEPRECATED: ${this}.postAccessibilityNotification is no longer supported. Please use "${iosFunctions.iosPostAccessibilityNotification}"`);
 
   this[iosFunctions.iosPostAccessibilityNotification](notificationType, msg);
 });
 
 setViewFunction(ViewCommon, 'sendAccessibilityEvent', function(eventName: string, text?: string) {
-  console.warn(`DEPRECATED: ${this}.sendAccessibilityEvent  is no longer supported. Please use "${androidFunctions.androidSendAccessibilityEvent}"`);
+  console.warn(`DEPRECATED: ${this}.sendAccessibilityEvent is no longer supported. Please use "${androidFunctions.androidSendAccessibilityEvent}"`);
 
   this[androidFunctions.androidSendAccessibilityEvent](eventName, text);
 });
 
-export const accessiblePropertyName = 'accessible';
-export const accessibleCssName = 'a11y-enabled';
-export const accessibilityHiddenPropertyName = 'accessibilityHidden';
-export const accessibilityHiddenCssName = 'a11y-hidden';
-export const accessibilityIdPropertyName = 'accessibilityIdentifier';
-export const accessibilityRolePropertyName = 'accessibilityRole';
-export const accessibilityRoleCssName = 'a11y-role';
-export const accessibilityStatePropertyName = 'accessibilityState';
-export const accessibilityStateCssName = 'a11y-state';
-export const accessibilityLabelPropertyName = 'accessibilityLabel';
-export const accessibilityValuePropertyName = 'accessibilityValue';
-export const accessibilityHintPropertyName = 'accessibilityHint';
-export const accessibilityLiveRegionPropertyName = 'accessibilityLiveRegion';
-export const accessibilityLiveRegionCssName = 'a11y-live-region';
-export const accessibilityTraitsPropertyName = 'accessibilityTraits';
-export const accessibilityLanguagePropertyName = 'accessibilityLanguage';
-export const accessibilityLanguageCssName = 'a11y-lang';
+const accessiblePropertyName = 'accessible';
+const accessibleCssName = 'a11y-enabled';
+const accessibilityHiddenPropertyName = 'accessibilityHidden';
+const accessibilityHiddenCssName = 'a11y-hidden';
+const accessibilityIdPropertyName = 'accessibilityIdentifier';
+const accessibilityRolePropertyName = 'accessibilityRole';
+const accessibilityRoleCssName = 'a11y-role';
+const accessibilityStatePropertyName = 'accessibilityState';
+const accessibilityStateCssName = 'a11y-state';
+const accessibilityLabelPropertyName = 'accessibilityLabel';
+const accessibilityValuePropertyName = 'accessibilityValue';
+const accessibilityHintPropertyName = 'accessibilityHint';
+const accessibilityLiveRegionPropertyName = 'accessibilityLiveRegion';
+const accessibilityLiveRegionCssName = 'a11y-live-region';
+const accessibilityTraitsPropertyName = 'accessibilityTraits';
+const accessibilityLanguagePropertyName = 'accessibilityLanguage';
+const accessibilityLanguageCssName = 'a11y-lang';
+const accessibilityMediaSessionPropertyName = 'accessibilityMediaSession';
+const accessibilityMediaSessionCssName = 'a11y-media-session';
 
 // Common properties
 export const accessibleCssProperty = addBooleanCssPropertyToView(ViewCommon, accessiblePropertyName, accessibleCssName);
@@ -238,7 +240,6 @@ export const accessibilityStateCssProperty = addCssPropertyToView<View, string>(
   undefined,
   makePropertyEnumConverter<AccessibilityState>(AccessibilityState),
 );
-
 export const accessibilityLabelProperty = addPropertyToView<View, string | null>(ViewCommon, accessibilityLabelPropertyName);
 export const accessibilityValueProperty = addPropertyToView<View, string | null>(ViewCommon, accessibilityValuePropertyName);
 export const accessibilityHintProperty = addPropertyToView<View, string | null>(ViewCommon, accessibilityHintPropertyName);
@@ -269,6 +270,12 @@ export const accessibilityLiveRegionCssProperty = addCssPropertyToView<View, 'no
 // iOS properties:
 export const accessibilityTraitsProperty = addPropertyToView<View, string | string[] | null>(ViewCommon, accessibilityTraitsPropertyName);
 export const accessibilityLanguageProperty = addCssPropertyToView<View, string>(ViewCommon, accessibilityLanguagePropertyName, accessibilityLanguageCssName);
+export const accessibilityMediaSessionCssProperty = addBooleanCssPropertyToView(
+  ViewCommon,
+  accessibilityMediaSessionPropertyName,
+  accessibilityMediaSessionCssName,
+  !!isIOS,
+);
 
 Object.defineProperties(View, {
   accessibilityFocusEvent: {

@@ -44,8 +44,7 @@ export function setViewFunction(viewClass: any, fnName: string, fn?: Function) {
   viewClass.prototype[fnName] = fn || noop;
 }
 
-function getOriginalWrappedFnName(viewClass: any, fnName: string) {
-  const viewName = viewClass.name;
+function getOriginalWrappedFnName(viewName: string, fnName: string) {
   return `___a11y_${viewName}_${fnName}`;
 }
 
@@ -53,8 +52,8 @@ function getOriginalWrappedFnName(viewClass: any, fnName: string) {
  * Wrap a function on an object.
  * The original function will be called before the func.
  */
-export function wrapFunction(obj: any, fnName: string, func: Function) {
-  const origFNName = getOriginalWrappedFnName(obj, fnName);
+export function wrapFunction(obj: any, fnName: string, func: Function, objName: string) {
+  const origFNName = getOriginalWrappedFnName(objName, fnName);
 
   obj[origFNName] = (obj[origFNName] || obj[fnName]) as Function;
 
@@ -77,8 +76,8 @@ export function wrapFunction(obj: any, fnName: string, func: Function) {
 /**
  * Unwrap a function on a class wrapped by wrapFunction.
  */
-export function unwrapFunction(obj: any, fnName: string) {
-  const origFNName = getOriginalWrappedFnName(obj, fnName);
+export function unwrapFunction(obj: any, fnName: string, viewName: string) {
+  const origFNName = getOriginalWrappedFnName(viewName, fnName);
   if (!obj[origFNName]) {
     return;
   }

@@ -11,6 +11,7 @@ import { FontScaleObservable } from '../utils/FontScaleObservable';
 import '../utils/global-events';
 import { getViewNgCssClassesMap, hmrSafeGlobalEvents, wrapFunction } from '../utils/helpers';
 import { AccessibilityServiceEnabledObservable } from '../utils/utils';
+import { ViewCommon } from './core/view-common';
 
 // CSS-classes
 const fontExtraSmallClass = `a11y-fontscale-xs`;
@@ -27,7 +28,7 @@ declare const Zone: any;
 const cssClassesPropName = '_a11yCssClasses';
 const cssClassesLastChangedPropName = `${cssClassesPropName}_lastChangeId`;
 
-class CssClassesHelper {
+class CssClassHelper {
   private readonly cls = `CssClassesHelper`;
 
   private readonly fontScaleCssClasses = new Map(FontScaleObservable.VALID_FONT_SCALES.map((fs) => [fs, this.fontScaleToCssClass(fs)]));
@@ -65,10 +66,15 @@ class CssClassesHelper {
       set(this: ViewBase, cssClasses: Set<string>) {
         this[cssClassesPropName] = cssClasses;
 
-        wrapFunction(cssClasses, 'clear', () => {
-          delete this[cssClassesLastChangedPropName];
-          self.updateViewCssClasses(this);
-        });
+        wrapFunction(
+          cssClasses,
+          'clear',
+          () => {
+            delete this[cssClassesLastChangedPropName];
+            self.updateViewCssClasses(this);
+          },
+          `${this.typeName}.cssClasses`,
+        );
 
         self.updateViewCssClasses(this);
       },
@@ -78,9 +84,9 @@ class CssClassesHelper {
     this.a11yServiceObservable.on(AccessibilityServiceEnabledObservable.propertyChangeEvent, this.a11yServiceChanged, this);
 
     // Override global events
-    hmrSafeGlobalEvents(`updateRootViews`, [nsApp.displayedEvent, nsApp.resumeEvent], nsApp, (evt) => this.updateRootViews(evt));
-    hmrSafeGlobalEvents(`ShowingModallyEventFontScale`, [View.shownModallyEvent], View, (evt) => this.modalViewShowing(evt.object));
-    hmrSafeGlobalEvents('updateViewCssClasses', [View.loadedEvent], View, (evt) => this.updateViewCssClasses(evt.object));
+    hmrSafeGlobalEvents(`${this.cls}.updateRootViews`, [nsApp.displayedEvent, nsApp.resumeEvent], nsApp, (evt) => this.updateRootViews(evt));
+    hmrSafeGlobalEvents(`${this.cls}.modalViewShowing`, [View.shownModallyEvent], ViewCommon, (evt) => this.modalViewShowing(evt.object));
+    hmrSafeGlobalEvents(`${this.cls}.updateViewCssClasses`, [View.loadedEvent], View, (evt) => this.updateViewCssClasses(evt.object));
   }
 
   private modalViewShowing(modalView: View) {
@@ -187,10 +193,10 @@ class CssClassesHelper {
    * Update css-helper classes on root and modal-views
    */
   @profile
-  private updateRootViews(event?: any) {
-    event = { ...event };
+  private updateRootViews(evt?: any) {
+    evt = { ...evt };
 
-    const cls = `${this.cls}.updateRootViews({eventName: ${event.eventName}})`;
+    const cls = `${this.cls}.updateRootViews({eventName: ${evt.eventName}, object: ${evt.object}})`;
     this.updateCurrentHelperClasses();
 
     const rootView = nsApp.getRootView();
@@ -258,6 +264,11 @@ class CssClassesHelper {
     }
 
     this.loadedModalViewRefs.set(`${modalView}`, new WeakRef(modalView));
+
+    delete modalView[cssClassesLastChangedPropName];
+    // WORKAROUND: ns-modal class is sometimes missing
+    modalView.cssClasses.add(nsModalClass);
+    this.updateViewCssClasses(modalView);
   }
 
   /**
@@ -326,4 +337,4 @@ class CssClassesHelper {
   }
 }
 
-new CssClassesHelper();
+export const cssClassHelper = new CssClassHelper();

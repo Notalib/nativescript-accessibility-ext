@@ -11,6 +11,7 @@ import {
   accessibilityLabelProperty,
   accessibilityLanguageProperty,
   accessibilityLiveRegionCssProperty,
+  accessibilityMediaSessionCssProperty,
   accessibilityRoleCssProperty,
   accessibilityStateCssProperty,
   accessibilityTraitsProperty,
@@ -18,7 +19,6 @@ import {
   accessibleCssProperty,
   commonFunctions,
   iosFunctions,
-  accessibilityMediaSessionCssProperty,
 } from './view-common';
 
 View.prototype[accessibleCssProperty.setNative] = function accessibleSetNative(this: View, isAccessible: boolean) {

@@ -36,10 +36,10 @@ import { TextView } from 'tns-core-modules/ui/text-view/text-view';
 import { TimePicker } from 'tns-core-modules/ui/time-picker/time-picker';
 import { WebView } from 'tns-core-modules/ui/web-view/web-view';
 import { isTraceEnabled, writeGlobalEventsTrace } from '../trace';
+import { ViewCommon } from '../ui/core/view-common';
 import { unwrapFunction, wrapFunction } from './helpers';
 
-export function setupGlobalEventsOnViewClass(ViewClass: any) {
-  const viewName = ViewClass.name;
+export function setupGlobalEventsOnViewClass(ViewClass: any, viewName: string) {
   const obsKeyName = `__a11y_globalEvent_${viewName}_observable`;
 
   if (ViewClass[obsKeyName]) {
@@ -56,19 +56,24 @@ export function setupGlobalEventsOnViewClass(ViewClass: any) {
 
   ViewClass[obsKeyName] = new Observable();
 
-  unwrapFunction(ViewClass.prototype, 'notify');
+  unwrapFunction(ViewClass.prototype, 'notify', viewName);
 
-  wrapFunction(ViewClass.prototype, 'notify', function customNotify(arg: EventData) {
-    if (!ViewClass[obsKeyName].hasListeners(arg.eventName)) {
-      return;
-    }
+  wrapFunction(
+    ViewClass.prototype,
+    'notify',
+    function customNotify(arg: EventData) {
+      if (!ViewClass[obsKeyName].hasListeners(arg.eventName)) {
+        return;
+      }
 
-    if (isTraceEnabled()) {
-      writeGlobalEventsTrace(`Notify "${arg.eventName}" to all "${viewName}" from ${arg.object}`);
-    }
+      if (isTraceEnabled()) {
+        writeGlobalEventsTrace(`Notify "${arg.eventName}" to all "${viewName}" from ${arg.object}`);
+      }
 
-    ViewClass[obsKeyName].notify(arg);
-  });
+      ViewClass[obsKeyName].notify(arg);
+    },
+    viewName,
+  );
 
   ViewClass.on = ViewClass.addEventListener = function customAddEventListener(eventNames: string, callback: (data: EventData) => void, thisArg?: any) {
     if (isTraceEnabled()) {
@@ -96,44 +101,45 @@ export function setupGlobalEventsOnViewClass(ViewClass: any) {
 }
 
 // Add the global events to the View-class before adding it to the sub-classes.
-setupGlobalEventsOnViewClass(View);
-setupGlobalEventsOnViewClass(TextBase);
-setupGlobalEventsOnViewClass(ContainerView);
-setupGlobalEventsOnViewClass(LayoutBase);
+setupGlobalEventsOnViewClass(ViewCommon, 'ViewCommon');
+setupGlobalEventsOnViewClass(View, 'View');
+setupGlobalEventsOnViewClass(TextBase, 'TextBase');
+setupGlobalEventsOnViewClass(ContainerView, 'ContainerView');
+setupGlobalEventsOnViewClass(LayoutBase, 'LayoutBase');
 
-for (const viewClass of <{ new (): View }[]>[
-  AbsoluteLayout,
-  ActionBar,
-  ActivityIndicator,
-  Button,
-  CustomLayoutView,
-  DatePicker,
-  DockLayout,
-  EditableTextBase,
-  FlexboxLayout,
-  Frame,
-  GridLayout,
-  HtmlView,
-  Image,
-  Label,
-  ListPicker,
-  ListView,
-  Page,
-  Placeholder,
-  Progress,
-  Repeater,
-  ScrollView,
-  SearchBar,
-  SegmentedBar,
-  Slider,
-  StackLayout,
-  Switch,
-  TabView,
-  TextField,
-  TextView,
-  TimePicker,
-  WebView,
-  WrapLayout,
+for (const { viewClass, viewName } of [
+  { viewClass: AbsoluteLayout, viewName: 'AbsoluteLayout' },
+  { viewClass: ActionBar, viewName: 'ActionBar' },
+  { viewClass: ActivityIndicator, viewName: 'ActivityIndicator' },
+  { viewClass: Button, viewName: 'Button' },
+  { viewClass: CustomLayoutView, viewName: 'CustomLayoutView' },
+  { viewClass: DatePicker, viewName: 'DatePicker' },
+  { viewClass: DockLayout, viewName: 'DockLayout' },
+  { viewClass: EditableTextBase, viewName: 'EditableTextBase' },
+  { viewClass: FlexboxLayout, viewName: 'FlexboxLayout' },
+  { viewClass: Frame, viewName: 'Frame' },
+  { viewClass: GridLayout, viewName: 'GridLayout' },
+  { viewClass: HtmlView, viewName: 'HtmlView' },
+  { viewClass: Image, viewName: 'Image' },
+  { viewClass: Label, viewName: 'Label' },
+  { viewClass: ListPicker, viewName: 'ListPicker' },
+  { viewClass: ListView, viewName: 'ListView' },
+  { viewClass: Page, viewName: 'Page' },
+  { viewClass: Placeholder, viewName: 'Placeholder' },
+  { viewClass: Progress, viewName: 'Progress' },
+  { viewClass: Repeater, viewName: 'Repeater' },
+  { viewClass: ScrollView, viewName: 'ScrollView' },
+  { viewClass: SearchBar, viewName: 'SearchBar' },
+  { viewClass: SegmentedBar, viewName: 'SegmentedBar' },
+  { viewClass: Slider, viewName: 'Slider' },
+  { viewClass: StackLayout, viewName: 'StackLayout' },
+  { viewClass: Switch, viewName: 'Switch' },
+  { viewClass: TabView, viewName: 'TabView' },
+  { viewClass: TextField, viewName: 'TextField' },
+  { viewClass: TextView, viewName: 'TextView' },
+  { viewClass: TimePicker, viewName: 'TimePicker' },
+  { viewClass: WebView, viewName: 'WebView' },
+  { viewClass: WrapLayout, viewName: 'WrapLayout' },
 ]) {
-  setupGlobalEventsOnViewClass(viewClass);
+  setupGlobalEventsOnViewClass(viewClass, viewName);
 }

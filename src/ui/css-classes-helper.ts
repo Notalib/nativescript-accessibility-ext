@@ -265,10 +265,7 @@ class CssClassHelper {
 
     this.loadedModalViewRefs.set(`${modalView}`, new WeakRef(modalView));
 
-    delete modalView[cssClassesLastChangedPropName];
-    // WORKAROUND: ns-modal class is sometimes missing
-    modalView.cssClasses.add(nsModalClass);
-    this.updateViewCssClasses(modalView);
+    this.setHelperCssRecursively(modalView);
   }
 
   /**

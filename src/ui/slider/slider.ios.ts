@@ -7,6 +7,7 @@ class NotaUISlider extends UISlider {
   public static initWithOwner(owner: WeakRef<Slider>) {
     const slider = NotaUISlider.new() as NotaUISlider;
     slider.owner = owner;
+
     return slider;
   }
 

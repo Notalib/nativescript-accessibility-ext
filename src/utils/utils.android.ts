@@ -57,6 +57,7 @@ function ensureStateListener() {
   if (!a11yManager) {
     sharedA11YObservable.set(A11yStateEnabledPropName, false);
     sharedA11YObservable.set(TouchExplorationStateEnabledPropName, false);
+
     return sharedA11YObservable;
   }
 

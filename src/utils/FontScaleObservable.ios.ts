@@ -50,17 +50,20 @@ function setupConfigListener(attempt = 0) {
       }
 
       fontScaleChanged(1);
+
       return;
     }
 
     // Couldn't get launchEvent to trigger.
     setTimeout(() => setupConfigListener(attempt + 1), 1);
+
     return;
   }
 
   function contentSizeUpdated(fontSize: string) {
     if (sizeMap.has(fontSize)) {
       fontScaleChanged(sizeMap.get(fontSize));
+
       return;
     }
 
@@ -129,6 +132,7 @@ export class FontScaleObservable extends Observable {
       const self = selfRef.get();
       if (self) {
         self.set(args.propertyName, args.value);
+
         return;
       }
 

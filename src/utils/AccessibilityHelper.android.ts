@@ -118,6 +118,7 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
       }
 
       notifyAccessibilityFocusState(owner, false, true);
+
       return;
     }
   }
@@ -393,6 +394,7 @@ export class AccessibilityHelper {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls}: no eventName provided`);
       }
+
       return;
     }
 
@@ -400,6 +402,7 @@ export class AccessibilityHelper {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls} - TalkBack not enabled`);
       }
+
       return;
     }
 
@@ -408,6 +411,7 @@ export class AccessibilityHelper {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls} - a11yService not enabled`);
       }
+
       return;
     }
 
@@ -418,6 +422,7 @@ export class AccessibilityHelper {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls} - unknown event`);
       }
+
       return;
     }
     const eventInt = accessibilityEventMap.get(eventName);
@@ -533,31 +538,34 @@ export class AccessibilityHelper {
  * Otherwise we risk buggy behavior, where the ListView jumps to the top or selects a < half
  * visible element.
  */
-function ensureListViewItemIsOnScreen(listView: ListView, view: TNSView) {
+function ensureListViewItemIsOnScreen(listView: ListView, tnsView: TNSView) {
   if (suspendAccessibilityEvents) {
     if (isTraceEnabled()) {
-      writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${view}) suspended`);
+      writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${tnsView}) suspended`);
     }
+
     return;
   }
 
   if (isTraceEnabled()) {
-    writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${view})`);
+    writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${tnsView})`);
   }
 
   try {
     suspendAccessibilityEvents = true;
+
     const androidListView = listView.android as android.widget.ListView;
     if (!androidListView) {
       // This really shouldn't happen, but just in case.
       if (isTraceEnabled()) {
-        writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${view}) no native list-view?`);
+        writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${tnsView}) no native list-view?`);
       }
+
       return;
     }
 
-    const viewSize = view.getActualSize();
-    const viewPos = view.getLocationRelativeTo(listView);
+    const viewSize = tnsView.getActualSize();
+    const viewPos = tnsView.getLocationRelativeTo(listView);
     const listViewSize = listView.getActualSize();
 
     const viewPosDelta = {
@@ -578,7 +586,7 @@ function ensureListViewItemIsOnScreen(listView: ListView, view: TNSView) {
       // The view is on screen, no need to scroll anything.
       if (isTraceEnabled()) {
         writeHelperTrace(
-          `ensureListViewItemIsOnScreen(${listView}, ${view}) view is on screen ${viewPos.y} >= ${minOffset} && ${viewPosDelta.y2} <= ${maxOffset}`,
+          `ensureListViewItemIsOnScreen(${listView}, ${tnsView}) view is on screen ${viewPos.y} >= ${minOffset} && ${viewPosDelta.y2} <= ${maxOffset}`,
         );
       }
 
@@ -602,7 +610,7 @@ function ensureListViewItemIsOnScreen(listView: ListView, view: TNSView) {
     const scrollByDP = utils.layout.toDevicePixels(scrollByDIP);
 
     if (isTraceEnabled()) {
-      writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${view}) view is not on screen, scroll by: ${scrollByDIP}`);
+      writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${tnsView}) view is not on screen, scroll by: ${scrollByDIP}`);
     }
 
     // Finally scroll this ListView.
@@ -659,6 +667,7 @@ function setupA11yScrollOnFocus(args: any) {
     const localListView = listViewRef.get();
     if (!localListView) {
       evt.object.off(a11yScrollOnFocus);
+
       return;
     }
 

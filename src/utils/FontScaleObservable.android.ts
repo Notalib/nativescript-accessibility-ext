@@ -31,6 +31,7 @@ function setupConfigListener() {
 
   if (!context) {
     nsApp.on(nsApp.launchEvent, setupConfigListener);
+
     return;
   }
 
@@ -85,6 +86,7 @@ export class FontScaleObservable extends Observable {
       const self = selfRef.get();
       if (self) {
         self.set(args.propertyName, args.value);
+
         return;
       }
 

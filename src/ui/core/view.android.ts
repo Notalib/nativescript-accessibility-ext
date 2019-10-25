@@ -21,6 +21,7 @@ View.prototype[accessibilityHiddenCssProperty.getDefault] = function accessibili
     if (isTraceEnabled()) {
       writeTrace(`View<${this}.android>.accessibilityElementsHidden - default = nativeView is missing`);
     }
+
     return 'auto';
   }
 
@@ -35,6 +36,7 @@ View.prototype[accessibilityHiddenCssProperty.getDefault] = function accessibili
     if (isTraceEnabled()) {
       writeTrace(`View<${this}.android>.accessibilityElementsHidden - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS => true`);
     }
+
     return true;
   }
 
@@ -42,6 +44,7 @@ View.prototype[accessibilityHiddenCssProperty.getDefault] = function accessibili
     if (isTraceEnabled()) {
       writeTrace(`View<${this}.android>.accessibilityElementsHidden - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES => false`);
     }
+
     return false;
   }
 
@@ -49,6 +52,7 @@ View.prototype[accessibilityHiddenCssProperty.getDefault] = function accessibili
     if (isTraceEnabled()) {
       writeTrace(`View<${this}.android>.accessibilityElementsHidden - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO => true`);
     }
+
     return true;
   }
 
@@ -56,6 +60,7 @@ View.prototype[accessibilityHiddenCssProperty.getDefault] = function accessibili
     if (isTraceEnabled()) {
       writeTrace(`View<${this}.android>.accessibilityElementsHidden - default = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_AUTO => false`);
     }
+
     return false;
   }
 
@@ -109,6 +114,7 @@ View.prototype[accessibilityLiveRegionCssProperty.getDefault] = function accessi
     if (isTraceEnabled()) {
       writeTrace(`View<${this}.android>.accessibilityLiveRegion - default - 'none'`);
     }
+
     return 'none';
   }
 
@@ -116,6 +122,7 @@ View.prototype[accessibilityLiveRegionCssProperty.getDefault] = function accessi
     if (isTraceEnabled()) {
       writeTrace(`View<${this}.android>.accessibilityLiveRegion - default - 'assertive'`);
     }
+
     return 'assertive';
   }
 
@@ -123,6 +130,7 @@ View.prototype[accessibilityLiveRegionCssProperty.getDefault] = function accessi
     if (isTraceEnabled()) {
       writeTrace(`View<${this}.android>.accessibilityLiveRegion - default - 'polite'`);
     }
+
     return 'polite';
   }
 
@@ -167,6 +175,7 @@ View.prototype[accessibleCssProperty.getDefault] = function accessibleGetDefault
     if (isTraceEnabled()) {
       writeTrace(`View<${this}.android>.accessible - default = nativeView is missing`);
     }
+
     return false;
   }
 
@@ -175,6 +184,7 @@ View.prototype[accessibleCssProperty.getDefault] = function accessibleGetDefault
   if (isTraceEnabled()) {
     writeTrace(`View<${this}.android>.accessible - default = ${isAccessible}`);
   }
+
   return isAccessible;
 };
 
@@ -202,6 +212,7 @@ setViewFunction(View, androidFunctions.androidSendAccessibilityEvent, function s
       writeTrace(`${cls}`);
     }
     AccessibilityHelper.sendAccessibilityEvent(androidView, eventName, msg);
+
     return;
   }
 
@@ -217,6 +228,7 @@ setViewFunction(View, androidFunctions.androidSendAccessibilityEvent, function s
       if (isTraceEnabled()) {
         writeTrace(`${cls} -> view not loaded -> ${eventName} -> ${msg}`);
       }
+
       return;
     }
 

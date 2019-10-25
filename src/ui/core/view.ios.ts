@@ -54,6 +54,7 @@ View.prototype[accessibilityValueProperty.getDefault] = function accessibilityVa
   if (isTraceEnabled()) {
     writeTrace(`View<${this}.ios>.accessibilityValue - default - ${value}`);
   }
+
   return value;
 };
 
@@ -69,6 +70,7 @@ View.prototype[accessibilityValueProperty.setNative] = function accessibilityVal
     }
 
     uiView.accessibilityValue = `${value}`;
+
     return;
   }
 
@@ -125,6 +127,7 @@ setViewFunction(View, iosFunctions.iosPostAccessibilityNotification, function po
     if (isTraceEnabled()) {
       writeTrace(`${cls} - falsy notificationType`);
     }
+
     return;
   }
 
@@ -151,6 +154,7 @@ setViewFunction(View, iosFunctions.iosPostAccessibilityNotification, function po
       if (isTraceEnabled()) {
         writeTrace(`${cls} - unknown notificationType`);
       }
+
       return;
     }
   }
@@ -188,6 +192,7 @@ View.prototype[accessibilityLabelProperty.getDefault] = function accessibilityLa
   if (isTraceEnabled()) {
     writeTrace(`View<${this}.ios>.accessibilityLabel - default = ${label}`);
   }
+
   return label;
 };
 

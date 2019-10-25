@@ -17,6 +17,7 @@ hmrSafeGlobalEvents('PageAnnounce', [Page.navigatedToEvent], Page, (args: PageEv
     if (isTraceEnabled()) {
       writeTrace(`${cls} disabled globally`);
     }
+
     return;
   }
 
@@ -24,6 +25,7 @@ hmrSafeGlobalEvents('PageAnnounce', [Page.navigatedToEvent], Page, (args: PageEv
     if (isTraceEnabled()) {
       writeTrace(`${cls} disabled for ${page}`);
     }
+
     return;
   }
 

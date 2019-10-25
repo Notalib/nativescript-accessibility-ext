@@ -186,6 +186,7 @@ class CssClassHelper {
     this.updateViewCssClasses(view);
 
     view.eachChildView((child) => this.setHelperCssRecursively(child));
+
     return true;
   }
 

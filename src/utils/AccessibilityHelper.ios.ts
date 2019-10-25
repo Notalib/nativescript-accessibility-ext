@@ -76,6 +76,7 @@ function setupAccessibilityFocusEvents(tnsView: TNSView) {
     if (isTraceEnabled()) {
       writeTrace(`${cls}: not supported by this iOS version`);
     }
+
     return;
   }
 
@@ -84,6 +85,7 @@ function setupAccessibilityFocusEvents(tnsView: TNSView) {
       if (isTraceEnabled()) {
         writeTrace(`${cls}: Already configured no need to do so again`);
       }
+
       return;
     }
 
@@ -93,6 +95,7 @@ function setupAccessibilityFocusEvents(tnsView: TNSView) {
     nsApp.ios.removeNotificationObserver(tnsView[accessibilityFocusObserverSymbol], UIAccessibilityElementFocusedNotification);
 
     delete tnsView[accessibilityFocusObserverSymbol];
+
     return;
   }
 
@@ -146,6 +149,7 @@ export class AccessibilityHelper {
     const uiView = getUIView(tnsView);
     if (!uiView) {
       console.error(`${tnsView} - no uiView`);
+
       return;
     }
 
@@ -158,6 +162,7 @@ export class AccessibilityHelper {
 
     if (!tnsView.accessible || tnsView.accessibilityHidden) {
       uiView.accessibilityTraits = UIAccessibilityTraitNone;
+
       return;
     }
 

@@ -7,6 +7,7 @@ export function isAccessibilityServiceEnabled() {
   const cls = `isAccessibilityServiceEnabled<ios>()`;
   if (typeof UIAccessibilityIsVoiceOverRunning !== 'function') {
     writeErrorTrace(`${cls} - UIAccessibilityIsVoiceOverRunning() - is not a function`);
+
     return false;
   }
 

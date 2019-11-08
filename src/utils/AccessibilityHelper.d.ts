@@ -1,4 +1,4 @@
-import { View as TNSView } from 'tns-core-modules/ui/core/view';
+import { View as TNSView } from '@nativescript/core/ui/core/view';
 
 export declare class AccessibilityHelper {
   public static updateAccessibilityProperties(tnsView: TNSView): void;

@@ -1,7 +1,7 @@
 import { Directive, ElementRef, Input, OnInit } from '@angular/core';
+import { GridLayout } from '@nativescript/core/ui/layouts/grid-layout/grid-layout';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import { GridLayout } from 'tns-core-modules/ui/layouts/grid-layout/grid-layout';
 import { A11yFontScalingObservable } from '../data/a11y-font-scaling';
 import { BaseService } from '../services/base.service';
 

@@ -1,7 +1,7 @@
-import * as utils from 'tns-core-modules/utils/utils';
+import * as utils from '@nativescript/core/utils/utils';
 export declare function isAccessibilityServiceEnabled(): boolean;
 export { utils };
-import { Observable } from 'tns-core-modules/data/observable';
+import { Observable } from '@nativescript/core/data/observable';
 
 export class AccessibilityServiceEnabledObservable extends Observable {
   accessibilityServiceEnabled: boolean;

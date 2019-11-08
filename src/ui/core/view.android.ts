@@ -1,4 +1,4 @@
-import { View } from 'tns-core-modules/ui/core/view';
+import { View } from '@nativescript/core/ui/core/view';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import { AccessibilityHelper, getAndroidView, getViewCompat } from '../../utils/AccessibilityHelper';
 import { setViewFunction } from '../../utils/helpers';

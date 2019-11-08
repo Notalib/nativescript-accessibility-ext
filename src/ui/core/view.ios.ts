@@ -1,6 +1,6 @@
 /// <reference path="./view.d.ts" />
 
-import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/core/view';
+import { PostAccessibilityNotificationType, View } from '@nativescript/core/ui/core/view';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import { AccessibilityHelper, getUIView } from '../../utils/AccessibilityHelper';
 import { setViewFunction } from '../../utils/helpers';

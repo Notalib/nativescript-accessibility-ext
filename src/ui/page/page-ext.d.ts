@@ -1,7 +1,7 @@
-import { Page, EventData } from 'tns-core-modules/ui/page';
+import { Page, EventData } from '@nativescript/core/ui/page';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
 
-declare module 'tns-core-modules/ui/page' {
+declare module '@nativescript/core/ui/page' {
   interface PageEventData extends EventData {
     object: Page;
   }

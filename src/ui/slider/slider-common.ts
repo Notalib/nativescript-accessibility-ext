@@ -1,6 +1,6 @@
 /// <reference path="./slider.d.ts" />
 
-import { AccessibilityDecrementEventData, AccessibilityIncrementEventData, Slider } from 'tns-core-modules/ui/slider';
+import { AccessibilityDecrementEventData, AccessibilityIncrementEventData, Slider } from '@nativescript/core/ui/slider';
 import { addCssPropertyToView, setViewFunction } from '../../utils/helpers';
 
 Slider.accessibilityDecrementEvent = 'accessibilityDecrement';

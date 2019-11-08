@@ -1,5 +1,5 @@
-import * as nsApp from 'tns-core-modules/application';
-import { View as TNSView } from 'tns-core-modules/ui/core/view';
+import * as nsApp from '@nativescript/core/application';
+import { View as TNSView } from '@nativescript/core/ui/core/view';
 import { isTraceEnabled, writeTrace } from '../trace';
 import { AccessibilityLiveRegion, AccessibilityRole, AccessibilityState, AccessibilityTrait } from '../ui/core/view-common';
 import { inputArrayToBitMask, notifyAccessibilityFocusState } from './helpers';

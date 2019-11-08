@@ -1,4 +1,4 @@
-import { Label } from 'tns-core-modules/ui/label';
+import { Label } from '@nativescript/core/ui/label';
 
 Object.defineProperty(Label.prototype, 'accessibilityAdjustsFontSize', {
   get() {

@@ -1,9 +1,9 @@
-import { EventData } from 'tns-core-modules/data/observable';
+import { EventData } from '@nativescript/core/data/observable';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
 import { AccessibilityLiveRegion as _AccessibilityLiveRegion, AccessibilityRole as _AccessibilityRole, AccessibilityState as _AccessibilityState, AccessibilityTrait as _AccessibilityTrait } from './view-common';
 
 
-declare module 'tns-core-modules/ui/core/view' {
+declare module '@nativescript/core/ui/core/view' {
   // @ts-ignore
   type PostAccessibilityNotificationType = 'announcement' | 'screen' | 'layout';
 

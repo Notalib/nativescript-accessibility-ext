@@ -1,7 +1,7 @@
-import 'tns-core-modules/ui/slider';
-import { EventData } from 'tns-core-modules/ui/page';
+import '@nativescript/core/ui/slider';
+import { EventData } from '@nativescript/core/ui/page';
 
-declare module 'tns-core-modules/ui/slider' {
+declare module '@nativescript/core/ui/slider' {
     interface Slider {
         accessibilityStep: number;
         _handlerAccessibilityIncrementEvent(): number;

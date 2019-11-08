@@ -1,13 +1,13 @@
 /// <reference path="../ui/core/view.d.ts" />
 
-import { CssProperty, InheritedCssProperty, Property, Style } from 'tns-core-modules/ui/core/properties';
+import { CssProperty, InheritedCssProperty, Property, Style } from '@nativescript/core/ui/core/properties';
 import {
   AccessibilityBlurEventData,
   AccessibilityFocusChangedEventData,
   AccessibilityFocusEventData,
   booleanConverter,
   View,
-} from 'tns-core-modules/ui/core/view';
+} from '@nativescript/core/ui/core/view';
 import { isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 
 /**

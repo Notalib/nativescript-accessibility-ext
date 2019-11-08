@@ -1,5 +1,5 @@
-import * as nsApp from 'tns-core-modules/application';
-import { Observable, PropertyChangeData } from 'tns-core-modules/data/observable';
+import * as nsApp from '@nativescript/core/application';
+import { Observable, PropertyChangeData } from '@nativescript/core/data/observable';
 import { isTraceEnabled, writeErrorTrace, writeFontScaleTrace } from '../trace';
 
 function getClosestValidFontScale(fontScale: number) {

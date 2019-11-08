@@ -1,9 +1,9 @@
-import * as nsApp from 'tns-core-modules/application';
-import * as trace from 'tns-core-modules/trace';
-import { EventData, View as TNSView } from 'tns-core-modules/ui/core/view';
-import { GestureTypes } from 'tns-core-modules/ui/gestures/gestures';
-import { ListView } from 'tns-core-modules/ui/list-view/list-view';
-import * as utils from 'tns-core-modules/utils/utils';
+import * as nsApp from '@nativescript/core/application';
+import * as trace from '@nativescript/core/trace';
+import { EventData, View as TNSView } from '@nativescript/core/ui/core/view';
+import { GestureTypes } from '@nativescript/core/ui/gestures/gestures';
+import { ListView } from '@nativescript/core/ui/list-view/list-view';
+import * as utils from '@nativescript/core/utils/utils';
 import { categories, isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 import { AccessibilityRole, AccessibilityState } from '../ui/core/view-common';
 import { hmrSafeGlobalEvents, notifyAccessibilityFocusState } from './helpers';

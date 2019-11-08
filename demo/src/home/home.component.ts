@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { AccessibilityFocusEventData } from 'tns-core-modules/ui/page';
-import { LoadEventData } from 'tns-core-modules/ui/web-view/web-view';
-import { alert } from 'tns-core-modules/ui/dialogs';
+import { alert } from '@nativescript/core/ui/dialogs';
+import { AccessibilityFocusEventData } from '@nativescript/core/ui/page';
+import { LoadEventData } from '@nativescript/core/ui/web-view/web-view';
 
 export interface ListItem {
   id: number;

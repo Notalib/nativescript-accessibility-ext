@@ -1,4 +1,4 @@
-import * as trace from 'tns-core-modules/trace';
+import * as trace from '@nativescript/core/trace';
 export namespace categories {
   export const A11Y = 'A11Y';
   export const GlobalEvents = `${A11Y}-GlobalEvents`;

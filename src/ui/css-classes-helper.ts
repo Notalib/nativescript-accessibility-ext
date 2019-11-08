@@ -1,11 +1,11 @@
 /// <reference path="./core/view.d.ts" />
 
-import * as nsApp from 'tns-core-modules/application/application';
-import { getModalRootViewCssClass, getRootViewCssClasses } from 'tns-core-modules/css/system-classes';
-import { PropertyChangeData } from 'tns-core-modules/data/observable';
-import { isAndroid } from 'tns-core-modules/platform';
-import { profile } from 'tns-core-modules/profiling';
-import { View, ViewBase } from 'tns-core-modules/ui/core/view';
+import * as nsApp from '@nativescript/core/application/application';
+import { getModalRootViewCssClass, getRootViewCssClasses } from '@nativescript/core/css/system-classes';
+import { PropertyChangeData } from '@nativescript/core/data/observable';
+import { isAndroid } from '@nativescript/core/platform';
+import { profile } from '@nativescript/core/profiling';
+import { View, ViewBase } from '@nativescript/core/ui/core/view';
 import { isTraceEnabled, writeFontScaleTrace } from '../trace';
 import { FontScaleObservable } from '../utils/FontScaleObservable';
 import '../utils/global-events';

@@ -1,6 +1,6 @@
-import * as nsApp from 'tns-core-modules/application';
-import { Observable } from 'tns-core-modules/data/observable';
-import * as utils from 'tns-core-modules/utils/utils';
+import * as nsApp from '@nativescript/core/application';
+import { Observable } from '@nativescript/core/data/observable';
+import * as utils from '@nativescript/core/utils/utils';
 import { isTraceEnabled, writeTrace } from '../trace';
 import { AccessibilityServiceEnabledPropName, CommonA11YServiceEnabledObservable, SharedA11YObservable as CommonSharedA11YObservable } from './utils-common';
 
@@ -131,4 +131,4 @@ export class AccessibilityServiceEnabledObservable extends CommonA11YServiceEnab
   }
 }
 
-export * from 'tns-core-modules/utils/utils';
+export * from '@nativescript/core/utils/utils';

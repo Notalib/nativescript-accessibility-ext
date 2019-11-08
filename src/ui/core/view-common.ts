@@ -1,8 +1,8 @@
 /// <reference path="./view.d.ts" />
 
-import { isIOS } from 'tns-core-modules/platform';
-import { PostAccessibilityNotificationType, View } from 'tns-core-modules/ui/core/view';
-import { ViewCommon } from 'tns-core-modules/ui/core/view/view-common';
+import { isIOS } from '@nativescript/core/platform';
+import { PostAccessibilityNotificationType, View } from '@nativescript/core/ui/core/view';
+import { ViewCommon } from '@nativescript/core/ui/core/view/view-common';
 import { addBooleanCssPropertyToView, addCssPropertyToView, addPropertyToView, makePropertyEnumConverter, setViewFunction } from '../../utils/helpers';
 
 export enum AccessibilityTrait {

@@ -1,6 +1,6 @@
 /// <reference path="./page-ext.d.ts" />
 
-import { Page, PageEventData } from 'tns-core-modules/ui/page';
+import { Page, PageEventData } from '@nativescript/core/ui/page';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import '../../utils/global-events';
 import { hmrSafeGlobalEvents } from '../../utils/helpers';

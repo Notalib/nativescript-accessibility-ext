@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
+import * as nsApp from '@nativescript/core/application';
+import { PropertyChangeData } from '@nativescript/core/data/observable';
 import { BehaviorSubject } from 'rxjs';
-import * as nsApp from 'tns-core-modules/application';
-import { PropertyChangeData } from 'tns-core-modules/data/observable';
 import { AccessibilityServiceEnabledObservable, isAccessibilityServiceEnabled } from '../../utils/utils';
 
 @Injectable({ providedIn: 'root' })

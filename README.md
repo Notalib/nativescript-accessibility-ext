@@ -174,16 +174,16 @@ To enabled for `iOS` please use `nativescript-theme-core@^2.0.19` with our exten
 To use it all you need to do is add this to your `app.scss` / `app.css`:
 
 ```scss
-@import '~nativescript-theme-core/core.css';
-@import '~nativescript-theme-core/css/grey.css';
-@import '~@nota/nativescript-accessibility-ext/a11y.css'; // <-- add this line
+@import '~@nativescript/theme/core.compat';
+@import '~@nativescript/theme/scss/index';
+@import url('~@nota/nativescript-accessibility-ext/a11y.css'); // <-- add this line
 ```
 
 For compat mode:
 ```scss
-@import '~nativescript-theme-core/core.compat.css';
-@import '~nativescript-theme-core/css/grey.compat.css';
-@import '~@nota/nativescript-accessibility-ext/a11y.compat.css'; // <-- add this line
+@import '~@nativescript/theme/core.compat';
+@import '~@nativescript/theme/scss/index';
+@import url('~@nota/nativescript-accessibility-ext/a11y.compat.css'); // <-- add this line
 ```
 
 For more see [FontScale.md](https://raw.githubusercontent.com/Notalib/nativescript-accessibility-ext/master/src/FontScaling.md).

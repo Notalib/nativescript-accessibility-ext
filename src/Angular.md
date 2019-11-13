@@ -96,14 +96,13 @@ $my-custom-margin: 2;
   margin: $my-custom-margin;
   font-size: $my-custom-font-size;
 
-  font-size: $my-custom-font-size;
-
   &[ios] {
-    // only available used on ios.
+    // Only applies on iOS
     font-size: calc(#{$my-custom-font-size} * var(--a11y-fontscale-factor));
   }
 
   &[android] {
+    // Font sizes auto-scale on android but margins don't
     margin: calc(#{$my-custom-margin} * var(--a11y-fontscale-factor));
   }
 }

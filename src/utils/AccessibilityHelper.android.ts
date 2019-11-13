@@ -474,13 +474,11 @@ export class AccessibilityHelper {
       }
     }
 
-    let haveValue = false;
     if (tnsView.accessibilityLabel) {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls} - have accessibilityLabel`);
       }
 
-      haveValue = true;
       contentDescriptionBuilder.push(`${tnsView.accessibilityLabel}`);
     }
 
@@ -489,14 +487,12 @@ export class AccessibilityHelper {
         writeHelperTrace(`${cls} - have accessibilityValue`);
       }
 
-      haveValue = true;
       contentDescriptionBuilder.push(`${tnsView.accessibilityValue}`);
     } else if (tnsView['text']) {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls} - don't have accessibilityValue but a text value`);
       }
 
-      haveValue = true;
       contentDescriptionBuilder.push(`${tnsView['text']}`);
     }
 
@@ -504,7 +500,7 @@ export class AccessibilityHelper {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls} - have accessibilityHint`);
       }
-      haveValue = true;
+
       contentDescriptionBuilder.push(`${tnsView.accessibilityHint}`);
     }
 
@@ -517,15 +513,17 @@ export class AccessibilityHelper {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls} - no change`);
       }
-    } else if (haveValue) {
+    } else if (contentDescription) {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls} - set to "${contentDescription}"`);
       }
+
       androidView.setContentDescription(contentDescription);
     } else {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls} - remove value`);
       }
+
       androidView.setContentDescription(null);
     }
 

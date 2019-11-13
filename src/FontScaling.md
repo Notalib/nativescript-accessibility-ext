@@ -8,19 +8,19 @@ Support is built-in on `android` but you might need to handle the layout changes
 
 ## Installing the theme extension:
 
-You need to add a single line to your  `app.scss` / `app.css`:
+You need to add a single line to your  `app.scss`:
 
 ```scss
-@import '~nativescript-theme-core/core.css';
-@import '~nativescript-theme-core/css/grey.css';
-@import '~@nota/nativescript-accessibility-ext/a11y.css'; // <-- add this line
+@import '~@nativescript/theme/core.compat';
+@import '~@nativescript/theme/scss/index';
+@import url('~@nota/nativescript-accessibility-ext/a11y.css'); // <-- add this line
 ```
 
 For compat mode:
 ```scss
-@import '~nativescript-theme-core/core.compat.css';
-@import '~nativescript-theme-core/css/grey.compat.css';
-@import '~@nota/nativescript-accessibility-ext/a11y.compat.css'; // <-- add this line
+@import '~@nativescript/theme/core.compat';
+@import '~@nativescript/theme/scss/index';
+@import url('~@nota/nativescript-accessibility-ext/a11y.compat.css'); // <-- add this line
 ```
 
 If you use the theme-classes font-scaling will be enabled on both platforms.

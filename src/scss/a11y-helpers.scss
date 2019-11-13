@@ -96,13 +96,13 @@
   }
 }
 
-Slider {
-  a11y-enabled: true;
-  a11y-role: adjustable;
-}
-
 .a11y-enabled {
   a11y-enabled: true;
+}
+
+Slider {
+  @extend .a11y-enabled;
+  a11y-role: adjustable;
 }
 
 .h1,

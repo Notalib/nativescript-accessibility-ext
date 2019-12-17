@@ -44,8 +44,8 @@ function ensureTraits() {
 
   RoleTypeMap = new Map<AccessibilityRole, number>([
     [AccessibilityRole.Button, UIAccessibilityTraitButton],
-    [AccessibilityRole.Link, UIAccessibilityTraitHeader],
-    [AccessibilityRole.Header, UIAccessibilityTraitLink],
+    [AccessibilityRole.Header, UIAccessibilityTraitHeader],
+    [AccessibilityRole.Link, UIAccessibilityTraitLink],
     [AccessibilityRole.Search, UIAccessibilityTraitSearchField],
     [AccessibilityRole.Image, UIAccessibilityTraitImage],
     [AccessibilityRole.ImageButton, UIAccessibilityTraitImage | UIAccessibilityTraitButton],

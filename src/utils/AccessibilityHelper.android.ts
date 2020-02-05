@@ -1,6 +1,6 @@
 import * as nsApp from '@nativescript/core/application';
 import * as trace from '@nativescript/core/trace';
-import { EventData, View as TNSView } from '@nativescript/core/ui/core/view';
+import { View as TNSView } from '@nativescript/core/ui/core/view';
 import { GestureTypes } from '@nativescript/core/ui/gestures/gestures';
 import { ListView } from '@nativescript/core/ui/list-view/list-view';
 import * as utils from '@nativescript/core/utils/utils';
@@ -37,6 +37,7 @@ const AndroidView = android.view.View;
 type AndroidView = android.view.View;
 const AndroidViewGroup = android.view.ViewGroup;
 type AndroidViewGroup = android.view.ViewGroup;
+let clickableRolesMap = new Set<string>();
 
 function getAccessibilityManager(view: AndroidView): AccessibilityManager {
   return view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
@@ -48,7 +49,7 @@ let lastFocusedView: WeakRef<TNSView>;
 function accessibilityEventHelper(owner: TNSView, eventType: number) {
   if (!isAccessibilityServiceEnabled()) {
     if (isTraceEnabled()) {
-      writeHelperTrace(`EventHelper: Service not active`);
+      writeHelperTrace(`accessibilityEventHelper: Service not active`);
     }
 
     return;
@@ -56,7 +57,7 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
 
   if (!owner) {
     if (isTraceEnabled()) {
-      writeHelperTrace(`EventHelper: Service not active`);
+      writeHelperTrace(`accessibilityEventHelper: no owner: ${eventType}`);
     }
 
     return;
@@ -146,6 +147,8 @@ function ensureDelegates() {
     [AccessibilityRole.ProgressBar, android.widget.ProgressBar.class.getName()],
   ]);
 
+  clickableRolesMap = new Set<string>([AccessibilityRole.Button, AccessibilityRole.ImageButton]);
+
   const ignoreRoleTypesForTrace = new Set([AccessibilityRole.Header, AccessibilityRole.Link, AccessibilityRole.None, AccessibilityRole.Summary]);
 
   class TNSAccessibilityDelegateCompatImpl extends AccessibilityDelegateCompat {
@@ -164,6 +167,10 @@ function ensureDelegates() {
 
       const owner = this.owner.get();
       if (!owner) {
+        if (isTraceEnabled()) {
+          writeHelperTrace(`onInitializeAccessibilityNodeInfo ${host} ${info} no owner`);
+        }
+
         return;
       }
 
@@ -172,16 +179,21 @@ function ensureDelegates() {
       if (accessibilityRole) {
         const androidClassName = RoleTypeMap.get(accessibilityRole);
         if (androidClassName) {
+          const oldClassName = info.getClassName() || host.getAccessibilityClassName();
           info.setClassName(androidClassName);
           if (isTraceEnabled()) {
-            writeHelperTrace(`${owner}.accessibilityRole = "${accessibilityRole}" is mapped to "${androidClassName}"`);
+            writeHelperTrace(
+              `${owner}.accessibilityRole = "${accessibilityRole}" is mapped to "${androidClassName}" (was ${oldClassName}). ${info.getClassName()}`,
+            );
           }
-        } else if (accessibilityRole) {
-          if (!ignoreRoleTypesForTrace.has(accessibilityRole as AccessibilityRole)) {
-            if (isTraceEnabled()) {
-              writeHelperTrace(`${owner}.accessibilityRole = "${accessibilityRole}" is unknown`);
-            }
+        } else if (!ignoreRoleTypesForTrace.has(accessibilityRole as AccessibilityRole)) {
+          if (isTraceEnabled()) {
+            writeHelperTrace(`${owner}.accessibilityRole = "${accessibilityRole}" is unknown`);
           }
+        }
+
+        if (clickableRolesMap.has(accessibilityRole)) {
+          info.setClickable(true);
         }
       }
 
@@ -223,11 +235,20 @@ function ensureDelegates() {
     public sendAccessibilityEvent(host: AndroidViewGroup, eventType: number) {
       super.sendAccessibilityEvent(host, eventType);
 
+      const owner = this.owner && this.owner.get();
       if (suspendAccessibilityEvents) {
+        if (isTraceEnabled()) {
+          writeHelperTrace(`sendAccessibilityEvent: ${owner} - skip`);
+        }
+
         return;
       }
 
-      accessibilityEventHelper(this.owner.get(), eventType);
+      try {
+        accessibilityEventHelper(owner, eventType);
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     public onRequestSendAccessibilityEvent(host: AndroidViewGroup, view: AndroidView, event: AccessibilityEvent) {
@@ -349,43 +370,11 @@ function ensureAccessibilityEventMap() {
   ]);
 }
 
+const accessibilityDelegateCompatViewKey = 'TNSAccessibilityDelegateCompat';
+
 export class AccessibilityHelper {
   public static updateAccessibilityProperties(tnsView: TNSView) {
-    const androidView: AndroidView = getAndroidView(tnsView);
-    const cls = `AccessibilityHelper.updateAccessibilityProperties(${tnsView})`;
-
-    ensureDelegates();
-
-    this.updateContentDescription(tnsView);
-
-    let delegate: AccessibilityDelegateCompat = null;
-    const key = 'TNSAccessibilityDelegateCompat';
-    if (tnsView.accessible) {
-      if (tnsView[key]) {
-        if (isTraceEnabled()) {
-          writeHelperTrace(`${cls} - already has a delegate`);
-        }
-
-        return;
-      } else {
-        delegate = new TNSAccessibilityDelegateCompat(tnsView);
-        tnsView[key] = delegate;
-
-        if (isTraceEnabled()) {
-          writeHelperTrace(`${cls} - add delegate`);
-        }
-      }
-    } else if (tnsView[key]) {
-      if (isTraceEnabled()) {
-        writeHelperTrace(`${cls} - removed delegate`);
-      }
-
-      delete tnsView[key];
-    }
-
-    tnsView.once(TNSView.unloadedEvent, (evt) => delete evt.object[key]);
-
-    getViewCompat().setAccessibilityDelegate(androidView, delegate);
+    setAccessibilityDelegate(tnsView);
   }
 
   public static sendAccessibilityEvent(androidView: AndroidView, eventName: string, text?: string) {
@@ -451,84 +440,121 @@ export class AccessibilityHelper {
   }
 
   public static updateContentDescription(tnsView: TNSView) {
-    const androidView = getAndroidView(tnsView);
-
-    const cls = `AccessibilityHelper.updateContentDescription(${tnsView})`;
-
-    if (!androidView) {
-      if (isTraceEnabled()) {
-        writeErrorTrace(`${cls} - no native element`);
-      }
-
-      return null;
-    }
-
-    let contentDescriptionBuilder: string[] = [];
-    // Workaround: TalkBack won't read the checked state for fake Switch.
-    if (tnsView.accessibilityRole === AccessibilityRole.Switch) {
-      const androidSwitch = new android.widget.Switch(nsApp.android.context);
-      if (tnsView.accessibilityState === AccessibilityState.Checked) {
-        contentDescriptionBuilder.push(androidSwitch.getTextOn());
-      } else {
-        contentDescriptionBuilder.push(androidSwitch.getTextOff());
-      }
-    }
-
-    if (tnsView.accessibilityLabel) {
-      if (isTraceEnabled()) {
-        writeHelperTrace(`${cls} - have accessibilityLabel`);
-      }
-
-      contentDescriptionBuilder.push(`${tnsView.accessibilityLabel}`);
-    }
-
-    if (tnsView.accessibilityValue) {
-      if (isTraceEnabled()) {
-        writeHelperTrace(`${cls} - have accessibilityValue`);
-      }
-
-      contentDescriptionBuilder.push(`${tnsView.accessibilityValue}`);
-    } else if (tnsView['text']) {
-      if (isTraceEnabled()) {
-        writeHelperTrace(`${cls} - don't have accessibilityValue but a text value`);
-      }
-
-      contentDescriptionBuilder.push(`${tnsView['text']}`);
-    }
-
-    if (tnsView.accessibilityHint) {
-      if (isTraceEnabled()) {
-        writeHelperTrace(`${cls} - have accessibilityHint`);
-      }
-
-      contentDescriptionBuilder.push(`${tnsView.accessibilityHint}`);
-    }
-
-    const contentDescription = contentDescriptionBuilder
-      .join('. ')
-      .trim()
-      .replace(/^\.$/, '');
-
-    if (contentDescription === androidView.getContentDescription()) {
-      if (isTraceEnabled()) {
-        writeHelperTrace(`${cls} - no change`);
-      }
-    } else if (contentDescription) {
-      if (isTraceEnabled()) {
-        writeHelperTrace(`${cls} - set to "${contentDescription}"`);
-      }
-
-      androidView.setContentDescription(contentDescription);
-    } else {
-      if (isTraceEnabled()) {
-        writeHelperTrace(`${cls} - remove value`);
-      }
-
-      androidView.setContentDescription(null);
-    }
-
-    return contentDescription;
+    return applyContentDescription(tnsView);
   }
+}
+
+function removeAccessibilityDelegate(tnsView: TNSView) {
+  delete tnsView[accessibilityDelegateCompatViewKey];
+
+  const androidView = getAndroidView(tnsView);
+  if (!androidView) {
+    return;
+  }
+
+  getViewCompat().setAccessibilityDelegate(androidView, null);
+}
+
+function setAccessibilityDelegate(tnsView: TNSView) {
+  const androidView = getAndroidView(tnsView);
+  if (!androidView) {
+    return;
+  }
+
+  ensureDelegates();
+
+  const hasOldDelegate = !!tnsView[accessibilityDelegateCompatViewKey];
+  if (hasOldDelegate) {
+    delete tnsView[accessibilityDelegateCompatViewKey];
+  }
+
+  const cls = `AccessibilityHelper.updateAccessibilityProperties(${tnsView}) - ${hasOldDelegate}`;
+  console.log(cls);
+
+  const delegate = new TNSAccessibilityDelegateCompat(tnsView);
+  tnsView[accessibilityDelegateCompatViewKey] = delegate;
+
+  if (isTraceEnabled()) {
+    writeHelperTrace(`${cls} - add delegate`);
+  }
+
+  getViewCompat().setAccessibilityDelegate(androidView, delegate);
+}
+
+function applyContentDescription(tnsView: TNSView) {
+  const androidView = getAndroidView(tnsView);
+
+  const cls = `updateContentDescription(${tnsView})`;
+
+  if (!androidView) {
+    if (isTraceEnabled()) {
+      writeErrorTrace(`${cls} - no native element`);
+    }
+
+    return null;
+  }
+
+  let contentDescriptionBuilder: string[] = [];
+  // Workaround: TalkBack won't read the checked state for fake Switch.
+  if (tnsView.accessibilityRole === AccessibilityRole.Switch) {
+    const androidSwitch = new android.widget.Switch(nsApp.android.context);
+    if (tnsView.accessibilityState === AccessibilityState.Checked) {
+      contentDescriptionBuilder.push(androidSwitch.getTextOn());
+    } else {
+      contentDescriptionBuilder.push(androidSwitch.getTextOff());
+    }
+  }
+
+  if (tnsView.accessibilityLabel) {
+    if (isTraceEnabled()) {
+      writeHelperTrace(`${cls} - have accessibilityLabel`);
+    }
+
+    contentDescriptionBuilder.push(`${tnsView.accessibilityLabel}`);
+  }
+
+  if (tnsView.accessibilityValue) {
+    if (isTraceEnabled()) {
+      writeHelperTrace(`${cls} - have accessibilityValue`);
+    }
+
+    contentDescriptionBuilder.push(`${tnsView.accessibilityValue}`);
+  } else if (tnsView['text']) {
+    if (isTraceEnabled()) {
+      writeHelperTrace(`${cls} - don't have accessibilityValue but a text value`);
+    }
+
+    contentDescriptionBuilder.push(`${tnsView['text']}`);
+  }
+
+  if (tnsView.accessibilityHint) {
+    if (isTraceEnabled()) {
+      writeHelperTrace(`${cls} - have accessibilityHint`);
+    }
+
+    contentDescriptionBuilder.push(`${tnsView.accessibilityHint}`);
+  }
+
+  const contentDescription = contentDescriptionBuilder
+    .join('. ')
+    .trim()
+    .replace(/^\.$/, '');
+
+  if (contentDescription) {
+    if (isTraceEnabled()) {
+      writeHelperTrace(`${cls} - set to "${contentDescription}"`);
+    }
+
+    androidView.setContentDescription(contentDescription);
+  } else {
+    if (isTraceEnabled()) {
+      writeHelperTrace(`${cls} - remove value`);
+    }
+
+    androidView.setContentDescription(null);
+  }
+
+  return contentDescription;
 }
 
 /**
@@ -549,18 +575,31 @@ function ensureListViewItemIsOnScreen(listView: ListView, tnsView: TNSView) {
     writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${tnsView})`);
   }
 
-  try {
-    suspendAccessibilityEvents = true;
-
-    const androidListView = listView.android as android.widget.ListView;
-    if (!androidListView) {
-      // This really shouldn't happen, but just in case.
-      if (isTraceEnabled()) {
-        writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${tnsView}) no native list-view?`);
-      }
-
-      return;
+  const androidListView = getAndroidView(listView) as android.widget.ListView;
+  if (!androidListView) {
+    // This really shouldn't happen, but just in case.
+    if (isTraceEnabled()) {
+      writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${tnsView}) no native list-view?`);
     }
+
+    return;
+  }
+
+  const androidView = getAndroidView(tnsView);
+  if (!androidView) {
+    // This really shouldn't happen, but just in case.
+    if (isTraceEnabled()) {
+      writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${tnsView}) no native item view?`);
+    }
+
+    return;
+  }
+
+  try {
+    // Remove Accessibility delegate to prevent infinite loop triggered by the events.
+    removeAccessibilityDelegate(tnsView);
+
+    suspendAccessibilityEvents = true;
 
     const viewSize = tnsView.getActualSize();
     const viewPos = tnsView.getLocationRelativeTo(listView);
@@ -618,32 +657,22 @@ function ensureListViewItemIsOnScreen(listView: ListView, tnsView: TNSView) {
     writeErrorTrace(err);
   } finally {
     suspendAccessibilityEvents = false;
+
+    // Reset accessibility
+    setAccessibilityDelegate(tnsView);
   }
-}
-
-/**
- * Set the ListView item's AccessibilityDelegate on load. this is needed to scroll into view.
- */
-function listViewItemLoaded(event: EventData) {
-  ensureDelegates();
-
-  const tnsView = event.object as TNSView;
-  if (!tnsView.android) {
-    return;
-  }
-
-  getViewCompat().setAccessibilityDelegate(tnsView.android, new TNSAccessibilityDelegateCompat(tnsView));
 }
 
 function setupA11yScrollOnFocus(args: any) {
-  ensureDelegates();
-
   const listView = args.object as ListView;
   const tnsView = args.view as TNSView;
 
   if (!tnsView) {
     return;
   }
+
+  // Ensure accessibilty delegate is still applied. This is to solve #NOTA-6866
+  setAccessibilityDelegate(tnsView);
 
   if (tnsView.hasListeners(a11yScrollOnFocus)) {
     if (isTraceEnabled()) {
@@ -657,11 +686,8 @@ function setupA11yScrollOnFocus(args: any) {
     writeHelperTrace(`setupA11yScrollOnFocus(): ${listView} view=${tnsView}`);
   }
 
-  tnsView.off(a11yScrollOnFocus);
-
   const listViewRef = new WeakRef(listView);
-
-  tnsView.on(a11yScrollOnFocus, (evt) => {
+  tnsView.on(a11yScrollOnFocus, function(this: null, evt) {
     const localListView = listViewRef.get();
     if (!localListView) {
       evt.object.off(a11yScrollOnFocus);
@@ -671,34 +697,15 @@ function setupA11yScrollOnFocus(args: any) {
 
     ensureListViewItemIsOnScreen(localListView, evt.object as TNSView);
   });
-
-  for (let p = tnsView; p && p !== listView; p = p.parent as TNSView) {
-    p.off(TNSView.loadedEvent, listViewItemLoaded);
-
-    if (!p.isLoaded) {
-      if (isTraceEnabled()) {
-        writeHelperTrace(`setupA11yScrollOnFocus(): ${listView} p=${p} - view is not loaded`);
-      }
-
-      p.on(TNSView.loadedEvent, listViewItemLoaded);
-      continue;
-    }
-
-    const androidView = p.android as AndroidView;
-    if (!androidView) {
-      continue;
-    }
-
-    if (getViewCompat().hasAccessibilityDelegate(androidView)) {
-      if (isTraceEnabled()) {
-        writeHelperTrace(`setupA11yScrollOnFocus(): ${listView} p=${p} - view already has a delegate`);
-      }
-
-      continue;
-    }
-
-    getViewCompat().setAccessibilityDelegate(androidView, new TNSAccessibilityDelegateCompat(tnsView));
-  }
 }
 
 hmrSafeGlobalEvents('setupA11yScrollOnFocus', [ListView.itemLoadingEvent], ListView, setupA11yScrollOnFocus);
+hmrSafeGlobalEvents('setAccessibilityDelegate:loadedEvent', [TNSView.loadedEvent], TNSView, function(this: null, evt) {
+  // Set the accessibility delegate on load.
+  setAccessibilityDelegate(evt.object);
+});
+
+hmrSafeGlobalEvents('removeAccessibilityDelegate:unloadedEvent', [TNSView.unloadedEvent], TNSView, function(this: null, evt) {
+  // Set the accessibility delegate on load.
+  removeAccessibilityDelegate(evt.object);
+});

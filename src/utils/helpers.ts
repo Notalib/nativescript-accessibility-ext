@@ -216,7 +216,7 @@ export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean
         name: 'notifyAccessibilityFocusState',
         receivedFocus,
         lostFocus,
-        view: String(view),
+        view: `${view}`,
       })}`,
     );
   }

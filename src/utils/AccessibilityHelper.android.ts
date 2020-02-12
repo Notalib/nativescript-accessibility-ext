@@ -705,6 +705,6 @@ hmrSafeGlobalEvents('setAccessibilityDelegate:loadedEvent', [TNSView.loadedEvent
 });
 
 hmrSafeGlobalEvents('removeAccessibilityDelegate:unloadedEvent', [TNSView.unloadedEvent], TNSView, function(this: null, evt) {
-  // Set the accessibility delegate on load.
+  // remove the accessibility delegate on unload.
   removeAccessibilityDelegate(evt.object);
 });

@@ -469,7 +469,6 @@ function setAccessibilityDelegate(tnsView: TNSView) {
   }
 
   const cls = `AccessibilityHelper.updateAccessibilityProperties(${tnsView}) - ${hasOldDelegate}`;
-  console.log(cls);
 
   const delegate = new TNSAccessibilityDelegateCompat(tnsView);
   tnsView[accessibilityDelegateCompatViewKey] = delegate;

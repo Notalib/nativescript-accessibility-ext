@@ -131,6 +131,9 @@ Slider {
 .a11y-btn {
   @extend .a11y-enabled;
   a11y-role: button;
+  > * {
+    @extend .a11y-hidden;
+  }
 }
 
 %a11y-checkable {

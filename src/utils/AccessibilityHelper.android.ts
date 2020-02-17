@@ -3,6 +3,7 @@ import * as trace from '@nativescript/core/trace';
 import { View as TNSView } from '@nativescript/core/ui/core/view';
 import { GestureTypes } from '@nativescript/core/ui/gestures/gestures';
 import { ListView } from '@nativescript/core/ui/list-view/list-view';
+import { ProxyViewContainer } from '@nativescript/core/ui/proxy-view-container';
 import * as utils from '@nativescript/core/utils/utils';
 import { categories, isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 import { AccessibilityRole, AccessibilityState } from '../ui/core/view-common';
@@ -17,10 +18,6 @@ export function getAndroidView<T extends android.view.View>(tnsView: TNSView): T
   return tnsView.nativeView || tnsView.nativeViewProtected;
 }
 
-export function getViewCompat() {
-  return androidx.core.view.ViewCompat;
-}
-
 export function getUIView(tnsView: TNSView): UIView {
   throw new Error(`getUIView(${tnsView}) - should never be called on Android`);
 }
@@ -29,10 +26,11 @@ const AccessibilityEvent = android.view.accessibility.AccessibilityEvent;
 type AccessibilityEvent = android.view.accessibility.AccessibilityEvent;
 const AccessibilityManager = android.view.accessibility.AccessibilityManager;
 type AccessibilityManager = android.view.accessibility.AccessibilityManager;
-const AccessibilityDelegateCompat = androidx.core.view.AccessibilityDelegateCompat;
-type AccessibilityDelegateCompat = androidx.core.view.AccessibilityDelegateCompat;
-const AccessibilityNodeInfoCompat = androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
-type AccessibilityNodeInfoCompat = androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+let AccessibilityDelegate = android.view.View.androidviewViewAccessibilityDelegate;
+AccessibilityDelegate = (android.view.View as any).AccessibilityDelegate;
+type AccessibilityDelegate = android.view.View.AccessibilityDelegate;
+const AccessibilityNodeInfo = android.view.accessibility.AccessibilityNodeInfo;
+type AccessibilityNodeInfo = android.view.accessibility.AccessibilityNodeInfo;
 const AndroidView = android.view.View;
 type AndroidView = android.view.View;
 const AndroidViewGroup = android.view.ViewGroup;
@@ -125,10 +123,10 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
   }
 }
 
-let TNSAccessibilityDelegateCompat: new (owner: TNSView) => AccessibilityDelegateCompat;
+let TNSAccessibilityDelegate: new (owner: TNSView) => AccessibilityDelegate;
 
 function ensureDelegates() {
-  if (TNSAccessibilityDelegateCompat) {
+  if (TNSAccessibilityDelegate) {
     return;
   }
 
@@ -151,7 +149,7 @@ function ensureDelegates() {
 
   const ignoreRoleTypesForTrace = new Set([AccessibilityRole.Header, AccessibilityRole.Link, AccessibilityRole.None, AccessibilityRole.Summary]);
 
-  class TNSAccessibilityDelegateCompatImpl extends AccessibilityDelegateCompat {
+  class TNSAccessibilityDelegateImpl extends AccessibilityDelegate {
     private readonly owner: WeakRef<TNSView>;
 
     constructor(owner: TNSView) {
@@ -162,7 +160,7 @@ function ensureDelegates() {
       return global.__native(this);
     }
 
-    public onInitializeAccessibilityNodeInfo(host: AndroidView, info: AccessibilityNodeInfoCompat) {
+    public onInitializeAccessibilityNodeInfo(host: AndroidView, info: AccessibilityNodeInfo) {
       super.onInitializeAccessibilityNodeInfo(host, info);
 
       const owner = this.owner.get();
@@ -199,7 +197,9 @@ function ensureDelegates() {
 
       switch (accessibilityRole) {
         case AccessibilityRole.Header: {
-          info.setHeading(true);
+          if (android.os.Build.VERSION.SDK_INT >= 28) {
+            info.setHeading(true);
+          }
           break;
         }
         case AccessibilityRole.Switch:
@@ -233,6 +233,7 @@ function ensureDelegates() {
     }
 
     public sendAccessibilityEvent(host: AndroidViewGroup, eventType: number) {
+      console.log(`sendAccessibilityEvent ${host} - ${eventType} - ${suspendAccessibilityEvents}`);
       super.sendAccessibilityEvent(host, eventType);
 
       const owner = this.owner && this.owner.get();
@@ -257,7 +258,7 @@ function ensureDelegates() {
     }
   }
 
-  TNSAccessibilityDelegateCompat = TNSAccessibilityDelegateCompatImpl;
+  TNSAccessibilityDelegate = TNSAccessibilityDelegateImpl;
 }
 
 let accessibilityEventMap: Map<string, number>;
@@ -370,15 +371,28 @@ function ensureAccessibilityEventMap() {
   ]);
 }
 
-const accessibilityDelegateCompatViewKey = 'TNSAccessibilityDelegateCompat';
-
 export class AccessibilityHelper {
   public static updateAccessibilityProperties(tnsView: TNSView) {
+    if (tnsView instanceof ProxyViewContainer) {
+      return null;
+    }
+
     setAccessibilityDelegate(tnsView);
+    applyContentDescription(tnsView);
   }
 
-  public static sendAccessibilityEvent(androidView: AndroidView, eventName: string, text?: string) {
-    const cls = `AccessibilityHelper.sendAccessibilityEvent(androidView, ${eventName}, ${text})`;
+  public static sendAccessibilityEvent(tnsView: TNSView, eventName: string, text?: string) {
+    const cls = `AccessibilityHelper.sendAccessibilityEvent(${tnsView}, ${eventName}, ${text})`;
+
+    const androidView = getAndroidView(tnsView);
+    if (!androidView) {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls}: no nativeView`);
+      }
+
+      return;
+    }
+
     if (!eventName) {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls}: no eventName provided`);
@@ -422,9 +436,11 @@ export class AccessibilityHelper {
     a11yEvent.getText().clear();
 
     if (!text) {
-      text = androidView.getContentDescription();
+      applyContentDescription(tnsView);
+
+      text = androidView.getContentDescription() || tnsView['title'];
       if (isTraceEnabled()) {
-        writeHelperTrace(`${cls} - text not provided use androidView.getContentDescription()`);
+        writeHelperTrace(`${cls} - text not provided use androidView.getContentDescription() - ${text}`);
       }
     }
 
@@ -440,22 +456,32 @@ export class AccessibilityHelper {
   }
 
   public static updateContentDescription(tnsView: TNSView) {
+    if (tnsView instanceof ProxyViewContainer) {
+      return null;
+    }
+
     return applyContentDescription(tnsView);
   }
 }
 
 function removeAccessibilityDelegate(tnsView: TNSView) {
-  delete tnsView[accessibilityDelegateCompatViewKey];
+  if (tnsView instanceof ProxyViewContainer) {
+    return null;
+  }
 
   const androidView = getAndroidView(tnsView);
   if (!androidView) {
     return;
   }
 
-  getViewCompat().setAccessibilityDelegate(androidView, null);
+  androidView.setAccessibilityDelegate(null);
 }
 
 function setAccessibilityDelegate(tnsView: TNSView) {
+  if (tnsView instanceof ProxyViewContainer) {
+    return null;
+  }
+
   const androidView = getAndroidView(tnsView);
   if (!androidView) {
     return;
@@ -463,27 +489,29 @@ function setAccessibilityDelegate(tnsView: TNSView) {
 
   ensureDelegates();
 
-  const hasOldDelegate = !!tnsView[accessibilityDelegateCompatViewKey];
+  const hasOldDelegate = androidView.getAccessibilityDelegate() instanceof TNSAccessibilityDelegate;
   if (hasOldDelegate) {
-    delete tnsView[accessibilityDelegateCompatViewKey];
+    return;
   }
 
   const cls = `AccessibilityHelper.updateAccessibilityProperties(${tnsView}) - ${hasOldDelegate}`;
-
-  const delegate = new TNSAccessibilityDelegateCompat(tnsView);
-  tnsView[accessibilityDelegateCompatViewKey] = delegate;
+  const delegate = new TNSAccessibilityDelegate(tnsView);
 
   if (isTraceEnabled()) {
     writeHelperTrace(`${cls} - add delegate`);
   }
 
-  getViewCompat().setAccessibilityDelegate(androidView, delegate);
+  androidView.setAccessibilityDelegate(delegate);
 }
 
 function applyContentDescription(tnsView: TNSView) {
+  if (tnsView instanceof ProxyViewContainer) {
+    return null;
+  }
+
   const androidView = getAndroidView(tnsView);
 
-  const cls = `updateContentDescription(${tnsView})`;
+  const cls = `applyContentDescription(${tnsView})`;
 
   if (!androidView) {
     if (isTraceEnabled()) {
@@ -523,7 +551,9 @@ function applyContentDescription(tnsView: TNSView) {
       writeHelperTrace(`${cls} - don't have accessibilityValue but a text value`);
     }
 
-    contentDescriptionBuilder.push(`${tnsView['text']}`);
+    if (tnsView['text'] !== tnsView.accessibilityLabel) {
+      contentDescriptionBuilder.push(`${tnsView['text']}`);
+    }
   }
 
   if (tnsView.accessibilityHint) {
@@ -658,7 +688,7 @@ function ensureListViewItemIsOnScreen(listView: ListView, tnsView: TNSView) {
     suspendAccessibilityEvents = false;
 
     // Reset accessibility
-    setAccessibilityDelegate(tnsView);
+    AccessibilityHelper.updateAccessibilityProperties(tnsView);
   }
 }
 
@@ -701,7 +731,8 @@ function setupA11yScrollOnFocus(args: any) {
 hmrSafeGlobalEvents('setupA11yScrollOnFocus', [ListView.itemLoadingEvent], ListView, setupA11yScrollOnFocus);
 hmrSafeGlobalEvents('setAccessibilityDelegate:loadedEvent', [TNSView.loadedEvent], TNSView, function(this: null, evt) {
   // Set the accessibility delegate on load.
-  setAccessibilityDelegate(evt.object);
+  console.log(`setAccessibilityDelegate:loadedEvent: ${evt.object}`);
+  AccessibilityHelper.updateAccessibilityProperties(evt.object);
 });
 
 hmrSafeGlobalEvents('removeAccessibilityDelegate:unloadedEvent', [TNSView.unloadedEvent], TNSView, function(this: null, evt) {

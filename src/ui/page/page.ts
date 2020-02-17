@@ -6,16 +6,15 @@ import '../../utils/global-events';
 import { hmrSafeGlobalEvents } from '../../utils/helpers';
 
 hmrSafeGlobalEvents('PageAnnounce', [Page.navigatedToEvent], Page, (args: PageEventData) => {
-  const cls = `Announce page change`;
-
   const page = args.object;
   if (!page) {
     return;
   }
 
+  const cls = `${page} - PageAnnounce`;
   if (Page.disableAnnouncePage) {
     if (isTraceEnabled()) {
-      writeTrace(`${cls} disabled globally`);
+      writeTrace(`${cls} - disabled globally`);
     }
 
     return;
@@ -23,30 +22,45 @@ hmrSafeGlobalEvents('PageAnnounce', [Page.navigatedToEvent], Page, (args: PageEv
 
   if (page.disableAnnouncePage) {
     if (isTraceEnabled()) {
-      writeTrace(`${cls} disabled for ${page}`);
+      writeTrace(`${cls} - disabled for ${page}`);
     }
 
     return;
   }
 
-  if (page.actionBarHidden || page.accessibilityLabel) {
-    if (isTraceEnabled()) {
-      writeTrace(`${cls} action-bar hidden ${!!page.actionBarHidden} or page has an accessibilityLabel: ${page.accessibilityLabel}`);
+  setTimeout(() => {
+    if (page.actionBarHidden) {
+      if (isTraceEnabled()) {
+        writeTrace(`${cls} - action-bar hidden`);
+      }
+
+      page.accessibilityScreenChanged();
+    } else if (page.accessibilityLabel) {
+      if (isTraceEnabled()) {
+        writeTrace(`${cls} - page has an accessibilityLabel: ${page.accessibilityLabel}`);
+      }
+
+      page.accessibilityScreenChanged();
+    } else if (page.actionBar.titleView) {
+      if (isTraceEnabled()) {
+        writeTrace(`${cls} action-bar has a title view: ${page.actionBar.titleView} ${page.actionBar.nativeView}`);
+      }
+
+      page.actionBar.titleView.accessibilityScreenChanged();
+    } else if (page.actionBar.accessibilityLabel || page.actionBar.title) {
+      if (isTraceEnabled()) {
+        writeTrace(`${cls} action-bar has an accessibilityLabel="${page.actionBar.accessibilityLabel}" or a title="${page.actionBar.title}"`);
+      }
+
+      page.actionBar.accessibilityScreenChanged();
+    } else {
+      if (isTraceEnabled()) {
+        writeTrace(`${cls} - action-bar doesn't have an accessibilityLabel or a title`);
+      }
+
+      page.accessibilityScreenChanged();
     }
-    page.accessibilityScreenChanged();
-  } else if (!page.actionBar.accessibilityLabel) {
-    if (isTraceEnabled()) {
-      writeTrace(`${cls} action-bar doesn't have an accessibilityLabel use title: ${page.actionBar.title}`);
-    }
-    page.actionBar.accessibilityLabel = page.actionBar.title;
-    page.actionBar.accessibilityScreenChanged();
-    page.actionBar.accessibilityLabel = null;
-  } else {
-    if (isTraceEnabled()) {
-      writeTrace(`${cls} action-bar has an accessibilityLabel: ${page.actionBar.accessibilityLabel}`);
-    }
-    page.actionBar.accessibilityScreenChanged();
-  }
+  }, 10);
 });
 
 export { Page };

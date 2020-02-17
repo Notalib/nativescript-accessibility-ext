@@ -18,7 +18,7 @@ setViewFunction(ActionBar, commonFunctions.accessibilityScreenChanged, function(
     androidView.setFocusable(false);
     androidView.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO);
 
-    let announceView: androidx.appcompat.widget.Toolbar | androidx.appcompat.widget.AppCompatTextView = androidView;
+    let announceView: android.view.View | null = null;
 
     const numChildren = androidView.getChildCount();
     for (let i = 0; i < numChildren; i += 1) {
@@ -30,12 +30,18 @@ setViewFunction(ActionBar, commonFunctions.accessibilityScreenChanged, function(
       childView.setFocusable(true);
       if (childView instanceof androidx.appcompat.widget.AppCompatTextView) {
         announceView = childView;
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+          announceView.setAccessibilityHeading(true);
+        }
       }
     }
 
-    if (android.os.Build.VERSION.SDK_INT >= 28) {
-      announceView.setAccessibilityHeading(true);
+    if (!announceView) {
+      announceView = androidView;
     }
+
+    announceView.setFocusable(true);
+    announceView.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES);
 
     announceView.sendAccessibilityEvent(android.view.accessibility.AccessibilityEvent.TYPE_VIEW_FOCUSED);
     announceView.sendAccessibilityEvent(android.view.accessibility.AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED);

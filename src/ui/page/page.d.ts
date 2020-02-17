@@ -20,3 +20,5 @@ declare module '@nativescript/core/ui/page' {
     var disableAnnouncePage: boolean | void;
   }
 }
+
+export {Page};

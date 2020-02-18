@@ -233,7 +233,6 @@ function ensureDelegates() {
     }
 
     public sendAccessibilityEvent(host: AndroidViewGroup, eventType: number) {
-      console.log(`sendAccessibilityEvent ${host} - ${eventType} - ${suspendAccessibilityEvents}`);
       super.sendAccessibilityEvent(host, eventType);
 
       const owner = this.owner && this.owner.get();
@@ -731,7 +730,6 @@ function setupA11yScrollOnFocus(args: any) {
 hmrSafeGlobalEvents('setupA11yScrollOnFocus', [ListView.itemLoadingEvent], ListView, setupA11yScrollOnFocus);
 hmrSafeGlobalEvents('setAccessibilityDelegate:loadedEvent', [TNSView.loadedEvent], TNSView, function(this: null, evt) {
   // Set the accessibility delegate on load.
-  console.log(`setAccessibilityDelegate:loadedEvent: ${evt.object}`);
   AccessibilityHelper.updateAccessibilityProperties(evt.object);
 });
 

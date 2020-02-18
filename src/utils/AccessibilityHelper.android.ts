@@ -41,6 +41,18 @@ function getAccessibilityManager(view: AndroidView): AccessibilityManager {
   return view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
 }
 
+export function getEventName(eventInt: number) {
+  ensureAccessibilityEventMap();
+
+  for (const [key, value] of accessibilityEventMap) {
+    if (value === eventInt) {
+      return key;
+    }
+  }
+
+  return null;
+}
+
 let suspendAccessibilityEvents = false;
 const a11yScrollOnFocus = 'a11y-scroll-on-focus';
 let lastFocusedView: WeakRef<TNSView>;
@@ -150,12 +162,16 @@ function ensureDelegates() {
   const ignoreRoleTypesForTrace = new Set([AccessibilityRole.Header, AccessibilityRole.Link, AccessibilityRole.None, AccessibilityRole.Summary]);
 
   class TNSAccessibilityDelegateImpl extends AccessibilityDelegate {
-    private readonly owner: WeakRef<TNSView>;
+    private readonly _owner: WeakRef<TNSView>;
+
+    private get owner() {
+      return this._owner && this._owner.get();
+    }
 
     constructor(owner: TNSView) {
       super();
 
-      this.owner = new WeakRef(owner);
+      this._owner = new WeakRef(owner);
 
       return global.__native(this);
     }
@@ -163,7 +179,7 @@ function ensureDelegates() {
     public onInitializeAccessibilityNodeInfo(host: AndroidView, info: AccessibilityNodeInfo) {
       super.onInitializeAccessibilityNodeInfo(host, info);
 
-      const owner = this.owner.get();
+      const owner = this.owner;
       if (!owner) {
         if (isTraceEnabled()) {
           writeHelperTrace(`onInitializeAccessibilityNodeInfo ${host} ${info} no owner`);
@@ -195,13 +211,17 @@ function ensureDelegates() {
         }
       }
 
-      switch (accessibilityRole) {
-        case AccessibilityRole.Header: {
-          if (android.os.Build.VERSION.SDK_INT >= 28) {
-            info.setHeading(true);
-          }
-          break;
+      if (android.os.Build.VERSION.SDK_INT >= 28) {
+        if (accessibilityRole === AccessibilityRole.Header) {
+          info.setHeading(true);
+        } else if (host.isAccessibilityHeading()) {
+          info.setHeading(true);
+        } else {
+          info.setHeading(false);
         }
+      }
+
+      switch (accessibilityRole) {
         case AccessibilityRole.Switch:
         case AccessibilityRole.RadioButton:
         case AccessibilityRole.Checkbox: {
@@ -233,9 +253,10 @@ function ensureDelegates() {
     }
 
     public sendAccessibilityEvent(host: AndroidViewGroup, eventType: number) {
+      const owner = this.owner;
+
       super.sendAccessibilityEvent(host, eventType);
 
-      const owner = this.owner && this.owner.get();
       if (suspendAccessibilityEvents) {
         if (isTraceEnabled()) {
           writeHelperTrace(`sendAccessibilityEvent: ${owner} - skip`);
@@ -252,7 +273,10 @@ function ensureDelegates() {
     }
 
     public onRequestSendAccessibilityEvent(host: AndroidViewGroup, view: AndroidView, event: AccessibilityEvent) {
-      // for debugger
+      if (suspendAccessibilityEvents) {
+        return false;
+      }
+
       return super.onRequestSendAccessibilityEvent(host, view, event);
     }
   }
@@ -428,6 +452,10 @@ export class AccessibilityHelper {
       return;
     }
     const eventInt = accessibilityEventMap.get(eventName);
+
+    if (!text) {
+      return androidView.sendAccessibilityEvent(eventInt);
+    }
 
     const a11yEvent = AccessibilityEvent.obtain(eventInt);
     a11yEvent.setSource(androidView);
@@ -699,7 +727,7 @@ function setupA11yScrollOnFocus(args: any) {
     return;
   }
 
-  // Ensure accessibilty delegate is still applied. This is to solve #NOTA-6866
+  // Ensure accessibility delegate is still applied. This is to solve #NOTA-6866
   setAccessibilityDelegate(tnsView);
 
   if (tnsView.hasListeners(a11yScrollOnFocus)) {

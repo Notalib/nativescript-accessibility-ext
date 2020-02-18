@@ -78,6 +78,8 @@ declare module '@nativescript/core/ui/core/view' {
      * type = 'screen' large change made to the screen.
      */
     iosPostAccessibilityNotification(type: PostAccessibilityNotificationType, args?: string);
+
+    _androidContentDescriptionUpdated?: boolean;
   }
 
   // Adding static properties

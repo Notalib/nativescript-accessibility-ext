@@ -262,6 +262,7 @@ setViewFunction(View, commonFunctions.accessibilityAnnouncement, function access
 });
 
 View.prototype[accessibilityLabelProperty.setNative] = function accessibilityLabelSetNative(this: View, label: string) {
+  this._androidContentDescriptionUpdated = true;
   const newValue = AccessibilityHelper.updateContentDescription(this);
   if (isTraceEnabled()) {
     writeTrace(`View<${this}.android>.accessibilityLabel = "${label}" - contentDesc = "${newValue}"`);
@@ -269,6 +270,7 @@ View.prototype[accessibilityLabelProperty.setNative] = function accessibilityLab
 };
 
 View.prototype[accessibilityValueProperty.setNative] = function accessibilityLabelSetNative(this: View, value: string) {
+  this._androidContentDescriptionUpdated = true;
   const newValue = AccessibilityHelper.updateContentDescription(this);
   if (isTraceEnabled()) {
     writeTrace(`View<${this}.android>.accessibilityValue = "${value}" - contentDesc = "${newValue}"`);
@@ -276,6 +278,7 @@ View.prototype[accessibilityValueProperty.setNative] = function accessibilityLab
 };
 
 View.prototype[accessibilityHintProperty.setNative] = function accessibilityLabelSetNative(this: View, hint: string) {
+  this._androidContentDescriptionUpdated = true;
   const newValue = AccessibilityHelper.updateContentDescription(this);
   if (isTraceEnabled()) {
     writeTrace(`View<${this}.android>.accessibilityHint = "${hint}" - contentDesc = "${newValue}"`);

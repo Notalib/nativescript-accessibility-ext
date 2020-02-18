@@ -216,15 +216,31 @@ function ensureDelegates() {
         }
 
         if (clickableRolesMap.has(accessibilityRole)) {
+          if (isTraceEnabled()) {
+            writeHelperTrace(`onInitializeAccessibilityNodeInfo ${tnsView} - set clickable role=${accessibilityRole}`);
+          }
+
           info.setClickable(true);
         }
 
         if (android.os.Build.VERSION.SDK_INT >= 28) {
           if (accessibilityRole === AccessibilityRole.Header) {
+            if (isTraceEnabled()) {
+              writeHelperTrace(`onInitializeAccessibilityNodeInfo ${tnsView} - set heading role=${accessibilityRole}`);
+            }
+
             info.setHeading(true);
           } else if (host.isAccessibilityHeading()) {
+            if (isTraceEnabled()) {
+              writeHelperTrace(`onInitializeAccessibilityNodeInfo ${tnsView} - set heading from host`);
+            }
+
             info.setHeading(true);
           } else {
+            if (isTraceEnabled()) {
+              writeHelperTrace(`onInitializeAccessibilityNodeInfo ${tnsView} - set not heading`);
+            }
+
             info.setHeading(false);
           }
         }
@@ -233,11 +249,24 @@ function ensureDelegates() {
           case AccessibilityRole.Switch:
           case AccessibilityRole.RadioButton:
           case AccessibilityRole.Checkbox: {
+            if (isTraceEnabled()) {
+              writeHelperTrace(
+                `onInitializeAccessibilityNodeInfo ${tnsView} - set checkable and check=${tnsView.accessibilityState === AccessibilityState.Checked}`,
+              );
+            }
+
             info.setCheckable(true);
             info.setChecked(tnsView.accessibilityState === AccessibilityState.Checked);
             break;
           }
           default: {
+            if (isTraceEnabled()) {
+              writeHelperTrace(
+                `onInitializeAccessibilityNodeInfo ${tnsView} - set enabled=${tnsView.accessibilityState !==
+                  AccessibilityState.Disabled} and selected=${tnsView.accessibilityState === AccessibilityState.Selected}`,
+              );
+            }
+
             info.setEnabled(tnsView.accessibilityState !== AccessibilityState.Disabled);
             info.setSelected(tnsView.accessibilityState === AccessibilityState.Selected);
             break;
@@ -245,15 +274,8 @@ function ensureDelegates() {
         }
       }
 
-      let focusable: boolean = false;
       if (tnsView.accessible === true) {
-        focusable = true;
-      } else if (android.os.Build.VERSION.SDK_INT >= 26) {
-        focusable = !!host.getFocusable();
-      }
-
-      if (focusable === true) {
-        info.setFocusable(focusable);
+        info.setFocusable(true);
       }
     }
 
@@ -572,6 +594,11 @@ function applyContentDescription(tnsView: TNSView) {
     return null;
   }
 
+  if (tnsView._androidContentDescriptionUpdated === false && tnsView['text'] === tnsView['_lastText']) {
+    // prevent updating this too much
+    return androidView.getContentDescription();
+  }
+
   let contentDescriptionBuilder: string[] = [];
   // Workaround: TalkBack won't read the checked state for fake Switch.
   if (tnsView.accessibilityRole === AccessibilityRole.Switch) {
@@ -633,6 +660,9 @@ function applyContentDescription(tnsView: TNSView) {
 
     androidView.setContentDescription(null);
   }
+
+  tnsView['_lastText'] = tnsView['text'];
+  tnsView._androidContentDescriptionUpdated = false;
 
   return contentDescription;
 }

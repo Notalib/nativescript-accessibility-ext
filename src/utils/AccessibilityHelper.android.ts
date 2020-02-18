@@ -41,18 +41,6 @@ function getAccessibilityManager(view: AndroidView): AccessibilityManager {
   return view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
 }
 
-export function getEventName(eventInt: number) {
-  ensureAccessibilityEventMap();
-
-  for (const [key, value] of accessibilityEventMap) {
-    if (value === eventInt) {
-      return key;
-    }
-  }
-
-  return null;
-}
-
 let suspendAccessibilityEvents = false;
 const a11yScrollOnFocus = 'a11y-scroll-on-focus';
 let lastFocusedView: WeakRef<TNSView>;
@@ -137,7 +125,7 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
 
 let TNSAccessibilityDelegate: AccessibilityDelegate;
 
-const androidViewToTNSViev = new WeakMap<AndroidView, WeakRef<TNSView>>();
+const androidViewToTNSView = new WeakMap<AndroidView, WeakRef<TNSView>>();
 
 function ensureDelegates() {
   if (TNSAccessibilityDelegate) {
@@ -171,13 +159,13 @@ function ensureDelegates() {
     }
 
     private getTnsView(view: AndroidView) {
-      if (!androidViewToTNSViev.has(view)) {
+      if (!androidViewToTNSView.has(view)) {
         return null;
       }
 
-      const tnsView = androidViewToTNSViev.get(view).get();
+      const tnsView = androidViewToTNSView.get(view).get();
       if (!tnsView) {
-        androidViewToTNSViev.delete(view);
+        androidViewToTNSView.delete(view);
 
         return null;
       }
@@ -295,12 +283,13 @@ function ensureDelegates() {
     }
 
     public sendAccessibilityEvent(host: AndroidViewGroup, eventType: number) {
+      super.sendAccessibilityEvent(host, eventType);
       const tnsView = this.getTnsView(host);
       if (!tnsView) {
+        console.log(`skip - ${host} - ${accessibilityEventTypeMap.get(eventType)}`);
+
         return;
       }
-
-      super.sendAccessibilityEvent(host, eventType);
 
       if (suspendAccessibilityEvents) {
         if (isTraceEnabled()) {
@@ -330,6 +319,7 @@ function ensureDelegates() {
 }
 
 let accessibilityEventMap: Map<string, number>;
+let accessibilityEventTypeMap: Map<number, string>;
 function ensureAccessibilityEventMap() {
   if (accessibilityEventMap) {
     return;
@@ -437,6 +427,8 @@ function ensureAccessibilityEventMap() {
      */
     ['all', AccessibilityEvent.TYPES_ALL_MASK],
   ]);
+
+  accessibilityEventTypeMap = new Map([...accessibilityEventMap].map(([k, v]) => [v, k]));
 }
 
 export class AccessibilityHelper {
@@ -546,7 +538,7 @@ function removeAccessibilityDelegate(tnsView: TNSView) {
     return;
   }
 
-  androidViewToTNSViev.delete(androidView);
+  androidViewToTNSView.delete(androidView);
   androidView.setAccessibilityDelegate(null);
 }
 
@@ -560,7 +552,7 @@ function setAccessibilityDelegate(tnsView: TNSView) {
     return;
   }
 
-  androidViewToTNSViev.set(androidView, new WeakRef(tnsView));
+  androidViewToTNSView.set(androidView, new WeakRef(tnsView));
 
   ensureDelegates();
 

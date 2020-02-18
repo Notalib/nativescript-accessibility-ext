@@ -21,4 +21,4 @@ declare module '@nativescript/core/ui/page' {
   }
 }
 
-export {Page};
+export { Page };

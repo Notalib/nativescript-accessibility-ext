@@ -128,7 +128,7 @@ Slider {
   a11y-hidden: true;
 }
 
-.a11y-btn {
+.a11y-btn, Button {
   @extend .a11y-enabled;
   a11y-role: button;
   > * {

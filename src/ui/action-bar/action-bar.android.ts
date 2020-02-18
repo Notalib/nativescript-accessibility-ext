@@ -10,7 +10,7 @@ setViewFunction(ActionBar, commonFunctions.accessibilityScreenChanged, function(
     return;
   }
 
-  const wasFocusable = androidView.getFocusable();
+  const wasFocusable = android.os.Build.VERSION.SDK_INT >= 26 && androidView.getFocusable();
   const hasHeading = android.os.Build.VERSION.SDK_INT >= 28 && androidView.isAccessibilityHeading();
   const importantForA11Y = androidView.getImportantForAccessibility();
 
@@ -58,7 +58,9 @@ setViewFunction(ActionBar, commonFunctions.accessibilityScreenChanged, function(
         androidView.setAccessibilityHeading(hasHeading);
       }
 
-      localAndroidView.setFocusable(wasFocusable);
+      if (android.os.Build.VERSION.SDK_INT >= 26) {
+        localAndroidView.setFocusable(wasFocusable);
+      }
       localAndroidView.setImportantForAccessibility(importantForA11Y);
     });
   }

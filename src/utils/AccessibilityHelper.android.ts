@@ -135,7 +135,9 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
   }
 }
 
-let TNSAccessibilityDelegate: new (owner: TNSView) => AccessibilityDelegate;
+let TNSAccessibilityDelegate: AccessibilityDelegate;
+
+const androidViewToTNSViev = new WeakMap<AndroidView, WeakRef<TNSView>>();
 
 function ensureDelegates() {
   if (TNSAccessibilityDelegate) {
@@ -162,78 +164,96 @@ function ensureDelegates() {
   const ignoreRoleTypesForTrace = new Set([AccessibilityRole.Header, AccessibilityRole.Link, AccessibilityRole.None, AccessibilityRole.Summary]);
 
   class TNSAccessibilityDelegateImpl extends AccessibilityDelegate {
-    private readonly _owner: WeakRef<TNSView>;
-
-    private get owner() {
-      return this._owner && this._owner.get();
-    }
-
-    constructor(owner: TNSView) {
+    constructor() {
       super();
 
-      this._owner = new WeakRef(owner);
-
       return global.__native(this);
+    }
+
+    private getTnsView(view: AndroidView) {
+      if (!androidViewToTNSViev.has(view)) {
+        return null;
+      }
+
+      const tnsView = androidViewToTNSViev.get(view).get();
+      if (!tnsView) {
+        androidViewToTNSViev.delete(view);
+
+        return null;
+      }
+
+      return tnsView;
     }
 
     public onInitializeAccessibilityNodeInfo(host: AndroidView, info: AccessibilityNodeInfo) {
       super.onInitializeAccessibilityNodeInfo(host, info);
 
-      const owner = this.owner;
-      if (!owner) {
+      const tnsView = this.getTnsView(host);
+      if (!tnsView) {
         if (isTraceEnabled()) {
-          writeHelperTrace(`onInitializeAccessibilityNodeInfo ${host} ${info} no owner`);
+          writeHelperTrace(`onInitializeAccessibilityNodeInfo ${host} ${info} no tns-view`);
         }
 
         return;
       }
 
-      const accessibilityRole = owner.accessibilityRole as AccessibilityRole;
-
+      const accessibilityRole = tnsView.accessibilityRole as AccessibilityRole;
       if (accessibilityRole) {
         const androidClassName = RoleTypeMap.get(accessibilityRole);
         if (androidClassName) {
-          const oldClassName = info.getClassName() || host.getAccessibilityClassName();
+          const oldClassName = info.getClassName() || (android.os.Build.VERSION.SDK_INT >= 28 && host.getAccessibilityClassName()) || null;
           info.setClassName(androidClassName);
+
           if (isTraceEnabled()) {
             writeHelperTrace(
-              `${owner}.accessibilityRole = "${accessibilityRole}" is mapped to "${androidClassName}" (was ${oldClassName}). ${info.getClassName()}`,
+              `${tnsView}.accessibilityRole = "${accessibilityRole}" is mapped to "${androidClassName}" (was ${oldClassName}). ${info.getClassName()}`,
             );
           }
         } else if (!ignoreRoleTypesForTrace.has(accessibilityRole as AccessibilityRole)) {
           if (isTraceEnabled()) {
-            writeHelperTrace(`${owner}.accessibilityRole = "${accessibilityRole}" is unknown`);
+            writeHelperTrace(`${tnsView}.accessibilityRole = "${accessibilityRole}" is unknown`);
           }
         }
 
         if (clickableRolesMap.has(accessibilityRole)) {
           info.setClickable(true);
         }
+
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+          if (accessibilityRole === AccessibilityRole.Header) {
+            info.setHeading(true);
+          } else if (host.isAccessibilityHeading()) {
+            info.setHeading(true);
+          } else {
+            info.setHeading(false);
+          }
+        }
+
+        switch (accessibilityRole) {
+          case AccessibilityRole.Switch:
+          case AccessibilityRole.RadioButton:
+          case AccessibilityRole.Checkbox: {
+            info.setCheckable(true);
+            info.setChecked(tnsView.accessibilityState === AccessibilityState.Checked);
+            break;
+          }
+          default: {
+            info.setEnabled(tnsView.accessibilityState !== AccessibilityState.Disabled);
+            info.setSelected(tnsView.accessibilityState === AccessibilityState.Selected);
+            break;
+          }
+        }
       }
 
-      if (android.os.Build.VERSION.SDK_INT >= 28) {
-        if (accessibilityRole === AccessibilityRole.Header) {
-          info.setHeading(true);
-        } else if (host.isAccessibilityHeading()) {
-          info.setHeading(true);
-        } else {
-          info.setHeading(false);
-        }
+      let focusable: boolean = false;
+      if (tnsView.accessible === true) {
+        focusable = true;
+      } else if (android.os.Build.VERSION.SDK_INT >= 26) {
+        focusable = !!host.getFocusable();
       }
 
-      switch (accessibilityRole) {
-        case AccessibilityRole.Switch:
-        case AccessibilityRole.RadioButton:
-        case AccessibilityRole.Checkbox: {
-          info.setCheckable(true);
-          info.setChecked(owner.accessibilityState === AccessibilityState.Checked);
-          break;
-        }
-        default: {
-          info.setEnabled(owner.accessibilityState !== AccessibilityState.Disabled);
-          info.setSelected(owner.accessibilityState === AccessibilityState.Selected);
-          break;
-        }
+      if (focusable === true) {
+        info.setFocusable(focusable);
       }
     }
 
@@ -253,20 +273,23 @@ function ensureDelegates() {
     }
 
     public sendAccessibilityEvent(host: AndroidViewGroup, eventType: number) {
-      const owner = this.owner;
+      const tnsView = this.getTnsView(host);
+      if (!tnsView) {
+        return;
+      }
 
       super.sendAccessibilityEvent(host, eventType);
 
       if (suspendAccessibilityEvents) {
         if (isTraceEnabled()) {
-          writeHelperTrace(`sendAccessibilityEvent: ${owner} - skip`);
+          writeHelperTrace(`sendAccessibilityEvent: ${tnsView} - skip`);
         }
 
         return;
       }
 
       try {
-        accessibilityEventHelper(owner, eventType);
+        accessibilityEventHelper(tnsView, eventType);
       } catch (err) {
         console.error(err);
       }
@@ -281,7 +304,7 @@ function ensureDelegates() {
     }
   }
 
-  TNSAccessibilityDelegate = TNSAccessibilityDelegateImpl;
+  TNSAccessibilityDelegate = new TNSAccessibilityDelegateImpl();
 }
 
 let accessibilityEventMap: Map<string, number>;
@@ -501,6 +524,7 @@ function removeAccessibilityDelegate(tnsView: TNSView) {
     return;
   }
 
+  androidViewToTNSViev.delete(androidView);
   androidView.setAccessibilityDelegate(null);
 }
 
@@ -514,21 +538,21 @@ function setAccessibilityDelegate(tnsView: TNSView) {
     return;
   }
 
+  androidViewToTNSViev.set(androidView, new WeakRef(tnsView));
+
   ensureDelegates();
 
-  const hasOldDelegate = androidView.getAccessibilityDelegate() instanceof TNSAccessibilityDelegate;
+  const hasOldDelegate = androidView.getAccessibilityDelegate() === TNSAccessibilityDelegate;
+  const cls = `AccessibilityHelper.updateAccessibilityProperties(${tnsView}) - has delegate? ${hasOldDelegate}`;
+  if (isTraceEnabled()) {
+    writeHelperTrace(cls);
+  }
+
   if (hasOldDelegate) {
     return;
   }
 
-  const cls = `AccessibilityHelper.updateAccessibilityProperties(${tnsView}) - ${hasOldDelegate}`;
-  const delegate = new TNSAccessibilityDelegate(tnsView);
-
-  if (isTraceEnabled()) {
-    writeHelperTrace(`${cls} - add delegate`);
-  }
-
-  androidView.setAccessibilityDelegate(delegate);
+  androidView.setAccessibilityDelegate(TNSAccessibilityDelegate);
 }
 
 function applyContentDescription(tnsView: TNSView) {

@@ -153,7 +153,9 @@ let TNSAccessibilityDelegate: AccessibilityDelegate;
 
 const androidViewToTNSView = new WeakMap<AndroidView, WeakRef<TNSView>>();
 
-function ensureDelegates() {
+let accessibilityEventMap: Map<string, number>;
+let accessibilityEventTypeMap: Map<number, string>;
+function ensureNativeClasses() {
   if (TNSAccessibilityDelegate) {
     return;
   }
@@ -342,14 +344,6 @@ function ensureDelegates() {
   }
 
   TNSAccessibilityDelegate = new TNSAccessibilityDelegateImpl();
-}
-
-let accessibilityEventMap: Map<string, number>;
-let accessibilityEventTypeMap: Map<number, string>;
-function ensureAccessibilityEventMap() {
-  if (accessibilityEventMap) {
-    return;
-  }
 
   accessibilityEventMap = new Map<string, number>([
     /**
@@ -504,8 +498,6 @@ export class AccessibilityHelper {
       return;
     }
 
-    ensureAccessibilityEventMap();
-
     eventName = eventName.toLowerCase();
     if (!accessibilityEventMap.has(eventName)) {
       if (isTraceEnabled()) {
@@ -573,6 +565,8 @@ function setAccessibilityDelegate(tnsView: TNSView) {
     return null;
   }
 
+  ensureNativeClasses();
+
   const androidView = getAndroidView(tnsView);
   if (!androidView) {
     return;
@@ -580,9 +574,8 @@ function setAccessibilityDelegate(tnsView: TNSView) {
 
   androidViewToTNSView.set(androidView, new WeakRef(tnsView));
 
-  ensureDelegates();
-
   const hasOldDelegate = androidView.getAccessibilityDelegate() === TNSAccessibilityDelegate;
+
   const cls = `AccessibilityHelper.updateAccessibilityProperties(${tnsView}) - has delegate? ${hasOldDelegate}`;
   if (isTraceEnabled()) {
     writeHelperTrace(cls);
@@ -618,6 +611,7 @@ function applyContentDescription(tnsView: TNSView) {
   }
 
   let contentDescriptionBuilder: string[] = [];
+
   // Workaround: TalkBack won't read the checked state for fake Switch.
   if (tnsView.accessibilityRole === AccessibilityRole.Switch) {
     const androidSwitch = new android.widget.Switch(nsApp.android.context);

@@ -22,7 +22,7 @@ declare module '@nativescript/core/ui/core/view' {
     accessibilityAnnouncement(msg?: string): void;
 
     /**
-     * Announce screen changed. Used on Page.navigatedToEvent
+     * Announce screen changed
      */
     accessibilityScreenChanged(): void;
 
@@ -79,6 +79,9 @@ declare module '@nativescript/core/ui/core/view' {
      */
     iosPostAccessibilityNotification(type: PostAccessibilityNotificationType, args?: string);
 
+    /**
+     * Internal use only. This is used to limit the number of updates to android.view.View.setContentDescription()
+     */
     _androidContentDescriptionUpdated?: boolean;
   }
 

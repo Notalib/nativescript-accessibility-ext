@@ -1,11 +1,11 @@
 /// <reference path="./page.d.ts" />
 
-import { Page, PageEventData } from '@nativescript/core/ui/page';
+import { Page, PageNavigatedData } from '@nativescript/core/ui/page';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import '../../utils/global-events';
 import { hmrSafeGlobalEvents } from '../../utils/helpers';
 
-hmrSafeGlobalEvents('PageAnnounce', [Page.navigatedToEvent], Page, (args: PageEventData) => {
+hmrSafeGlobalEvents('PageAnnounce', [Page.navigatedToEvent], Page, (args: PageNavigatedData) => {
   const page = args.object;
   if (!page) {
     return;
@@ -28,7 +28,7 @@ hmrSafeGlobalEvents('PageAnnounce', [Page.navigatedToEvent], Page, (args: PageEv
     return;
   }
 
-  page.accessibilityScreenChanged();
+  page.accessibilityScreenChanged(!!args.isBackNavigation);
 });
 
 export { Page };

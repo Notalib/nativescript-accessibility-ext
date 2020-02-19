@@ -44,7 +44,8 @@ function getAccessibilityManager(view: AndroidView): AccessibilityManager {
 let suspendAccessibilityEvents = false;
 const a11yScrollOnFocus = 'a11y-scroll-on-focus';
 let lastFocusedView: WeakRef<TNSView>;
-function accessibilityEventHelper(owner: TNSView, eventType: number) {
+function accessibilityEventHelper(tnsView: TNSView, eventType: number) {
+  const eventName = accessibilityEventTypeMap.get(eventType);
   if (!isAccessibilityServiceEnabled()) {
     if (isTraceEnabled()) {
       writeHelperTrace(`accessibilityEventHelper: Service not active`);
@@ -53,9 +54,23 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
     return;
   }
 
-  if (!owner) {
+  if (!eventName) {
+    writeHelperTrace(`accessibilityEventHelper: unknown eventType: ${eventType}`, trace.messageType.error);
+
+    return;
+  }
+
+  if (!tnsView) {
     if (isTraceEnabled()) {
-      writeHelperTrace(`accessibilityEventHelper: no owner: ${eventType}`);
+      writeHelperTrace(`accessibilityEventHelper: no owner: ${eventName}`);
+    }
+
+    return;
+  }
+  const androidView = getAndroidView(tnsView);
+  if (!androidView) {
+    if (isTraceEnabled()) {
+      writeHelperTrace(`accessibilityEventHelper: no nativeView`);
     }
 
     return;
@@ -69,14 +84,14 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
        */
       if (android.os.Build.VERSION.SDK_INT >= 26) {
         // Find all tap gestures and trigger them.
-        for (const tapGesture of owner.getGestureObservers(GestureTypes.tap) || []) {
+        for (const tapGesture of tnsView.getGestureObservers(GestureTypes.tap) || []) {
           tapGesture.callback({
-            android: owner.android,
+            android: tnsView.android,
             eventName: 'tap',
             ios: null,
-            object: owner,
+            object: tnsView,
             type: GestureTypes.tap,
-            view: owner,
+            view: tnsView,
           });
         }
       }
@@ -85,20 +100,30 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
     }
     case AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED: {
       const lastView = lastFocusedView && lastFocusedView.get();
-      if (lastView && owner !== lastView) {
-        notifyAccessibilityFocusState(lastView, false, true);
+      if (lastView && tnsView !== lastView) {
+        const lastAndroidView = getAndroidView(lastView);
+        if (lastAndroidView) {
+          lastAndroidView.clearFocus();
+          lastFocusedView = null;
+
+          notifyAccessibilityFocusState(lastView, false, true);
+        }
       }
 
-      lastFocusedView = new WeakRef(owner);
+      lastFocusedView = new WeakRef(tnsView);
 
-      notifyAccessibilityFocusState(owner, true, false);
+      if (tnsView.page) {
+        tnsView.page['__lastFocusedView'] = lastFocusedView;
+      }
+
+      notifyAccessibilityFocusState(tnsView, true, false);
 
       const tree = [] as string[];
 
-      for (let node = owner; node; node = node.parent as TNSView) {
+      for (let node = tnsView; node; node = node.parent as TNSView) {
         node.notify({
           eventName: a11yScrollOnFocus,
-          object: owner,
+          object: tnsView,
         });
 
         tree.push(`${node}[${node.className || ''}]`);
@@ -112,11 +137,12 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
     }
     case AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED: {
       const lastView = lastFocusedView && lastFocusedView.get();
-      if (lastView && owner === lastView) {
+      if (lastView && tnsView === lastView) {
         lastFocusedView = null;
+        androidView.clearFocus();
       }
 
-      notifyAccessibilityFocusState(owner, false, true);
+      notifyAccessibilityFocusState(tnsView, false, true);
 
       return;
     }
@@ -805,9 +831,4 @@ hmrSafeGlobalEvents('setupA11yScrollOnFocus', [ListView.itemLoadingEvent], ListV
 hmrSafeGlobalEvents('setAccessibilityDelegate:loadedEvent', [TNSView.loadedEvent], TNSView, function(this: null, evt) {
   // Set the accessibility delegate on load.
   AccessibilityHelper.updateAccessibilityProperties(evt.object);
-});
-
-hmrSafeGlobalEvents('removeAccessibilityDelegate:unloadedEvent', [TNSView.unloadedEvent], TNSView, function(this: null, evt) {
-  // remove the accessibility delegate on unload.
-  removeAccessibilityDelegate(evt.object);
 });

@@ -112,10 +112,6 @@ function accessibilityEventHelper(tnsView: TNSView, eventType: number) {
 
       lastFocusedView = new WeakRef(tnsView);
 
-      if (tnsView.page) {
-        tnsView.page['__lastFocusedView'] = lastFocusedView;
-      }
-
       notifyAccessibilityFocusState(tnsView, true, false);
 
       const tree = [] as string[];

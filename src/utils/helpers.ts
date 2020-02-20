@@ -201,11 +201,11 @@ export function addBooleanCssPropertyToView<ViewClass extends View>(
  * If receivedFocus, 'accessibilityFocus' is send
  * if lostFocus, 'accessibilityBlur' is send
  *
- * @param {View} view
+ * @param {View} tnsView
  * @param {boolean} receivedFocus
  * @param {boolean} lostFocus
  */
-export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean, lostFocus: boolean): void {
+export function notifyAccessibilityFocusState(tnsView: View, receivedFocus: boolean, lostFocus: boolean): void {
   if (!receivedFocus && !lostFocus) {
     return;
   }
@@ -216,26 +216,30 @@ export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean
         name: 'notifyAccessibilityFocusState',
         receivedFocus,
         lostFocus,
-        view: `${view}`,
+        view: `${tnsView}`,
       })}`,
     );
   }
 
-  view.notify({
+  tnsView.notify({
     eventName: View.accessibilityFocusChangedEvent,
-    object: view,
+    object: tnsView,
     value: !!receivedFocus,
   } as AccessibilityFocusChangedEventData);
 
   if (receivedFocus) {
-    view.notify({
+    if (tnsView.page) {
+      tnsView.page['__lastFocusedView'] = tnsView;
+    }
+
+    tnsView.notify({
       eventName: View.accessibilityFocusEvent,
-      object: view,
+      object: tnsView,
     } as AccessibilityFocusEventData);
   } else if (lostFocus) {
-    view.notify({
+    tnsView.notify({
       eventName: View.accessibilityBlurEvent,
-      object: view,
+      object: tnsView,
     } as AccessibilityBlurEventData);
   }
 }

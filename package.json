@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nota/nativescript-accessibility-ext",
-  "version": "6.4.0-alpha.1",
+  "version": "6.4.0-alpha.2",
   "description": "Add support for 'VoiceOver' and 'TalkBack' in NativeScript",
   "scripts": {
     "postinstall": "npm-run-all install:src install:demo",

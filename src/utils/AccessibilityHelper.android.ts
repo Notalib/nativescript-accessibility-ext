@@ -533,12 +533,12 @@ export class AccessibilityHelper {
     a11yService.sendAccessibilityEvent(a11yEvent);
   }
 
-  public static updateContentDescription(tnsView: TNSView) {
+  public static updateContentDescription(tnsView: TNSView, forceUpdate = false) {
     if (tnsView instanceof ProxyViewContainer) {
       return null;
     }
 
-    return applyContentDescription(tnsView);
+    return applyContentDescription(tnsView, forceUpdate);
   }
 }
 
@@ -584,7 +584,7 @@ function setAccessibilityDelegate(tnsView: TNSView) {
   androidView.setAccessibilityDelegate(TNSAccessibilityDelegate);
 }
 
-function applyContentDescription(tnsView: TNSView) {
+function applyContentDescription(tnsView: TNSView, forceUpdate?: boolean) {
   if (tnsView instanceof ProxyViewContainer) {
     return null;
   }
@@ -616,7 +616,7 @@ function applyContentDescription(tnsView: TNSView) {
   const titleValue = tnsView['title'] as string;
   const textValue = tnsView['text'] as string;
 
-  if (tnsView._androidContentDescriptionUpdated === false && textValue === tnsView['_lastText'] && titleValue === tnsView['_lastTitle']) {
+  if (!forceUpdate && tnsView._androidContentDescriptionUpdated === false && textValue === tnsView['_lastText'] && titleValue === tnsView['_lastTitle']) {
     // prevent updating this too much
     return androidView.getContentDescription();
   }
@@ -692,8 +692,8 @@ function applyContentDescription(tnsView: TNSView) {
     androidView.setContentDescription(null);
   }
 
-  tnsView['_lastTitle'] = tnsView['title'];
-  tnsView['_lastText'] = tnsView['text'];
+  tnsView['_lastTitle'] = titleValue;
+  tnsView['_lastText'] = textValue;
   tnsView._androidContentDescriptionUpdated = false;
 
   return contentDescription;

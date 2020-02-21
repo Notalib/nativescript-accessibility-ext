@@ -1,7 +1,7 @@
 export * from '@nativescript/core/ui/action-bar/action-bar';
 import { ActionBar } from '@nativescript/core/ui/action-bar/action-bar';
-import { setViewFunction } from '../../utils';
-import { getAndroidView } from '../../utils/AccessibilityHelper';
+import { setViewFunction, wrapFunction } from '../../utils';
+import { AccessibilityHelper, getAndroidView } from '../../utils/AccessibilityHelper';
 import { commonFunctions } from '../core/view-common';
 
 setViewFunction(ActionBar, commonFunctions.accessibilityScreenChanged, function(this: ActionBar) {
@@ -65,3 +65,14 @@ setViewFunction(ActionBar, commonFunctions.accessibilityScreenChanged, function(
     });
   }
 });
+
+for (const fnName of ['update', '_onTitlePropertyChanged']) {
+  wrapFunction(
+    ActionBar.prototype,
+    fnName,
+    function(this: ActionBar) {
+      AccessibilityHelper.updateContentDescription(this, true);
+    },
+    'ActionBar',
+  );
+}

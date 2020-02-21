@@ -1,9 +1,8 @@
 export * from './page-common';
 
-import { View } from '@nativescript/core/ui/core/view';
 import { Page } from '@nativescript/core/ui/page/page';
 import { isTraceEnabled, writeTrace } from '../../trace';
-import { setViewFunction } from '../../utils';
+import { getLastFocusedViewOnPage, setViewFunction } from '../../utils';
 import { getUIView } from '../../utils/AccessibilityHelper';
 import { commonFunctions } from '../core/view-common';
 
@@ -11,11 +10,10 @@ setViewFunction(Page, commonFunctions.accessibilityScreenChanged, function(this:
   const cls = `${this}.${commonFunctions.accessibilityScreenChanged}`;
 
   if (refocus) {
-    const lastFocusedView = this['__lastFocusedView'] && (this['__lastFocusedView'].get() as View);
-    delete this['__lastFocusedView'];
-    if (lastFocusedView && lastFocusedView.parent && lastFocusedView.page === this) {
+    const lastFocusedView = getLastFocusedViewOnPage(this);
+    if (lastFocusedView) {
       if (isTraceEnabled()) {
-        writeTrace(`${cls} - action-bar hidden`);
+        writeTrace(`${cls} - refocus on ${lastFocusedView}`);
       }
 
       const uiView = getUIView(lastFocusedView);

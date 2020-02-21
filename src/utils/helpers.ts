@@ -9,6 +9,35 @@ import {
   View,
 } from '@nativescript/core/ui/core/view';
 import { isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
+import { Page } from '@nativescript/core/ui/page';
+
+const lastFocusedViewOnPageKeyName = '__lastFocusedViewOnPage';
+
+export function getLastFocusedViewOnPage(page: Page): View | null {
+  try {
+    const lastFocusedViewRef = page[lastFocusedViewOnPageKeyName] as WeakRef<View>;
+    if (!lastFocusedViewRef) {
+      return null;
+    }
+
+    const lastFocusedView = lastFocusedViewRef.get();
+    if (!lastFocusedView) {
+      return null;
+    }
+
+    if (!lastFocusedView.parent || lastFocusedView.page !== page) {
+      return null;
+    }
+
+    return lastFocusedView;
+  } catch {
+    // ignore
+  } finally {
+    delete page[lastFocusedViewOnPageKeyName];
+  }
+
+  return null;
+}
 
 /**
  * Dummy function that does nothing.
@@ -229,7 +258,7 @@ export function notifyAccessibilityFocusState(tnsView: View, receivedFocus: bool
 
   if (receivedFocus) {
     if (tnsView.page) {
-      tnsView.page['__lastFocusedView'] = new WeakRef(tnsView);
+      tnsView.page[lastFocusedViewOnPageKeyName] = new WeakRef(tnsView);
     }
 
     tnsView.notify({

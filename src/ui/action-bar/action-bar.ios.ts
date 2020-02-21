@@ -1,18 +1,22 @@
 export * from '@nativescript/core/ui/action-bar/action-bar';
 import { ActionBar } from '@nativescript/core/ui/action-bar/action-bar';
 import { isTraceEnabled, writeTrace } from '../../trace';
+import { wrapFunction } from '../../utils';
 import { getUIView } from '../../utils/AccessibilityHelper';
 import { accessibilityHintProperty, accessibilityLabelProperty, accessibilityLanguageProperty, accessibilityValueProperty } from '../core/view-common';
 
-function updateA11YProperty(tnsView: ActionBar, propName: string, value: string | null) {
+function updateA11YProperty(tnsView: ActionBar, propName: string, value: string | null | undefined) {
+  value = value != null ? `${value}` : null;
+  const cls = `ActionBar<${tnsView}.ios>.${propName} = ${value}`;
   const uiView = getUIView(tnsView);
   if (!uiView) {
+    if (isTraceEnabled()) {
+      writeTrace(`${cls} - no nativeView`);
+    }
+
     return;
   }
 
-  value = value != null ? `${value}` : null;
-
-  const cls = `ActionBar<${this}.ios>.${propName} = ${value}`;
   if (isTraceEnabled()) {
     writeTrace(`${cls}`);
   }
@@ -24,6 +28,10 @@ function updateA11YProperty(tnsView: ActionBar, propName: string, value: string 
 
   const pageNativeView = tnsView.page.ios as UIViewController;
   if (!pageNativeView || !pageNativeView.navigationItem) {
+    if (isTraceEnabled()) {
+      writeTrace(`${cls} - no page nativeView`);
+    }
+
     return;
   }
 
@@ -31,6 +39,10 @@ function updateA11YProperty(tnsView: ActionBar, propName: string, value: string 
 }
 
 ActionBar.prototype[accessibilityLabelProperty.setNative] = function accessibilityLabelSetNative(this: ActionBar, label: string | null) {
+  if (this.title && label != null) {
+    label = `${this.title}. ${label}`;
+  }
+
   updateA11YProperty(this, 'accessibilityLabel', label);
 };
 
@@ -45,3 +57,14 @@ ActionBar.prototype[accessibilityHintProperty.setNative] = function accessibilit
 ActionBar.prototype[accessibilityLanguageProperty.setNative] = function accessibilityLanguageSetNative(this: ActionBar, lang: string) {
   updateA11YProperty(this, 'accessibilityLanguage', lang);
 };
+
+wrapFunction(
+  ActionBar.prototype,
+  'update',
+  function customUpdate() {
+    for (const propName of ['accessibilityLabel', 'accessibilityValue', 'accessibilityLanguage', 'accessibilityValue']) {
+      updateA11YProperty(this, propName, this[propName]);
+    }
+  },
+  'ActionBar',
+);

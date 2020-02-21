@@ -22,14 +22,17 @@ import {
 } from './view-common';
 
 function updateA11YProperty(tnsView: View, propName: string, value: string | null) {
+  const cls = `View<${tnsView}.ios>.${propName} = ${value}`;
   const uiView = getUIView(tnsView);
   if (!uiView) {
+    if (isTraceEnabled()) {
+      writeTrace(`${cls} - no nativeView`);
+    }
+
     return;
   }
 
   value = value != null ? `${value}` : null;
-
-  const cls = `View<${this}.ios>.${propName} = ${value}`;
   if (isTraceEnabled()) {
     writeTrace(`${cls}`);
   }

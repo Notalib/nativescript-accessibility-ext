@@ -118,7 +118,7 @@ function setupAccessibilityFocusEvents(tnsView: TNSView) {
     const object = args.userInfo.objectForKey(UIAccessibilityFocusedElementKey) as UIView;
 
     const receivedFocus = object === localView;
-    const lostFocus = localView[accessibilityHadFocusSymbol] && !receivedFocus;
+    const lostFocus = !!localView[accessibilityHadFocusSymbol] && !receivedFocus;
 
     if (!receivedFocus && !lostFocus) {
       return;

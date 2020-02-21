@@ -229,7 +229,7 @@ export function notifyAccessibilityFocusState(tnsView: View, receivedFocus: bool
 
   if (receivedFocus) {
     if (tnsView.page) {
-      tnsView.page['__lastFocusedView'] = tnsView;
+      tnsView.page['__lastFocusedView'] = new WeakRef(tnsView);
     }
 
     tnsView.notify({

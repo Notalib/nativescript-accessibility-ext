@@ -21,6 +21,25 @@ import {
   iosFunctions,
 } from './view-common';
 
+function updateA11YProperty(tnsView: View, propName: string, value: string | null) {
+  const cls = `View<${tnsView}.ios>.${propName} = ${value}`;
+  const uiView = getUIView(tnsView);
+  if (!uiView) {
+    if (isTraceEnabled()) {
+      writeTrace(`${cls} - no nativeView`);
+    }
+
+    return;
+  }
+
+  value = value != null ? `${value}` : null;
+  if (isTraceEnabled()) {
+    writeTrace(`${cls}`);
+  }
+
+  uiView[propName] = value;
+}
+
 View.prototype[accessibleCssProperty.setNative] = function accessibleSetNative(this: View, isAccessible: boolean) {
   const uiView = getUIView(this);
   if (!uiView) {
@@ -59,26 +78,7 @@ View.prototype[accessibilityValueProperty.getDefault] = function accessibilityVa
 };
 
 View.prototype[accessibilityValueProperty.setNative] = function accessibilityValueSetNative(this: View, value: string) {
-  const uiView = getUIView(this);
-  if (!uiView) {
-    return;
-  }
-
-  if (value) {
-    if (isTraceEnabled()) {
-      writeTrace(`View<${this}.ios>.accessibilityValue - ${value}`);
-    }
-
-    uiView.accessibilityValue = `${value}`;
-
-    return;
-  }
-
-  if (isTraceEnabled()) {
-    writeTrace(`View<${this}.ios>.accessibilityValue - ${JSON.stringify(value)} is falsy, set to null to remove value`);
-  }
-
-  uiView.accessibilityValue = null;
+  updateA11YProperty(this, 'accessibilityValue', value);
 };
 
 View.prototype[accessibilityHiddenCssProperty.getDefault] = function accessibilityElementsHiddenGetDefault(this: View) {
@@ -172,6 +172,7 @@ setViewFunction(View, commonFunctions.accessibilityAnnouncement, function access
     if (isTraceEnabled()) {
       writeTrace(`${cls} - no msg, sending view.accessibilityLabel = ${this.accessibilityLabel} instead`);
     }
+
     msg = this.accessibilityLabel;
   }
 
@@ -197,68 +198,19 @@ View.prototype[accessibilityLabelProperty.getDefault] = function accessibilityLa
 };
 
 View.prototype[accessibilityLabelProperty.setNative] = function accessibilityLabelSetNative(this: View, label: string) {
-  const uiView = getUIView(this);
-  if (!uiView) {
-    return;
-  }
-
-  const cls = `View<${this}.ios>.accessibilityLabel = ${label}`;
-  if (label) {
-    if (isTraceEnabled()) {
-      writeTrace(`${cls}`);
-    }
-    uiView.accessibilityLabel = `${label}`;
-  } else {
-    if (isTraceEnabled()) {
-      writeTrace(`${cls} - falsy value setting null`);
-    }
-    uiView.accessibilityLabel = null;
-  }
+  updateA11YProperty(this, 'accessibilityLabel', label);
 };
 
 View.prototype[accessibilityIdProperty.setNative] = function accessibilityIdentifierSetNative(this: View, identifier: string) {
-  const uiView = getUIView(this);
-  if (!uiView) {
-    return;
-  }
-  const cls = `View<${this}.ios>.accessibilityIdentifier = ${identifier}`;
-
-  if (identifier) {
-    if (isTraceEnabled()) {
-      writeTrace(`${cls}`);
-    }
-    uiView.accessibilityIdentifier = `${identifier}`;
-  } else {
-    if (isTraceEnabled()) {
-      writeTrace(`${cls} - falsy value setting null`);
-    }
-    uiView.accessibilityIdentifier = null;
-  }
+  updateA11YProperty(this, 'accessibilityIdentifier', identifier);
 };
 
 View.prototype[accessibilityLanguageProperty.setNative] = function accessibilityLanguageSetNative(this: View, lang: string) {
-  const uiView = getUIView(this);
-  if (!uiView) {
-    return;
-  }
-
-  const cls = `View<${this}.ios>.accessibilityIdentifier = ${lang}`;
-  if (lang) {
-    writeTrace(`${cls}`);
-    uiView.accessibilityLanguage = lang;
-  } else {
-    writeTrace(`${cls} - falsy value setting null`);
-    uiView.accessibilityLanguage = null;
-  }
+  updateA11YProperty(this, 'accessibilityLanguage', lang);
 };
 
-View.prototype[accessibilityHintProperty.setNative] = function accessibilityHintSetNative(value: string) {
-  const uiView = getUIView(this);
-  if (!uiView) {
-    return;
-  }
-
-  uiView.accessibilityHint = value;
+View.prototype[accessibilityHintProperty.setNative] = function accessibilityHintSetNative(this: View, hint: string) {
+  updateA11YProperty(this, 'accessibilityHint', hint);
 };
 
 View.prototype[accessibilityMediaSessionCssProperty.setNative] = function accessibilityMediaSessionSetNative(this: View) {

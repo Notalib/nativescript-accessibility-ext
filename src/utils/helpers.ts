@@ -8,7 +8,36 @@ import {
   booleanConverter,
   View,
 } from '@nativescript/core/ui/core/view';
+import { Page } from '@nativescript/core/ui/page';
 import { isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
+
+const lastFocusedViewOnPageKeyName = '__lastFocusedViewOnPage';
+
+export function getLastFocusedViewOnPage(page: Page): View | null {
+  try {
+    const lastFocusedViewRef = page[lastFocusedViewOnPageKeyName] as WeakRef<View>;
+    if (!lastFocusedViewRef) {
+      return null;
+    }
+
+    const lastFocusedView = lastFocusedViewRef.get();
+    if (!lastFocusedView) {
+      return null;
+    }
+
+    if (!lastFocusedView.parent || lastFocusedView.page !== page) {
+      return null;
+    }
+
+    return lastFocusedView;
+  } catch {
+    // ignore
+  } finally {
+    delete page[lastFocusedViewOnPageKeyName];
+  }
+
+  return null;
+}
 
 /**
  * Dummy function that does nothing.
@@ -201,11 +230,11 @@ export function addBooleanCssPropertyToView<ViewClass extends View>(
  * If receivedFocus, 'accessibilityFocus' is send
  * if lostFocus, 'accessibilityBlur' is send
  *
- * @param {View} view
+ * @param {View} tnsView
  * @param {boolean} receivedFocus
  * @param {boolean} lostFocus
  */
-export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean, lostFocus: boolean): void {
+export function notifyAccessibilityFocusState(tnsView: View, receivedFocus: boolean, lostFocus: boolean): void {
   if (!receivedFocus && !lostFocus) {
     return;
   }
@@ -216,26 +245,30 @@ export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean
         name: 'notifyAccessibilityFocusState',
         receivedFocus,
         lostFocus,
-        view: `${view}`,
+        view: `${tnsView}`,
       })}`,
     );
   }
 
-  view.notify({
+  tnsView.notify({
     eventName: View.accessibilityFocusChangedEvent,
-    object: view,
+    object: tnsView,
     value: !!receivedFocus,
   } as AccessibilityFocusChangedEventData);
 
   if (receivedFocus) {
-    view.notify({
+    if (tnsView.page) {
+      tnsView.page[lastFocusedViewOnPageKeyName] = new WeakRef(tnsView);
+    }
+
+    tnsView.notify({
       eventName: View.accessibilityFocusEvent,
-      object: view,
+      object: tnsView,
     } as AccessibilityFocusEventData);
   } else if (lostFocus) {
-    view.notify({
+    tnsView.notify({
       eventName: View.accessibilityBlurEvent,
-      object: view,
+      object: tnsView,
     } as AccessibilityBlurEventData);
   }
 }

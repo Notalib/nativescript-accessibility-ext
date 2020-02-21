@@ -8,10 +8,6 @@ export function getAndroidView<T extends android.view.View>(tnsView: TNSView): T
   throw new Error(`getAndroidView(${tnsView}) - should never be called on iOS`);
 }
 
-export function getViewCompat(): typeof androidx.core.view.ViewCompat {
-  throw new Error(`getViewCompat() - should never be called on iOS`);
-}
-
 export function getUIView<T extends UIView>(view: TNSView): T {
   return view.ios;
 }
@@ -122,7 +118,7 @@ function setupAccessibilityFocusEvents(tnsView: TNSView) {
     const object = args.userInfo.objectForKey(UIAccessibilityFocusedElementKey) as UIView;
 
     const receivedFocus = object === localView;
-    const lostFocus = localView[accessibilityHadFocusSymbol] && !receivedFocus;
+    const lostFocus = !!localView[accessibilityHadFocusSymbol] && !receivedFocus;
 
     if (!receivedFocus && !lostFocus) {
       return;
@@ -216,7 +212,7 @@ export class AccessibilityHelper {
     uiView.accessibilityTraits = a11yTraits;
   }
 
-  public static sendAccessibilityEvent(androidView: android.view.View, eventName: string, text?: string): void {
+  public static sendAccessibilityEvent(tnsView: TNSView, eventName: string, text?: string): void {
     throw new Error('AccessibilityHelper.sendAccessibilityEvent() - Should never be called on iOS');
   }
 

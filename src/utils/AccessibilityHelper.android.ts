@@ -3,6 +3,7 @@ import * as trace from '@nativescript/core/trace';
 import { View as TNSView } from '@nativescript/core/ui/core/view';
 import { GestureTypes } from '@nativescript/core/ui/gestures/gestures';
 import { ListView } from '@nativescript/core/ui/list-view/list-view';
+import { ProxyViewContainer } from '@nativescript/core/ui/proxy-view-container';
 import * as utils from '@nativescript/core/utils/utils';
 import { categories, isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 import { AccessibilityRole, AccessibilityState } from '../ui/core/view-common';
@@ -17,10 +18,6 @@ export function getAndroidView<T extends android.view.View>(tnsView: TNSView): T
   return tnsView.nativeView || tnsView.nativeViewProtected;
 }
 
-export function getViewCompat() {
-  return androidx.core.view.ViewCompat;
-}
-
 export function getUIView(tnsView: TNSView): UIView {
   throw new Error(`getUIView(${tnsView}) - should never be called on Android`);
 }
@@ -29,10 +26,11 @@ const AccessibilityEvent = android.view.accessibility.AccessibilityEvent;
 type AccessibilityEvent = android.view.accessibility.AccessibilityEvent;
 const AccessibilityManager = android.view.accessibility.AccessibilityManager;
 type AccessibilityManager = android.view.accessibility.AccessibilityManager;
-const AccessibilityDelegateCompat = androidx.core.view.AccessibilityDelegateCompat;
-type AccessibilityDelegateCompat = androidx.core.view.AccessibilityDelegateCompat;
-const AccessibilityNodeInfoCompat = androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
-type AccessibilityNodeInfoCompat = androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+let AccessibilityDelegate = android.view.View.androidviewViewAccessibilityDelegate;
+AccessibilityDelegate = (android.view.View as any).AccessibilityDelegate;
+type AccessibilityDelegate = android.view.View.AccessibilityDelegate;
+const AccessibilityNodeInfo = android.view.accessibility.AccessibilityNodeInfo;
+type AccessibilityNodeInfo = android.view.accessibility.AccessibilityNodeInfo;
 const AndroidView = android.view.View;
 type AndroidView = android.view.View;
 const AndroidViewGroup = android.view.ViewGroup;
@@ -46,7 +44,8 @@ function getAccessibilityManager(view: AndroidView): AccessibilityManager {
 let suspendAccessibilityEvents = false;
 const a11yScrollOnFocus = 'a11y-scroll-on-focus';
 let lastFocusedView: WeakRef<TNSView>;
-function accessibilityEventHelper(owner: TNSView, eventType: number) {
+function accessibilityEventHelper(tnsView: TNSView, eventType: number) {
+  const eventName = accessibilityEventTypeMap.get(eventType);
   if (!isAccessibilityServiceEnabled()) {
     if (isTraceEnabled()) {
       writeHelperTrace(`accessibilityEventHelper: Service not active`);
@@ -55,9 +54,23 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
     return;
   }
 
-  if (!owner) {
+  if (!eventName) {
+    writeHelperTrace(`accessibilityEventHelper: unknown eventType: ${eventType}`, trace.messageType.error);
+
+    return;
+  }
+
+  if (!tnsView) {
     if (isTraceEnabled()) {
-      writeHelperTrace(`accessibilityEventHelper: no owner: ${eventType}`);
+      writeHelperTrace(`accessibilityEventHelper: no owner: ${eventName}`);
+    }
+
+    return;
+  }
+  const androidView = getAndroidView(tnsView);
+  if (!androidView) {
+    if (isTraceEnabled()) {
+      writeHelperTrace(`accessibilityEventHelper: no nativeView`);
     }
 
     return;
@@ -71,14 +84,14 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
        */
       if (android.os.Build.VERSION.SDK_INT >= 26) {
         // Find all tap gestures and trigger them.
-        for (const tapGesture of owner.getGestureObservers(GestureTypes.tap) || []) {
+        for (const tapGesture of tnsView.getGestureObservers(GestureTypes.tap) || []) {
           tapGesture.callback({
-            android: owner.android,
+            android: tnsView.android,
             eventName: 'tap',
             ios: null,
-            object: owner,
+            object: tnsView,
             type: GestureTypes.tap,
-            view: owner,
+            view: tnsView,
           });
         }
       }
@@ -87,20 +100,26 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
     }
     case AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED: {
       const lastView = lastFocusedView && lastFocusedView.get();
-      if (lastView && owner !== lastView) {
-        notifyAccessibilityFocusState(lastView, false, true);
+      if (lastView && tnsView !== lastView) {
+        const lastAndroidView = getAndroidView(lastView);
+        if (lastAndroidView) {
+          lastAndroidView.clearFocus();
+          lastFocusedView = null;
+
+          notifyAccessibilityFocusState(lastView, false, true);
+        }
       }
 
-      lastFocusedView = new WeakRef(owner);
+      lastFocusedView = new WeakRef(tnsView);
 
-      notifyAccessibilityFocusState(owner, true, false);
+      notifyAccessibilityFocusState(tnsView, true, false);
 
       const tree = [] as string[];
 
-      for (let node = owner; node; node = node.parent as TNSView) {
+      for (let node = tnsView; node; node = node.parent as TNSView) {
         node.notify({
           eventName: a11yScrollOnFocus,
-          object: owner,
+          object: tnsView,
         });
 
         tree.push(`${node}[${node.className || ''}]`);
@@ -114,21 +133,26 @@ function accessibilityEventHelper(owner: TNSView, eventType: number) {
     }
     case AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED: {
       const lastView = lastFocusedView && lastFocusedView.get();
-      if (lastView && owner === lastView) {
+      if (lastView && tnsView === lastView) {
         lastFocusedView = null;
+        androidView.clearFocus();
       }
 
-      notifyAccessibilityFocusState(owner, false, true);
+      notifyAccessibilityFocusState(tnsView, false, true);
 
       return;
     }
   }
 }
 
-let TNSAccessibilityDelegateCompat: new (owner: TNSView) => AccessibilityDelegateCompat;
+let TNSAccessibilityDelegate: AccessibilityDelegate;
 
-function ensureDelegates() {
-  if (TNSAccessibilityDelegateCompat) {
+const androidViewToTNSView = new WeakMap<AndroidView, WeakRef<TNSView>>();
+
+let accessibilityEventMap: Map<string, number>;
+let accessibilityEventTypeMap: Map<number, string>;
+function ensureNativeClasses() {
+  if (TNSAccessibilityDelegate) {
     return;
   }
 
@@ -151,69 +175,119 @@ function ensureDelegates() {
 
   const ignoreRoleTypesForTrace = new Set([AccessibilityRole.Header, AccessibilityRole.Link, AccessibilityRole.None, AccessibilityRole.Summary]);
 
-  class TNSAccessibilityDelegateCompatImpl extends AccessibilityDelegateCompat {
-    private readonly owner: WeakRef<TNSView>;
-
-    constructor(owner: TNSView) {
+  class TNSAccessibilityDelegateImpl extends AccessibilityDelegate {
+    constructor() {
       super();
-
-      this.owner = new WeakRef(owner);
 
       return global.__native(this);
     }
 
-    public onInitializeAccessibilityNodeInfo(host: AndroidView, info: AccessibilityNodeInfoCompat) {
+    private getTnsView(view: AndroidView) {
+      if (!androidViewToTNSView.has(view)) {
+        return null;
+      }
+
+      const tnsView = androidViewToTNSView.get(view).get();
+      if (!tnsView) {
+        androidViewToTNSView.delete(view);
+
+        return null;
+      }
+
+      return tnsView;
+    }
+
+    public onInitializeAccessibilityNodeInfo(host: AndroidView, info: AccessibilityNodeInfo) {
       super.onInitializeAccessibilityNodeInfo(host, info);
 
-      const owner = this.owner.get();
-      if (!owner) {
+      const tnsView = this.getTnsView(host);
+      if (!tnsView) {
         if (isTraceEnabled()) {
-          writeHelperTrace(`onInitializeAccessibilityNodeInfo ${host} ${info} no owner`);
+          writeHelperTrace(`onInitializeAccessibilityNodeInfo ${host} ${info} no tns-view`);
         }
 
         return;
       }
 
-      const accessibilityRole = owner.accessibilityRole as AccessibilityRole;
-
+      const accessibilityRole = tnsView.accessibilityRole as AccessibilityRole;
       if (accessibilityRole) {
         const androidClassName = RoleTypeMap.get(accessibilityRole);
         if (androidClassName) {
-          const oldClassName = info.getClassName() || host.getAccessibilityClassName();
+          const oldClassName = info.getClassName() || (android.os.Build.VERSION.SDK_INT >= 28 && host.getAccessibilityClassName()) || null;
           info.setClassName(androidClassName);
+
           if (isTraceEnabled()) {
             writeHelperTrace(
-              `${owner}.accessibilityRole = "${accessibilityRole}" is mapped to "${androidClassName}" (was ${oldClassName}). ${info.getClassName()}`,
+              `${tnsView}.accessibilityRole = "${accessibilityRole}" is mapped to "${androidClassName}" (was ${oldClassName}). ${info.getClassName()}`,
             );
           }
         } else if (!ignoreRoleTypesForTrace.has(accessibilityRole as AccessibilityRole)) {
           if (isTraceEnabled()) {
-            writeHelperTrace(`${owner}.accessibilityRole = "${accessibilityRole}" is unknown`);
+            writeHelperTrace(`${tnsView}.accessibilityRole = "${accessibilityRole}" is unknown`);
           }
         }
 
         if (clickableRolesMap.has(accessibilityRole)) {
+          if (isTraceEnabled()) {
+            writeHelperTrace(`onInitializeAccessibilityNodeInfo ${tnsView} - set clickable role=${accessibilityRole}`);
+          }
+
           info.setClickable(true);
+        }
+
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+          if (accessibilityRole === AccessibilityRole.Header) {
+            if (isTraceEnabled()) {
+              writeHelperTrace(`onInitializeAccessibilityNodeInfo ${tnsView} - set heading role=${accessibilityRole}`);
+            }
+
+            info.setHeading(true);
+          } else if (host.isAccessibilityHeading()) {
+            if (isTraceEnabled()) {
+              writeHelperTrace(`onInitializeAccessibilityNodeInfo ${tnsView} - set heading from host`);
+            }
+
+            info.setHeading(true);
+          } else {
+            if (isTraceEnabled()) {
+              writeHelperTrace(`onInitializeAccessibilityNodeInfo ${tnsView} - set not heading`);
+            }
+
+            info.setHeading(false);
+          }
+        }
+
+        switch (accessibilityRole) {
+          case AccessibilityRole.Switch:
+          case AccessibilityRole.RadioButton:
+          case AccessibilityRole.Checkbox: {
+            if (isTraceEnabled()) {
+              writeHelperTrace(
+                `onInitializeAccessibilityNodeInfo ${tnsView} - set checkable and check=${tnsView.accessibilityState === AccessibilityState.Checked}`,
+              );
+            }
+
+            info.setCheckable(true);
+            info.setChecked(tnsView.accessibilityState === AccessibilityState.Checked);
+            break;
+          }
+          default: {
+            if (isTraceEnabled()) {
+              writeHelperTrace(
+                `onInitializeAccessibilityNodeInfo ${tnsView} - set enabled=${tnsView.accessibilityState !==
+                  AccessibilityState.Disabled} and selected=${tnsView.accessibilityState === AccessibilityState.Selected}`,
+              );
+            }
+
+            info.setEnabled(tnsView.accessibilityState !== AccessibilityState.Disabled);
+            info.setSelected(tnsView.accessibilityState === AccessibilityState.Selected);
+            break;
+          }
         }
       }
 
-      switch (accessibilityRole) {
-        case AccessibilityRole.Header: {
-          info.setHeading(true);
-          break;
-        }
-        case AccessibilityRole.Switch:
-        case AccessibilityRole.RadioButton:
-        case AccessibilityRole.Checkbox: {
-          info.setCheckable(true);
-          info.setChecked(owner.accessibilityState === AccessibilityState.Checked);
-          break;
-        }
-        default: {
-          info.setEnabled(owner.accessibilityState !== AccessibilityState.Disabled);
-          info.setSelected(owner.accessibilityState === AccessibilityState.Selected);
-          break;
-        }
+      if (tnsView.accessible === true) {
+        info.setFocusable(true);
       }
     }
 
@@ -234,37 +308,38 @@ function ensureDelegates() {
 
     public sendAccessibilityEvent(host: AndroidViewGroup, eventType: number) {
       super.sendAccessibilityEvent(host, eventType);
+      const tnsView = this.getTnsView(host);
+      if (!tnsView) {
+        console.log(`skip - ${host} - ${accessibilityEventTypeMap.get(eventType)}`);
 
-      const owner = this.owner && this.owner.get();
+        return;
+      }
+
       if (suspendAccessibilityEvents) {
         if (isTraceEnabled()) {
-          writeHelperTrace(`sendAccessibilityEvent: ${owner} - skip`);
+          writeHelperTrace(`sendAccessibilityEvent: ${tnsView} - skip`);
         }
 
         return;
       }
 
       try {
-        accessibilityEventHelper(owner, eventType);
+        accessibilityEventHelper(tnsView, eventType);
       } catch (err) {
         console.error(err);
       }
     }
 
     public onRequestSendAccessibilityEvent(host: AndroidViewGroup, view: AndroidView, event: AccessibilityEvent) {
-      // for debugger
+      if (suspendAccessibilityEvents) {
+        return false;
+      }
+
       return super.onRequestSendAccessibilityEvent(host, view, event);
     }
   }
 
-  TNSAccessibilityDelegateCompat = TNSAccessibilityDelegateCompatImpl;
-}
-
-let accessibilityEventMap: Map<string, number>;
-function ensureAccessibilityEventMap() {
-  if (accessibilityEventMap) {
-    return;
-  }
+  TNSAccessibilityDelegate = new TNSAccessibilityDelegateImpl();
 
   accessibilityEventMap = new Map<string, number>([
     /**
@@ -368,17 +443,32 @@ function ensureAccessibilityEventMap() {
      */
     ['all', AccessibilityEvent.TYPES_ALL_MASK],
   ]);
-}
 
-const accessibilityDelegateCompatViewKey = 'TNSAccessibilityDelegateCompat';
+  accessibilityEventTypeMap = new Map([...accessibilityEventMap].map(([k, v]) => [v, k]));
+}
 
 export class AccessibilityHelper {
   public static updateAccessibilityProperties(tnsView: TNSView) {
+    if (tnsView instanceof ProxyViewContainer) {
+      return null;
+    }
+
     setAccessibilityDelegate(tnsView);
+    applyContentDescription(tnsView);
   }
 
-  public static sendAccessibilityEvent(androidView: AndroidView, eventName: string, text?: string) {
-    const cls = `AccessibilityHelper.sendAccessibilityEvent(androidView, ${eventName}, ${text})`;
+  public static sendAccessibilityEvent(tnsView: TNSView, eventName: string, text?: string) {
+    const cls = `AccessibilityHelper.sendAccessibilityEvent(${tnsView}, ${eventName}, ${text})`;
+
+    const androidView = getAndroidView(tnsView);
+    if (!androidView) {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls}: no nativeView`);
+      }
+
+      return;
+    }
+
     if (!eventName) {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls}: no eventName provided`);
@@ -404,8 +494,6 @@ export class AccessibilityHelper {
       return;
     }
 
-    ensureAccessibilityEventMap();
-
     eventName = eventName.toLowerCase();
     if (!accessibilityEventMap.has(eventName)) {
       if (isTraceEnabled()) {
@@ -416,15 +504,21 @@ export class AccessibilityHelper {
     }
     const eventInt = accessibilityEventMap.get(eventName);
 
+    if (!text) {
+      return androidView.sendAccessibilityEvent(eventInt);
+    }
+
     const a11yEvent = AccessibilityEvent.obtain(eventInt);
     a11yEvent.setSource(androidView);
 
     a11yEvent.getText().clear();
 
     if (!text) {
-      text = androidView.getContentDescription();
+      applyContentDescription(tnsView);
+
+      text = androidView.getContentDescription() || tnsView['title'];
       if (isTraceEnabled()) {
-        writeHelperTrace(`${cls} - text not provided use androidView.getContentDescription()`);
+        writeHelperTrace(`${cls} - text not provided use androidView.getContentDescription() - ${text}`);
       }
     }
 
@@ -439,51 +533,77 @@ export class AccessibilityHelper {
     a11yService.sendAccessibilityEvent(a11yEvent);
   }
 
-  public static updateContentDescription(tnsView: TNSView) {
-    return applyContentDescription(tnsView);
+  public static updateContentDescription(tnsView: TNSView, forceUpdate = false) {
+    if (tnsView instanceof ProxyViewContainer) {
+      return null;
+    }
+
+    return applyContentDescription(tnsView, forceUpdate);
   }
 }
 
 function removeAccessibilityDelegate(tnsView: TNSView) {
-  delete tnsView[accessibilityDelegateCompatViewKey];
+  if (tnsView instanceof ProxyViewContainer) {
+    return null;
+  }
 
   const androidView = getAndroidView(tnsView);
   if (!androidView) {
     return;
   }
 
-  getViewCompat().setAccessibilityDelegate(androidView, null);
+  androidViewToTNSView.delete(androidView);
+  androidView.setAccessibilityDelegate(null);
 }
 
 function setAccessibilityDelegate(tnsView: TNSView) {
+  if (tnsView instanceof ProxyViewContainer) {
+    return null;
+  }
+
+  ensureNativeClasses();
+
   const androidView = getAndroidView(tnsView);
   if (!androidView) {
     return;
   }
 
-  ensureDelegates();
+  androidViewToTNSView.set(androidView, new WeakRef(tnsView));
 
-  const hasOldDelegate = !!tnsView[accessibilityDelegateCompatViewKey];
-  if (hasOldDelegate) {
-    delete tnsView[accessibilityDelegateCompatViewKey];
-  }
+  const hasOldDelegate = androidView.getAccessibilityDelegate() === TNSAccessibilityDelegate;
 
-  const cls = `AccessibilityHelper.updateAccessibilityProperties(${tnsView}) - ${hasOldDelegate}`;
-
-  const delegate = new TNSAccessibilityDelegateCompat(tnsView);
-  tnsView[accessibilityDelegateCompatViewKey] = delegate;
-
+  const cls = `AccessibilityHelper.updateAccessibilityProperties(${tnsView}) - has delegate? ${hasOldDelegate}`;
   if (isTraceEnabled()) {
-    writeHelperTrace(`${cls} - add delegate`);
+    writeHelperTrace(cls);
   }
 
-  getViewCompat().setAccessibilityDelegate(androidView, delegate);
+  if (hasOldDelegate) {
+    return;
+  }
+
+  androidView.setAccessibilityDelegate(TNSAccessibilityDelegate);
 }
 
-function applyContentDescription(tnsView: TNSView) {
-  const androidView = getAndroidView(tnsView);
+function applyContentDescription(tnsView: TNSView, forceUpdate?: boolean) {
+  if (tnsView instanceof ProxyViewContainer) {
+    return null;
+  }
 
-  const cls = `updateContentDescription(${tnsView})`;
+  let androidView: android.view.View = getAndroidView(tnsView);
+
+  if (androidView instanceof androidx.appcompat.widget.Toolbar) {
+    const numChildren = androidView.getChildCount();
+
+    for (let i = 0; i < numChildren; i += 1) {
+      const childAndroidView = androidView.getChildAt(i);
+      if (childAndroidView instanceof androidx.appcompat.widget.AppCompatTextView) {
+        androidView = childAndroidView;
+        break;
+      }
+    }
+  }
+
+  const cls = `applyContentDescription(${tnsView})`;
 
   if (!androidView) {
     if (isTraceEnabled()) {
@@ -493,7 +613,16 @@ function applyContentDescription(tnsView: TNSView) {
     return null;
   }
 
+  const titleValue = tnsView['title'] as string;
+  const textValue = tnsView['text'] as string;
+
+  if (!forceUpdate && tnsView._androidContentDescriptionUpdated === false && textValue === tnsView['_lastText'] && titleValue === tnsView['_lastTitle']) {
+    // prevent updating this too much
+    return androidView.getContentDescription();
+  }
+
   let contentDescriptionBuilder: string[] = [];
+
   // Workaround: TalkBack won't read the checked state for fake Switch.
   if (tnsView.accessibilityRole === AccessibilityRole.Switch) {
     const androidSwitch = new android.widget.Switch(nsApp.android.context);
@@ -518,12 +647,22 @@ function applyContentDescription(tnsView: TNSView) {
     }
 
     contentDescriptionBuilder.push(`${tnsView.accessibilityValue}`);
-  } else if (tnsView['text']) {
-    if (isTraceEnabled()) {
-      writeHelperTrace(`${cls} - don't have accessibilityValue but a text value`);
-    }
+  } else if (textValue) {
+    if (textValue !== tnsView.accessibilityLabel) {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - don't have accessibilityValue - use 'text' value`);
+      }
 
-    contentDescriptionBuilder.push(`${tnsView['text']}`);
+      contentDescriptionBuilder.push(`${textValue}`);
+    }
+  } else if (titleValue) {
+    if (titleValue !== tnsView.accessibilityLabel) {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - don't have accessibilityValue - use 'title' value`);
+      }
+
+      contentDescriptionBuilder.push(`${titleValue}`);
+    }
   }
 
   if (tnsView.accessibilityHint) {
@@ -552,6 +691,10 @@ function applyContentDescription(tnsView: TNSView) {
 
     androidView.setContentDescription(null);
   }
+
+  tnsView['_lastTitle'] = titleValue;
+  tnsView['_lastText'] = textValue;
+  tnsView._androidContentDescriptionUpdated = false;
 
   return contentDescription;
 }
@@ -658,7 +801,7 @@ function ensureListViewItemIsOnScreen(listView: ListView, tnsView: TNSView) {
     suspendAccessibilityEvents = false;
 
     // Reset accessibility
-    setAccessibilityDelegate(tnsView);
+    AccessibilityHelper.updateAccessibilityProperties(tnsView);
   }
 }
 
@@ -670,7 +813,7 @@ function setupA11yScrollOnFocus(args: any) {
     return;
   }
 
-  // Ensure accessibilty delegate is still applied. This is to solve #NOTA-6866
+  // Ensure accessibility delegate is still applied. This is to solve #NOTA-6866
   setAccessibilityDelegate(tnsView);
 
   if (tnsView.hasListeners(a11yScrollOnFocus)) {
@@ -701,10 +844,5 @@ function setupA11yScrollOnFocus(args: any) {
 hmrSafeGlobalEvents('setupA11yScrollOnFocus', [ListView.itemLoadingEvent], ListView, setupA11yScrollOnFocus);
 hmrSafeGlobalEvents('setAccessibilityDelegate:loadedEvent', [TNSView.loadedEvent], TNSView, function(this: null, evt) {
   // Set the accessibility delegate on load.
-  setAccessibilityDelegate(evt.object);
-});
-
-hmrSafeGlobalEvents('removeAccessibilityDelegate:unloadedEvent', [TNSView.unloadedEvent], TNSView, function(this: null, evt) {
-  // remove the accessibility delegate on unload.
-  removeAccessibilityDelegate(evt.object);
+  AccessibilityHelper.updateAccessibilityProperties(evt.object);
 });

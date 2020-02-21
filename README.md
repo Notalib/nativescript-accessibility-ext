@@ -346,12 +346,30 @@ NativeScript Observable for getting the native fontScale on either platform.
 Android: Font scale between 0.85 and 1.3 (85% -> 130%)
 iOS: Font scale between 50% and 400%. 200% -> 400% are extra large accessibility font
 
-## Using the plugin
+## Installation
 
-To use the plugin in your nativescript-app, install and import the module:
+To use the plugin in your NativeScript-app, install and import the module:
 
 ```bash
 npm i --save @nota/nativescript-accessibility-ext
+```
+
+### Special for Android
+
+We support Android 19 and up, but the `compileSdkVersion` needs to be at least `29`.
+
+Edit your `App_Resources/Android/app.gradle`:
+```gradle
+android {
+  defaultConfig {
+    minSdkVersion = 19 // <-- change this line
+    compileSdkVersion = 29 // <-- change this line, if it exists.
+    generatedDensities = []
+  }
+  aaptOptions {
+    additionalParameters "--no-version-vectors"
+  }
+}
 ```
 
 ### For NativeScript Core

@@ -589,7 +589,19 @@ function applyContentDescription(tnsView: TNSView) {
     return null;
   }
 
-  const androidView = getAndroidView(tnsView);
+  let androidView: android.view.View = getAndroidView(tnsView);
+
+  if (androidView instanceof androidx.appcompat.widget.Toolbar) {
+    const numChildren = androidView.getChildCount();
+
+    for (let i = 0; i < numChildren; i += 1) {
+      const childAndroidView = androidView.getChildAt(i);
+      if (childAndroidView instanceof androidx.appcompat.widget.AppCompatTextView) {
+        androidView = childAndroidView;
+        break;
+      }
+    }
+  }
 
   const cls = `applyContentDescription(${tnsView})`;
 
@@ -601,7 +613,10 @@ function applyContentDescription(tnsView: TNSView) {
     return null;
   }
 
-  if (tnsView._androidContentDescriptionUpdated === false && tnsView['text'] === tnsView['_lastText']) {
+  const titleValue = tnsView['title'] as string;
+  const textValue = tnsView['text'] as string;
+
+  if (tnsView._androidContentDescriptionUpdated === false && textValue === tnsView['_lastText'] && titleValue === tnsView['_lastTitle']) {
     // prevent updating this too much
     return androidView.getContentDescription();
   }
@@ -632,13 +647,21 @@ function applyContentDescription(tnsView: TNSView) {
     }
 
     contentDescriptionBuilder.push(`${tnsView.accessibilityValue}`);
-  } else if (tnsView['text']) {
-    if (isTraceEnabled()) {
-      writeHelperTrace(`${cls} - don't have accessibilityValue but a text value`);
-    }
+  } else if (textValue) {
+    if (textValue !== tnsView.accessibilityLabel) {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - don't have accessibilityValue - use 'text' value`);
+      }
 
-    if (tnsView['text'] !== tnsView.accessibilityLabel) {
-      contentDescriptionBuilder.push(`${tnsView['text']}`);
+      contentDescriptionBuilder.push(`${textValue}`);
+    }
+  } else if (titleValue) {
+    if (titleValue !== tnsView.accessibilityLabel) {
+      if (isTraceEnabled()) {
+        writeHelperTrace(`${cls} - don't have accessibilityValue - use 'title' value`);
+      }
+
+      contentDescriptionBuilder.push(`${titleValue}`);
     }
   }
 
@@ -669,6 +692,7 @@ function applyContentDescription(tnsView: TNSView) {
     androidView.setContentDescription(null);
   }
 
+  tnsView['_lastTitle'] = tnsView['title'];
   tnsView['_lastText'] = tnsView['text'];
   tnsView._androidContentDescriptionUpdated = false;
 

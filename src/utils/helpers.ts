@@ -8,8 +8,8 @@ import {
   booleanConverter,
   View,
 } from '@nativescript/core/ui/core/view';
-import { isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 import { Page } from '@nativescript/core/ui/page';
+import { isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 
 const lastFocusedViewOnPageKeyName = '__lastFocusedViewOnPage';
 

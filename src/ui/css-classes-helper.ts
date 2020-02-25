@@ -9,7 +9,7 @@ import { View, ViewBase } from '@nativescript/core/ui/core/view';
 import { isTraceEnabled, writeFontScaleTrace } from '../trace';
 import { FontScaleObservable } from '../utils/FontScaleObservable';
 import '../utils/global-events';
-import { getViewNgCssClassesMap, hmrSafeGlobalEvents, wrapFunction } from '../utils/helpers';
+import { getViewNgCssClassesMap, hmrSafeEvents, wrapFunction } from '../utils/helpers';
 import { AccessibilityServiceEnabledObservable } from '../utils/utils';
 import { ViewCommon } from './core/view-common';
 
@@ -84,9 +84,9 @@ class CssClassHelper {
     this.a11yServiceObservable.on(AccessibilityServiceEnabledObservable.propertyChangeEvent, this.a11yServiceChanged, this);
 
     // Override global events
-    hmrSafeGlobalEvents(`${this.cls}.updateRootViews`, [nsApp.displayedEvent, nsApp.resumeEvent], nsApp, (evt) => this.updateRootViews(evt));
-    hmrSafeGlobalEvents(`${this.cls}.modalViewShowing`, [View.shownModallyEvent], ViewCommon, (evt) => this.modalViewShowing(evt.object));
-    hmrSafeGlobalEvents(`${this.cls}.updateViewCssClasses`, [View.loadedEvent], View, (evt) => this.updateViewCssClasses(evt.object));
+    hmrSafeEvents(`${this.cls}.updateRootViews`, [nsApp.displayedEvent, nsApp.resumeEvent], nsApp, (evt) => this.updateRootViews(evt));
+    hmrSafeEvents(`${this.cls}.modalViewShowing`, [View.shownModallyEvent], ViewCommon, (evt) => this.modalViewShowing(evt.object));
+    hmrSafeEvents(`${this.cls}.updateViewCssClasses`, [View.loadedEvent], View, (evt) => this.updateViewCssClasses(evt.object));
   }
 
   private modalViewShowing(modalView: View) {

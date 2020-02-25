@@ -295,20 +295,33 @@ export interface A11YCssClasses {
   [className: string]: boolean;
 }
 
+export interface HmrSafeEventsCallback {
+  (...args: any[]): any;
+}
+
 /**
- * Adding global events during development is problematic, if HMR is enabled.
+ * Adding global events during development is problematic, when HMR is enabled.
  * This helper solved the problem, by removing the old event before adding the new event
  */
-export function hmrSafeGlobalEvents(fnName: string, events: string[], viewClass: any, callback: (...args: any[]) => any, thisArg?: any) {
-  if (fnName in viewClass) {
+export function hmrSafeEvents(
+  fnName: string,
+  events: string[],
+  obj: {
+    on(eventName: string, cb: HmrSafeEventsCallback): void;
+    off(eventName: string, cb: HmrSafeEventsCallback): void;
+  },
+  callback: HmrSafeEventsCallback,
+  thisArg?: any,
+) {
+  if (fnName in obj) {
     for (const eventName of events) {
-      viewClass.off(eventName, viewClass[fnName]);
+      obj.off(eventName, obj[fnName]);
     }
   }
 
-  viewClass[fnName] = thisArg ? callback.bind(thisArg) : callback;
+  obj[fnName] = thisArg ? callback.bind(thisArg) : callback;
   for (const eventName of events) {
-    viewClass.on(eventName, viewClass[fnName]);
+    obj.on(eventName, obj[fnName]);
   }
 }
 

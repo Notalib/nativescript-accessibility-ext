@@ -4,9 +4,9 @@ import { profile } from '@nativescript/core/profiling';
 import { Page, PageNavigatedData } from '@nativescript/core/ui/page';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import '../../utils/global-events';
-import { hmrSafeGlobalEvents } from '../../utils/helpers';
+import { hmrSafeEvents } from '../../utils/helpers';
 
-hmrSafeGlobalEvents(
+hmrSafeEvents(
   'PageAnnounce',
   [Page.navigatedToEvent],
   Page,

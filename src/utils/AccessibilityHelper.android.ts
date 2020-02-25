@@ -8,7 +8,7 @@ import { ProxyViewContainer } from '@nativescript/core/ui/proxy-view-container';
 import * as utils from '@nativescript/core/utils/utils';
 import { categories, isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 import { AccessibilityRole, AccessibilityState } from '../ui/core/view-common';
-import { hmrSafeGlobalEvents, notifyAccessibilityFocusState } from './helpers';
+import { hmrSafeEvents, notifyAccessibilityFocusState } from './helpers';
 import { isAccessibilityServiceEnabled } from './utils';
 
 function writeHelperTrace(message: string, type = trace.messageType.info) {
@@ -845,8 +845,8 @@ function setupA11yScrollOnFocus(args: any) {
   });
 }
 
-hmrSafeGlobalEvents('setupA11yScrollOnFocus', [ListView.itemLoadingEvent], ListView, setupA11yScrollOnFocus);
-hmrSafeGlobalEvents('setAccessibilityDelegate:loadedEvent', [TNSView.loadedEvent], TNSView, function(this: null, evt) {
+hmrSafeEvents('setupA11yScrollOnFocus', [ListView.itemLoadingEvent], ListView, setupA11yScrollOnFocus);
+hmrSafeEvents('setAccessibilityDelegate:loadedEvent', [TNSView.loadedEvent], TNSView, function(this: null, evt) {
   // Set the accessibility delegate on load.
   AccessibilityHelper.updateAccessibilityProperties(evt.object);
 });

@@ -1,14 +1,21 @@
 import * as nsApp from '@nativescript/core/application';
 import { Observable } from '@nativescript/core/data/observable';
+import { profile } from '@nativescript/core/profiling';
 import { isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 import { AccessibilityServiceEnabledPropName, CommonA11YServiceEnabledObservable, SharedA11YObservable } from './utils-common';
 
-export function isAccessibilityServiceEnabled() {
+export const isAccessibilityServiceEnabled = profile('isAccessibilityServiceEnabled', function isAccessibilityServiceEnabledImpl(forceUpdate: boolean) {
   const cls = `isAccessibilityServiceEnabled<ios>()`;
   if (typeof UIAccessibilityIsVoiceOverRunning !== 'function') {
     writeErrorTrace(`${cls} - UIAccessibilityIsVoiceOverRunning() - is not a function`);
 
     return false;
+  }
+
+  ensureStateListener();
+
+  if (!forceUpdate || typeof sharedA11YObservable.accessibilityServiceEnabled === 'boolean') {
+    return sharedA11YObservable.accessibilityServiceEnabled;
   }
 
   const isEnabled = !!UIAccessibilityIsVoiceOverRunning();
@@ -17,7 +24,7 @@ export function isAccessibilityServiceEnabled() {
   }
 
   return isEnabled;
-}
+});
 
 let sharedA11YObservable: SharedA11YObservable;
 let nativeObserver: any;
@@ -29,11 +36,11 @@ function ensureStateListener() {
 
   sharedA11YObservable = new Observable() as SharedA11YObservable;
 
-  sharedA11YObservable.set(AccessibilityServiceEnabledPropName, isAccessibilityServiceEnabled());
+  sharedA11YObservable.set(AccessibilityServiceEnabledPropName, isAccessibilityServiceEnabled(true));
 
   if (typeof UIAccessibilityVoiceOverStatusDidChangeNotification !== 'undefined') {
     nativeObserver = nsApp.ios.addNotificationObserver(UIAccessibilityVoiceOverStatusDidChangeNotification, () =>
-      sharedA11YObservable.set(AccessibilityServiceEnabledPropName, isAccessibilityServiceEnabled()),
+      sharedA11YObservable.set(AccessibilityServiceEnabledPropName, isAccessibilityServiceEnabled(true)),
     );
 
     nsApp.on(nsApp.exitEvent, () => {
@@ -46,7 +53,7 @@ function ensureStateListener() {
     });
   } else if (typeof UIAccessibilityVoiceOverStatusChanged !== 'undefined') {
     nativeObserver = nsApp.ios.addNotificationObserver(UIAccessibilityVoiceOverStatusChanged, () =>
-      sharedA11YObservable.set(AccessibilityServiceEnabledPropName, isAccessibilityServiceEnabled()),
+      sharedA11YObservable.set(AccessibilityServiceEnabledPropName, isAccessibilityServiceEnabled(true)),
     );
 
     nsApp.on(nsApp.exitEvent, () => {
@@ -62,7 +69,7 @@ function ensureStateListener() {
     });
   }
 
-  nsApp.on(nsApp.resumeEvent, () => sharedA11YObservable.set('isAccessibilityServiceEnabled', isAccessibilityServiceEnabled()));
+  nsApp.on(nsApp.resumeEvent, () => sharedA11YObservable.set(AccessibilityServiceEnabledPropName, isAccessibilityServiceEnabled(true)));
 
   return sharedA11YObservable;
 }

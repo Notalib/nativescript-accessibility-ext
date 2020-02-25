@@ -233,6 +233,7 @@ class CssClassHelper {
   /**
    * Get loaded modal views
    */
+  @profile
   private getModalViews() {
     const views = [] as View[];
     for (const [id, viewRef] of this.loadedModalViewRefs) {
@@ -254,6 +255,7 @@ class CssClassHelper {
    *
    * These are used to the UI if fontscale or the a11y-service status changes while the modal is active.
    */
+  @profile
   private addModalViewRef(modalView: View) {
     for (const [id, viewRef] of this.loadedModalViewRefs) {
       const otherView = viewRef.get();
@@ -273,6 +275,7 @@ class CssClassHelper {
    * Update the helper CSS-classes.
    * Return true is any changes.
    */
+  @profile
   private updateCurrentHelperClasses() {
     const { fontScale, isExtraSmall, isExtraLarge } = this.fontScaleObservable;
 
@@ -313,6 +316,7 @@ class CssClassHelper {
     }
   }
 
+  @profile
   private fontScaleChanged(event: PropertyChangeData) {
     const { fontScale } = this.fontScaleObservable;
     if (isTraceEnabled()) {
@@ -322,6 +326,7 @@ class CssClassHelper {
     this.updateRootViews(event);
   }
 
+  @profile
   private a11yServiceChanged(event: PropertyChangeData) {
     if (isTraceEnabled()) {
       writeFontScaleTrace(`${this.cls}.a11yServiceChanged(): to ${this.a11yServiceObservable.accessibilityServiceEnabled}`);

@@ -1,4 +1,5 @@
 import * as nsApp from '@nativescript/core/application';
+import { profile } from '@nativescript/core/profiling';
 import { View as TNSView } from '@nativescript/core/ui/core/view';
 import { isTraceEnabled, writeTrace } from '../trace';
 import { AccessibilityLiveRegion, AccessibilityRole, AccessibilityState, AccessibilityTrait } from '../ui/core/view-common';
@@ -141,6 +142,7 @@ function setupAccessibilityFocusEvents(tnsView: TNSView) {
 }
 
 export class AccessibilityHelper {
+  @profile
   public static updateAccessibilityProperties(tnsView: TNSView) {
     const uiView = getUIView(tnsView);
     if (!uiView) {

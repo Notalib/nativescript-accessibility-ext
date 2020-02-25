@@ -1,4 +1,5 @@
 import { Directive, ElementRef, Input, OnInit } from '@angular/core';
+import { profile } from '@nativescript/core/profiling';
 import { GridLayout } from '@nativescript/core/ui/layouts/grid-layout/grid-layout';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
@@ -49,6 +50,7 @@ export class A11YGridLayoutDirective extends BaseService implements OnInit {
       .subscribe((columns) => (this.el.nativeElement['columns'] = columns));
   }
 
+  @profile
   private fixValue(str: string, fontScale: number) {
     if (!str) {
       return null;

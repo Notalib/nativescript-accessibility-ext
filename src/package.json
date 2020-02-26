@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@nota/nativescript-accessibility-ext",
-  "version": "6.4.1-profiling.1",
+  "version": "6.4.1-csshelpers.1",
   "description": "Add support for 'VoiceOver' and 'TalkBack' in NativeScript",
   "main": "index.js",
   "typings": "index.d.ts",

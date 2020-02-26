@@ -1,9 +1,9 @@
 import * as nsApp from '@nativescript/core/application';
 import { profile } from '@nativescript/core/profiling';
 import { View as TNSView } from '@nativescript/core/ui/core/view';
-import { isTraceEnabled, writeTrace } from '../trace';
 import { AccessibilityLiveRegion, AccessibilityRole, AccessibilityState, AccessibilityTrait } from '../ui/core/view-common';
-import { inputArrayToBitMask, notifyAccessibilityFocusState } from './helpers';
+import { hmrSafeEvents, inputArrayToBitMask, notifyAccessibilityFocusState } from './helpers';
+import { ProxyViewContainer } from '@nativescript/core/ui/proxy-view-container';
 
 export function getAndroidView<T extends android.view.View>(tnsView: TNSView): T {
   throw new Error(`getAndroidView(${tnsView}) - should never be called on iOS`);
@@ -15,8 +15,12 @@ export function getUIView<T extends UIView>(view: TNSView): T {
 
 let AccessibilityTraitsMap: Map<string, number>;
 let RoleTypeMap: Map<AccessibilityRole, number>;
-function ensureTraits() {
-  if (AccessibilityTraitsMap) {
+
+let nativeFocusedNotificationObserver: any;
+const uiViewToTnsView = new WeakMap<UIView, WeakRef<TNSView>>();
+let lastFocusedView: WeakRef<TNSView>;
+function ensureNativeClasses() {
+  if (AccessibilityTraitsMap && nativeFocusedNotificationObserver) {
     return;
   }
 
@@ -54,106 +58,52 @@ function ensureTraits() {
     [AccessibilityRole.Switch, UIAccessibilityTraitButton],
     [AccessibilityRole.RadioButton, UIAccessibilityTraitButton],
   ]);
-}
-const accessibilityFocusObserverSymbol = Symbol.for('ios:accessibilityFocusObserver');
-const accessibilityHadFocusSymbol = Symbol.for('ios:accessibilityHadFocusSymbol');
 
-/**
- * Wrapper for setting up accessibility focus events for iOS9+
- * NOTE: This isn't supported on iOS8
- *
- * If the UIView changes from accessible = true to accessible = false, event will be removed
- *
- * @param {View} tnsView        NativeScript View
- * @param {boolean} isAccessible  is element marked as accessible
- */
-function setupAccessibilityFocusEvents(tnsView: TNSView) {
-  const cls = `setupAccessibilityFocusEvents(${tnsView}) - accessible = ${tnsView.accessible}`;
-  if (typeof UIAccessibilityElementFocusedNotification === 'undefined') {
-    if (isTraceEnabled()) {
-      writeTrace(`${cls}: not supported by this iOS version`);
+  nativeFocusedNotificationObserver = nsApp.ios.addNotificationObserver(UIAccessibilityElementFocusedNotification, (args: NSNotification) => {
+    const uiView = args.userInfo.objectForKey(UIAccessibilityFocusedElementKey) as UIView;
+
+    const tnsView = uiViewToTnsView.has(uiView) ? uiViewToTnsView.get(uiView).get() : null;
+    if (!tnsView) {
+      return;
     }
 
-    return;
-  }
+    const lastView = lastFocusedView && lastFocusedView.get();
+    if (lastView && tnsView !== lastView) {
+      const lastFocusedUIView = getUIView(lastView);
+      if (lastFocusedUIView) {
+        lastFocusedView = null;
 
-  if (tnsView[accessibilityFocusObserverSymbol]) {
-    if (tnsView.accessible) {
-      if (isTraceEnabled()) {
-        writeTrace(`${cls}: Already configured no need to do so again`);
+        notifyAccessibilityFocusState(lastView, false, true);
       }
-
-      return;
     }
 
-    if (isTraceEnabled()) {
-      writeTrace(`${cls}: view no longer accessible, remove listener`);
-    }
-    nsApp.ios.removeNotificationObserver(tnsView[accessibilityFocusObserverSymbol], UIAccessibilityElementFocusedNotification);
+    lastFocusedView = new WeakRef(tnsView);
 
-    delete tnsView[accessibilityFocusObserverSymbol];
-
-    return;
-  }
-
-  if (!tnsView.accessible) {
-    return;
-  }
-
-  const selfTnsView = new WeakRef<TNSView>(tnsView);
-
-  let observer = nsApp.ios.addNotificationObserver(UIAccessibilityElementFocusedNotification, (args: NSNotification) => {
-    const localTnsView = selfTnsView.get();
-    if (!localTnsView || !localTnsView.ios) {
-      nsApp.ios.removeNotificationObserver(observer, UIAccessibilityElementFocusedNotification);
-      observer = null;
-      if (localTnsView) {
-        delete localTnsView[accessibilityFocusObserverSymbol];
-      }
-
-      return;
-    }
-
-    const localView = getUIView(localTnsView);
-
-    const object = args.userInfo.objectForKey(UIAccessibilityFocusedElementKey) as UIView;
-
-    const receivedFocus = object === localView;
-    const lostFocus = !!localView[accessibilityHadFocusSymbol] && !receivedFocus;
-
-    if (!receivedFocus && !lostFocus) {
-      return;
-    }
-
-    if (isTraceEnabled()) {
-      writeTrace(`${cls}, view: ${localTnsView}, receivedFocus: ${receivedFocus}, lostFocus: ${lostFocus}`);
-    }
-
-    notifyAccessibilityFocusState(localTnsView, receivedFocus, lostFocus);
-
-    if (receivedFocus) {
-      localView[accessibilityHadFocusSymbol] = true;
-    } else if (lostFocus) {
-      localView[accessibilityHadFocusSymbol] = false;
-    }
+    notifyAccessibilityFocusState(tnsView, true, false);
   });
 
-  tnsView[accessibilityFocusObserverSymbol] = observer;
+  nsApp.on(nsApp.exitEvent, () => {
+    if (nativeFocusedNotificationObserver) {
+      nsApp.ios.removeNotificationObserver(nativeFocusedNotificationObserver, UIAccessibilityElementFocusedNotification);
+    }
+
+    nativeFocusedNotificationObserver = null;
+  });
 }
 
 export class AccessibilityHelper {
   @profile
   public static updateAccessibilityProperties(tnsView: TNSView) {
-    const uiView = getUIView(tnsView);
-    if (!uiView) {
-      console.error(`${tnsView} - no uiView`);
-
+    if (tnsView instanceof ProxyViewContainer) {
       return;
     }
 
-    ensureTraits();
+    const uiView = getUIView(tnsView);
+    if (!uiView) {
+      return;
+    }
 
-    setupAccessibilityFocusEvents(tnsView);
+    ensureNativeClasses();
 
     const accessibilityRole = tnsView.accessibilityRole as AccessibilityRole;
     const accessibilityState = tnsView.accessibilityState as AccessibilityState;
@@ -222,3 +172,21 @@ export class AccessibilityHelper {
     throw new Error('AccessibilityHelper.updateContentDescription() . Should never be called on iOS');
   }
 }
+
+hmrSafeEvents('A11YHelper:loadedEvent', [TNSView.loadedEvent], TNSView, function(this: null, evt) {
+  const tnsView = evt.object;
+  if (!tnsView) {
+    return;
+  }
+
+  if (tnsView instanceof ProxyViewContainer) {
+    return;
+  }
+
+  const uiView = getUIView(tnsView);
+  if (!uiView) {
+    return;
+  }
+
+  uiViewToTnsView.set(uiView, new WeakRef(tnsView));
+});

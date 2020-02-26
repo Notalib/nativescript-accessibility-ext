@@ -23,10 +23,8 @@ const rootA11YClass = 'ns-a11y';
 const nsRootClass = getRootViewCssClasses()[0];
 const nsModalClass = getModalRootViewCssClass();
 
-declare const Zone: any;
-
 const cssClassesPropName = '_a11yCssClasses';
-const cssClassesLastChangedPropName = `${cssClassesPropName}_lastChangeId`;
+const cssClassesLastChangedIdPropName = `${cssClassesPropName}_lastChangeId`;
 
 class CssClassHelper {
   private readonly cls = `CssClassesHelper`;
@@ -70,7 +68,8 @@ class CssClassHelper {
           cssClasses,
           'clear',
           () => {
-            delete this[cssClassesLastChangedPropName];
+            delete this[cssClassesLastChangedIdPropName];
+
             self.updateViewCssClasses(this);
           },
           `${this.typeName}.cssClasses`,
@@ -84,9 +83,17 @@ class CssClassHelper {
     this.a11yServiceObservable.on(AccessibilityServiceEnabledObservable.propertyChangeEvent, this.a11yServiceChanged, this);
 
     // Override global events
-    hmrSafeEvents(`${this.cls}.updateRootViews`, [nsApp.displayedEvent, nsApp.resumeEvent], nsApp, (evt) => this.updateRootViews(evt));
-    hmrSafeEvents(`${this.cls}.modalViewShowing`, [View.shownModallyEvent], ViewCommon, (evt) => this.modalViewShowing(evt.object));
-    hmrSafeEvents(`${this.cls}.updateViewCssClasses`, [View.loadedEvent], View, (evt) => this.updateViewCssClasses(evt.object));
+    hmrSafeEvents(`${this.cls}.updateRootViews`, [nsApp.displayedEvent, nsApp.resumeEvent], nsApp, (evt) => {
+      this.updateRootViews(evt);
+    });
+
+    hmrSafeEvents(`${this.cls}.modalViewShowing`, [View.shownModallyEvent], ViewCommon, (evt) => {
+      this.modalViewShowing(evt.object);
+    });
+
+    hmrSafeEvents(`${this.cls}.updateViewCssClasses`, [View.loadedEvent], View, (evt) => {
+      this.updateViewCssClasses(evt.object);
+    });
   }
 
   private modalViewShowing(modalView: View) {
@@ -101,7 +108,7 @@ class CssClassHelper {
       return false;
     }
 
-    if (view[cssClassesLastChangedPropName] !== this.lastChangeId) {
+    if (view[cssClassesLastChangedIdPropName] !== this.lastChangeId) {
       // Helper classes have been changed, view's classes are no longer valid.
       return false;
     }
@@ -120,20 +127,29 @@ class CssClassHelper {
   }
 
   @profile
-  public updateViewCssClasses(view: ViewBase) {
+  public updateViewCssClasses(view: ViewBase): Set<string> {
     const cssClasses = view[cssClassesPropName] as Set<string>;
-    let ngCssClasses = new Map<string, boolean>();
-    // Zone is globally available on nativescript-angular. If defined assume angular environment.
-    if (typeof Zone !== 'undefined') {
-      ngCssClasses = getViewNgCssClassesMap(view);
-    }
+    const ngCssClasses = getViewNgCssClassesMap(view);
 
     if (!this.activeFontScaleClass || !this.currentA11YStatusClass) {
       this.updateCurrentHelperClasses();
     }
 
+    view[cssClassesLastChangedIdPropName] = this.lastChangeId;
+
+    const isModal = cssClasses.has(nsModalClass);
+    const isRoot = !isModal && cssClasses.has(nsRootClass);
+
+    if (!isModal && !isRoot) {
+      return cssClasses;
+    }
+
     if (!cssClasses.has(this.activeFontScaleClass)) {
       for (const cssClass of this.fontScaleCssClasses.values()) {
+        if (this.activeFontScaleClass === cssClass) {
+          continue;
+        }
+
         cssClasses.delete(cssClass);
         ngCssClasses.delete(cssClass);
       }
@@ -144,6 +160,10 @@ class CssClassHelper {
 
     if (!cssClasses.has(this.activeFontScaleCategory)) {
       for (const cssClass of [fontExtraSmallClass, fontExtraMediumClass, fontExtraLargeClass]) {
+        if (this.activeFontScaleCategory === cssClass) {
+          continue;
+        }
+
         cssClasses.delete(cssClass);
         ngCssClasses.delete(cssClass);
       }
@@ -152,27 +172,26 @@ class CssClassHelper {
       ngCssClasses.set(this.activeFontScaleCategory, true);
     }
 
-    const isModal = cssClasses.has(nsModalClass);
-    const isRoot = !isModal && cssClasses.has(nsRootClass);
-
-    if (isModal || isRoot) {
-      if (!cssClasses.has(this.currentA11YStatusClass)) {
-        for (const cssClass of [a11yServiceEnabledClass, a11yServiceDisabledClass]) {
-          cssClasses.delete(cssClass);
-          ngCssClasses.delete(cssClass);
+    if (!cssClasses.has(this.currentA11YStatusClass)) {
+      for (const cssClass of [a11yServiceEnabledClass, a11yServiceDisabledClass]) {
+        if (this.currentA11YStatusClass === cssClass) {
+          continue;
         }
 
-        cssClasses.add(this.currentA11YStatusClass);
-        ngCssClasses.set(this.currentA11YStatusClass, true);
+        cssClasses.delete(cssClass);
+        ngCssClasses.delete(cssClass);
       }
 
-      if (!cssClasses.has(rootA11YClass)) {
-        cssClasses.add(rootA11YClass);
-        ngCssClasses.set(rootA11YClass, true);
-      }
+      cssClasses.add(this.currentA11YStatusClass);
+      ngCssClasses.set(this.currentA11YStatusClass, true);
     }
 
-    view[cssClassesLastChangedPropName] = this.lastChangeId;
+    if (!cssClasses.has(rootA11YClass)) {
+      cssClasses.add(rootA11YClass);
+      ngCssClasses.set(rootA11YClass, true);
+    }
+
+    view[cssClassesLastChangedIdPropName] = this.lastChangeId;
 
     return cssClasses;
   }
@@ -183,11 +202,20 @@ class CssClassHelper {
       return false;
     }
 
-    this.updateViewCssClasses(view);
+    let changed = false;
+    if (!this.isViewClassesValid(view)) {
+      this.updateViewCssClasses(view);
+    }
 
-    view.eachChildView((child) => this.setHelperCssRecursively(child));
+    view.eachChildView((childView) => {
+      if (this.setHelperCssRecursively(childView)) {
+        changed = true;
+      }
 
-    return true;
+      return true;
+    });
+
+    return changed;
   }
 
   /**
@@ -202,14 +230,13 @@ class CssClassHelper {
 
     const rootView = nsApp.getRootView();
     if (rootView) {
-      const isValid = this.isViewClassesValid(rootView);
-      if (isTraceEnabled()) {
-        writeFontScaleTrace(`${cls} - update rootView ${rootView}. isValid: ${isValid}`);
-      }
-
-      this.setHelperCssRecursively(rootView);
-      if (!isValid) {
+      if (this.setHelperCssRecursively(rootView)) {
+        if (isTraceEnabled()) {
+          writeFontScaleTrace(`${cls} - update rootView ${rootView}. was changed: true`);
+        }
         rootView._onCssStateChange();
+      } else if (isTraceEnabled()) {
+        writeFontScaleTrace(`${cls} - update rootView ${rootView}. was changed: false`);
       }
     } else {
       if (isTraceEnabled()) {
@@ -217,15 +244,15 @@ class CssClassHelper {
       }
     }
 
-    for (const view of this.getModalViews()) {
-      const isValid = this.isViewClassesValid(view);
-      if (isTraceEnabled()) {
-        writeFontScaleTrace(`${cls} - update modal ${view}. isValid: ${isValid}`);
-      }
+    for (const modalView of this.getModalViews()) {
+      if (this.setHelperCssRecursively(modalView)) {
+        if (isTraceEnabled()) {
+          writeFontScaleTrace(`${cls} - update modal ${modalView}. was changed: true`);
+        }
 
-      this.setHelperCssRecursively(rootView);
-      if (!isValid) {
-        view._onCssStateChange();
+        modalView._onCssStateChange();
+      } else if (isTraceEnabled()) {
+        writeFontScaleTrace(`${cls} - update modal ${modalView}. was changed: false`);
       }
     }
   }
@@ -267,8 +294,9 @@ class CssClassHelper {
     }
 
     this.loadedModalViewRefs.set(`${modalView}`, new WeakRef(modalView));
-
-    this.setHelperCssRecursively(modalView);
+    if (this.setHelperCssRecursively(modalView)) {
+      modalView._onCssStateChange();
+    }
   }
 
   /**
@@ -292,12 +320,14 @@ class CssClassHelper {
     }
 
     let oldActiveFontScaleCategory = this.activeFontScaleCategory;
-    if (isAndroid || (!isExtraSmall && !isExtraLarge)) {
+    if (isAndroid) {
       this.activeFontScaleCategory = fontExtraMediumClass;
     } else if (isExtraSmall) {
       this.activeFontScaleCategory = fontExtraSmallClass;
     } else if (isExtraLarge) {
       this.activeFontScaleCategory = fontExtraLargeClass;
+    } else {
+      this.activeFontScaleCategory = fontExtraMediumClass;
     }
 
     if (this.activeFontScaleCategory !== oldActiveFontScaleCategory) {

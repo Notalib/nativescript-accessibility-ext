@@ -284,6 +284,11 @@ export const notifyAccessibilityFocusState = profile('notifyAccessibilityFocusSt
  * on updates.
  */
 export function getViewNgCssClassesMap(view: any): Map<string, boolean> {
+  // Zone is globally available on nativescript-angular. If defined assume angular environment.
+  if (typeof Zone === 'undefined') {
+    return new Map<string, boolean>();
+  }
+
   if (!view.ngCssClasses) {
     view.ngCssClasses = new Map<string, boolean>();
   }
@@ -348,12 +353,15 @@ export function viewSetCssClasses(view: View, a11yCssClasses: A11YCssClasses): b
       }
 
       view.cssClasses.delete(className);
+
       changed = true;
+
       continue;
     }
 
     if (enabled) {
       view.cssClasses.add(className);
+
       changed = true;
       continue;
     }

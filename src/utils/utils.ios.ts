@@ -32,7 +32,7 @@ function getSharedA11YObservable(): SharedA11YObservable {
 
   let voiceOverStatusChangedNotificationName: string | null = null;
 
-  if (typeof UIAccessibilityVoiceOverStatusDidChangeNotification === 'string') {
+  if (typeof UIAccessibilityVoiceOverStatusDidChangeNotification !== 'undefined') {
     voiceOverStatusChangedNotificationName = UIAccessibilityVoiceOverStatusDidChangeNotification;
   } else if (typeof UIAccessibilityVoiceOverStatusChanged !== 'undefined') {
     voiceOverStatusChangedNotificationName = UIAccessibilityVoiceOverStatusChanged;

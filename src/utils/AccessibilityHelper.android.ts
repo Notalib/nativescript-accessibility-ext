@@ -608,12 +608,7 @@ const applyContentDescription = profile('applyContentDescription', function appl
   }
 
   const cls = `applyContentDescription(${tnsView})`;
-
   if (!androidView) {
-    if (isTraceEnabled()) {
-      writeErrorTrace(`${cls} - no native element`);
-    }
-
     return null;
   }
 

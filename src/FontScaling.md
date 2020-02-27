@@ -27,7 +27,7 @@ If you use the theme-classes font-scaling will be enabled on both platforms.
 
 ## Writing your own font-scale styles:
 
-### using css-variables and css-calc:
+You can write your own font-scale styles using `css-variables` and `css-calc`.
 
 | variable | description |
 | -- | -- |
@@ -42,7 +42,7 @@ If you use the theme-classes font-scaling will be enabled on both platforms.
 | --a11y-segmented-bar-height | SegmentedBar height, scaled version of  --const-segmented-bar-height |
 | --const-drawer-header-font-size | Base SideDrawer header font-size |
 | --a11y-drawer-header-font-size |  SideDrawer header font-size, scaled version of --const-drawer-header-font-size |
-| --a11y-{text-class-name}-size | Scaled font-size variable for the text CSS-classes `t-10`...`t-36`, `h1`...`h6`, `body`, `body2` and `footnote`. |
+| --a11y-{text-class-name}-size | Scaled font-size variable for the text CSS-classes `t-10`...`t-36`, `h1`...`h6`, `body`, `body2` and `footnote`.|
 
 ```scss
 .my-class {

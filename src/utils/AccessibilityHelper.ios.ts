@@ -1,9 +1,9 @@
 import * as nsApp from '@nativescript/core/application';
 import { profile } from '@nativescript/core/profiling';
 import { View as TNSView } from '@nativescript/core/ui/core/view';
+import { ProxyViewContainer } from '@nativescript/core/ui/proxy-view-container';
 import { AccessibilityLiveRegion, AccessibilityRole, AccessibilityState, AccessibilityTrait } from '../ui/core/view-common';
 import { hmrSafeEvents, inputArrayToBitMask, notifyAccessibilityFocusState } from './helpers';
-import { ProxyViewContainer } from '@nativescript/core/ui/proxy-view-container';
 
 export function getAndroidView<T extends android.view.View>(tnsView: TNSView): T {
   throw new Error(`getAndroidView(${tnsView}) - should never be called on iOS`);
@@ -168,7 +168,7 @@ export class AccessibilityHelper {
     throw new Error('AccessibilityHelper.sendAccessibilityEvent() - Should never be called on iOS');
   }
 
-  public static updateContentDescription(tnsView: TNSView): string {
+  public static updateContentDescription(tnsView: TNSView, forceUpdate?: boolean): string {
     throw new Error('AccessibilityHelper.updateContentDescription() . Should never be called on iOS');
   }
 }

@@ -1,45 +1,53 @@
 @import './fontscales';
 
-.a11y-service-disabled {
-  .a11y-service-enabled-visible,
-  .a11y-service-disabled-hidden {
-    visibility: collapse;
-  }
-}
-
-.a11y-service-enabled {
-  .a11y-service-enabled-hidden,
-  .a11y-service-disabled-hidden {
-    visibility: collapse;
-  }
-}
-
-.a11y-fontscale-xs {
-  .a11y-fontscale-xs-hidden,
-  .a11y-fontscale-xl-visible {
-    visibility: collapse;
-  }
-}
-
-.a11y-fontscale-m {
-  .a11y-fontscale-m-hidden,
-  .a11y-fontscale-xs-visible,
-  .a11y-fontscale-xl-visible {
-    visibility: collapse;
-  }
-}
-
-.a11y-fontscale-xl {
-  .a11y-fontscale-xl-hidden,
-  .a11y-fontscale-m-visible,
-  .a11y-fontscale-xs-visible {
-    visibility: collapse;
-  }
-}
-
 .ns-root,
 .ns-modal {
+  &.a11y-service-disabled {
+    .a11y-service-enabled-visible,
+    .a11y-service-disabled-hidden {
+      visibility: collapse;
+    }
+  }
+
+  &.a11y-service-enabled {
+    .a11y-service-enabled-hidden,
+    .a11y-service-disabled-hidden {
+      visibility: collapse;
+    }
+  }
+
+  &.a11y-fontscale-xs {
+    .a11y-fontscale-xs-hidden,
+    .a11y-fontscale-xl-visible {
+      visibility: collapse;
+    }
+  }
+
+  &.a11y-fontscale-m {
+    .a11y-fontscale-m-hidden,
+    .a11y-fontscale-xs-visible,
+    .a11y-fontscale-xl-visible {
+      visibility: collapse;
+    }
+  }
+
+  &.a11y-fontscale-xl {
+    .a11y-fontscale-xl-hidden,
+    .a11y-fontscale-m-visible,
+    .a11y-fontscale-xs-visible {
+      visibility: collapse;
+    }
+  }
+
   --a11y-fontscale-factor: 1;
+  @each $scaleName, $params in $a11y-font-scales {
+    $a11y-fontscale-factor: map-get($params, factor); // scaling factor 0.8, 1.0., 1.3 etc
+
+    &.a11y-fontscale-#{$scaleName} {
+      --a11y-fontscale-factor: #{$a11y-fontscale-factor};
+    }
+  }
+
   --const-segmented-bar-font-size: 15;
   --const-drawer-header-font-size: 40;
 
@@ -114,14 +122,6 @@ Slider {
 .a11y-header {
   @extend .a11y-enabled;
   a11y-role: header;
-}
-
-@each $scaleName, $params in $a11y-font-scales {
-  $a11y-fontscale-factor: map-get($params, factor); // scaling factor 0.8, 1.0., 1.3 etc
-
-  .a11y-fontscale-#{$scaleName} {
-    --a11y-fontscale-factor: #{$a11y-fontscale-factor};
-  }
 }
 
 .a11y-hidden {

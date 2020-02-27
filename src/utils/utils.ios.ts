@@ -22,7 +22,7 @@ function getSharedA11YObservable(): SharedA11YObservable {
     isVoiceOverRunning = UIAccessibilityIsVoiceOverRunning;
   } else {
     if (typeof UIAccessibilityIsVoiceOverRunning !== 'function') {
-      writeErrorTrace(` UIAccessibilityIsVoiceOverRunning() - is not a function`);
+      writeErrorTrace(`UIAccessibilityIsVoiceOverRunning() - is not a function`);
 
       isVoiceOverRunning = () => false;
     }

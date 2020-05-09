@@ -400,7 +400,7 @@ Change to your `app.module.ts`
 ```typescript
 import { NgModule, NO_ERRORS_SCHEMA } from "@angular/core";
 import { NativeScriptModule } from "nativescript-angular/nativescript.module";
-import { NotaAccessibilityExtModule } '@nota/nativescript-accessibility-ext/angular'; /// <-- Add this line
+import { NotaAccessibilityExtModule } from '@nota/nativescript-accessibility-ext/angular'; /// <-- Add this line
 
 /// ... stuff
 

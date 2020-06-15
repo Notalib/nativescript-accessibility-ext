@@ -73,6 +73,8 @@ function ensureStateListener() {
 
   touchExplorationStateChangeListener = new TouchExplorationStateChangeListener({
     onTouchExplorationStateChanged(enabled) {
+      // FIX: TouchExploration implicitly sets A11yState for Samsung devices. 
+      sharedA11YObservable.set(A11yStateEnabledPropName, !!enabled);
       sharedA11YObservable.set(TouchExplorationStateEnabledPropName, !!enabled);
       if (isTraceEnabled()) {
         writeTrace(`TouchExplorationStateChangeListener state changed to: ${!!enabled}`);

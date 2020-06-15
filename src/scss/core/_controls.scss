@@ -2,6 +2,8 @@
   button,
   .nt-button {
     font-size: var(--a11y-btn-font-size);
+    a11y-enabled: true;
+    a11y-role: button;
   }
 
   SegmentedBar,
@@ -102,6 +104,8 @@
 } @else {
   .btn {
     font-size: var(--a11y-btn-font-size);
+    a11y-enabled: true;
+    a11y-role: button;
   }
 
   SegmentedBar {

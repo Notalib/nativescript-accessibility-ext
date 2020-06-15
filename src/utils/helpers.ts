@@ -1,5 +1,6 @@
 /// <reference path="../ui/core/view.d.ts" />
 
+import { profile } from '@nativescript/core/profiling';
 import { CssProperty, InheritedCssProperty, Property, Style } from '@nativescript/core/ui/core/properties';
 import {
   AccessibilityBlurEventData,
@@ -8,7 +9,36 @@ import {
   booleanConverter,
   View,
 } from '@nativescript/core/ui/core/view';
+import { Page } from '@nativescript/core/ui/page';
 import { isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
+
+const lastFocusedViewOnPageKeyName = '__lastFocusedViewOnPage';
+
+export function getLastFocusedViewOnPage(page: Page): View | null {
+  try {
+    const lastFocusedViewRef = page[lastFocusedViewOnPageKeyName] as WeakRef<View>;
+    if (!lastFocusedViewRef) {
+      return null;
+    }
+
+    const lastFocusedView = lastFocusedViewRef.get();
+    if (!lastFocusedView) {
+      return null;
+    }
+
+    if (!lastFocusedView.parent || lastFocusedView.page !== page) {
+      return null;
+    }
+
+    return lastFocusedView;
+  } catch {
+    // ignore
+  } finally {
+    delete page[lastFocusedViewOnPageKeyName];
+  }
+
+  return null;
+}
 
 /**
  * Dummy function that does nothing.
@@ -201,11 +231,15 @@ export function addBooleanCssPropertyToView<ViewClass extends View>(
  * If receivedFocus, 'accessibilityFocus' is send
  * if lostFocus, 'accessibilityBlur' is send
  *
- * @param {View} view
+ * @param {View} tnsView
  * @param {boolean} receivedFocus
  * @param {boolean} lostFocus
  */
-export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean, lostFocus: boolean): void {
+export const notifyAccessibilityFocusState = profile('notifyAccessibilityFocusState', function notifyAccessibilityFocusStateImpl(
+  tnsView: View,
+  receivedFocus: boolean,
+  lostFocus: boolean,
+): void {
   if (!receivedFocus && !lostFocus) {
     return;
   }
@@ -216,29 +250,33 @@ export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean
         name: 'notifyAccessibilityFocusState',
         receivedFocus,
         lostFocus,
-        view: String(view),
+        view: `${tnsView}`,
       })}`,
     );
   }
 
-  view.notify({
+  tnsView.notify({
     eventName: View.accessibilityFocusChangedEvent,
-    object: view,
+    object: tnsView,
     value: !!receivedFocus,
   } as AccessibilityFocusChangedEventData);
 
   if (receivedFocus) {
-    view.notify({
+    if (tnsView.page) {
+      tnsView.page[lastFocusedViewOnPageKeyName] = new WeakRef(tnsView);
+    }
+
+    tnsView.notify({
       eventName: View.accessibilityFocusEvent,
-      object: view,
+      object: tnsView,
     } as AccessibilityFocusEventData);
   } else if (lostFocus) {
-    view.notify({
+    tnsView.notify({
       eventName: View.accessibilityBlurEvent,
-      object: view,
+      object: tnsView,
     } as AccessibilityBlurEventData);
   }
-}
+});
 
 /**
  * Get the view's ngCssClasses-Map for nativescript-angular.
@@ -246,6 +284,11 @@ export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean
  * on updates.
  */
 export function getViewNgCssClassesMap(view: any): Map<string, boolean> {
+  // Zone is globally available on nativescript-angular. If defined assume angular environment.
+  if (typeof Zone === 'undefined') {
+    return new Map<string, boolean>();
+  }
+
   if (!view.ngCssClasses) {
     view.ngCssClasses = new Map<string, boolean>();
   }
@@ -257,20 +300,33 @@ export interface A11YCssClasses {
   [className: string]: boolean;
 }
 
+export interface HmrSafeEventsCallback {
+  (...args: any[]): any;
+}
+
 /**
- * Adding global events during development is problematic, if HMR is enabled.
+ * Adding global events during development is problematic, when HMR is enabled.
  * This helper solved the problem, by removing the old event before adding the new event
  */
-export function hmrSafeGlobalEvents(fnName: string, events: string[], viewClass: any, callback: (...args: any[]) => any, thisArg?: any) {
-  if (fnName in viewClass) {
+export function hmrSafeEvents(
+  fnName: string,
+  events: string[],
+  obj: {
+    on(eventName: string, cb: HmrSafeEventsCallback): void;
+    off(eventName: string, cb: HmrSafeEventsCallback): void;
+  },
+  callback: HmrSafeEventsCallback,
+  thisArg?: any,
+) {
+  if (fnName in obj) {
     for (const eventName of events) {
-      viewClass.off(eventName, viewClass[fnName]);
+      obj.off(eventName, obj[fnName]);
     }
   }
 
-  viewClass[fnName] = thisArg ? callback.bind(thisArg) : callback;
+  obj[fnName] = thisArg ? callback.bind(thisArg) : callback;
   for (const eventName of events) {
-    viewClass.on(eventName, viewClass[fnName]);
+    obj.on(eventName, obj[fnName]);
   }
 }
 
@@ -297,12 +353,15 @@ export function viewSetCssClasses(view: View, a11yCssClasses: A11YCssClasses): b
       }
 
       view.cssClasses.delete(className);
+
       changed = true;
+
       continue;
     }
 
     if (enabled) {
       view.cssClasses.add(className);
+
       changed = true;
       continue;
     }

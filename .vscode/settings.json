@@ -63,7 +63,9 @@
     "Stegen",
     "Umtiti",
     "Unscoped",
+    "androidview",
     "androidx",
+    "appcompat",
     "armeabi",
     "assistive",
     "ayfs",
@@ -92,6 +94,7 @@
     "pathinfo",
     "prettierrc",
     "quotemark",
+    "radiobtn",
     "radiobutton",
     "ruleset",
     "sasswatch",
@@ -101,6 +104,7 @@
     "toplevel",
     "tscwatch",
     "uglifyjs",
+    "weblink",
     "xcode",
     "ydemo"
   ]

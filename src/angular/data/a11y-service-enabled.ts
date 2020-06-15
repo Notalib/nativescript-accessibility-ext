@@ -1,6 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import * as nsApp from '@nativescript/core/application';
 import { PropertyChangeData } from '@nativescript/core/data/observable';
+import { profile } from '@nativescript/core/profiling';
 import { BehaviorSubject } from 'rxjs';
 import { AccessibilityServiceEnabledObservable, isAccessibilityServiceEnabled } from '../../utils/utils';
 
@@ -23,10 +24,12 @@ export class A11yServiceEnabledObservable extends BehaviorSubject<boolean> imple
     this.tnsObs = null;
   }
 
+  @profile
   private resumeEvent() {
     this.next(isAccessibilityServiceEnabled());
   }
 
+  @profile
   private tnsPropertyValueChanged(evt: PropertyChangeData) {
     this.next(!!this.tnsObs.accessibilityServiceEnabled);
   }

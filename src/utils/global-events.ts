@@ -1,6 +1,7 @@
 /// <reference path="../ui/core/view.d.ts" />
 
 import { EventData, Observable } from '@nativescript/core/data/observable/observable';
+import { profile } from '@nativescript/core/profiling';
 import { ActionBar } from '@nativescript/core/ui/action-bar/action-bar';
 import { ActivityIndicator } from '@nativescript/core/ui/activity-indicator/activity-indicator';
 import { Button } from '@nativescript/core/ui/button/button';
@@ -61,7 +62,7 @@ export function setupGlobalEventsOnViewClass(ViewClass: any, viewName: string) {
   wrapFunction(
     ViewClass.prototype,
     'notify',
-    function customNotify(arg: EventData) {
+    profile(`${viewName}<A11Y>.customNotify`, function customNotify(arg: EventData) {
       if (!ViewClass[obsKeyName].hasListeners(arg.eventName)) {
         return;
       }
@@ -71,7 +72,7 @@ export function setupGlobalEventsOnViewClass(ViewClass: any, viewName: string) {
       }
 
       ViewClass[obsKeyName].notify(arg);
-    },
+    }),
     viewName,
   );
 

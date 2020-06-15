@@ -27,7 +27,7 @@ If you use the theme-classes font-scaling will be enabled on both platforms.
 
 ## Writing your own font-scale styles:
 
-### using css-variables and css-calc:
+You can write your own font-scale styles using `css-variables` and `css-calc`.
 
 | variable | description |
 | -- | -- |
@@ -42,52 +42,12 @@ If you use the theme-classes font-scaling will be enabled on both platforms.
 | --a11y-segmented-bar-height | SegmentedBar height, scaled version of  --const-segmented-bar-height |
 | --const-drawer-header-font-size | Base SideDrawer header font-size |
 | --a11y-drawer-header-font-size |  SideDrawer header font-size, scaled version of --const-drawer-header-font-size |
-| --a11y-{text-class-name}-size | Scaled font-size variable for the text CSS-classes `t-10`...`t-36`, `h1`...`h6`, `body`, `body2` and `footnote`. |
+| --a11y-{text-class-name}-size | Scaled font-size variable for the text CSS-classes `t-10`...`t-36`, `h1`...`h6`, `body`, `body2` and `footnote`.|
 
 ```scss
 .my-class {
   height: calc(40 * var(--a11y-fontscale-factor));
   margin: calc(2 * var(--a11y-fontscale-factor));
   font-size: calc(16 * var(--a11y-fontscale-factor));
-}
-```
-
-# Using the font-scale classes **(deprecated)**
-
-This is the old way of using font-scaling. It is deprecated and will be removed by **v6.2.0**, please use the CSS-variables.
-
-A CSS-class matching the current font-scale setting is added to each view
-- a11y-fontscale-50 (iOS only - extra small font size)
-- a11y-fontscale-70 (iOS only - extra small font size)
-- a11y-fontscale-85
-- a11y-fontscale-100
-- a11y-fontscale-115
-- a11y-fontscale-130
-- a11y-fontscale-150 (iOS only)
-- a11y-fontscale-200 (iOS only - extra large font size)
-- a11y-fontscale-250 (iOS only - extra large font size)
-- a11y-fontscale-300 (iOS only - extra large font size)
-- a11y-fontscale-350 (iOS only - extra large font size)
-- a11y-fontscale-400 (iOS only - extra large font size)
-
-To use these you need to generate
-
-```scss
-$my-custom-font-size: 16;
-$my-custom-height: 40;
-$my-custom-margin: 2;
-.my-class {
-  height: $my-custom-height;
-  margin: $my-custom-margin;
-  font-size: $my-custom-font-size;
-
-  @each $scaleName, $params in $a11y-font-scales {
-    $factor: map-get($params, factor); // scaling factor 0.8, 1.0., 1.3 etc
-    $extraSmall: map-get($params, extraSmall); // extra small font size
-    $extraLarge: map-get($params, extraLarge); // extra large font size
-    &.a11y-fontscale-#{$scaleName} {
-      height: $my-custom-height * $factor;
-    }
-  }
 }
 ```

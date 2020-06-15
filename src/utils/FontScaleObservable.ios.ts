@@ -1,22 +1,23 @@
 import * as nsApp from '@nativescript/core/application';
 import { Observable, PropertyChangeData } from '@nativescript/core/data/observable';
+import { profile } from '@nativescript/core/profiling';
 import { isTraceEnabled, writeErrorTrace, writeFontScaleTrace } from '../trace';
 
-function getClosestValidFontScale(fontScale: number) {
+const getClosestValidFontScale = profile('getClosestValidFontScale', function getClosestValidFontScaleImpl(fontScale: number) {
   fontScale = Number(fontScale) || 1;
 
   return FontScaleObservable.VALID_FONT_SCALES.sort((a, b) => Math.abs(fontScale - a) - Math.abs(fontScale - b)).shift();
-}
+});
 
 let internalObservable: Observable;
-function fontScaleChanged(fontScale: number) {
-  const cls = `fontScaleChanged(${fontScale})`;
+const fontScaleChanged = profile('fontScaleChanged', function fontScaleChangedImpl(origFontScale: number) {
+  const cls = `fontScaleChanged(${origFontScale})`;
 
   if (isTraceEnabled()) {
     writeFontScaleTrace(`${cls}`);
   }
 
-  fontScale = getClosestValidFontScale(fontScale);
+  const fontScale = getClosestValidFontScale(origFontScale);
 
   if (isTraceEnabled()) {
     writeFontScaleTrace(`${cls} - settings closest valid value: ${fontScale}`);
@@ -25,7 +26,7 @@ function fontScaleChanged(fontScale: number) {
   internalObservable.set(FontScaleObservable.FONT_SCALE, fontScale);
   internalObservable.set(FontScaleObservable.IS_EXTRA_SMALL, fontScale < 0.85);
   internalObservable.set(FontScaleObservable.IS_EXTRA_LARGE, fontScale > 1.5);
-}
+});
 
 const sizeMap = new Map<string, number>([
   [UIContentSizeCategoryExtraSmall, 0.5],
@@ -41,6 +42,28 @@ const sizeMap = new Map<string, number>([
   [UIContentSizeCategoryAccessibilityExtraExtraLarge, 3.5],
   [UIContentSizeCategoryAccessibilityExtraExtraExtraLarge, 4],
 ]);
+
+const contentSizeUpdated = profile('contentSizeUpdated', function contentSizeUpdatedImpl(fontSize: string) {
+  if (sizeMap.has(fontSize)) {
+    fontScaleChanged(sizeMap.get(fontSize));
+
+    return;
+  }
+
+  if (isTraceEnabled()) {
+    writeFontScaleTrace(`fontSize: ${fontSize} is unknown`);
+  }
+
+  fontScaleChanged(1);
+});
+
+const useIOSFontScale = profile('useIOSFontScale', function useIOSFontScaleImpl() {
+  if (nsApp.ios.nativeApp) {
+    contentSizeUpdated(nsApp.ios.nativeApp.preferredContentSizeCategory);
+  } else {
+    fontScaleChanged(1);
+  }
+});
 
 function setupConfigListener(attempt = 0) {
   if (!nsApp.ios.nativeApp) {
@@ -58,28 +81,6 @@ function setupConfigListener(attempt = 0) {
     setTimeout(() => setupConfigListener(attempt + 1), 1);
 
     return;
-  }
-
-  function contentSizeUpdated(fontSize: string) {
-    if (sizeMap.has(fontSize)) {
-      fontScaleChanged(sizeMap.get(fontSize));
-
-      return;
-    }
-
-    if (isTraceEnabled()) {
-      writeFontScaleTrace(`fontSize: ${fontSize} is unknown`);
-    }
-
-    fontScaleChanged(1);
-  }
-
-  function useIOSFontScale() {
-    if (nsApp.ios.nativeApp) {
-      contentSizeUpdated(nsApp.ios.nativeApp.preferredContentSizeCategory);
-    } else {
-      fontScaleChanged(1);
-    }
   }
 
   const fontSizeObserver = nsApp.ios.addNotificationObserver(UIContentSizeCategoryDidChangeNotification, (args) => {
@@ -128,7 +129,7 @@ export class FontScaleObservable extends Observable {
     ensureObservable();
 
     const selfRef = new WeakRef(this);
-    function callback(args: PropertyChangeData) {
+    const callback = profile('FontScaleObservable.propertyChangeEvent', function(args: PropertyChangeData) {
       const self = selfRef.get();
       if (self) {
         self.set(args.propertyName, args.value);
@@ -137,7 +138,7 @@ export class FontScaleObservable extends Observable {
       }
 
       internalObservable.off(Observable.propertyChangeEvent, callback);
-    }
+    });
 
     internalObservable.on(Observable.propertyChangeEvent, callback);
 

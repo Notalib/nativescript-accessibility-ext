@@ -1,15 +1,16 @@
 import * as nsApp from '@nativescript/core/application';
 import { Observable, PropertyChangeData } from '@nativescript/core/data/observable';
+import { profile } from '@nativescript/core/profiling';
 import { isTraceEnabled, writeFontScaleTrace } from '../trace';
 
-function getClosestValidFontScale(fontScale: number) {
+const getClosestValidFontScale = profile('getClosestValidFontScale', function getClosestValidFontScaleImpl(fontScale: number) {
   fontScale = Number(fontScale) || 1;
 
   return FontScaleObservable.VALID_FONT_SCALES.sort((a, b) => Math.abs(fontScale - a) - Math.abs(fontScale - b)).shift();
-}
+});
 
 let internalObservable: Observable;
-function fontScaleChanged(origFontScale: number) {
+const fontScaleChanged = profile('fontScaleChanged', function fontScaleChangedImpl(origFontScale: number) {
   const fontScale = getClosestValidFontScale(origFontScale);
 
   const cls = `fontScaleChanged(${fontScale}) - was = ${origFontScale}`;
@@ -18,11 +19,11 @@ function fontScaleChanged(origFontScale: number) {
   }
 
   internalObservable.set(FontScaleObservable.FONT_SCALE, fontScale);
-}
+});
 
-function useAndroidFontScale() {
+const useAndroidFontScale = profile('useAndroidFontScale', function useAndroidFontScaleImpl() {
   fontScaleChanged(Number(nsApp.android.context.getResources().getConfiguration().fontScale));
-}
+});
 
 function setupConfigListener() {
   nsApp.off(nsApp.launchEvent, setupConfigListener);
@@ -81,8 +82,7 @@ export class FontScaleObservable extends Observable {
     ensureObservable();
 
     const selfRef = new WeakRef(this);
-
-    function callback(args: PropertyChangeData) {
+    const callback = profile('FontScaleObservable.propertyChangeEvent', function(args: PropertyChangeData) {
       const self = selfRef.get();
       if (self) {
         self.set(args.propertyName, args.value);
@@ -91,7 +91,7 @@ export class FontScaleObservable extends Observable {
       }
 
       internalObservable.off(Observable.propertyChangeEvent, callback);
-    }
+    });
 
     internalObservable.on(Observable.propertyChangeEvent, callback);
     this.set(FontScaleObservable.FONT_SCALE, internalObservable.get(FontScaleObservable.FONT_SCALE));

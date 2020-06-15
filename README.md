@@ -127,11 +127,31 @@ Make an announcement to the screen reader.
 | announcement text | The text that will be read by the screen reader                    |
 | null              | The label of the element will be read by the screen reader instead |
 
-### CSSClasses: View.a11y-fontscale-\* (iOS, Android)
+### CSS-helper classes
 
-If you need to apply different styling when fonts are scaled, these css-classes are available on the View.
+- a11y-fontscale-xs-visible (iOS only - visible only when font size is extra small)
+- a11y-fontscale-xs-hidden (iOS only - hidden when font size is extra small)
+- a11y-fontscale-m-visible (visible only when font size is medium)
+- a11y-fontscale-m-hidden (hidden when font size is medium)
+- a11y-fontscale-xl-visible (iOS only - visible only when font size is extra large)
+- a11y-fontscale-xl-hidden (iOS only - hidden when font size is visible large)
 
-The number indicated pct font scale:
+- a11y-service-enabled-visible (only visible when the a11y service is enabled)
+- a11y-service-enabled-hidden (hidden when the a11y service is enabled)
+- a11y-service-disabled-visible (only visible when the a11y service is disabled)
+- a11y-service-disabled-hidden (hidden when the a11y service is disabled)
+
+**Note:**
+
+`Android` auto scale fonts on `Label` out of the box. But `iOS` does not.
+
+To enabled support on `iOS`, you need to combine `@nativescript/theme` with our theme extension.
+
+#### Added to root-view and modal-views
+
+These CSS helpers are added to the root-view and modal-views.
+
+**The number indicated pct font scale:**
 
 - a11y-fontscale-50 (iOS only - extra small font size)
 - a11y-fontscale-70 (iOS only - extra small font size)
@@ -146,28 +166,14 @@ The number indicated pct font scale:
 - a11y-fontscale-350 (iOS only - extra large font size)
 - a11y-fontscale-400 (iOS only - extra large font size)
 
+**Is fontscaled to extra small, medium or extra large:**
 - a11y-fontscale-xs (iOS only - for extra small font size e.g < 85%)
-- a11y-fontscale-xs-visible (iOS only - visible only when font size is extra small)
-- a11y-fontscale-xs-hidden (iOS only - hidden when font size is extra small)
 - a11y-fontscale-m (Medium font size >=85% and <=150%)
-- a11y-fontscale-m-visible (visible only when font size is medium)
-- a11y-fontscale-m-hidden (hidden when font size is medium)
 - a11y-fontscale-xl (iOS only - for extra large font size e.g >150%)
-- a11y-fontscale-xl-visible (iOS only - visible only when font size is extra large)
-- a11y-fontscale-xl-hidden (iOS only - hidden when font size is visible large)
 
+**Is TalkBack/VoiceOver enabled:***
 - a11y-service-enabled (is VoiceOver/TalkBack enabled)
-- a11y-service-enabled-visible (only visible when the a11y service is enabled)
-- a11y-service-enabled-hidden (hidden when the a11y service is enabled)
 - a11y-service-disabled (is VoiceOver/TalkBack disabled)
-- a11y-service-disabled-visible (only visible when the a11y service is disabled)
-- a11y-service-disabled-hidden (hidden when the a11y service is disabled)
-
-**Note:**
-
-Android auto scales font `Label` out of the box. But iOS does not.
-
-To enabled for `iOS` please use `nativescript-theme-core@^2.0.19` with our extensions from this plugin.
 
 #### To use the theme extension:
 
@@ -218,7 +224,9 @@ Set one or more traits that best fits the element. Comma or space separated list
 
 #### Function: View.iosPostAccessibilityNotification(notificationType: string, arg?: string | null) (iOS)
 
-Post an accessibility notification to iOS.
+Post an accessibility notification to `iOS`.
+
+**Please note:** These are exposed as is and most of them haven't been tested.
 
 ```typescript
 el.iosPostAccessibilityNotification(notificationType, arg);
@@ -252,7 +260,9 @@ Default step size is **10**
 
 #### Function: View.androidSendAccessibilityEvent(eventName: string, msg?: text) (Android)
 
-Trigger an accessibility event on Android
+Trigger an accessibility event on Android.
+
+**Please note:** These are exposed as is and most of them haven't been tested.
 
 ```typescript
 el.androidSendAccessibilityEvent(eventName, msg);
@@ -346,12 +356,30 @@ NativeScript Observable for getting the native fontScale on either platform.
 Android: Font scale between 0.85 and 1.3 (85% -> 130%)
 iOS: Font scale between 50% and 400%. 200% -> 400% are extra large accessibility font
 
-## Using the plugin
+## Installation
 
-To use the plugin in your nativescript-app, install and import the module:
+To use the plugin in your NativeScript-app, install and import the module:
 
 ```bash
 npm i --save @nota/nativescript-accessibility-ext
+```
+
+### Special for Android
+
+We support Android 19 and up, but the `compileSdkVersion` needs to be at least `29`.
+
+Edit your `App_Resources/Android/app.gradle`:
+```gradle
+android {
+  defaultConfig {
+    minSdkVersion = 19 // <-- change this line
+    compileSdkVersion = 29 // <-- change this line, if it exists.
+    generatedDensities = []
+  }
+  aaptOptions {
+    additionalParameters "--no-version-vectors"
+  }
+}
 ```
 
 ### For NativeScript Core
@@ -372,7 +400,7 @@ Change to your `app.module.ts`
 ```typescript
 import { NgModule, NO_ERRORS_SCHEMA } from "@angular/core";
 import { NativeScriptModule } from "nativescript-angular/nativescript.module";
-import { NotaAccessibilityExtModule } '@nota/nativescript-accessibility-ext/angular'; /// <-- Add this line
+import { NotaAccessibilityExtModule } from '@nota/nativescript-accessibility-ext/angular'; /// <-- Add this line
 
 /// ... stuff
 

@@ -41,7 +41,17 @@ let sharedA11YObservable: SharedA11YObservable;
 const A11yStateEnabledPropName = 'a11yStateEnabled';
 const TouchExplorationStateEnabledPropName = 'touchExplorationStateEnabled';
 
-function ensureStateListener() {
+function updateState() {
+  const a11yManager = getA11YManager();
+  if (!a11yManager) {
+    return;
+  }
+
+  sharedA11YObservable.set(A11yStateEnabledPropName, !!a11yManager.isEnabled());
+  sharedA11YObservable.set(TouchExplorationStateEnabledPropName, !!a11yManager.isTouchExplorationEnabled());
+}
+
+function ensureStateListener(): SharedA11YObservable {
   if (accessibilityStateChangeListener) {
     return sharedA11YObservable;
   }
@@ -50,7 +60,7 @@ function ensureStateListener() {
   sharedA11YObservable = new Observable() as SharedA11YObservable;
   Object.defineProperty(sharedA11YObservable, AccessibilityServiceEnabledPropName, {
     get(this: SharedA11YObservable) {
-      return this[A11yStateEnabledPropName] && this[TouchExplorationStateEnabledPropName];
+      return !!this[A11yStateEnabledPropName] && !!this[TouchExplorationStateEnabledPropName];
     },
   });
 
@@ -63,7 +73,7 @@ function ensureStateListener() {
 
   accessibilityStateChangeListener = new AccessibilityStateChangeListener({
     onAccessibilityStateChanged(enabled) {
-      sharedA11YObservable.set(A11yStateEnabledPropName, !!enabled);
+      updateState();
 
       if (isTraceEnabled()) {
         writeTrace(`AccessibilityStateChangeListener state changed to: ${!!enabled}`);
@@ -73,7 +83,8 @@ function ensureStateListener() {
 
   touchExplorationStateChangeListener = new TouchExplorationStateChangeListener({
     onTouchExplorationStateChanged(enabled) {
-      sharedA11YObservable.set(TouchExplorationStateEnabledPropName, !!enabled);
+      updateState();
+
       if (isTraceEnabled()) {
         writeTrace(`TouchExplorationStateChangeListener state changed to: ${!!enabled}`);
       }
@@ -83,21 +94,15 @@ function ensureStateListener() {
   AccessibilityManagerCompat.addAccessibilityStateChangeListener(a11yManager, accessibilityStateChangeListener);
   AccessibilityManagerCompat.addTouchExplorationStateChangeListener(a11yManager, touchExplorationStateChangeListener);
 
-  if (AccessibilityManagerCompat.isTouchExplorationEnabled(a11yManager)) {
-    sharedA11YObservable.set(A11yStateEnabledPropName, true);
-    sharedA11YObservable.set(TouchExplorationStateEnabledPropName, true);
-  } else {
-    sharedA11YObservable.set(A11yStateEnabledPropName, false);
-    sharedA11YObservable.set(TouchExplorationStateEnabledPropName, false);
-  }
+  updateState();
+
+  nsApp.on(nsApp.resumeEvent, updateState);
 
   return sharedA11YObservable;
 }
 
 export function isAccessibilityServiceEnabled() {
-  ensureStateListener();
-
-  return !!sharedA11YObservable.accessibilityServiceEnabled;
+  return ensureStateListener().accessibilityServiceEnabled;
 }
 
 nsApp.on(nsApp.exitEvent, (args: nsApp.ApplicationEventData) => {
@@ -109,20 +114,23 @@ nsApp.on(nsApp.exitEvent, (args: nsApp.ApplicationEventData) => {
   const a11yManager = getA11YManager();
   if (a11yManager) {
     if (accessibilityStateChangeListener) {
-      AccessibilityManagerCompat.removeAccessibilityStateChangeListener(a11yManager, accessibilityStateChangeListener);
+      a11yManager.removeAccessibilityStateChangeListener(accessibilityStateChangeListener);
     }
 
     if (touchExplorationStateChangeListener) {
-      AccessibilityManagerCompat.removeTouchExplorationStateChangeListener(a11yManager, touchExplorationStateChangeListener);
+      a11yManager.removeTouchExplorationStateChangeListener(touchExplorationStateChangeListener);
     }
   }
 
   accessibilityStateChangeListener = null;
   touchExplorationStateChangeListener = null;
+
   if (sharedA11YObservable) {
     sharedA11YObservable.removeEventListener(Observable.propertyChangeEvent);
     sharedA11YObservable = null;
   }
+
+  nsApp.off(nsApp.resumeEvent, updateState);
 });
 
 export class AccessibilityServiceEnabledObservable extends CommonA11YServiceEnabledObservable {

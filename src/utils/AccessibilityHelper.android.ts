@@ -593,7 +593,7 @@ const applyContentDescription = profile('applyContentDescription', function appl
     return null;
   }
 
-  let androidView: android.view.View = getAndroidView(tnsView);
+  let androidView = getAndroidView<android.view.View>(tnsView);
 
   if (androidView instanceof androidx.appcompat.widget.Toolbar) {
     const numChildren = androidView.getChildCount();
@@ -612,15 +612,15 @@ const applyContentDescription = profile('applyContentDescription', function appl
     return null;
   }
 
-  const titleValue = tnsView['title'] as string;
-  const textValue = tnsView['text'] as string;
+  const titleValue = ((tnsView['title'] as string) || '').trim();
+  const textValue = ((tnsView['text'] as string) || '').trim();
 
   if (!forceUpdate && tnsView._androidContentDescriptionUpdated === false && textValue === tnsView['_lastText'] && titleValue === tnsView['_lastTitle']) {
     // prevent updating this too much
     return androidView.getContentDescription();
   }
 
-  let contentDescriptionBuilder: string[] = [];
+  let contentDescriptionBuilder = new Array<string>();
 
   // Workaround: TalkBack won't read the checked state for fake Switch.
   if (tnsView.accessibilityRole === AccessibilityRole.Switch) {
@@ -632,22 +632,25 @@ const applyContentDescription = profile('applyContentDescription', function appl
     }
   }
 
-  if (tnsView.accessibilityLabel) {
+  const accessibilityLabel = (tnsView.accessibilityLabel || '').trim();
+  const accessibilityValue = (tnsView.accessibilityValue || '').trim();
+  const accessibilityHint = (tnsView.accessibilityHint || '').trim();
+  if (accessibilityLabel) {
     if (isTraceEnabled()) {
       writeHelperTrace(`${cls} - have accessibilityLabel`);
     }
 
-    contentDescriptionBuilder.push(`${tnsView.accessibilityLabel}`);
+    contentDescriptionBuilder.push(`${accessibilityLabel}`);
   }
 
-  if (tnsView.accessibilityValue) {
+  if (accessibilityValue) {
     if (isTraceEnabled()) {
       writeHelperTrace(`${cls} - have accessibilityValue`);
     }
 
-    contentDescriptionBuilder.push(`${tnsView.accessibilityValue}`);
+    contentDescriptionBuilder.push(`${accessibilityValue}`);
   } else if (textValue) {
-    if (textValue !== tnsView.accessibilityLabel) {
+    if (!accessibilityLabel || textValue.toLowerCase() !== accessibilityLabel.toLowerCase()) {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls} - don't have accessibilityValue - use 'text' value`);
       }
@@ -655,7 +658,7 @@ const applyContentDescription = profile('applyContentDescription', function appl
       contentDescriptionBuilder.push(`${textValue}`);
     }
   } else if (titleValue) {
-    if (titleValue !== tnsView.accessibilityLabel) {
+    if (!accessibilityLabel || titleValue.toLowerCase() !== accessibilityLabel.toLowerCase()) {
       if (isTraceEnabled()) {
         writeHelperTrace(`${cls} - don't have accessibilityValue - use 'title' value`);
       }
@@ -664,12 +667,12 @@ const applyContentDescription = profile('applyContentDescription', function appl
     }
   }
 
-  if (tnsView.accessibilityHint) {
+  if (accessibilityHint) {
     if (isTraceEnabled()) {
       writeHelperTrace(`${cls} - have accessibilityHint`);
     }
 
-    contentDescriptionBuilder.push(`${tnsView.accessibilityHint}`);
+    contentDescriptionBuilder.push(`${accessibilityHint}`);
   }
 
   const contentDescription = contentDescriptionBuilder

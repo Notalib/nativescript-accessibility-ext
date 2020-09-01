@@ -11,7 +11,7 @@ export class CommonA11YServiceEnabledObservable extends Observable {
 
     const ref = new WeakRef(this);
     let lastValue: boolean;
-    const callback = profile('SharedA11YObservable.propertyChangeEvent', function() {
+    const callback = profile('SharedA11YObservable.propertyChangeEvent', function () {
       const self = ref && ref.get();
       if (!self) {
         sharedA11YObservable.off(Observable.propertyChangeEvent, callback);

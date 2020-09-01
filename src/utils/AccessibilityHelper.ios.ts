@@ -173,7 +173,7 @@ export class AccessibilityHelper {
   }
 }
 
-hmrSafeEvents('A11YHelper:loadedEvent', [TNSView.loadedEvent], TNSView, function(this: null, evt) {
+hmrSafeEvents('A11YHelper:loadedEvent', [TNSView.loadedEvent], TNSView, function (this: null, evt) {
   const tnsView = evt.object;
   if (!tnsView) {
     return;

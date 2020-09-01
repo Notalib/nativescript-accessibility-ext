@@ -129,7 +129,7 @@ export class FontScaleObservable extends Observable {
     ensureObservable();
 
     const selfRef = new WeakRef(this);
-    const callback = profile('FontScaleObservable.propertyChangeEvent', function(args: PropertyChangeData) {
+    const callback = profile('FontScaleObservable.propertyChangeEvent', function (args: PropertyChangeData) {
       const self = selfRef.get();
       if (self) {
         self.set(args.propertyName, args.value);

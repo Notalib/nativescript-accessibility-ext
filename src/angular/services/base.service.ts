@@ -1,6 +1,7 @@
-import { ElementRef, OnDestroy } from '@angular/core';
+import { ElementRef, Injectable, OnDestroy } from '@angular/core';
 import { Observable, ReplaySubject, Subscription, timer } from 'rxjs';
 
+@Injectable()
 export class BaseService implements OnDestroy {
   protected isDeleted = false;
 
@@ -48,11 +49,11 @@ export class BaseService implements OnDestroy {
     const destroy$ = this.destroy$;
 
     // This should have been a `takeUntil(this.destroy$)` but it kept emitting after destroy...
-    return function(source: Observable<T>) {
-      return new Observable<T>(function(subscriber) {
+    return function (source: Observable<T>) {
+      return new Observable<T>(function (subscriber) {
         const sub = source.subscribe(subscriber);
 
-        const destroySub = destroy$.subscribe(function() {
+        const destroySub = destroy$.subscribe(function () {
           // tslint:disable:no-console
           // Extra check here because HMR-mode logged errors about them missing
           if (sub) {

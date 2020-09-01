@@ -1,7 +1,7 @@
 /// <reference path="./core/view.d.ts" />
 
-import * as nsApp from '@nativescript/core/application/application';
-import { pushToRootViewCssClasses, removeSystemCssClass } from '@nativescript/core/css/system-classes';
+import * as nsApp from '@nativescript/core/application';
+import { CSSUtils } from '@nativescript/core/css/system-classes';
 import { PropertyChangeData } from '@nativescript/core/data/observable';
 import { isAndroid } from '@nativescript/core/platform';
 import { profile } from '@nativescript/core/profiling';
@@ -11,7 +11,6 @@ import { FontScaleObservable } from '../utils/FontScaleObservable';
 import '../utils/global-events';
 import { hmrSafeEvents } from '../utils/helpers';
 import { AccessibilityServiceEnabledObservable } from '../utils/utils';
-import { ViewCommon } from './core/view-common';
 
 // CSS-classes
 const fontExtraSmallClass = `a11y-fontscale-xs`;
@@ -50,7 +49,7 @@ class A11YCssClassHelper {
       this.updateRootViews(evt);
     });
 
-    hmrSafeEvents(`${this.cls}.modalViewShowing`, [View.shownModallyEvent], ViewCommon, (evt) => {
+    hmrSafeEvents(`${this.cls}.modalViewShowing`, [View.shownModallyEvent], View, (evt) => {
       this.addModalViewRef(evt.object);
     });
   }
@@ -125,7 +124,7 @@ class A11YCssClassHelper {
 
   @profile
   private removeCssClass(cssClass: string) {
-    removeSystemCssClass(cssClass);
+    CSSUtils.removeSystemCssClass(cssClass);
 
     [nsApp.getRootView(), ...this.getModalViews()].forEach((view) => {
       if (view) {
@@ -136,7 +135,7 @@ class A11YCssClassHelper {
 
   @profile
   private addCssClass(cssClass: string) {
-    pushToRootViewCssClasses(cssClass);
+    CSSUtils.pushToRootViewCssClasses(cssClass);
 
     [nsApp.getRootView(), ...this.getModalViews()].forEach((view) => {
       if (view) {

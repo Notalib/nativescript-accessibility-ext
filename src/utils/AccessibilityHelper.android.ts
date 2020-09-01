@@ -1,9 +1,9 @@
 import * as nsApp from '@nativescript/core/application';
 import { profile } from '@nativescript/core/profiling';
-import * as trace from '@nativescript/core/trace';
+import { Trace } from '@nativescript/core/trace';
 import { View as TNSView } from '@nativescript/core/ui/core/view';
-import { GestureTypes } from '@nativescript/core/ui/gestures/gestures';
-import { ListView } from '@nativescript/core/ui/list-view/list-view';
+import { GestureTypes } from '@nativescript/core/ui/gestures';
+import { ListView } from '@nativescript/core/ui/list-view';
 import { ProxyViewContainer } from '@nativescript/core/ui/proxy-view-container';
 import * as utils from '@nativescript/core/utils/utils';
 import { categories, isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
@@ -11,7 +11,7 @@ import { AccessibilityRole, AccessibilityState } from '../ui/core/view-common';
 import { hmrSafeEvents, notifyAccessibilityFocusState } from './helpers';
 import { isAccessibilityServiceEnabled } from './utils';
 
-function writeHelperTrace(message: string, type = trace.messageType.info) {
+function writeHelperTrace(message: string, type = Trace.messageType.info) {
   writeTrace(message, type, categories.AndroidHelper);
 }
 
@@ -56,7 +56,7 @@ const accessibilityEventHelper = profile('accessibilityEventHelper', function ac
   }
 
   if (!eventName) {
-    writeHelperTrace(`accessibilityEventHelper: unknown eventType: ${eventType}`, trace.messageType.error);
+    writeHelperTrace(`accessibilityEventHelper: unknown eventType: ${eventType}`, Trace.messageType.error);
 
     return;
   }
@@ -275,8 +275,9 @@ function ensureNativeClasses() {
           default: {
             if (isTraceEnabled()) {
               writeHelperTrace(
-                `onInitializeAccessibilityNodeInfo ${tnsView} - set enabled=${tnsView.accessibilityState !==
-                  AccessibilityState.Disabled} and selected=${tnsView.accessibilityState === AccessibilityState.Selected}`,
+                `onInitializeAccessibilityNodeInfo ${tnsView} - set enabled=${tnsView.accessibilityState !== AccessibilityState.Disabled} and selected=${
+                  tnsView.accessibilityState === AccessibilityState.Selected
+                }`,
               );
             }
 
@@ -675,10 +676,7 @@ const applyContentDescription = profile('applyContentDescription', function appl
     contentDescriptionBuilder.push(`${accessibilityHint}`);
   }
 
-  const contentDescription = contentDescriptionBuilder
-    .join('. ')
-    .trim()
-    .replace(/^\.$/, '');
+  const contentDescription = contentDescriptionBuilder.join('. ').trim().replace(/^\.$/, '');
 
   if (contentDescription) {
     if (isTraceEnabled()) {
@@ -831,7 +829,7 @@ function setupA11yScrollOnFocus(args: any) {
   }
 
   const listViewRef = new WeakRef(listView);
-  tnsView.on(a11yScrollOnFocus, function(this: null, evt) {
+  tnsView.on(a11yScrollOnFocus, function (this: null, evt) {
     const localListView = listViewRef.get();
     if (!localListView) {
       evt.object.off(a11yScrollOnFocus);
@@ -844,7 +842,7 @@ function setupA11yScrollOnFocus(args: any) {
 }
 
 hmrSafeEvents('setupA11yScrollOnFocus', [ListView.itemLoadingEvent], ListView, setupA11yScrollOnFocus);
-hmrSafeEvents('setAccessibilityDelegate:loadedEvent', [TNSView.loadedEvent], TNSView, function(this: null, evt) {
+hmrSafeEvents('setAccessibilityDelegate:loadedEvent', [TNSView.loadedEvent], TNSView, function (this: null, evt) {
   // Set the accessibility delegate on load.
   AccessibilityHelper.updateAccessibilityProperties(evt.object);
 });

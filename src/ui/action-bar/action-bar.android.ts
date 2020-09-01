@@ -1,6 +1,6 @@
-export * from '@nativescript/core/ui/action-bar/action-bar';
+export * from '@nativescript/core/ui/action-bar';
 import { profile } from '@nativescript/core/profiling';
-import { ActionBar } from '@nativescript/core/ui/action-bar/action-bar';
+import { ActionBar } from '@nativescript/core/ui/action-bar';
 import { setViewFunction, wrapFunction } from '../../utils';
 import { AccessibilityHelper, getAndroidView } from '../../utils/AccessibilityHelper';
 import { commonFunctions } from '../core/view-common';
@@ -75,7 +75,7 @@ for (const fnName of ['update', '_onTitlePropertyChanged']) {
   wrapFunction(
     ActionBar.prototype,
     fnName,
-    function(this: ActionBar) {
+    function (this: ActionBar) {
       AccessibilityHelper.updateContentDescription(this, true);
     },
     'ActionBar',

@@ -1,4 +1,4 @@
-import * as trace from '@nativescript/core/trace';
+import { Trace } from '@nativescript/core/trace';
 export namespace categories {
   export const A11Y = 'A11Y';
   export const GlobalEvents = `${A11Y}-GlobalEvents`;
@@ -10,30 +10,30 @@ export namespace categories {
 }
 
 export function isTraceEnabled() {
-  return trace.isEnabled();
+  return Trace.isEnabled();
 }
 
 /**
  * Write to NativeScript's trace.
  */
-export function writeTrace(message: string, type = trace.messageType.info, category = categories.A11Y) {
+export function writeTrace(message: string, type = Trace.messageType.info, category = categories.A11Y) {
   if (isTraceEnabled()) {
-    trace.write(message, category, type);
+    Trace.write(message, category, type);
   }
 }
 
-export function writeFontScaleTrace(message: string, type = trace.messageType.info) {
+export function writeFontScaleTrace(message: string, type = Trace.messageType.info) {
   writeTrace(message, type, categories.FontScale);
 }
 
-export function writeGlobalEventsTrace(message: string, type = trace.messageType.info) {
+export function writeGlobalEventsTrace(message: string, type = Trace.messageType.info) {
   writeTrace(message, type, categories.GlobalEvents);
 }
 
 export function writeErrorTrace(message) {
-  trace.write(message, categories.A11Y, trace.messageType.error);
+  Trace.write(message, categories.A11Y, Trace.messageType.error);
 }
 
 export function writeWarnTrace(message) {
-  writeTrace(message, trace.messageType.warn);
+  writeTrace(message, Trace.messageType.warn);
 }

@@ -1,5 +1,5 @@
-export * from '@nativescript/core/ui/action-bar/action-bar';
-import { ActionBar } from '@nativescript/core/ui/action-bar/action-bar';
+export * from '@nativescript/core/ui/action-bar';
+import { ActionBar } from '@nativescript/core/ui/action-bar';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import { wrapFunction } from '../../utils';
 import { getUIView } from '../../utils/AccessibilityHelper';

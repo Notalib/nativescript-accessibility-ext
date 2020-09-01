@@ -1,15 +1,11 @@
 /// <reference path="../ui/core/view.d.ts" />
 
 import { profile } from '@nativescript/core/profiling';
-import { CssProperty, InheritedCssProperty, Property, Style } from '@nativescript/core/ui/core/properties';
-import {
-  AccessibilityBlurEventData,
-  AccessibilityFocusChangedEventData,
-  AccessibilityFocusEventData,
-  booleanConverter,
-  View,
-} from '@nativescript/core/ui/core/view';
+import { CssProperty, InheritedCssProperty, Property } from '@nativescript/core/ui/core/properties';
+import { AccessibilityBlurEventData, AccessibilityFocusChangedEventData, AccessibilityFocusEventData, View } from '@nativescript/core/ui/core/view';
+import { booleanConverter } from '@nativescript/core/ui/core/view-base';
 import { Page } from '@nativescript/core/ui/page';
+import { Style } from '@nativescript/core/ui/styling/style';
 import { isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 
 const lastFocusedViewOnPageKeyName = '__lastFocusedViewOnPage';
@@ -63,10 +59,6 @@ export function makePropertyEnumConverter<T>(enumValues: any) {
   };
 }
 
-export interface ViewType<T extends View> {
-  new (): T;
-}
-
 /**
  * Add a new function to a View-class
  */
@@ -87,7 +79,7 @@ export function wrapFunction(obj: any, fnName: string, func: Function, objName: 
 
   obj[origFNName] = (obj[origFNName] || obj[fnName]) as Function;
 
-  obj[fnName] = function(...args: any[]) {
+  obj[fnName] = function (...args: any[]) {
     let origFN = obj[origFNName];
     if (!origFN) {
       writeErrorTrace(`wrapFunction(${obj}) don't have an original function for ${fnName}`);
@@ -151,13 +143,8 @@ export function inputArrayToBitMask(values: string | string[], map: Map<string, 
 /**
  * Extend NativeScript View with a new property.
  */
-export function addPropertyToView<ViewClass extends View, T>(
-  viewClass: ViewType<ViewClass>,
-  name: string,
-  defaultValue?: T,
-  valueConverter?: (value: string) => T,
-): Property<ViewClass, T> {
-  const property = new Property<ViewClass, T>({
+export function addPropertyToView<T>(viewClass: typeof View, name: string, defaultValue?: T, valueConverter?: (value: string) => T): Property<View, T> {
+  const property = new Property<View, T>({
     name,
     defaultValue,
     valueConverter,
@@ -167,16 +154,12 @@ export function addPropertyToView<ViewClass extends View, T>(
   return property;
 }
 
-export function addBooleanPropertyToView<ViewClass extends View>(
-  viewClass: ViewType<ViewClass>,
-  name: string,
-  defaultValue?: boolean,
-): Property<ViewClass, boolean> {
+export function addBooleanPropertyToView(viewClass: typeof View, name: string, defaultValue?: boolean): Property<View, boolean> {
   return addPropertyToView(viewClass, name, defaultValue, booleanConverter);
 }
 
-export function addCssPropertyToView<ViewClass extends View, T>(
-  viewClass: ViewType<ViewClass>,
+export function addCssPropertyToView<T>(
+  viewClass: typeof View,
   name: string,
   cssName: string,
   inherited = false,
@@ -202,10 +185,10 @@ export function addCssPropertyToView<ViewClass extends View, T>(
   }
 
   Object.defineProperty(viewClass.prototype, name, {
-    set(this: ViewClass, value: T) {
+    set(this: View, value: T) {
       this.style[name] = value;
     },
-    get(this: ViewClass) {
+    get(this: View) {
       return this.style[name];
     },
   });
@@ -215,13 +198,7 @@ export function addCssPropertyToView<ViewClass extends View, T>(
   return property;
 }
 
-export function addBooleanCssPropertyToView<ViewClass extends View>(
-  viewClass: ViewType<ViewClass>,
-  name: string,
-  cssName: string,
-  inherited = false,
-  defaultValue?: boolean,
-) {
+export function addBooleanCssPropertyToView(viewClass: typeof View, name: string, cssName: string, inherited = false, defaultValue?: boolean) {
   return addCssPropertyToView(viewClass, name, cssName, inherited, defaultValue, booleanConverter);
 }
 

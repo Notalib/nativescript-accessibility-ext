@@ -1,41 +1,38 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "target": "es5",
-        "downlevelIteration": true,
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "noEmitHelpers": true,
-        "noEmitOnError": true,
-        "lib": [
-            "es6",
-            "dom",
-            "es2015.iterable",
-            "es2017.object"
-        ],
-        "baseUrl": ".",
-        "paths": {
-            "@nota/nativescript-accessibility-ext/*": [
-                "../src/*"
-            ],
-            "*": [
-                "./node_modules/tns-core-modules/*",
-                "./node_modules/*"
-            ],
-            "~/*": [
-                "src/*"
-            ]
-        }
-    },
-    "files": [
-        "./src/main.ts"
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "es2015",
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "noEmitHelpers": true,
+    "noEmitOnError": true,
+    "skipLibCheck": true,
+    "lib": [
+      "es2018", "es2017", "dom", "es6"
     ],
-    "include": [
-        "./src/**/*.ts",
-        "../src/**/*.ts"
-    ],
-    "exclude": [
-        "node_modules",
-        "platforms"
-    ]
+    "baseUrl": ".",
+    "paths": {
+      "@nota/nativescript-accessibility-ext/*": [
+        "../src/*"
+      ],
+      "~/*": [
+        "src/*"
+      ]
+    }
+  },
+  "include": [
+    "src/tests/**/*.ts",
+    "src/**/*.ios.ts",
+    "src/**/*.android.ts"
+  ],
+  "files": [
+    "./references.d.ts",
+    "./src/main.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "platforms",
+    "e2e"
+  ]
 }

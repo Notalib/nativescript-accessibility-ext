@@ -1,6 +1,6 @@
 import { Directive, ElementRef, Input, OnInit } from '@angular/core';
 import { profile } from '@nativescript/core/profiling';
-import { GridLayout } from '@nativescript/core/ui/layouts/grid-layout/grid-layout';
+import { GridLayout } from '@nativescript/core/ui/layouts/grid-layout';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { A11yFontScalingObservable } from '../data/a11y-font-scaling';

@@ -2,7 +2,6 @@
 
 import { isIOS } from '@nativescript/core/platform';
 import { PostAccessibilityNotificationType, View } from '@nativescript/core/ui/core/view';
-import { ViewCommon } from '@nativescript/core/ui/core/view/view-common';
 import { addBooleanCssPropertyToView, addCssPropertyToView, addPropertyToView, makePropertyEnumConverter, setViewFunction } from '../../utils/helpers';
 
 export enum AccessibilityTrait {
@@ -186,16 +185,16 @@ export const allFunctions = {
 };
 
 for (const fnName of Object.keys(allFunctions)) {
-  setViewFunction(ViewCommon, fnName);
+  setViewFunction(View, fnName);
 }
 
-setViewFunction(ViewCommon, 'postAccessibilityNotification', function(notificationType: PostAccessibilityNotificationType, msg?: string) {
+setViewFunction(View, 'postAccessibilityNotification', function (notificationType: PostAccessibilityNotificationType, msg?: string) {
   console.warn(`DEPRECATED: ${this}.postAccessibilityNotification is no longer supported. Please use "${iosFunctions.iosPostAccessibilityNotification}"`);
 
   this[iosFunctions.iosPostAccessibilityNotification](notificationType, msg);
 });
 
-setViewFunction(ViewCommon, 'sendAccessibilityEvent', function(eventName: string, text?: string) {
+setViewFunction(View, 'sendAccessibilityEvent', function (eventName: string, text?: string) {
   console.warn(`DEPRECATED: ${this}.sendAccessibilityEvent is no longer supported. Please use "${androidFunctions.androidSendAccessibilityEvent}"`);
 
   this[androidFunctions.androidSendAccessibilityEvent](eventName, text);
@@ -222,30 +221,30 @@ const accessibilityMediaSessionPropertyName = 'accessibilityMediaSession';
 const accessibilityMediaSessionCssName = 'a11y-media-session';
 
 // Common properties
-export const accessibleCssProperty = addBooleanCssPropertyToView(ViewCommon, accessiblePropertyName, accessibleCssName);
-export const accessibilityIdProperty = addPropertyToView<View, string | null>(ViewCommon, accessibilityIdPropertyName);
-export const accessibilityRoleCssProperty = addCssPropertyToView<View, string>(
-  ViewCommon,
+export const accessibleCssProperty = addBooleanCssPropertyToView(View, accessiblePropertyName, accessibleCssName);
+export const accessibilityIdProperty = addPropertyToView<string | null>(View, accessibilityIdPropertyName);
+export const accessibilityRoleCssProperty = addCssPropertyToView<string>(
+  View,
   accessibilityRolePropertyName,
   accessibilityRoleCssName,
   false,
   undefined,
   makePropertyEnumConverter<AccessibilityRole>(AccessibilityRole),
 );
-export const accessibilityStateCssProperty = addCssPropertyToView<View, string>(
-  ViewCommon,
+export const accessibilityStateCssProperty = addCssPropertyToView<string>(
+  View,
   accessibilityStatePropertyName,
   accessibilityStateCssName,
   false,
   undefined,
   makePropertyEnumConverter<AccessibilityState>(AccessibilityState),
 );
-export const accessibilityLabelProperty = addPropertyToView<View, string | null>(ViewCommon, accessibilityLabelPropertyName);
-export const accessibilityValueProperty = addPropertyToView<View, string | null>(ViewCommon, accessibilityValuePropertyName);
-export const accessibilityHintProperty = addPropertyToView<View, string | null>(ViewCommon, accessibilityHintPropertyName);
-export const accessibilityHiddenCssProperty = addBooleanCssPropertyToView(ViewCommon, accessibilityHiddenPropertyName, accessibilityHiddenCssName, !!isIOS);
-export const accessibilityLiveRegionCssProperty = addCssPropertyToView<View, 'none' | 'polite' | 'assertive'>(
-  ViewCommon,
+export const accessibilityLabelProperty = addPropertyToView<string | null>(View, accessibilityLabelPropertyName);
+export const accessibilityValueProperty = addPropertyToView<string | null>(View, accessibilityValuePropertyName);
+export const accessibilityHintProperty = addPropertyToView<string | null>(View, accessibilityHintPropertyName);
+export const accessibilityHiddenCssProperty = addBooleanCssPropertyToView(View, accessibilityHiddenPropertyName, accessibilityHiddenCssName, !!isIOS);
+export const accessibilityLiveRegionCssProperty = addCssPropertyToView<'none' | 'polite' | 'assertive'>(
+  View,
   accessibilityLiveRegionPropertyName,
   accessibilityLiveRegionCssName,
   false,
@@ -268,10 +267,10 @@ export const accessibilityLiveRegionCssProperty = addCssPropertyToView<View, 'no
 );
 
 // iOS properties:
-export const accessibilityTraitsProperty = addPropertyToView<View, string | string[] | null>(ViewCommon, accessibilityTraitsPropertyName);
-export const accessibilityLanguageProperty = addCssPropertyToView<View, string>(ViewCommon, accessibilityLanguagePropertyName, accessibilityLanguageCssName);
+export const accessibilityTraitsProperty = addPropertyToView<string | string[] | null>(View, accessibilityTraitsPropertyName);
+export const accessibilityLanguageProperty = addCssPropertyToView<string>(View, accessibilityLanguagePropertyName, accessibilityLanguageCssName);
 export const accessibilityMediaSessionCssProperty = addBooleanCssPropertyToView(
-  ViewCommon,
+  View,
   accessibilityMediaSessionPropertyName,
   accessibilityMediaSessionCssName,
   false,
@@ -361,4 +360,4 @@ Object.defineProperties(View.prototype, {
   },
 });
 
-export { ViewCommon };
+export { View };

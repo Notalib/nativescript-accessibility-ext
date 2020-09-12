@@ -55,9 +55,8 @@ At fontScale 1.3/130% this `GridLayout` will have `rows="39, auto"` and `columns
 ### a11yFontScale
 
 Scale number values according to the accessibility font-scale setting in template
-
 ```html
-<label [height]="50 | a11yFontScale | async" text="some clever text"></label>
+<Label [height]="50 | a11yFontScale | async" text="some clever text"></Label>
 ```
 
 ## A11Y observables

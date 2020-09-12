@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
+import { FontScaleObservable } from '@nota/nativescript-accessibility-ext';
 import { BehaviorSubject } from 'rxjs';
-import { FontScaleObservable } from '../../utils/fontscale-observable';
 
 @Injectable({ providedIn: 'root' })
 export class A11yFontScalingObservable extends BehaviorSubject<number> implements OnDestroy {

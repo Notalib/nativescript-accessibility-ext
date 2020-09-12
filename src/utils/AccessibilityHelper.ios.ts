@@ -92,7 +92,6 @@ function ensureNativeClasses() {
 }
 
 export class AccessibilityHelper {
-  @profile
   public static updateAccessibilityProperties(tnsView: TNSView) {
     if (tnsView instanceof ProxyViewContainer) {
       return;

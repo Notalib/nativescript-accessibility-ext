@@ -1,7 +1,7 @@
 /// <reference path="./view.d.ts" />
 
-import { profile } from '@nativescript/core/profiling';
-import { PostAccessibilityNotificationType, View } from '@nativescript/core/ui/core/view';
+import { profile, View } from '@nativescript/core';
+import { PostAccessibilityNotificationType } from '@nativescript/core/ui/core/view';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import { AccessibilityHelper, getUIView } from '../../utils/AccessibilityHelper';
 import { setViewFunction } from '../../utils/helpers';

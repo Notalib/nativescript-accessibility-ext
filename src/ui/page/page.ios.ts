@@ -1,7 +1,6 @@
 export * from './page-common';
 
-import { profile } from '@nativescript/core/profiling';
-import { Page } from '@nativescript/core/ui/page';
+import { Page, profile } from '@nativescript/core';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import { getLastFocusedViewOnPage, setViewFunction } from '../../utils';
 import { getUIView } from '../../utils/AccessibilityHelper';

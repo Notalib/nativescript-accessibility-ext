@@ -1,6 +1,7 @@
 import { setViewFunction } from '../../utils/helpers';
 import { Slider } from './slider-common';
 
+@NativeClass()
 class NotaUISlider extends UISlider {
   public owner: WeakRef<Slider>;
 

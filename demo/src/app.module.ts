@@ -1,15 +1,15 @@
 import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core';
 import { NativeScriptModule } from '@nativescript/angular/nativescript.module';
-import { getRootView } from '@nativescript/core/application/application';
-import * as trace from '@nativescript/core/trace';
+import { Trace } from '@nativescript/core';
+import { getRootView } from '@nativescript/core/application';
 import { NotaAccessibilityExtModule } from '@nota/nativescript-accessibility-ext/angular';
 import { categories } from '@nota/nativescript-accessibility-ext/trace';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 
-trace.setCategories(categories.FontScale);
-trace.enable();
+Trace.setCategories(categories.FontScale);
+Trace.enable();
 
 // Uncomment and add to NgModule imports if you need to use two-way binding
 // import { NativeScriptFormsModule } from '@nativescript/angular/forms';

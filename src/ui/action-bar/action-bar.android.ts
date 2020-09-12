@@ -1,6 +1,5 @@
 export * from '@nativescript/core/ui/action-bar';
-import { profile } from '@nativescript/core/profiling';
-import { ActionBar } from '@nativescript/core/ui/action-bar';
+import { ActionBar, profile } from '@nativescript/core';
 import { setViewFunction, wrapFunction } from '../../utils';
 import { AccessibilityHelper, getAndroidView } from '../../utils/AccessibilityHelper';
 import { commonFunctions } from '../core/view-common';

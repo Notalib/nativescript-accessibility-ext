@@ -1,7 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { profile } from '@nativescript/core/profiling';
 import { BehaviorSubject } from 'rxjs';
-import { FontScaleObservable } from '../../utils/FontScaleObservable';
+import { FontScaleObservable } from '@nota/nativescript-accessibility-ext/utils/FontScaleObservable';
 
 @Injectable({ providedIn: 'root' })
 export class A11yFontScalingObservable extends BehaviorSubject<number> implements OnDestroy {
@@ -19,7 +18,6 @@ export class A11yFontScalingObservable extends BehaviorSubject<number> implement
     this.tnsObs = null;
   }
 
-  @profile
   private updateFontScalingValue() {
     const fontScale = this.tnsObs.fontScale;
     if (typeof fontScale === 'number' && !isNaN(fontScale)) {

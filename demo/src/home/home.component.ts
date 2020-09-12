@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
+import { LoadEventData } from '@nativescript/core';
 import { alert } from '@nativescript/core/ui/dialogs';
-import { AccessibilityFocusEventData } from '@nativescript/core/ui/page';
-import { LoadEventData } from '@nativescript/core/ui/web-view/web-view';
 
 export interface ListItem {
   id: number;
@@ -64,7 +63,7 @@ export class HomeComponent {
     }
   }
 
-  public onAccessibilityFocus(event: AccessibilityFocusEventData, index?: number) {
+  public onAccessibilityFocus(event: any, index?: number) {
     const cls = `onAccessibilityFocus: index=${index}`;
 
     for (const [key, value] of Object.entries(event)) {

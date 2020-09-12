@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import '../index';
+import '@nota/nativescript-accessibility-ext';
 import { A11yFontScalingObservable } from './data/a11y-font-scaling';
 import { A11yServiceEnabledObservable } from './data/a11y-service-enabled';
 import { A11YGridLayoutDirective } from './directives/a11y-grid-layout.directive';

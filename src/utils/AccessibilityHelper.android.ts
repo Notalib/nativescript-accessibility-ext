@@ -176,6 +176,7 @@ function ensureNativeClasses() {
 
   const ignoreRoleTypesForTrace = new Set([AccessibilityRole.Header, AccessibilityRole.Link, AccessibilityRole.None, AccessibilityRole.Summary]);
 
+  @NativeClass()
   class TNSAccessibilityDelegateImpl extends AccessibilityDelegate {
     constructor() {
       super();
@@ -450,7 +451,6 @@ function ensureNativeClasses() {
 }
 
 export class AccessibilityHelper {
-  @profile
   public static updateAccessibilityProperties(tnsView: TNSView) {
     if (tnsView instanceof ProxyViewContainer) {
       return null;
@@ -460,7 +460,6 @@ export class AccessibilityHelper {
     applyContentDescription(tnsView);
   }
 
-  @profile
   public static sendAccessibilityEvent(tnsView: TNSView, eventName: string, text?: string) {
     const cls = `AccessibilityHelper.sendAccessibilityEvent(${tnsView}, ${eventName}, ${text})`;
 
@@ -537,7 +536,6 @@ export class AccessibilityHelper {
     a11yService.sendAccessibilityEvent(a11yEvent);
   }
 
-  @profile
   public static updateContentDescription(tnsView: TNSView, forceUpdate = false) {
     if (tnsView instanceof ProxyViewContainer) {
       return null;

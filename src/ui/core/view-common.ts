@@ -1,7 +1,7 @@
 /// <reference path="./view.d.ts" />
 
-import { isIOS } from '@nativescript/core/platform';
-import { PostAccessibilityNotificationType, View } from '@nativescript/core/ui/core/view';
+import { isIOS, View } from '@nativescript/core';
+import { PostAccessibilityNotificationType } from '@nativescript/core/ui/core/view';
 import { addBooleanCssPropertyToView, addCssPropertyToView, addPropertyToView, makePropertyEnumConverter, setViewFunction } from '../../utils/helpers';
 
 export enum AccessibilityTrait {

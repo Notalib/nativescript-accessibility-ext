@@ -1,4 +1,4 @@
-import { Page, EventData } from '@nativescript/core/ui/page';
+import { Page, EventData } from '@nativescript/core';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
 
 declare module '@nativescript/core/ui/page' {

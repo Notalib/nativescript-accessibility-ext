@@ -1,5 +1,4 @@
-import { profile } from '@nativescript/core/profiling';
-import { View } from '@nativescript/core/ui/core/view';
+import { profile, View } from '@nativescript/core';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import { AccessibilityHelper, getAndroidView } from '../../utils/AccessibilityHelper';
 import { setViewFunction } from '../../utils/helpers';

@@ -1,7 +1,7 @@
 /// <reference path="./page.d.ts" />
 
-import { profile } from '@nativescript/core/profiling';
-import { Page, PageNavigatedData } from '@nativescript/core/ui/page';
+import { Page, profile } from '@nativescript/core';
+import { PageNavigatedData } from '@nativescript/core/ui/page';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import '../../utils/global-events';
 import { hmrSafeEvents } from '../../utils/helpers';

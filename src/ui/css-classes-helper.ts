@@ -1,11 +1,6 @@
 /// <reference path="./core/view.d.ts" />
 
-import * as nsApp from '@nativescript/core/application';
-import { CSSUtils } from '@nativescript/core/css/system-classes';
-import { PropertyChangeData } from '@nativescript/core/data/observable';
-import { isAndroid } from '@nativescript/core/platform';
-import { profile } from '@nativescript/core/profiling';
-import { View } from '@nativescript/core/ui/core/view';
+import { Application as nsApp, CSSUtils, isAndroid, PropertyChangeData, View } from '@nativescript/core';
 import { isTraceEnabled, writeFontScaleTrace, writeTrace } from '../trace';
 import { FontScaleObservable } from '../utils/FontScaleObservable';
 import '../utils/global-events';
@@ -57,7 +52,7 @@ class A11YCssClassHelper {
   /**
    * Update css-helper classes on root and modal-views
    */
-  @profile
+
   private updateRootViews(evt?: any) {
     evt = { ...evt };
 
@@ -86,7 +81,7 @@ class A11YCssClassHelper {
   /**
    * Get loaded modal views
    */
-  @profile
+
   private getModalViews() {
     const views = [] as View[];
     for (const [id, viewRef] of this.loadedModalViewRefs) {
@@ -108,7 +103,7 @@ class A11YCssClassHelper {
    *
    * These are used to the UI if fontscale or the a11y-service status changes while the modal is active.
    */
-  @profile
+
   private addModalViewRef(modalView: View) {
     for (const [id, viewRef] of this.loadedModalViewRefs) {
       const otherView = viewRef.get();
@@ -122,7 +117,6 @@ class A11YCssClassHelper {
     this.loadedModalViewRefs.set(`${modalView}`, new WeakRef(modalView));
   }
 
-  @profile
   private removeCssClass(cssClass: string) {
     CSSUtils.removeSystemCssClass(cssClass);
 
@@ -133,7 +127,6 @@ class A11YCssClassHelper {
     });
   }
 
-  @profile
   private addCssClass(cssClass: string) {
     CSSUtils.pushToRootViewCssClasses(cssClass);
 
@@ -148,7 +141,7 @@ class A11YCssClassHelper {
    * Update the helper CSS-classes.
    * Return true is any changes.
    */
-  @profile
+
   private updateCurrentHelperClasses(): boolean {
     const { fontScale, isExtraSmall, isExtraLarge } = this.fontScaleObservable;
 
@@ -212,7 +205,6 @@ class A11YCssClassHelper {
     return changed;
   }
 
-  @profile
   private fontScaleChanged(event: PropertyChangeData) {
     const { fontScale } = this.fontScaleObservable;
     if (isTraceEnabled()) {
@@ -222,7 +214,6 @@ class A11YCssClassHelper {
     this.updateRootViews(event);
   }
 
-  @profile
   private a11yServiceChanged(event: PropertyChangeData) {
     if (isTraceEnabled()) {
       writeFontScaleTrace(`${this.cls}.a11yServiceChanged(): to ${this.a11yServiceObservable.accessibilityServiceEnabled}`);

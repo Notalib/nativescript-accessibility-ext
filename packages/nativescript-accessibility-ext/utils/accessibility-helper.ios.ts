@@ -1,7 +1,5 @@
-import * as nsApp from '@nativescript/core/application';
-import { profile } from '@nativescript/core/profiling';
-import { View as TNSView } from '@nativescript/core/ui/core/view';
-import { ProxyViewContainer } from '@nativescript/core/ui/proxy-view-container';
+import '@nativescript/core';
+import { Application, ProxyViewContainer, View as TNSView } from '@nativescript/core';
 import { AccessibilityLiveRegion, AccessibilityRole, AccessibilityState, AccessibilityTrait } from '../ui/core/view-common';
 import { hmrSafeEvents, inputArrayToBitMask, notifyAccessibilityFocusState } from './helpers';
 
@@ -59,7 +57,7 @@ function ensureNativeClasses() {
     [AccessibilityRole.RadioButton, UIAccessibilityTraitButton],
   ]);
 
-  nativeFocusedNotificationObserver = nsApp.ios.addNotificationObserver(UIAccessibilityElementFocusedNotification, (args: NSNotification) => {
+  nativeFocusedNotificationObserver = Application.ios.addNotificationObserver(UIAccessibilityElementFocusedNotification, (args: NSNotification) => {
     const uiView = args.userInfo.objectForKey(UIAccessibilityFocusedElementKey) as UIView;
 
     const tnsView = uiViewToTnsView.has(uiView) ? uiViewToTnsView.get(uiView).get() : null;
@@ -82,9 +80,9 @@ function ensureNativeClasses() {
     notifyAccessibilityFocusState(tnsView, true, false);
   });
 
-  nsApp.on(nsApp.exitEvent, () => {
+  Application.on(Application.exitEvent, () => {
     if (nativeFocusedNotificationObserver) {
-      nsApp.ios.removeNotificationObserver(nativeFocusedNotificationObserver, UIAccessibilityElementFocusedNotification);
+      Application.ios.removeNotificationObserver(nativeFocusedNotificationObserver, UIAccessibilityElementFocusedNotification);
     }
 
     nativeFocusedNotificationObserver = null;

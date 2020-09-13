@@ -1,5 +1,4 @@
-import { Observable } from '@nativescript/core/data/observable';
-import { profile } from '@nativescript/core/profiling';
+import { Observable, profile } from '@nativescript/core';
 
 export interface SharedA11YObservable extends Observable {
   readonly accessibilityServiceEnabled?: boolean;

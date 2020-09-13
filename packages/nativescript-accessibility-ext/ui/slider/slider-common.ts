@@ -1,7 +1,7 @@
 /// <reference path="./slider.d.ts" />
 
-import { profile } from '@nativescript/core/profiling';
-import { AccessibilityDecrementEventData, AccessibilityIncrementEventData, Slider } from '@nativescript/core/ui/slider';
+import { profile, Slider } from '@nativescript/core';
+import { AccessibilityDecrementEventData, AccessibilityIncrementEventData } from '@nativescript/core/ui/slider';
 import { addCssPropertyToView, setViewFunction } from '../../utils/helpers';
 
 Slider.accessibilityDecrementEvent = 'accessibilityDecrement';

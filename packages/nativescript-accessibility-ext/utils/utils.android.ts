@@ -1,6 +1,4 @@
-import * as nsApp from '@nativescript/core/application';
-import { Observable } from '@nativescript/core/data/observable';
-import * as utils from '@nativescript/core/utils/utils';
+import { Application, ApplicationEventData, Observable, Utils } from '@nativescript/core';
 import { isTraceEnabled, writeTrace } from '../trace';
 import { AccessibilityServiceEnabledPropName, CommonA11YServiceEnabledObservable, SharedA11YObservable as CommonSharedA11YObservable } from './utils-common';
 
@@ -17,7 +15,7 @@ const AccessibilityManager = android.view.accessibility.AccessibilityManager;
 function getA11YManager() {
   const cls = `getA11YManager()`;
 
-  const context = utils.ad.getApplicationContext() as android.content.Context;
+  const context = Utils.ad.getApplicationContext() as android.content.Context;
   if (!context) {
     if (isTraceEnabled()) {
       writeTrace(`${cls}: no context`);
@@ -96,7 +94,7 @@ function ensureStateListener(): SharedA11YObservable {
 
   updateState();
 
-  nsApp.on(nsApp.resumeEvent, updateState);
+  Application.on(Application.resumeEvent, updateState);
 
   return sharedA11YObservable;
 }
@@ -105,7 +103,7 @@ export function isAccessibilityServiceEnabled() {
   return ensureStateListener().accessibilityServiceEnabled;
 }
 
-nsApp.on(nsApp.exitEvent, (args: nsApp.ApplicationEventData) => {
+Application.on(Application.exitEvent, (args: ApplicationEventData) => {
   const activity = args.android as android.app.Activity;
   if (activity && !activity.isFinishing()) {
     return;
@@ -130,7 +128,7 @@ nsApp.on(nsApp.exitEvent, (args: nsApp.ApplicationEventData) => {
     sharedA11YObservable = null;
   }
 
-  nsApp.off(nsApp.resumeEvent, updateState);
+  Application.off(Application.resumeEvent, updateState);
 });
 
 export class AccessibilityServiceEnabledObservable extends CommonA11YServiceEnabledObservable {

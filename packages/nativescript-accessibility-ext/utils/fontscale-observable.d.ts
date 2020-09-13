@@ -1,4 +1,4 @@
-import { Observable } from '@nativescript/core/data/observable';
+import { Observable } from '@nativescript/core';
 
 export declare class FontScaleObservable extends Observable {
   public static readonly FONT_SCALE: 'fontScale';

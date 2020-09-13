@@ -1,42 +1,46 @@
 /// <reference path="../ui/core/view.d.ts" />
 
-import { EventData, Observable } from '@nativescript/core/data/observable';
-import { profile } from '@nativescript/core/profiling';
-import { ActionBar } from '@nativescript/core/ui/action-bar';
-import { ActivityIndicator } from '@nativescript/core/ui/activity-indicator';
-import { Button } from '@nativescript/core/ui/button';
-import { ContainerView, CustomLayoutView, View } from '@nativescript/core/ui/core/view';
-import { ViewCommon } from '@nativescript/core/ui/core/view/view-common';
-import { DatePicker } from '@nativescript/core/ui/date-picker';
-import { EditableTextBase } from '@nativescript/core/ui/editable-text-base';
-import { Frame } from '@nativescript/core/ui/frame';
-import { HtmlView } from '@nativescript/core/ui/html-view';
-import { Image } from '@nativescript/core/ui/image';
-import { Label } from '@nativescript/core/ui/label';
-import { AbsoluteLayout } from '@nativescript/core/ui/layouts/absolute-layout';
-import { DockLayout } from '@nativescript/core/ui/layouts/dock-layout';
-import { FlexboxLayout } from '@nativescript/core/ui/layouts/flexbox-layout';
-import { GridLayout } from '@nativescript/core/ui/layouts/grid-layout';
-import { LayoutBase } from '@nativescript/core/ui/layouts/layout-base';
-import { StackLayout } from '@nativescript/core/ui/layouts/stack-layout';
-import { WrapLayout } from '@nativescript/core/ui/layouts/wrap-layout';
-import { ListPicker } from '@nativescript/core/ui/list-picker';
-import { ListView } from '@nativescript/core/ui/list-view';
-import { Page } from '@nativescript/core/ui/page';
-import { Placeholder } from '@nativescript/core/ui/placeholder';
-import { Progress } from '@nativescript/core/ui/progress';
-import { Repeater } from '@nativescript/core/ui/repeater';
-import { ScrollView } from '@nativescript/core/ui/scroll-view';
-import { SearchBar } from '@nativescript/core/ui/search-bar';
-import { SegmentedBar } from '@nativescript/core/ui/segmented-bar';
-import { Slider } from '@nativescript/core/ui/slider';
-import { Switch } from '@nativescript/core/ui/switch';
-import { TabView } from '@nativescript/core/ui/tab-view';
-import { TextBase } from '@nativescript/core/ui/text-base';
-import { TextField } from '@nativescript/core/ui/text-field';
-import { TextView } from '@nativescript/core/ui/text-view';
-import { TimePicker } from '@nativescript/core/ui/time-picker';
-import { WebView } from '@nativescript/core/ui/web-view';
+import {
+  AbsoluteLayout,
+  ActionBar,
+  ActivityIndicator,
+  Button,
+  ContainerView,
+  DatePicker,
+  DockLayout,
+  EditableTextBase,
+  EventData,
+  FlexboxLayout,
+  Frame,
+  GridLayout,
+  HtmlView,
+  Image,
+  Label,
+  LayoutBase,
+  ListPicker,
+  ListView,
+  Observable,
+  Page,
+  Placeholder,
+  profile,
+  Progress,
+  Repeater,
+  ScrollView,
+  SearchBar,
+  SegmentedBar,
+  Slider,
+  StackLayout,
+  Switch,
+  TabView,
+  TextBase,
+  TextField,
+  TextView,
+  TimePicker,
+  View,
+  WebView,
+  WrapLayout,
+} from '@nativescript/core';
+import { CustomLayoutView } from '@nativescript/core/ui/core/view';
 import { isTraceEnabled, writeGlobalEventsTrace } from '../trace';
 import { unwrapFunction, wrapFunction } from './helpers';
 
@@ -102,7 +106,6 @@ export function setupGlobalEventsOnViewClass(ViewClass: any, viewName: string) {
 }
 
 // Add the global events to the View-class before adding it to the sub-classes.
-setupGlobalEventsOnViewClass(ViewCommon, 'ViewCommon');
 setupGlobalEventsOnViewClass(View, 'View');
 setupGlobalEventsOnViewClass(TextBase, 'TextBase');
 setupGlobalEventsOnViewClass(ContainerView, 'ContainerView');

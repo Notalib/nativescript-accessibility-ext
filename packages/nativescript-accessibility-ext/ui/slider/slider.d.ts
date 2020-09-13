@@ -1,5 +1,5 @@
 import '@nativescript/core/ui/slider';
-import { EventData } from '@nativescript/core/data/observable';
+import { EventData } from '@nativescript/core';
 
 declare module '@nativescript/core/ui/slider' {
   interface Slider {

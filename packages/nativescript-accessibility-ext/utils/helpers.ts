@@ -1,8 +1,7 @@
 /// <reference path="../ui/core/view.d.ts" />
 
-import { CssProperty, InheritedCssProperty, Page, profile, Property, Style, View } from '@nativescript/core';
+import { booleanConverter, CssProperty, InheritedCssProperty, Page, profile, Property, Style, View } from '@nativescript/core';
 import { AccessibilityBlurEventData, AccessibilityFocusChangedEventData, AccessibilityFocusEventData } from '@nativescript/core/ui/core/view';
-import { booleanConverter } from '@nativescript/core/ui/core/view-base';
 import { isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 
 const lastFocusedViewOnPageKeyName = '__lastFocusedViewOnPage';

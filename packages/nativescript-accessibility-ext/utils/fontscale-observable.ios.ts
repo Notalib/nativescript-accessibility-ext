@@ -1,6 +1,4 @@
-import * as nsApp from '@nativescript/core/application';
-import { Observable, PropertyChangeData } from '@nativescript/core/data/observable';
-import { profile } from '@nativescript/core/profiling';
+import { Application, Observable, profile, PropertyChangeData } from '@nativescript/core';
 import { isTraceEnabled, writeErrorTrace, writeFontScaleTrace } from '../trace';
 
 const getClosestValidFontScale = profile('getClosestValidFontScale', function getClosestValidFontScaleImpl(fontScale: number) {
@@ -58,15 +56,15 @@ const contentSizeUpdated = profile('contentSizeUpdated', function contentSizeUpd
 });
 
 const useIOSFontScale = profile('useIOSFontScale', function useIOSFontScaleImpl() {
-  if (nsApp.ios.nativeApp) {
-    contentSizeUpdated(nsApp.ios.nativeApp.preferredContentSizeCategory);
+  if (Application.ios.nativeApp) {
+    contentSizeUpdated(Application.ios.nativeApp.preferredContentSizeCategory);
   } else {
     fontScaleChanged(1);
   }
 });
 
 function setupConfigListener(attempt = 0) {
-  if (!nsApp.ios.nativeApp) {
+  if (!Application.ios.nativeApp) {
     if (attempt > 100) {
       if (isTraceEnabled()) {
         writeErrorTrace(`App didn't become active couldn't enable font scaling`);
@@ -83,19 +81,19 @@ function setupConfigListener(attempt = 0) {
     return;
   }
 
-  const fontSizeObserver = nsApp.ios.addNotificationObserver(UIContentSizeCategoryDidChangeNotification, (args) => {
+  const fontSizeObserver = Application.ios.addNotificationObserver(UIContentSizeCategoryDidChangeNotification, (args) => {
     const fontSize = args.userInfo.valueForKey(UIContentSizeCategoryNewValueKey);
     contentSizeUpdated(fontSize);
   });
 
-  nsApp.on(nsApp.exitEvent, () => {
-    nsApp.ios.removeNotificationObserver(fontSizeObserver, UIContentSizeCategoryDidChangeNotification);
+  Application.on(Application.exitEvent, () => {
+    Application.ios.removeNotificationObserver(fontSizeObserver, UIContentSizeCategoryDidChangeNotification);
     internalObservable = null;
 
-    nsApp.off(nsApp.resumeEvent, useIOSFontScale);
+    Application.off(Application.resumeEvent, useIOSFontScale);
   });
 
-  nsApp.on(nsApp.resumeEvent, useIOSFontScale);
+  Application.on(Application.resumeEvent, useIOSFontScale);
 
   useIOSFontScale();
 }

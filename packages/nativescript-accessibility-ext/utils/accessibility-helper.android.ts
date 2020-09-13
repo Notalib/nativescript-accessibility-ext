@@ -1,11 +1,5 @@
-import * as nsApp from '@nativescript/core/application';
-import { profile } from '@nativescript/core/profiling';
-import { Trace } from '@nativescript/core/trace';
-import { View as TNSView } from '@nativescript/core/ui/core/view';
-import { GestureTypes } from '@nativescript/core/ui/gestures';
-import { ListView } from '@nativescript/core/ui/list-view';
-import { ProxyViewContainer } from '@nativescript/core/ui/proxy-view-container';
-import * as utils from '@nativescript/core/utils/utils';
+import '@nativescript/core';
+import { Application, GestureTypes, ListView, profile, ProxyViewContainer, Trace, Utils, View as TNSView } from '@nativescript/core';
 import { categories, isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 import { AccessibilityRole, AccessibilityState } from '../ui/core/view-common';
 import { hmrSafeEvents, notifyAccessibilityFocusState } from './helpers';
@@ -623,7 +617,7 @@ const applyContentDescription = profile('applyContentDescription', function appl
 
   // Workaround: TalkBack won't read the checked state for fake Switch.
   if (tnsView.accessibilityRole === AccessibilityRole.Switch) {
-    const androidSwitch = new android.widget.Switch(nsApp.android.context);
+    const androidSwitch = new android.widget.Switch(Application.android.context);
     if (tnsView.accessibilityState === AccessibilityState.Checked) {
       contentDescriptionBuilder.push(androidSwitch.getTextOn());
     } else {
@@ -784,7 +778,7 @@ const ensureListViewItemIsOnScreen = profile('ensureListViewItemIsOnScreen', fun
     const scrollByDIP = viewPos.y - wantedScrollOffset;
 
     // 3nd convert to real device pixels.
-    const scrollByDP = utils.layout.toDevicePixels(scrollByDIP);
+    const scrollByDP = Utils.layout.toDevicePixels(scrollByDIP);
 
     if (isTraceEnabled()) {
       writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${tnsView}) view is not on screen, scroll by: ${scrollByDIP}`);

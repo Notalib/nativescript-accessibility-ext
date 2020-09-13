@@ -1,6 +1,4 @@
-import * as nsApp from '@nativescript/core/application';
-import { Observable, PropertyChangeData } from '@nativescript/core/data/observable';
-import { profile } from '@nativescript/core/profiling';
+import { Application, Observable, profile, PropertyChangeData } from '@nativescript/core';
 import { isTraceEnabled, writeFontScaleTrace } from '../trace';
 
 const getClosestValidFontScale = profile('getClosestValidFontScale', function getClosestValidFontScaleImpl(fontScale: number) {
@@ -22,16 +20,16 @@ const fontScaleChanged = profile('fontScaleChanged', function fontScaleChangedIm
 });
 
 const useAndroidFontScale = profile('useAndroidFontScale', function useAndroidFontScaleImpl() {
-  fontScaleChanged(Number(nsApp.android.context.getResources().getConfiguration().fontScale));
+  fontScaleChanged(Number(Application.android.context.getResources().getConfiguration().fontScale));
 });
 
 function setupConfigListener() {
-  nsApp.off(nsApp.launchEvent, setupConfigListener);
+  Application.off(Application.launchEvent, setupConfigListener);
 
-  const context = nsApp.android && (nsApp.android.context as android.content.Context);
+  const context = Application.android && (Application.android.context as android.content.Context);
 
   if (!context) {
-    nsApp.on(nsApp.launchEvent, setupConfigListener);
+    Application.on(Application.launchEvent, setupConfigListener);
 
     return;
   }
@@ -51,7 +49,7 @@ function setupConfigListener() {
   });
 
   context.registerComponentCallbacks(configChangedCallback);
-  nsApp.on(nsApp.resumeEvent, useAndroidFontScale);
+  Application.on(Application.resumeEvent, useAndroidFontScale);
 }
 
 function ensureObservable() {

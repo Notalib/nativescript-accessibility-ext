@@ -1,4 +1,4 @@
-import { EventData } from '@nativescript/core/data/observable';
+import { EventData } from '@nativescript/core';
 import { FontScaleObservable } from '../../utils/FontScaleObservable';
 import {
   AccessibilityLiveRegion as _AccessibilityLiveRegion,

@@ -1,5 +1,4 @@
-import * as nsApp from '@nativescript/core/application';
-import { Observable } from '@nativescript/core/data/observable';
+import { Observable, Application } from '@nativescript/core';
 import { writeErrorTrace } from '../trace';
 import { AccessibilityServiceEnabledPropName, CommonA11YServiceEnabledObservable, SharedA11YObservable } from './utils-common';
 
@@ -39,15 +38,15 @@ function getSharedA11YObservable(): SharedA11YObservable {
   }
 
   if (voiceOverStatusChangedNotificationName) {
-    nativeObserver = nsApp.ios.addNotificationObserver(voiceOverStatusChangedNotificationName, () => {
+    nativeObserver = Application.ios.addNotificationObserver(voiceOverStatusChangedNotificationName, () => {
       if (sharedA11YObservable) {
         sharedA11YObservable.set(AccessibilityServiceEnabledPropName, isVoiceOverRunning());
       }
     });
 
-    nsApp.on(nsApp.exitEvent, () => {
+    Application.on(Application.exitEvent, () => {
       if (nativeObserver) {
-        nsApp.ios.removeNotificationObserver(nativeObserver, voiceOverStatusChangedNotificationName);
+        Application.ios.removeNotificationObserver(nativeObserver, voiceOverStatusChangedNotificationName);
       }
 
       nativeObserver = null;
@@ -58,7 +57,7 @@ function getSharedA11YObservable(): SharedA11YObservable {
     });
   }
 
-  nsApp.on(nsApp.resumeEvent, () => sharedA11YObservable.set(AccessibilityServiceEnabledPropName, isVoiceOverRunning()));
+  Application.on(Application.resumeEvent, () => sharedA11YObservable.set(AccessibilityServiceEnabledPropName, isVoiceOverRunning()));
 
   return sharedA11YObservable;
 }

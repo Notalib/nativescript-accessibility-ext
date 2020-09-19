@@ -15,7 +15,7 @@
     "reflect-metadata": "file:../../node_modules/reflect-metadata",
     "rxjs": "file:../../node_modules/rxjs",
     "zone.js": "file:../../node_modules/zone.js",
-    "@nativescript/nativescript-accessibility-ext": "file:../../dist/packages/nativescript-accessibility-ext"
+    "@nota/nativescript-accessibility-ext": "file:../../dist/packages/nativescript-accessibility-ext"
   },
   "devDependencies": {
     "@angular/compiler-cli": "file:../../node_modules/@angular/compiler-cli",

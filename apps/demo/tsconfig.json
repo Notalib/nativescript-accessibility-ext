@@ -5,7 +5,7 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["src/*"],
-      "@nativescript/*": ["../../packages/*"],
+      "@nota/*": ["../../packages/*"],
       "@demo/shared": ["../../tools/demo/index.ts"]
     }
   }

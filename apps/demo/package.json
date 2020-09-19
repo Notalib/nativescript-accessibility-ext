@@ -6,7 +6,7 @@
   "dependencies": {
     "nativescript-theme-core": "file:../../node_modules/nativescript-theme-core",
     "@nativescript/core": "file:../../node_modules/@nativescript/core",
-    "@nativescript/nativescript-accessibility-ext": "file:../../packages/nativescript-accessibility-ext"
+    "@nota/nativescript-accessibility-ext": "file:../../packages/nativescript-accessibility-ext"
   },
   "devDependencies": {
     "@nativescript/android": "~7.0.0",

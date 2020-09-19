@@ -1,6 +1,6 @@
 import { Observable, EventData, Page } from '@nativescript/core';
 import { DemoSharedNativescriptAccessibilityExt } from '@demo/shared';
-import {} from '@nativescript/nativescript-accessibility-ext';
+import {} from '@nota/nativescript-accessibility-ext';
 
 export function navigatingTo(args: EventData) {
   const page = <Page>args.object;

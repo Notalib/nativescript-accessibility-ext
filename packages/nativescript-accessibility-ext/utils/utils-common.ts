@@ -1,4 +1,4 @@
-import { Observable, profile } from '@nativescript/core';
+import { Observable } from '@nativescript/core';
 
 export interface SharedA11YObservable extends Observable {
   readonly accessibilityServiceEnabled?: boolean;
@@ -10,7 +10,7 @@ export class CommonA11YServiceEnabledObservable extends Observable {
 
     const ref = new WeakRef(this);
     let lastValue: boolean;
-    const callback = profile('SharedA11YObservable.propertyChangeEvent', function () {
+    function callback() {
       const self = ref && ref.get();
       if (!self) {
         sharedA11YObservable.off(Observable.propertyChangeEvent, callback);
@@ -23,7 +23,7 @@ export class CommonA11YServiceEnabledObservable extends Observable {
         self.set(AccessibilityServiceEnabledPropName, newValue);
         lastValue = newValue;
       }
-    });
+    }
 
     sharedA11YObservable.on(Observable.propertyChangeEvent, callback);
 

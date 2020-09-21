@@ -1,5 +1,5 @@
 import '@nativescript/core';
-import { Application, GestureTypes, ListView, profile, ProxyViewContainer, Trace, Utils, View as TNSView } from '@nativescript/core';
+import { Application, GestureTypes, ListView, ProxyViewContainer, Trace, Utils, View as TNSView } from '@nativescript/core';
 import { categories, isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 import { AccessibilityRole, AccessibilityState } from '../ui/core/view-common';
 import { hmrSafeEvents, notifyAccessibilityFocusState } from './helpers';
@@ -9,9 +9,9 @@ function writeHelperTrace(message: string, type = Trace.messageType.info) {
   writeTrace(message, type, categories.AndroidHelper);
 }
 
-export const getAndroidView = profile('getAndroidView', function getAndroidViewImpl<T extends android.view.View>(tnsView: TNSView): T {
+export function getAndroidView<T extends android.view.View>(tnsView: TNSView): T {
   return tnsView.nativeView || tnsView.nativeViewProtected;
-});
+}
 
 export function getUIView(tnsView: TNSView): UIView {
   throw new Error(`getUIView(${tnsView}) - should never be called on Android`);
@@ -32,14 +32,14 @@ const AndroidViewGroup = android.view.ViewGroup;
 type AndroidViewGroup = android.view.ViewGroup;
 let clickableRolesMap = new Set<string>();
 
-const getAccessibilityManager = profile('getAccessibilityManager', function getAccessibilityManagerImpl(view: AndroidView): AccessibilityManager {
+function getAccessibilityManager(view: AndroidView): AccessibilityManager {
   return view.getContext().getSystemService(android.content.Context.ACCESSIBILITY_SERVICE);
-});
+}
 
 let suspendAccessibilityEvents = false;
 const a11yScrollOnFocus = 'a11y-scroll-on-focus';
 let lastFocusedView: WeakRef<TNSView>;
-const accessibilityEventHelper = profile('accessibilityEventHelper', function accessibilityEventHelperImpl(tnsView: TNSView, eventType: number) {
+function accessibilityEventHelper(tnsView: TNSView, eventType: number) {
   const eventName = accessibilityEventTypeMap.get(eventType);
   if (!isAccessibilityServiceEnabled()) {
     if (isTraceEnabled()) {
@@ -138,7 +138,7 @@ const accessibilityEventHelper = profile('accessibilityEventHelper', function ac
       return;
     }
   }
-});
+}
 
 let TNSAccessibilityDelegate: AccessibilityDelegate;
 
@@ -539,7 +539,7 @@ export class AccessibilityHelper {
   }
 }
 
-const removeAccessibilityDelegate = profile('removeAccessibilityDelegate', function removeAccessibilityDelegateImpl(tnsView: TNSView) {
+function removeAccessibilityDelegate(tnsView: TNSView) {
   if (tnsView instanceof ProxyViewContainer) {
     return null;
   }
@@ -551,9 +551,9 @@ const removeAccessibilityDelegate = profile('removeAccessibilityDelegate', funct
 
   androidViewToTNSView.delete(androidView);
   androidView.setAccessibilityDelegate(null);
-});
+}
 
-const setAccessibilityDelegate = profile('setAccessibilityDelegate', function setAccessibilityDelegateImpl(tnsView: TNSView) {
+function setAccessibilityDelegate(tnsView: TNSView) {
   if (tnsView instanceof ProxyViewContainer) {
     return null;
   }
@@ -579,9 +579,9 @@ const setAccessibilityDelegate = profile('setAccessibilityDelegate', function se
   }
 
   androidView.setAccessibilityDelegate(TNSAccessibilityDelegate);
-});
+}
 
-const applyContentDescription = profile('applyContentDescription', function applyContentDescriptionImpl(tnsView: TNSView, forceUpdate?: boolean) {
+function applyContentDescription(tnsView: TNSView, forceUpdate?: boolean) {
   if (tnsView instanceof ProxyViewContainer) {
     return null;
   }
@@ -689,14 +689,14 @@ const applyContentDescription = profile('applyContentDescription', function appl
   tnsView._androidContentDescriptionUpdated = false;
 
   return contentDescription;
-});
+}
 
 /**
  * When the user navigates to a ListView item, we need to keep it on screen.
  * Otherwise we risk buggy behavior, where the ListView jumps to the top or selects a < half
  * visible element.
  */
-const ensureListViewItemIsOnScreen = profile('ensureListViewItemIsOnScreen', function ensureListViewItemIsOnScreenImpl(listView: ListView, tnsView: TNSView) {
+function ensureListViewItemIsOnScreen(listView: ListView, tnsView: TNSView) {
   if (suspendAccessibilityEvents) {
     if (isTraceEnabled()) {
       writeHelperTrace(`ensureListViewItemIsOnScreen(${listView}, ${tnsView}) suspended`);
@@ -795,7 +795,7 @@ const ensureListViewItemIsOnScreen = profile('ensureListViewItemIsOnScreen', fun
     // Reset accessibility
     AccessibilityHelper.updateAccessibilityProperties(tnsView);
   }
-});
+}
 
 function setupA11yScrollOnFocus(args: any) {
   const listView = args.object as ListView;

@@ -57,32 +57,22 @@ module.exports = {
       },
     },
     '⚙️': {
-      script: `npx cowsay "@nativescript/* packages will keep your ⚙️ cranking"`,
-      description: '_____________  @nativescript/*  _____________',
+      script: `npx cowsay "@nota/* packages will keep your ⚙️ cranking"`,
+      description: '_____________  @nota/*  _____________',
     },
     // packages
     // build output is always in dist/packages
-    '@nativescript': {
-      // @nativescript/nativescript-accessibility-ext
+    '@nota': {
+      // @nota/nativescript-accessibility-ext
       'nativescript-accessibility-ext': {
         build: {
           script: 'nx run nativescript-accessibility-ext:build.all',
-          description: '@nativescript/nativescript-accessibility-ext: Build',
+          description: '@nota/nativescript-accessibility-ext: Build',
         },
       },
       'build-all': {
         script: 'nx run all:build',
         description: 'Build all packages',
-      },
-    },
-    '🧰': {
-      script: `npx cowsay "Tools for the workspace 🧰"`,
-      description: '_____________  Tools  _____________',
-    },
-    tools: {
-      'sync-packages-with-demos': {
-        script: 'nx workspace-schematic sync-packages-with-demos',
-        description: 'Helps ensure all packages have views to test across all demo apps',
       },
     },
     '⚡': {
@@ -92,7 +82,7 @@ module.exports = {
     focus: {
       'nativescript-accessibility-ext': {
         script: 'nx run nativescript-accessibility-ext:focus',
-        description: 'Focus on @nativescript/nativescript-accessibility-ext',
+        description: 'Focus on @nota/nativescript-accessibility-ext',
       },
       reset: {
         script: 'nx run all:focus',

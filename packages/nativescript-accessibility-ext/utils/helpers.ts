@@ -1,6 +1,6 @@
 /// <reference path="../ui/core/view.d.ts" />
 
-import { booleanConverter, CssProperty, InheritedCssProperty, Page, profile, Property, Style, View } from '@nativescript/core';
+import { booleanConverter, CssProperty, InheritedCssProperty, Page, Property, Style, View } from '@nativescript/core';
 import { AccessibilityBlurEventData, AccessibilityFocusChangedEventData, AccessibilityFocusEventData } from '@nativescript/core/ui/core/view';
 import { isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 
@@ -208,11 +208,7 @@ export function addBooleanCssPropertyToView(viewClass: typeof View, name: string
  * @param {boolean} receivedFocus
  * @param {boolean} lostFocus
  */
-export const notifyAccessibilityFocusState = profile('notifyAccessibilityFocusState', function notifyAccessibilityFocusStateImpl(
-  tnsView: View,
-  receivedFocus: boolean,
-  lostFocus: boolean,
-): void {
+export function notifyAccessibilityFocusState(tnsView: View, receivedFocus: boolean, lostFocus: boolean): void {
   if (!receivedFocus && !lostFocus) {
     return;
   }
@@ -249,7 +245,7 @@ export const notifyAccessibilityFocusState = profile('notifyAccessibilityFocusSt
       object: tnsView,
     } as AccessibilityBlurEventData);
   }
-});
+}
 
 /**
  * Get the view's ngCssClasses-Map for nativescript-angular.

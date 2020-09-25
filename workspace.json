@@ -133,7 +133,14 @@
           "options": {
             "commands": [
               "nx run nativescript-accessibility-ext:build",
+              "cp -v packages/nativescript-accessibility-ext/utils/*.d.ts dist/packages/nativescript-accessibility-ext/utils/",
+              "cp -v packages/nativescript-accessibility-ext/ui/core/*.d.ts dist/packages/nativescript-accessibility-ext/ui/core/",
+              "cp -v packages/nativescript-accessibility-ext/ui/page/*.d.ts dist/packages/nativescript-accessibility-ext/ui/page/",
+              "cp -v packages/nativescript-accessibility-ext/ui/action-bar/*.d.ts dist/packages/nativescript-accessibility-ext/ui/action-bar/",
+              "cp -v packages/nativescript-accessibility-ext/ui/slider/*.d.ts dist/packages/nativescript-accessibility-ext/ui/slider/",
+              "rimraf dist/packages/nativescript-accessibility-ext/scss dist/packages/nativescript-accessibility-ext/css && rimraf dist/packages/nativescript-accessibility-ext/css",
               "mkdir -p dist/packages/nativescript-accessibility-ext/css",
+              "cp -a packages/nativescript-accessibility-ext/scss dist/packages/nativescript-accessibility-ext",
               "cd dist/packages/nativescript-accessibility-ext && npx dart-sass --style compressed --load-path node_modules --source-map scss/a11y-helpers.scss:css/a11y-helpers.css scss/a11y.scss:css/a11y.css scss/a11y.compat.scss:css/a11y.compat.css css",
               "node tools/scripts/build-finish.ts nativescript-accessibility-ext"
             ],

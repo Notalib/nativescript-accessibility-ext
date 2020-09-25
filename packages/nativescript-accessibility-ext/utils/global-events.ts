@@ -22,7 +22,6 @@ import {
   Observable,
   Page,
   Placeholder,
-  profile,
   Progress,
   Repeater,
   ScrollView,
@@ -66,7 +65,7 @@ export function setupGlobalEventsOnViewClass(ViewClass: any, viewName: string) {
   wrapFunction(
     ViewClass.prototype,
     'notify',
-    profile(`${viewName}<A11Y>.customNotify`, function customNotify(arg: EventData) {
+    function customNotify(arg: EventData) {
       if (!ViewClass[obsKeyName].hasListeners(arg.eventName)) {
         return;
       }
@@ -76,7 +75,7 @@ export function setupGlobalEventsOnViewClass(ViewClass: any, viewName: string) {
       }
 
       ViewClass[obsKeyName].notify(arg);
-    }),
+    },
     viewName,
   );
 

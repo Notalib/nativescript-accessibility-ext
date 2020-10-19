@@ -612,8 +612,8 @@ const applyContentDescription = profile('applyContentDescription', function appl
     return null;
   }
 
-  const titleValue = ((tnsView['title'] as string) || '').trim();
-  const textValue = ((tnsView['text'] as string) || '').trim();
+  const titleValue = ((tnsView['title'] as string) || '').toString().trim();
+  const textValue = ((tnsView['text'] as string) || '').toString().trim();
 
   if (!forceUpdate && tnsView._androidContentDescriptionUpdated === false && textValue === tnsView['_lastText'] && titleValue === tnsView['_lastTitle']) {
     // prevent updating this too much

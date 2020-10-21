@@ -1,0 +1,16 @@
+{
+  "name": "nativescript-nativescript-accessibility-ext-angular",
+  "ngPackage": {
+    "lib": {
+      "entryFile": "index.ts",
+      "umdModuleIds": {
+        "@nativescript/core": "ns-core",
+        "@nativescript/angular": "ns-angular",
+        "@nota/nativescript-accessibility-ext": "ns-nativescript-accessibility-ext"
+      }
+    },
+    "whitelistedNonPeerDependencies": [
+      "."
+    ]
+  }
+}

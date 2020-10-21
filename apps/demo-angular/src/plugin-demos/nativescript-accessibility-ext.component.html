@@ -1,0 +1,47 @@
+<ActionBar title="nativescript-accessibility-ext" class="action-bar"> </ActionBar>
+<GridLayout class="p-b-10 p-t-10" rows="auto, auto, *" columns="*">
+  <StackLayout row="0" class="c-white c-bg-grey font-weight-bold screen-reader">
+    <ios>
+      <StackLayout class="text-center a11y-service-enabled-hidden">
+        <Label text="You need to enable VoiceOver" textWrap="true" class="h1"></Label>
+      </StackLayout>
+      <StackLayout class="text-center a11y-service-enabled-visible">
+        <Label text="VoiceOver enabled" textWrap="true" class="h1"></Label>
+      </StackLayout>
+    </ios>
+
+    <android>
+      <StackLayout class="text-center a11y-service-enabled-hidden">
+        <Label text="You need to enable TalkBack" textWrap="true" class="h1"></Label>
+      </StackLayout>
+      <StackLayout class="text-center a11y-service-enabled-visible">
+        <Label text="TalkBack enabled" textWrap="true" class="h1"></Label>
+      </StackLayout>
+    </android>
+  </StackLayout>
+
+  <slider
+    row="1"
+    minValue="0"
+    maxValue="100"
+    value="50"
+    accessible="true"
+    accessibilityStep="5"
+    (accessibilityFocus)="demoShared.onAccessibilityFocus($event)"
+  ></slider>
+
+  <ListView row="2" [items]="demoShared.source">
+    <ng-template let-item="item" let-index="index" let-odd="odd" let-even="even">
+      <GridLayout
+        [class.odd]="odd"
+        [class.even]="even"
+        class="list-view-item"
+        [accessibilityLabel]="item.name"
+        (accessibilityFocus)="demoShared.onAccessibilityFocus($event, index)"
+        (tap)="demoShared.itemTap(item)"
+      >
+        <Label [text]="item.name"></Label>
+      </GridLayout>
+    </ng-template>
+  </ListView>
+</GridLayout>

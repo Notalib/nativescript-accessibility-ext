@@ -1,7 +1,6 @@
 /// <reference path="./view.d.ts" />
 
 import { isIOS, View } from '@nativescript/core';
-import { PostAccessibilityNotificationType } from '@nativescript/core/ui/core/view';
 import { addBooleanCssPropertyToView, addCssPropertyToView, addPropertyToView, makePropertyEnumConverter, setViewFunction } from '../../utils/helpers';
 
 export enum AccessibilityTrait {
@@ -187,18 +186,6 @@ export const allFunctions = {
 for (const fnName of Object.keys(allFunctions)) {
   setViewFunction(View, fnName);
 }
-
-setViewFunction(View, 'postAccessibilityNotification', function (notificationType: PostAccessibilityNotificationType, msg?: string) {
-  console.warn(`DEPRECATED: ${this}.postAccessibilityNotification is no longer supported. Please use "${iosFunctions.iosPostAccessibilityNotification}"`);
-
-  this[iosFunctions.iosPostAccessibilityNotification](notificationType, msg);
-});
-
-setViewFunction(View, 'sendAccessibilityEvent', function (eventName: string, text?: string) {
-  console.warn(`DEPRECATED: ${this}.sendAccessibilityEvent is no longer supported. Please use "${androidFunctions.androidSendAccessibilityEvent}"`);
-
-  this[androidFunctions.androidSendAccessibilityEvent](eventName, text);
-});
 
 const accessiblePropertyName = 'accessible';
 const accessibleCssName = 'a11y-enabled';

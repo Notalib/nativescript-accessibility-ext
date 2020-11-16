@@ -5,24 +5,24 @@ import { AccessibilityHelper, getAndroidView } from '../../utils/accessibility-h
 import { commonFunctions } from '../core/view-common';
 
 setViewFunction(ActionBar, commonFunctions.accessibilityScreenChanged, function accessibilityScreenChanged(this: ActionBar) {
-  const androidView = getAndroidView<androidx.appcompat.widget.Toolbar>(this);
-  if (!androidView) {
+  const nativeView = getAndroidView<androidx.appcompat.widget.Toolbar>(this);
+  if (!nativeView) {
     return;
   }
 
-  const wasFocusable = android.os.Build.VERSION.SDK_INT >= 26 && androidView.getFocusable();
-  const hasHeading = android.os.Build.VERSION.SDK_INT >= 28 && androidView.isAccessibilityHeading();
-  const importantForA11Y = androidView.getImportantForAccessibility();
+  const wasFocusable = android.os.Build.VERSION.SDK_INT >= 26 && nativeView.getFocusable();
+  const hasHeading = android.os.Build.VERSION.SDK_INT >= 28 && nativeView.isAccessibilityHeading();
+  const importantForA11Y = nativeView.getImportantForAccessibility();
 
   try {
-    androidView.setFocusable(false);
-    androidView.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+    nativeView.setFocusable(false);
+    nativeView.setImportantForAccessibility(android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO);
 
     let announceView: android.view.View | null = null;
 
-    const numChildren = androidView.getChildCount();
+    const numChildren = nativeView.getChildCount();
     for (let i = 0; i < numChildren; i += 1) {
-      const childView = androidView.getChildAt(i);
+      const childView = nativeView.getChildAt(i);
       if (!childView) {
         continue;
       }
@@ -37,7 +37,7 @@ setViewFunction(ActionBar, commonFunctions.accessibilityScreenChanged, function 
     }
 
     if (!announceView) {
-      announceView = androidView;
+      announceView = nativeView;
     }
 
     announceView.setFocusable(true);
@@ -55,7 +55,7 @@ setViewFunction(ActionBar, commonFunctions.accessibilityScreenChanged, function 
       }
 
       if (android.os.Build.VERSION.SDK_INT >= 28) {
-        androidView.setAccessibilityHeading(hasHeading);
+        nativeView.setAccessibilityHeading(hasHeading);
       }
 
       if (android.os.Build.VERSION.SDK_INT >= 26) {

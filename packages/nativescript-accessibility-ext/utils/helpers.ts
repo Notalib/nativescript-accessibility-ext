@@ -204,11 +204,11 @@ export function addBooleanCssPropertyToView(viewClass: typeof View, name: string
  * If receivedFocus, 'accessibilityFocus' is send
  * if lostFocus, 'accessibilityBlur' is send
  *
- * @param {View} tnsView
+ * @param {View} view
  * @param {boolean} receivedFocus
  * @param {boolean} lostFocus
  */
-export function notifyAccessibilityFocusState(tnsView: View, receivedFocus: boolean, lostFocus: boolean): void {
+export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean, lostFocus: boolean): void {
   if (!receivedFocus && !lostFocus) {
     return;
   }
@@ -219,30 +219,30 @@ export function notifyAccessibilityFocusState(tnsView: View, receivedFocus: bool
         name: 'notifyAccessibilityFocusState',
         receivedFocus,
         lostFocus,
-        view: `${tnsView}`,
+        view: `${view}`,
       })}`,
     );
   }
 
-  tnsView.notify({
+  view.notify({
     eventName: View.accessibilityFocusChangedEvent,
-    object: tnsView,
+    object: view,
     value: !!receivedFocus,
   } as AccessibilityFocusChangedEventData);
 
   if (receivedFocus) {
-    if (tnsView.page) {
-      tnsView.page[lastFocusedViewOnPageKeyName] = new WeakRef(tnsView);
+    if (view.page) {
+      view.page[lastFocusedViewOnPageKeyName] = new WeakRef(view);
     }
 
-    tnsView.notify({
+    view.notify({
       eventName: View.accessibilityFocusEvent,
-      object: tnsView,
+      object: view,
     } as AccessibilityFocusEventData);
   } else if (lostFocus) {
-    tnsView.notify({
+    view.notify({
       eventName: View.accessibilityBlurEvent,
-      object: tnsView,
+      object: view,
     } as AccessibilityBlurEventData);
   }
 }

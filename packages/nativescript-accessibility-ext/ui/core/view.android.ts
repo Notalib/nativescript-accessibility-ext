@@ -1,4 +1,4 @@
-import { profile, View } from '@nativescript/core';
+import { View } from '@nativescript/core';
 import { isTraceEnabled, writeTrace } from '../../trace';
 import { AccessibilityHelper, getAndroidView } from '../../utils/accessibility-helper';
 import { setViewFunction } from '../../utils/helpers';
@@ -16,13 +16,13 @@ import {
   commonFunctions,
 } from './view-common';
 
-View.prototype[accessibilityHiddenCssProperty.setNative] = function accessibilityHiddenSetNative(this: View, isHidden: boolean) {
+View.prototype[accessibilityHiddenCssProperty.setNative] = function accessibilityHiddenSetNative(this: View, value: boolean) {
   const androidView = getAndroidView(this);
   if (!androidView) {
     return;
   }
 
-  if (isHidden) {
+  if (value) {
     if (isTraceEnabled()) {
       writeTrace(`View<${this}.android>.accessibilityHidden - hide element`);
     }

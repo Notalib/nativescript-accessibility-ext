@@ -62,7 +62,7 @@ wrapFunction(
   ActionBar.prototype,
   'update',
   function customUpdate() {
-    for (const propName of ['accessibilityLabel', 'accessibilityValue', 'accessibilityLanguage', 'accessibilityValue']) {
+    for (const propName of ['accessibilityLabel', 'accessibilityValue', 'accessibilityLanguage', 'accessibilityHint']) {
       updateA11YProperty(this, propName, this[propName]);
     }
   },

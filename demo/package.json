@@ -7,10 +7,10 @@
   "nativescript": {
     "id": "dk.nota.a11ydemo",
     "tns-ios": {
-      "version": "6.4.0"
+      "version": "6.5.0"
     },
     "tns-android": {
-      "version": "6.4.1"
+      "version": "6.5.1"
     }
   },
   "dependencies": {
@@ -27,7 +27,7 @@
     "nativescript-angular": "~8.21.0",
     "reflect-metadata": "~0.1.13",
     "rxjs": "^6.5.4",
-    "tns-core-modules": "~6.4.0",
+    "tns-core-modules": "^6.5.24",
     "zone.js": "~0.9.1"
   },
   "devDependencies": {

@@ -6,6 +6,7 @@ const nsWebpack = require('@nativescript/webpack');
 const nativescriptTarget = require('@nativescript/webpack/nativescript-target');
 const { nsSupportHmrNg } = require('@nativescript/webpack/transformers/ns-support-hmr-ng');
 const { nsTransformNativeClassesNg } = require('@nativescript/webpack/transformers/ns-transform-native-classes-ng');
+const { parseWorkspaceConfig, hasConfigurations } = require('@nativescript/webpack/helpers/angular-config-parser');
 const { getMainModulePath } = require('@nativescript/webpack/utils/ast-utils');
 const { getNoEmitOnErrorFromTSConfig, getCompilerOptionsFromTSConfig } = require('@nativescript/webpack/utils/tsconfig-utils');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
@@ -17,9 +18,6 @@ const { getAngularCompilerPlugin } = require('@nativescript/webpack/plugins/Nati
 const hashSalt = Date.now().toString();
 
 module.exports = (env) => {
-  // Add your custom Activities, Services and other Android app components here.
-  const appComponents = ['@nativescript/core/ui/frame', '@nativescript/core/ui/frame/activity'];
-
   const platform = env && ((env.android && 'android') || (env.ios && 'ios'));
   if (!platform) {
     throw new Error('You need to provide a target platform!');
@@ -41,6 +39,8 @@ module.exports = (env) => {
     // You can provide the following flags when running 'tns run android|ios'
     snapshot, // --env.snapshot,
     production, // --env.production
+    configuration, // --env.configuration (consistent with angular cli usage)
+    projectName, // --env.projectName (drive configuration through angular projects)
     uglify, // --env.uglify
     report, // --env.report
     sourceMap, // --env.sourceMap
@@ -53,7 +53,11 @@ module.exports = (env) => {
     snapshotInDocker, // --env.snapshotInDocker
     skipSnapshotTools, // --env.skipSnapshotTools
     compileSnapshot, // --env.compileSnapshot
+    appComponents = [],
+    entries = {},
   } = env;
+
+  const { fileReplacements, copyReplacements } = parseWorkspaceConfig(platform, configuration, projectName);
 
   const useLibs = compileSnapshot;
   const isAnySourceMapEnabled = !!sourceMap || !!hiddenSourceMap;
@@ -61,20 +65,27 @@ module.exports = (env) => {
   const appFullPath = resolve(projectRoot, appPath);
   const appResourcesFullPath = resolve(projectRoot, appResourcesPath);
   let tsConfigName = 'tsconfig.json';
-  let tsConfigTnsName = 'tsconfig.tns.json';
   let tsConfigPath = resolve(projectRoot, tsConfigName);
+  const tsConfigTnsName = 'tsconfig.tns.json';
   const tsConfigTnsPath = resolve(projectRoot, tsConfigTnsName);
   if (fs.existsSync(tsConfigTnsPath)) {
-    // still support shared angular app configurations
+    // support shared angular app configurations
     tsConfigName = tsConfigTnsName;
     tsConfigPath = tsConfigTnsPath;
   }
+  const tsConfigEnvName = 'tsconfig.env.json';
+  const tsConfigEnvPath = resolve(projectRoot, tsConfigEnvName);
+  if (hasConfigurations(configuration) && fs.existsSync(tsConfigEnvPath)) {
+    // when configurations are used, switch to environments supported config
+    tsConfigName = tsConfigEnvName;
+    tsConfigPath = tsConfigEnvPath;
+  }
   const entryModule = `${nsWebpack.getEntryModule(appFullPath, platform)}.ts`;
   const entryPath = `.${sep}${entryModule}`;
-  const entries = { bundle: entryPath };
+  Object.assign(entries, { bundle: entryPath }, entries);
   const areCoreModulesExternal = Array.isArray(env.externals) && env.externals.some((e) => e.indexOf('@nativescript') > -1);
   if (platform === 'ios' && !areCoreModulesExternal && !testing) {
-    entries['tns_modules/@nativescript/core/inspector_modules'] = 'inspector_modules';
+    entries['tns_modules/inspector_modules'] = '@nativescript/core/inspector_modules';
   }
 
   const compilerOptions = getCompilerOptionsFromTSConfig(tsConfigPath);
@@ -85,10 +96,7 @@ module.exports = (env) => {
   const additionalLazyModuleResources = [];
 
   const copyIgnore = { ignore: [`${relative(appPath, appResourcesFullPath)}/**`] };
-  const copyTargets = [
-    { from: 'assets/**', noErrorOnMissing: true, globOptions: { dot: false, ...copyIgnore } },
-    { from: 'fonts/**', noErrorOnMissing: true, globOptions: { dot: false, ...copyIgnore } },
-  ];
+  const copyTargets = [{ from: { glob: 'assets/**', dot: false } }, { from: { glob: 'fonts/**', dot: false } }, ...copyReplacements];
 
   if (!production) {
     // for development purposes only
@@ -133,6 +141,9 @@ module.exports = (env) => {
 
   const noEmitOnErrorFromTSConfig = getNoEmitOnErrorFromTSConfig(tsConfigName);
 
+  // Add your custom Activities, Services and other android app components here.
+  appComponents.push('@nativescript/core/ui/frame', '@nativescript/core/ui/frame/activity');
+
   nsWebpack.processAppComponents(appComponents, platform);
   const config = {
     mode: production ? 'production' : 'development',
@@ -166,6 +177,7 @@ module.exports = (env) => {
         'tns-core-modules': '@nativescript/core',
         'nativescript-angular': '@nativescript/angular',
         '@demo/shared': resolve(projectRoot, '..', '..', 'tools', 'demo'),
+        ...fileReplacements,
       },
       symlinks: true,
     },
@@ -213,16 +225,19 @@ module.exports = (env) => {
               // when these options are enabled
               collapse_vars: platform !== 'android',
               sequences: platform !== 'android',
+              // For v8 Compatibility
+              keep_infinity: true, // for V8
+              reduce_funcs: false, // for V8
               // custom
-              drop_console: true,
+              drop_console: production,
               drop_debugger: true,
               ecma: 6,
-              keep_infinity: platform === 'android', // for Chrome/V8
-              reduce_funcs: platform !== 'android', // for Chrome/V8
               global_defs: {
                 __UGLIFIED__: true,
               },
             },
+            // Required for Element Level CSS, Observable Events, & Android Frame
+            keep_classnames: true,
             // custom
             ecma: 6,
             safari10: platform !== 'android',
@@ -314,9 +329,7 @@ module.exports = (env) => {
         verbose: !!verbose,
       }),
       // Copy assets
-      new CopyWebpackPlugin({
-        patterns: copyTargets,
-      }),
+      new CopyWebpackPlugin([...copyTargets, { from: { glob: '**/*.jpg', dot: false } }, { from: { glob: '**/*.png', dot: false } }], copyIgnore),
       new nsWebpack.GenerateNativeScriptEntryPointsPlugin('bundle'),
       // For instructions on how to set up workers with webpack
       // check out https://github.com/nativescript/worker-loader

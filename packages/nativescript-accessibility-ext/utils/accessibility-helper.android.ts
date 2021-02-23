@@ -567,7 +567,10 @@ function setAccessibilityDelegate(tnsView: TNSView) {
 
   androidViewToTNSView.set(androidView, new WeakRef(tnsView));
 
-  const hasOldDelegate = ( androidView.getAccessibilityDelegate ? androidView.getAccessibilityDelegate() === TNSAccessibilityDelegate : androidView.AccessibilityDelegate === TNSAccessibilityDelegate );
+  let hasOldDelegate = false;
+  if (typeof androidView.getAccessibilityDelegate === 'function') {
+    hasOldDelegate = androidView.getAccessibilityDelegate() === TNSAccessibilityDelegate;
+  }
 
   const cls = `AccessibilityHelper.updateAccessibilityProperties(${tnsView}) - has delegate? ${hasOldDelegate}`;
   if (isTraceEnabled()) {

@@ -2,16 +2,6 @@ import { Application, ApplicationEventData, Observable, Utils } from '@nativescr
 import { isTraceEnabled, writeTrace } from '../trace';
 import { AccessibilityServiceEnabledPropName, CommonA11YServiceEnabledObservable, SharedA11YObservable as CommonSharedA11YObservable } from './utils-common';
 
-type AccessibilityManagerCompat = androidx.core.view.accessibility.AccessibilityManagerCompat;
-const AccessibilityManagerCompat = androidx.core.view.accessibility.AccessibilityManagerCompat;
-type TouchExplorationStateChangeListener = androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener;
-const TouchExplorationStateChangeListener = androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener;
-type AccessibilityStateChangeListener = androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener;
-const AccessibilityStateChangeListener = androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener;
-
-type AccessibilityManager = android.view.accessibility.AccessibilityManager;
-const AccessibilityManager = android.view.accessibility.AccessibilityManager;
-
 function getA11YManager() {
   const cls = `getA11YManager()`;
 
@@ -24,7 +14,7 @@ function getA11YManager() {
     return null;
   }
 
-  return context.getSystemService(android.content.Context.ACCESSIBILITY_SERVICE) as AccessibilityManager;
+  return context.getSystemService(android.content.Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager;
 }
 
 interface SharedA11YObservable extends CommonSharedA11YObservable {
@@ -32,8 +22,8 @@ interface SharedA11YObservable extends CommonSharedA11YObservable {
   touchExplorationStateEnabled?: boolean;
 }
 
-let accessibilityStateChangeListener: AccessibilityStateChangeListener;
-let touchExplorationStateChangeListener: TouchExplorationStateChangeListener;
+let accessibilityStateChangeListener: android.view.accessibility.AccessibilityManager.AccessibilityStateChangeListener;
+let touchExplorationStateChangeListener: android.view.accessibility.AccessibilityManager.TouchExplorationStateChangeListener;
 let sharedA11YObservable: SharedA11YObservable;
 
 const A11yStateEnabledPropName = 'a11yStateEnabled';
@@ -69,7 +59,7 @@ function ensureStateListener(): SharedA11YObservable {
     return sharedA11YObservable;
   }
 
-  accessibilityStateChangeListener = new AccessibilityStateChangeListener({
+  accessibilityStateChangeListener = new android.view.accessibility.AccessibilityManager.AccessibilityStateChangeListener({
     onAccessibilityStateChanged(enabled) {
       updateState();
 
@@ -79,7 +69,7 @@ function ensureStateListener(): SharedA11YObservable {
     },
   });
 
-  touchExplorationStateChangeListener = new TouchExplorationStateChangeListener({
+  touchExplorationStateChangeListener = new android.view.accessibility.AccessibilityManager.TouchExplorationStateChangeListener({
     onTouchExplorationStateChanged(enabled) {
       updateState();
 
@@ -89,8 +79,8 @@ function ensureStateListener(): SharedA11YObservable {
     },
   });
 
-  AccessibilityManagerCompat.addAccessibilityStateChangeListener(a11yManager, accessibilityStateChangeListener);
-  AccessibilityManagerCompat.addTouchExplorationStateChangeListener(a11yManager, touchExplorationStateChangeListener);
+  a11yManager.addAccessibilityStateChangeListener(accessibilityStateChangeListener);
+  a11yManager.addTouchExplorationStateChangeListener(touchExplorationStateChangeListener);
 
   updateState();
 

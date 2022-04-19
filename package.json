@@ -54,7 +54,7 @@
     "nativescript-vue-template-compiler": "~2.8.3",
     "ng-packagr": "~11.2.4",
     "node-sass": "^4.12.0",
-    "postcss": "^8.2.6",
+    "postcss": "^8.2.13",
     "postcss-url": "^10.1.1",
     "prettier": "^2.2.1",
     "pretty-data": "^0.40.0",

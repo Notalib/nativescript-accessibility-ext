@@ -68,4 +68,4 @@ export class AccessibilityServiceEnabledObservable extends CommonA11YServiceEnab
   }
 }
 
-export * from '@nativescript/core/utils/utils';
+export * from '@nativescript/core/utils';

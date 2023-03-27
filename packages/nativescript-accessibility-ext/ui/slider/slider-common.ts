@@ -4,8 +4,8 @@ import { Slider } from '@nativescript/core';
 import { AccessibilityDecrementEventData, AccessibilityIncrementEventData } from '@nativescript/core/ui/slider';
 import { addCssPropertyToView, setViewFunction } from '../../utils/helpers';
 
-Slider.accessibilityDecrementEvent = 'accessibilityDecrement';
-Slider.accessibilityIncrementEvent = 'accessibilityIncrement';
+(Slider as any).accessibilityDecrementEvent = 'accessibilityDecrement';
+(Slider as any).accessibilityIncrementEvent = 'accessibilityIncrement';
 
 const accessibilityStepsPropertyName = 'accessibilityStep';
 const accessibilityStepsCssName = 'a11y-steps';

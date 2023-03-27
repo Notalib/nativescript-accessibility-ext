@@ -4,8 +4,10 @@
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "@nota/nativescript-accessibility-ext": ["../../../dist/packages/nativescript-accessibility-ext"],
-      "@nota/nativescript-accessibility-ext/*": ["../../../dist/packages/nativescript-accessibility-ext/*"]
-    }
-  }
+      "@nota/nativescript-accessibility-ext": ["../../../dist/packages/nativescript-accessibility-ext"]
+    },
+    "outDir": "../../../dist/out-tsc",
+    "declarationDir": "../../../dist/out-tsc"
+  },
+  "files": ["index.ts"]
 }

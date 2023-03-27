@@ -1,0 +1,66 @@
+{
+  "name": "nativescript-accessibility-ext",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/nativescript-accessibility-ext",
+  "projectType": "library",
+  "generators": {},
+  "targets": {
+    "build": {
+      "options": {
+        "outputPath": "dist/packages/nativescript-accessibility-ext",
+        "tsConfig": "packages/nativescript-accessibility-ext/tsconfig.json",
+        "packageJson": "packages/nativescript-accessibility-ext/package.json",
+        "main": "packages/nativescript-accessibility-ext/index.d.ts",
+        "assets": [
+          "packages/nativescript-accessibility-ext/*.md",
+          "packages/nativescript-accessibility-ext/index.d.ts",
+          "packages/nativescript-accessibility-ext/**/*.d.ts",
+          "LICENSE",
+          {
+            "glob": "**/*",
+            "input": "packages/nativescript-accessibility-ext/platforms/",
+            "output": "./platforms/"
+          }
+        ]
+      },
+      "executor": "@nrwl/js:tsc",
+      "dependsOn": [
+        {
+          "target": "build.all",
+          "projects": "dependencies"
+        }
+      ]
+    },
+    "build.all": {
+      "outputs": ["{workspaceRoot}/dist/packages/nativescript-accessibility-ext"],
+      "options": {
+        "commands": ["node tools/scripts/build-finish.ts nativescript-accessibility-ext"],
+        "parallel": false
+      },
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        {
+          "target": "build.all",
+          "projects": "dependencies"
+        },
+        {
+          "target": "build",
+          "projects": "self"
+        }
+      ]
+    },
+    "focus": {
+      "options": {
+        "commands": ["nx g @nativescript/plugin-tools:focus-packages nativescript-accessibility-ext"],
+        "parallel": false
+      },
+      "executor": "nx:run-commands"
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["packages/nativescript-accessibility-ext/**/*.ts"]
+      }
+    }
+  }
+}

@@ -329,16 +329,16 @@ Object.defineProperties(View.prototype, {
   accessibilityComponentType: {
     configurable: true,
     get(this: View) {
-      return this[accessibilityRolePropertyName];
+      return this[accessibilityRolePropertyName] as AccessibilityRole;
     },
     set(this: View, value) {
       console.warn(`DEPRECATED: ${this}.accessibilityComponentType = "${value}" is no longer supported. Please use "${accessibilityRolePropertyName}"`);
 
       if (value === 'radiobutton_checked') {
-        this[accessibilityRolePropertyName] = AccessibilityRole.RadioButton;
+        this[accessibilityRolePropertyName] = AccessibilityRole.RadioButton as any;
         this[accessibilityStatePropertyName] = AccessibilityState.Checked;
       } else if (value === 'radiobutton_unchecked') {
-        this[accessibilityRolePropertyName] = AccessibilityRole.RadioButton;
+        this[accessibilityRolePropertyName] = AccessibilityRole.RadioButton as any;
         this[accessibilityStatePropertyName] = AccessibilityState.Unchecked;
       } else {
         this[accessibilityRolePropertyName] = value;

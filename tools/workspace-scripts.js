@@ -1,5 +1,3 @@
-const npsUtils = require('nps-utils');
-
 module.exports = {
   message: 'NativeScript Plugins ~ made with ❤️  Choose a command to start...',
   pageSize: 32,
@@ -57,8 +55,8 @@ module.exports = {
       },
     },
     '⚙️': {
-      script: `npx cowsay "@nota/* packages will keep your ⚙️ cranking"`,
-      description: '_____________  @nota/*  _____________',
+      script: `npx cowsay "@nativescript/* packages will keep your ⚙️ cranking"`,
+      description: '_____________  @nativescript/*  _____________',
     },
     // packages
     // build output is always in dist/packages
@@ -67,11 +65,11 @@ module.exports = {
       'nativescript-accessibility-ext': {
         build: {
           script: 'nx run nativescript-accessibility-ext:build.all',
-          description: '@nota/nativescript-accessibility-ext: Build',
+          description: 'nativescript-accessibility-ext: Build',
         },
       },
       'build-all': {
-        script: 'nx run all:build',
+        script: 'nx run-many --target=build.all --all',
         description: 'Build all packages',
       },
     },
@@ -82,10 +80,18 @@ module.exports = {
     focus: {
       'nativescript-accessibility-ext': {
         script: 'nx run nativescript-accessibility-ext:focus',
-        description: 'Focus on @nota/nativescript-accessibility-ext',
+        description: 'Focus on nativescript-accessibility-ext',
+      },
+      'debug-ios': {
+        script: 'nx run debug-ios:focus',
+        description: 'Focus on @nativescript/debug-ios',
+      },
+      'debug-android': {
+        script: 'nx run debug-android:focus',
+        description: 'Focus on @nativescript/debug-android',
       },
       reset: {
-        script: 'nx run all:focus',
+        script: 'nx g @nativescript/plugin-tools:focus-packages',
         description: 'Reset Focus',
       },
     },

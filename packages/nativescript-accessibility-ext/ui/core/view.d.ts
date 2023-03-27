@@ -55,9 +55,6 @@ declare module '@nativescript/core/ui/core/view' {
      */
     accessibilityHidden?: boolean;
 
-    accessibilityRole?: _AccessibilityRole | string;
-    accessibilityState?: _AccessibilityState | string;
-
     accessibilityLiveRegion?: _AccessibilityLiveRegion | string;
     androidSendAccessibilityEvent(eventName: string, text?: string);
 

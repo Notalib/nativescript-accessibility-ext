@@ -1,164 +1,44 @@
 {
-  "version": 1,
+  "version": 2,
   "projects": {
-    "demo": {
-      "root": "apps/demo/",
-      "sourceRoot": "apps/demo/src",
-      "projectType": "application",
-      "prefix": "demo",
-      "architect": {
-        "ios": {
-          "builder": "@nrwl/workspace:run-commands",
-          "options": {
-            "commands": ["ns debug ios --no-hmr --emulator --env.testing"],
-            "cwd": "apps/demo",
-            "parallel": false
-          }
-        },
-        "android": {
-          "builder": "@nrwl/workspace:run-commands",
-          "options": {
-            "commands": ["ns debug android --no-hmr --emulator --env.testing"],
-            "cwd": "apps/demo",
-            "parallel": false
-          }
-        },
-        "clean": {
-          "builder": "@nrwl/workspace:run-commands",
-          "options": {
-            "commands": ["ns clean", "npm i"],
-            "cwd": "apps/demo",
-            "parallel": false
-          }
-        }
-      }
-    },
-    "demo-angular": {
-      "root": "apps/demo-angular/",
-      "sourceRoot": "apps/demo-angular/src",
-      "projectType": "application",
-      "prefix": "demo",
-      "architect": {
-        "ios": {
-          "builder": "@nrwl/workspace:run-commands",
-          "options": {
-            "commands": ["ns debug ios --no-hmr --emulator --env.testing"],
-            "cwd": "apps/demo-angular",
-            "parallel": false
-          }
-        },
-        "android": {
-          "builder": "@nrwl/workspace:run-commands",
-          "options": {
-            "commands": ["ns debug android --no-hmr --emulator --env.testing"],
-            "cwd": "apps/demo-angular",
-            "parallel": false
-          }
-        },
-        "clean": {
-          "builder": "@nrwl/workspace:run-commands",
-          "options": {
-            "commands": ["ns clean", "npm i"],
-            "cwd": "apps/demo-angular",
-            "parallel": false
-          }
-        }
-      }
-    },
-    "all": {
-      "root": "packages",
-      "projectType": "library",
-      "architect": {
-        "build": {
-          "builder": "@nrwl/workspace:run-commands",
-          "outputs": ["dist/packages"],
-          "options": {
-            "commands": ["nx run nativescript-accessibility-ext:build.all"],
-            "parallel": false
-          }
-        },
-        "focus": {
-          "builder": "@nrwl/workspace:run-commands",
-          "outputs": ["dist/packages"],
-          "options": {
-            "commands": ["nx g @nativescript/plugin-tools:focus-packages"],
-            "parallel": false
-          }
-        }
-      }
-    },
-    "nativescript-accessibility-ext": {
-      "root": "packages/nativescript-accessibility-ext",
-      "sourceRoot": "packages/nativescript-accessibility-ext",
-      "projectType": "library",
-      "schematics": {},
-      "architect": {
-        "build": {
-          "builder": "@nrwl/node:package",
-          "options": {
-            "outputPath": "dist/packages/nativescript-accessibility-ext",
-            "tsConfig": "packages/nativescript-accessibility-ext/tsconfig.json",
-            "packageJson": "packages/nativescript-accessibility-ext/package.json",
-            "main": "packages/nativescript-accessibility-ext/index.ts",
-            "assets": [
-              "packages/nativescript-accessibility-ext/*.md",
-              "packages/nativescript-accessibility-ext/index.d.ts",
-              "LICENSE",
-              {
-                "glob": "**/*",
-                "input": "packages/nativescript-accessibility-ext/scss/",
-                "output": "./scss/"
-              },
-              {
-                "glob": "**/*.d.ts",
-                "input": "packages/nativescript-accessibility-ext/ui/",
-                "output": "./ui/"
-              },
-              {
-                "glob": "**/*.d.ts",
-                "input": "packages/nativescript-accessibility-ext/utils/",
-                "output": "./utils/"
-              },
-              {
-                "glob": "**/*",
-                "input": "packages/nativescript-accessibility-ext/platforms/",
-                "output": "./platforms/"
-              }
-            ]
-          }
-        },
-        "build.all": {
-          "builder": "@nrwl/workspace:run-commands",
-          "outputs": ["dist/packages"],
-          "options": {
-            "commands": [
-              "nx run nativescript-accessibility-ext:build",
-              "cp -v packages/nativescript-accessibility-ext/utils/*.d.ts dist/packages/nativescript-accessibility-ext/utils/",
-              "cp -v packages/nativescript-accessibility-ext/ui/core/*.d.ts dist/packages/nativescript-accessibility-ext/ui/core/",
-              "cp -v packages/nativescript-accessibility-ext/ui/page/*.d.ts dist/packages/nativescript-accessibility-ext/ui/page/",
-              "cp -v packages/nativescript-accessibility-ext/ui/action-bar/*.d.ts dist/packages/nativescript-accessibility-ext/ui/action-bar/",
-              "cp -v packages/nativescript-accessibility-ext/ui/slider/*.d.ts dist/packages/nativescript-accessibility-ext/ui/slider/",
-              "rimraf dist/packages/nativescript-accessibility-ext/scss dist/packages/nativescript-accessibility-ext/css && rimraf dist/packages/nativescript-accessibility-ext/css",
-              "mkdir -p dist/packages/nativescript-accessibility-ext/css",
-              "cp -a packages/nativescript-accessibility-ext/scss dist/packages/nativescript-accessibility-ext",
-              "cd dist/packages/nativescript-accessibility-ext && npx dart-sass --style compressed --load-path node_modules --source-map scss/a11y-helpers.scss:css/a11y-helpers.css scss/a11y.scss:css/a11y.css scss/a11y.compat.scss:css/a11y.compat.css css",
-              "node tools/scripts/build-finish.ts nativescript-accessibility-ext"
-            ],
-            "parallel": false
-          }
-        },
-        "focus": {
-          "builder": "@nrwl/workspace:run-commands",
-          "outputs": ["dist/packages"],
-          "options": {
-            "commands": ["nx g @nativescript/plugin-tools:focus-packages nativescript-accessibility-ext"],
-            "parallel": false
-          }
-        }
-      }
-    }
+    "animated-circle": "packages/animated-circle",
+    "appavailability": "packages/appavailability",
+    "apple-sign-in": "packages/apple-sign-in",
+    "auto-fit-text": "packages/auto-fit-text",
+    "background-http": "packages/background-http",
+    "biometrics": "packages/biometrics",
+    "brightness": "packages/brightness",
+    "camera": "packages/camera",
+    "contacts": "packages/contacts",
+    "datetimepicker": "packages/datetimepicker",
+    "debug-android": "packages/debug-android",
+    "debug-ios": "packages/debug-ios",
+    "demo": "apps/demo",
+    "demo-angular": "apps/demo-angular",
+    "detox": "packages/detox",
+    "directions": "packages/directions",
+    "email": "packages/email",
+    "facebook": "packages/facebook",
+    "fingerprint-auth": "packages/fingerprint-auth",
+    "geolocation": "packages/geolocation",
+    "google-maps": "packages/google-maps",
+    "google-signin": "packages/google-signin",
+    "haptics": "packages/haptics",
+    "imagepicker": "packages/imagepicker",
+    "ionic-portals": "packages/ionic-portals",
+    "ios-security": "packages/ios-security",
+    "iqkeyboardmanager": "packages/iqkeyboardmanager",
+    "jetpack-compose": "packages/jetpack-compose",
+    "local-notifications": "packages/local-notifications",
+    "localize": "packages/localize",
+    "pdf": "packages/pdf",
+    "picker": "packages/picker",
+    "shared-notification-delegate": "packages/shared-notification-delegate",
+    "social-share": "packages/social-share",
+    "swift-ui": "packages/swift-ui",
+    "theme-switcher": "packages/theme-switcher",
+    "twitter": "packages/twitter",
+    "zip": "packages/zip"
   },
-  "cli": {
-    "defaultCollection": "@nrwl/workspace"
-  }
+  "$schema": "./node_modules/nx/schemas/workspace-schema.json"
 }

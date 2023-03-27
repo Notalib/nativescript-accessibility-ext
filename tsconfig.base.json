@@ -6,22 +6,22 @@
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "noEmitHelpers": true,
-    "target": "es2017",
-    "module": "esnext",
-    "lib": ["es2017", "dom"],
+    "noEmitHelpers": false,
+    "target": "ES2020",
+    "module": "ESNext",
+    "lib": ["ESNext", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "plugins": [
       {
-        "transform": "@nativescript/webpack/transformers/ns-transform-native-classes",
+        "transform": "@nativescript/webpack/dist/transformers/NativeClass",
         "type": "raw"
       }
     ],
     "paths": {
-      "@nota/*": ["packages/*"],
-      "@demo/shared": ["tools/demo/index.ts"]
+      "@demo/shared": ["tools/demo/index.ts"],
+      "@nota/nativescript-accessibility-ext": ["packages/nativescript-accessibility-ext/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

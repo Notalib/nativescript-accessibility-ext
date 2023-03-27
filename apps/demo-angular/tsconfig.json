@@ -5,9 +5,10 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["src/*"],
-      "@nota/*": ["../../dist/packages/*"],
+      "@nota/nativescript-accessibility-ext": ["../../packages/nativescript-accessibility-ext/index.d.ts"],
       "@demo/shared": ["../../tools/demo/index.ts"]
     }
   },
-  "files": ["./references.d.ts", "./src/main.ts"]
+  "files": ["./references.d.ts", "./src/main.ts", "./src/polyfills.ts"],
+  "include": ["../../packages/**/references.d.ts"]
 }

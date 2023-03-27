@@ -12,23 +12,21 @@ import {} from '@nota/nativescript-accessibility-ext';
         border-radius: 10;
         padding: 10;
         margin: 0 10;
-
-        Label {
-          a11y-role: header;
-        }
       }
 
-      ListView {
-        .list-view-item {
-          orientation: horizontal;
-          a11y-enabled: true;
-          a11y-role: button;
+      .screen-reader .h1 {
+        a11y-role: header;
+      }
 
-          &.odd {
-            a11y-role: switch;
-            a11y-state: checked;
-          }
-        }
+      ListView .list-view-item {
+        orientation: horizontal;
+        a11y-enabled: true;
+        a11y-role: button;
+      }
+
+      ListView .list-view-item.odd {
+        a11y-role: switch;
+        a11y-state: checked;
       }
     `,
   ],

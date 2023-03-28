@@ -32,7 +32,7 @@ export class A11YGridLayoutDirective extends BaseService implements OnInit {
   }
 
   public ngOnInit() {
-    combineLatest(this.rows$, this.fontScaling$)
+    combineLatest([this.rows$, this.fontScaling$])
       .pipe(
         map(([rows, fontScale]) => this.fixValue(rows, fontScale)),
         filter((rows) => !!rows),
@@ -40,7 +40,7 @@ export class A11YGridLayoutDirective extends BaseService implements OnInit {
       )
       .subscribe((rows) => (this.el.nativeElement['rows'] = rows));
 
-    combineLatest(this.columns$, this.fontScaling$)
+    combineLatest([this.columns$, this.fontScaling$])
       .pipe(
         map(([columns, fontScale]) => this.fixValue(columns, fontScale)),
         filter((columns) => !!columns),

@@ -43,3 +43,4 @@ Thumbs.db
 *.tgz
 packages/**/angular/dist
 tools/assets/App_Resources/Android/src/main/assets/
+packages/nativescript-accessibility-ext/css/

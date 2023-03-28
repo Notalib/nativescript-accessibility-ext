@@ -1,7 +1,4 @@
-/// <reference path="../ui/core/view.d.ts" />
-
 import { booleanConverter, CssProperty, InheritedCssProperty, Page, Property, Style, View } from '@nativescript/core';
-import { AccessibilityBlurEventData, AccessibilityFocusChangedEventData, AccessibilityFocusEventData } from '@nativescript/core/ui/core/view';
 import { isTraceEnabled, writeErrorTrace, writeTrace } from '../trace';
 
 const lastFocusedViewOnPageKeyName = '__lastFocusedViewOnPage';
@@ -228,7 +225,7 @@ export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean
     eventName: View.accessibilityFocusChangedEvent,
     object: view,
     value: !!receivedFocus,
-  } as AccessibilityFocusChangedEventData);
+  });
 
   if (receivedFocus) {
     if (view.page) {
@@ -238,12 +235,12 @@ export function notifyAccessibilityFocusState(view: View, receivedFocus: boolean
     view.notify({
       eventName: View.accessibilityFocusEvent,
       object: view,
-    } as AccessibilityFocusEventData);
+    });
   } else if (lostFocus) {
     view.notify({
       eventName: View.accessibilityBlurEvent,
       object: view,
-    } as AccessibilityBlurEventData);
+    });
   }
 }
 

@@ -1,25 +1,23 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { FontScaleObservable } from '@nota/nativescript-accessibility-ext';
+import { Application } from '@nativescript/core';
+import { getCurrentFontScale } from '@nativescript/core/accessibility';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class A11yFontScalingObservable extends BehaviorSubject<number> implements OnDestroy {
-  private tnsObs = new FontScaleObservable();
-
   constructor() {
     super(1);
 
-    this.tnsObs.on(FontScaleObservable.propertyChangeEvent, this.updateFontScalingValue, this);
+    Application.on(Application.fontScaleChangedEvent, this.updateFontScalingValue, this);
     this.updateFontScalingValue();
   }
 
   public ngOnDestroy() {
-    this.tnsObs.off(FontScaleObservable.propertyChangeEvent, this.updateFontScalingValue, this);
-    this.tnsObs = null;
+    Application.off(Application.fontScaleChangedEvent, this.updateFontScalingValue, this);
   }
 
   private updateFontScalingValue() {
-    const fontScale = this.tnsObs.fontScale;
+    const fontScale = getCurrentFontScale();
     if (typeof fontScale === 'number' && !isNaN(fontScale)) {
       this.next(fontScale);
     } else {

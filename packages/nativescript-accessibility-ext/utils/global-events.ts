@@ -1,5 +1,3 @@
-/// <reference path="../ui/core/view.d.ts" />
-
 import {
   AbsoluteLayout,
   ActionBar,

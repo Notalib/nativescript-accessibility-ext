@@ -12,6 +12,8 @@
         "packageJson": "packages/nativescript-accessibility-ext/package.json",
         "main": "packages/nativescript-accessibility-ext/index.d.ts",
         "assets": [
+          "packages/nativescript-accessibility-ext/scss/**/*",
+          "packages/nativescript-accessibility-ext/css/**/*",
           "packages/nativescript-accessibility-ext/*.md",
           "packages/nativescript-accessibility-ext/index.d.ts",
           "packages/nativescript-accessibility-ext/**/*.d.ts",
@@ -34,7 +36,7 @@
     "build.all": {
       "outputs": ["{workspaceRoot}/dist/packages/nativescript-accessibility-ext"],
       "options": {
-        "commands": ["node tools/scripts/build-finish.ts nativescript-accessibility-ext"],
+        "commands": ["npx ts-node tools/scripts/build-finish.ts nativescript-accessibility-ext"],
         "parallel": false
       },
       "executor": "nx:run-commands",

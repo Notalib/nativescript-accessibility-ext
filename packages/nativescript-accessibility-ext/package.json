@@ -1,19 +1,13 @@
 {
   "name": "@nota/nativescript-accessibility-ext",
-  "version": "7.0.3",
+  "version": "8.4.0",
   "description": "Add support for 'VoiceOver' and 'TalkBack' in NativeScript",
   "main": "index",
   "typings": "index.d.ts",
   "nativescript": {
     "platforms": {
-      "android": "7.0.0",
-      "ios": "7.0.0"
-    },
-    "plugin": {
-      "nan": true,
-      "pan": true,
-      "core3": true,
-      "category": "Utilities"
+      "android": "8.4.0",
+      "ios": "8.4.0"
     }
   },
   "repository": {

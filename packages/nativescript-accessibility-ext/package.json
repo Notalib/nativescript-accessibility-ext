@@ -1,6 +1,6 @@
 {
   "name": "@nota/nativescript-accessibility-ext",
-  "version": "8.4.0",
+  "version": "8.4.0-alpha.0",
   "description": "Add support for 'VoiceOver' and 'TalkBack' in NativeScript",
   "main": "index",
   "typings": "index.d.ts",

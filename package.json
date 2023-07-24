@@ -28,7 +28,7 @@
     "@nativescript/plugin-tools": "^1.1.0",
     "@nativescript/theme": "^2.5.0",
     "@nativescript/types": "~7.2.0",
-    "@nativescript/webpack": "~4.1.0",
+    "@nativescript/webpack": "~5.0.13",
     "@ngtools/webpack": "~11.2.1",
     "@nrwl/eslint-plugin-nx": "^11.3.1",
     "@nrwl/jest": "^11.3.1",
